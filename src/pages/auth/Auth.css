@@ -1,0 +1,171 @@
+/* ============================================================
+   AUTH PAGES STYLES
+   ============================================================ */
+.auth-page {
+  min-height: calc(100vh - var(--navbar-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-xl) 0;
+  background-color: var(--bg-primary);
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  width: 100%;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 480px;
+  padding: var(--space-2xl) !important;
+  background: var(--bg-card);
+}
+
+.register-card {
+  max-width: 800px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.auth-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-gold);
+  color: #000;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-gold-strong);
+  margin-bottom: var(--space-md);
+}
+
+.auth-header h2 {
+  margin-bottom: var(--space-xs);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.register-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+}
+
+.full-width-btn {
+  grid-column: span 2;
+  margin-top: var(--space-md);
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius-md);
+}
+
+.auth-link {
+  color: var(--gold);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.auth-link:hover {
+  color: var(--gold-light);
+  text-decoration: underline;
+}
+
+.auth-footer {
+  margin-top: var(--space-xl);
+  border-top: 1px solid var(--border-card);
+  padding-top: var(--space-lg);
+}
+
+.back-to-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  transition: color var(--transition-fast);
+}
+
+.back-to-login:hover {
+  color: var(--gold);
+}
+
+/* File Upload Component */
+.file-upload-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-md);
+  height: 120px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.file-upload-container:hover {
+  border-color: var(--gold);
+  background: var(--bg-card-hover);
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.file-upload-label:hover {
+  color: var(--gold);
+}
+
+.photo-preview-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  width: 100%;
+  justify-content: space-around;
+}
+
+.photo-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--gold);
+}
+
+/* Responsive auth card */
+@media (max-width: 768px) {
+  .register-form-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  .full-width-btn {
+    grid-column: span 1;
+  }
+}

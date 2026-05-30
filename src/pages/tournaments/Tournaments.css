@@ -1,0 +1,78 @@
+/* ============================================================
+   TOURNAMENT & MATCH PAGES STYLES
+   ============================================================ */
+.tournament-card-main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Details Page */
+.winner-details-box {
+  background: var(--bg-glass);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+}
+
+.tournament-details-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-2xl);
+  align-items: flex-start;
+}
+
+.match-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.match-teams-row {
+  font-family: var(--font-display);
+}
+
+.team-text {
+  font-size: 1.05rem;
+}
+
+.team-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.team-item-row {
+  background: var(--bg-secondary);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-card);
+}
+
+/* Match Schedule Page */
+.match-card-main {
+  border: 1.5px solid var(--border-card);
+}
+
+.border-red-live {
+  border-color: #EF4444 !important;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.15);
+}
+
+.match-scores-grid {
+  font-family: var(--font-display);
+}
+
+@media (max-width: 960px) {
+  .tournament-details-grid {
+    grid-template-columns: 1fr;
+  }
+}

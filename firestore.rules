@@ -1,0 +1,60 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User collection
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Players collection
+    match /players/{playerId} {
+      allow read: if true; // Publicly scan-able & readable for stats
+      allow write: if request.auth != null;
+    }
+    
+    // Captains collection
+    match /captains/{captainId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == captainId;
+    }
+    
+    // Teams collection
+    match /teams/{teamId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Tournaments collection
+    match /tournaments/{tournamentId} {
+      allow read: if true;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Matches collection
+    match /matches/{matchId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Sponsors collection
+    match /sponsors/{sponsorId} {
+      allow read: if true;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Notifications collection
+    match /notifications/{notifId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow write: if request.auth != null;
+    }
+    
+    // QR Scan logs
+    match /qr_scan_logs/{logId} {
+      allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow write: if true; // Anyone scanning logs a verification attempt
+    }
+  }
+}
