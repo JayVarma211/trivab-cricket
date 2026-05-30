@@ -1,0 +1,74 @@
+/* ============================================================
+   SPONSORS PAGE STYLES
+   ============================================================ */
+.sponsors-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+}
+
+.tier-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  border-bottom: 2px solid var(--border);
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-xl);
+}
+
+.sponsor-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.title-tier-card {
+  border: 1px solid var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+
+.sponsor-logo-box {
+  width: 100px;
+  height: 100px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.sponsor-logo-box.small {
+  width: 60px;
+  height: 60px;
+  font-size: 1.25rem;
+}
+
+.partner-card {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .sponsor-card {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+  .sponsor-logo-box {
+    width: 80px;
+    height: 80px;
+    font-size: 1.5rem;
+  }
+}

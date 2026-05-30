@@ -1,0 +1,40 @@
+/* ============================================================
+   ADMIN DASHBOARD STYLES
+   ============================================================ */
+.admin-dashboard {
+  background-color: var(--bg-primary);
+}
+
+.admin-tabs {
+  justify-content: flex-start;
+  overflow-x: auto;
+  border-radius: var(--radius-md) !important;
+}
+
+.admin-subpanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.btn-table-action {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.btn-table-action:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.max-width-600 {
+  max-width: 600px;
+  width: 100%;
+}
+
+.align-self-start {
+  align-self: flex-start;
+}

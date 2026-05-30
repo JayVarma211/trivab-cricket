@@ -1,0 +1,54 @@
+/* ============================================================
+   CAPTAIN PAGES STYLES
+   ============================================================ */
+.captain-dashboard {
+  background-color: var(--bg-primary);
+}
+
+.captain-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.stats-panel-card {
+  padding: var(--space-xl);
+}
+
+.stats-row {
+  justify-content: space-around;
+  margin-top: var(--space-md);
+}
+
+.stat-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  min-width: 110px;
+}
+
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.edit-team-form {
+  max-width: 600px;
+}
+
+@media (max-width: 768px) {
+  .stats-row {
+    flex-wrap: wrap;
+    gap: var(--space-md);
+  }
+  .stat-box {
+    width: 45%;
+  }
+}
