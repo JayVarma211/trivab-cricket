@@ -12,14 +12,22 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      setSubmitted(true);
-      setName('');
-      setEmail('');
-      setMessage('');
-    }, 1000);
+    
+    // Construct mailto link to provided address
+    const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
+      `[TRIVAB Inquiry] - ${subject}`
+    )}&body=${encodeURIComponent(
+      `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
+    )}`;
+    
+    // Open mail client
+    window.location.href = mailtoLink;
+    
+    setLoading(false);
+    setSubmitted(true);
+    setName('');
+    setEmail('');
+    setMessage('');
   };
 
   return (
@@ -44,14 +52,14 @@ export default function Contact() {
                 <div className="stat-icon" style={{ marginBottom: 0 }}><Mail size={20} /></div>
                 <div>
                   <span className="text-xs text-muted block">Email Support</span>
-                  <a href="mailto:support@trivab.com" className="text-sm font-semi text-gold">support@trivab.com</a>
+                  <a href="mailto:trivabsportsandevents@gmail.com" className="text-sm font-semi text-gold">trivabsportsandevents@gmail.com</a>
                 </div>
               </li>
               <li className="flex gap-md items-center">
                 <div className="stat-icon" style={{ marginBottom: 0 }}><Phone size={20} /></div>
                 <div>
                   <span className="text-xs text-muted block">Phone Enquiries</span>
-                  <a href="tel:+919876543210" className="text-sm font-semi text-gold">+91 98765 43210</a>
+                  <a href="tel:+919930344130" className="text-sm font-semi text-gold">+91 99303 44130</a>
                 </div>
               </li>
               <li className="flex gap-md items-center">

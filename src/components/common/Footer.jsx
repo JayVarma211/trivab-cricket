@@ -33,10 +33,8 @@ export default function Footer() {
             The ultimate cricket management platform for teams, players, captains, and administrators.
           </p>
           <div className="footer-socials">
-            <a href="#" className="social-btn" aria-label="Instagram"><Instagram size={18} /></a>
-            <a href="#" className="social-btn" aria-label="Twitter"><Twitter size={18} /></a>
-            <a href="#" className="social-btn" aria-label="YouTube"><Youtube size={18} /></a>
-            <a href="#" className="social-btn" aria-label="Facebook"><Facebook size={18} /></a>
+            <a href="https://www.instagram.com/baplcricket?igsh=NHQ2dWM0Y3Z5dnBj" target="_blank" rel="noreferrer" className="social-btn" aria-label="Instagram"><Instagram size={18} /></a>
+            <a href="https://www.youtube.com/@baplcricket?si=dVnUedGn8K7gAmtP" target="_blank" rel="noreferrer" className="social-btn" aria-label="YouTube"><Youtube size={18} /></a>
           </div>
         </div>
 
@@ -63,11 +61,11 @@ export default function Footer() {
           <ul className="contact-list">
             <li>
               <Mail size={16} />
-              <a href="mailto:info@trivab.com" className="footer-link">info@trivab.com</a>
+              <a href="mailto:trivabsportsandevents@gmail.com" className="footer-link">trivabsportsandevents@gmail.com</a>
             </li>
             <li>
               <Phone size={16} />
-              <a href="tel:+919876543210" className="footer-link">+91 98765 43210</a>
+              <a href="tel:+919930344130" className="footer-link">+91 99303 44130</a>
             </li>
             <li>
               <MapPin size={16} />
@@ -83,7 +81,7 @@ export default function Footer() {
       <div className="footer-bottom">
         <div className="container footer-bottom-inner">
           <p className="footer-copy">
-            &copy; {new Date().getFullYear()} TRIVAB Cricket Management Platform. All rights reserved.
+            &copy; 2026 TRIVAB SPORTS AND EVENTS. All rights reserved.
           </p>
           <div className="footer-bottom-links">
             <a href="#" className="footer-link">Privacy Policy</a>

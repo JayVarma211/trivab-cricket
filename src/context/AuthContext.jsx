@@ -31,8 +31,17 @@ export const AuthProvider = ({ children }) => {
     return unsub;
   }, []);
 
+  const updateUserProfile = (profile) => {
+    setUserProfile(profile);
+    if (profile?.role) {
+      setRole(profile.role);
+    } else if (profile === null) {
+      setRole(null);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, userProfile, role, loading, setUserProfile }}>
+    <AuthContext.Provider value={{ user, userProfile, role, loading, setUserProfile: updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,468 +1,743 @@
 import { useEffect, useState } from 'react';
-import { getCollection, addDocument, setDocument, deleteDocument } from '../../firebase/firestore';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { getCollection, setDocument, addDocument } from '../../firebase/firestore';
+import { logoutUser } from '../../firebase/auth';
 import {
-  Users, Trophy, Calendar, Award, Shield, Plus, Trash2, Edit2,
-  CheckCircle, FileSpreadsheet, Eye, LogIn, ExternalLink, Activity
+  Users, Trophy, Calendar, Image, ChevronRight, Activity, AlertCircle, Database
 } from 'lucide-react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
 import Loader from '../../components/common/Loader';
 import './Admin.css';
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState('players');
+  const navigate = useNavigate();
+  const { role } = useAuth();
   const [loading, setLoading] = useState(true);
-
-  // Db State Arrays
-  const [players, setPlayers] = useState([]);
-  const [teams, setTeams] = useState([]);
-  const [tournaments, setTournaments] = useState([]);
-  const [matches, setMatches] = useState([]);
-  const [sponsors, setSponsors] = useState([]);
-  const [scanLogs, setScanLogs] = useState([]);
-
-  // Create Form States
-  const [newTeamName, setNewTeamName] = useState('');
-  const [newTournName, setNewTournName] = useState('');
-  const [newTournStatus, setNewTournStatus] = useState('Upcoming');
-
-  const [matchTeamA, setMatchTeamA] = useState('');
-  const [matchTeamB, setMatchTeamB] = useState('');
-  const [matchVenue, setMatchVenue] = useState('');
-  const [matchDate, setMatchDate] = useState('');
-  const [matchTime, setMatchTime] = useState('');
-  const [matchStatus, setMatchStatus] = useState('Upcoming');
-
-  const [sponsorName, setSponsorName] = useState('');
-  const [sponsorTier, setSponsorTier] = useState('Title Sponsor');
-  const [sponsorLink, setSponsorLink] = useState('');
-  const [sponsorDesc, setSponsorDesc] = useState('');
+  const [stats, setStats] = useState({
+    totalPlayers: 0,
+    totalTeams: 0,
+    totalMatches: 0,
+    totalTournaments: 0,
+  });
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [roleChartData, setRoleChartData] = useState([]);
+  const [matchChartData, setMatchChartData] = useState([]);
 
   useEffect(() => {
-    const fetchAllData = async () => {
+    if (role !== 'admin') {
+      navigate('/admin/login');
+    }
+  }, [role, navigate]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
       try {
-        const p = await getCollection('players');
-        const t = await getCollection('teams');
-        const tr = await getCollection('tournaments');
-        const m = await getCollection('matches');
-        const s = await getCollection('sponsors');
-        const l = await getCollection('qr_scan_logs');
+        const [players, teams, matches, tournaments] = await Promise.all([
+          getCollection('players'),
+          getCollection('teams'),
+          getCollection('matches'),
+          getCollection('tournaments'),
+        ]);
 
-        setPlayers(p);
-        setTeams(t);
-        setTournaments(tr);
-        setMatches(m);
-        setSponsors(s);
-        setScanLogs(l);
+        setStats({
+          totalPlayers: players.length,
+          totalTeams: teams.length,
+          totalMatches: matches.length,
+          totalTournaments: tournaments.length,
+        });
 
-        if (t.length > 0) {
-          setMatchTeamA(t[0].teamName);
-          setMatchTeamB(t[1]?.teamName || t[0].teamName);
-        }
-      } catch (err) {
-        console.error('Error fetching admin data, using demo entries', err);
-        // Fallbacks
-        setPlayers([
-          { playerId: 'TRIVAB-MUM-2026-9812', fullName: 'Rohan Sharma', teamName: 'Mumbai Knights', playingStyle: 'Batsman', jerseyNumber: '18', mobile: '9876543210' },
-          { playerId: 'TRIVAB-BNG-2026-5421', fullName: 'Vikram Patel', teamName: 'Bangalore Royals', playingStyle: 'Batsman', jerseyNumber: '7', mobile: '9876543211' },
-          { playerId: 'TRIVAB-CHN-2026-3847', fullName: 'Arjun Reddy', teamName: 'Chennai Warriors', playingStyle: 'Bowler', jerseyNumber: '13', mobile: '9876543212' }
-        ]);
-        setTeams([
-          { id: 'team1', teamName: 'Mumbai Knights', playerCount: 1, city: 'Mumbai', wins: 5, losses: 2 },
-          { id: 'team2', teamName: 'Bangalore Royals', playerCount: 1, city: 'Bangalore', wins: 7, losses: 1 },
-          { id: 'team3', teamName: 'Chennai Warriors', playerCount: 1, city: 'Chennai', wins: 4, losses: 3 }
-        ]);
-        setTournaments([
-          { id: 'tourn1', name: 'Champions Cup 2026', status: 'Live' }
-        ]);
-        setMatches([
-          { id: 'match1', teamA: 'Mumbai Knights', teamB: 'Delhi Dynamos', venue: 'Wankhede', date: '2026-05-31', time: '18:30', status: 'Upcoming' }
-        ]);
-        setScanLogs([
-          { id: 'log1', playerId: 'TRIVAB-MUM-2026-9812', fullName: 'Rohan Sharma', teamName: 'Mumbai Knights', scannedAt: '2026-05-30T10:15:30Z', status: 'Success' }
-        ]);
+        // Playing Style Data
+        const stylesCount = {
+          'Batsman': 0,
+          'Bowler': 0,
+          'Wicket Keeper': 0,
+          'All-Rounder': 0
+        };
+        players.forEach(p => {
+          if (stylesCount[p.playingStyle] !== undefined) {
+            stylesCount[p.playingStyle]++;
+          }
+        });
+        setRoleChartData(Object.keys(stylesCount).map(key => ({
+          name: key,
+          count: stylesCount[key]
+        })));
+
+        // Match Status Data
+        const statusCount = {
+          'Upcoming': 0,
+          'Live': 0,
+          'Completed': 0
+        };
+        matches.forEach(m => {
+          if (statusCount[m.status] !== undefined) {
+            statusCount[m.status]++;
+          }
+        });
+        setMatchChartData(Object.keys(statusCount).map(key => ({
+          name: key,
+          count: statusCount[key]
+        })));
+
+        // Combine recent activity
+        const activity = [
+          ...players.map(p => ({ type: 'player', name: p.fullName, time: p.createdAt })).slice(0, 2),
+          ...teams.map(t => ({ type: 'team', name: t.teamName, time: t.createdAt })).slice(0, 2),
+          ...matches.map(m => ({ type: 'match', name: `${m.teamA} vs ${m.teamB}`, time: m.createdAt })).slice(0, 2),
+        ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
+
+        setRecentActivity(activity);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchAllData();
+
+    fetchDashboardData();
   }, []);
 
-  // Creation Actions
-  const handleCreateTeam = async (e) => {
-    e.preventDefault();
-    if (!newTeamName.trim()) return;
-    try {
-      const docData = {
-        teamName: newTeamName,
-        playerCount: 0,
-        createdAt: new Date().toISOString()
-      };
-      const docRef = await addDocument('teams', docData);
-      setTeams(prev => [...prev, { id: docRef.id, ...docData }]);
-      setNewTeamName('');
-      alert('Team added successfully!');
-    } catch (e) {
-      console.error(e);
-    }
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate('/');
   };
 
-  const handleCreateTournament = async (e) => {
-    e.preventDefault();
-    if (!newTournName.trim()) return;
-    try {
-      const docData = {
-        name: newTournName,
-        status: newTournStatus,
-        createdAt: new Date().toISOString()
-      };
-      const docRef = await addDocument('tournaments', docData);
-      setTournaments(prev => [...prev, { id: docRef.id, ...docData }]);
-      setNewTournName('');
-      alert('Tournament created successfully!');
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  const [seeding, setSeeding] = useState(false);
+  const [seedingSuccess, setSeedingSuccess] = useState('');
 
-  const handleCreateMatch = async (e) => {
-    e.preventDefault();
+  const handleInitializeDatabase = async () => {
+    if (!window.confirm('This will seed the database with professional demo data (Tournaments, Teams, Players, Matches). Continue?')) return;
+    setSeeding(true);
+    setSeedingSuccess('');
     try {
-      const docData = {
-        teamA: matchTeamA,
-        teamB: matchTeamB,
-        venue: matchVenue,
-        date: matchDate,
-        time: matchTime,
-        status: matchStatus,
-        createdAt: new Date().toISOString()
-      };
-      const docRef = await addDocument('matches', docData);
-      setMatches(prev => [...prev, { id: docRef.id, ...docData }]);
-      setMatchVenue('');
-      alert('Match schedule created!');
-    } catch (e) {
-      console.error(e);
-    }
-  };
+      // 1. Seed Tournaments
+      const tournamentsToSeed = [
+        {
+          id: 'bapl-south',
+          data: {
+            name: 'BAPL - South Mumbai Edition',
+            logo: '/logos/baplt20south.jpg',
+            status: 'Live',
+            date: 'June - July 2026',
+            teamCount: 8,
+            description: 'South Mumbai Edition of the premier BAPL League.',
+            createdAt: new Date().toISOString()
+          }
+        },
+        {
+          id: 'bapl-north',
+          data: {
+            name: 'BAPL - North Mumbai Edition',
+            logo: '/logos/baplt20north.jpg',
+            status: 'Upcoming',
+            date: 'July - August 2026',
+            teamCount: 8,
+            description: 'North Mumbai Edition of the premier BAPL League.',
+            createdAt: new Date().toISOString()
+          }
+        },
+        {
+          id: 'baplxpress-south',
+          data: {
+            name: 'BAPL XPRESS - South Mumbai Edition',
+            logo: '/logos/baplxpresst20south.jpg',
+            status: 'Upcoming',
+            date: 'August 2026',
+            teamCount: 6,
+            description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.',
+            createdAt: new Date().toISOString()
+          }
+        },
+        {
+          id: 'baplcorporate-south',
+          data: {
+            name: 'BAPL Corporate CUP - South Mumbai Edition',
+            logo: '/logos/baplcorporate.jpg',
+            status: 'Completed',
+            date: 'April - May 2026',
+            teamCount: 8,
+            description: 'South Mumbai Edition of the BAPL Corporate Cup.',
+            winner: 'Tata Challengers',
+            runnerUp: 'Reliance Stars',
+            createdAt: new Date().toISOString()
+          }
+        }
+      ];
 
-  const handleCreateSponsor = async (e) => {
-    e.preventDefault();
-    try {
-      const docData = {
-        name: sponsorName,
-        tier: sponsorTier,
-        website: sponsorLink,
-        description: sponsorDesc,
-        displayOrder: sponsors.length + 1,
-        createdAt: new Date().toISOString()
-      };
-      const docRef = await addDocument('sponsors', docData);
-      setSponsors(prev => [...prev, { id: docRef.id, ...docData }]);
-      setSponsorName('');
-      setSponsorLink('');
-      setSponsorDesc('');
-      alert('Sponsor details logged!');
-    } catch (e) {
-      console.error(e);
-    }
-  };
+      for (const t of tournamentsToSeed) {
+        await setDocument('tournaments', t.id, t.data);
+      }
 
-  const handleDeletePlayer = async (id, isPlayerId = true) => {
-    if (!confirm('Are you sure you want to delete this player?')) return;
-    try {
-      await deleteDocument('players', id);
-      setPlayers(prev => prev.filter(p => p.playerId !== id));
+      // 2. Seed Teams and keep their auto-generated IDs to seed players & matches
+      const teamList = [
+        {
+          teamName: 'Colaba Strikers',
+          city: 'Colaba, Mumbai',
+          captainName: 'Rohit Sharma',
+          wins: 3,
+          losses: 1,
+          playerCount: 15,
+          maxPlayers: 35,
+          tournamentId: 'bapl-south',
+          tournamentName: 'BAPL - South Mumbai Edition'
+        },
+        {
+          teamName: 'Churchgate Kings',
+          city: 'Churchgate, Mumbai',
+          captainName: 'Virat Kohli',
+          wins: 2,
+          losses: 2,
+          playerCount: 14,
+          maxPlayers: 35,
+          tournamentId: 'bapl-south',
+          tournamentName: 'BAPL - South Mumbai Edition'
+        },
+        {
+          teamName: 'Marine Drive Titans',
+          city: 'Marine Lines, Mumbai',
+          captainName: 'MS Dhoni',
+          wins: 4,
+          losses: 0,
+          playerCount: 16,
+          maxPlayers: 35,
+          tournamentId: 'bapl-south',
+          tournamentName: 'BAPL - South Mumbai Edition'
+        },
+        {
+          teamName: 'Bandra Blasters',
+          city: 'Bandra, Mumbai',
+          captainName: 'Hardik Pandya',
+          wins: 0,
+          losses: 0,
+          playerCount: 12,
+          maxPlayers: 35,
+          tournamentId: 'bapl-north',
+          tournamentName: 'BAPL - North Mumbai Edition'
+        },
+        {
+          teamName: 'Tata Challengers',
+          city: 'Mumbai Central',
+          captainName: 'Ratan Tata',
+          wins: 5,
+          losses: 1,
+          playerCount: 18,
+          maxPlayers: 35,
+          tournamentId: 'baplcorporate-south',
+          tournamentName: 'BAPL Corporate CUP - South Mumbai Edition'
+        },
+        {
+          teamName: 'Reliance Stars',
+          city: 'Navi Mumbai',
+          captainName: 'Ambani XI',
+          wins: 4,
+          losses: 2,
+          playerCount: 17,
+          maxPlayers: 35,
+          tournamentId: 'baplcorporate-south',
+          tournamentName: 'BAPL Corporate CUP - South Mumbai Edition'
+        }
+      ];
+
+      const createdTeams = [];
+      for (const t of teamList) {
+        const docRef = await addDocument('teams', t);
+        createdTeams.push({ id: docRef.id, ...t });
+      }
+
+      // 3. Seed Players for these teams
+      const playersToSeed = [
+        {
+          playerId: 'PL-SHARMA-45',
+          fullName: 'Rohit Sharma',
+          email: 'rohit.sharma@trivab.com',
+          mobile: '9876543210',
+          playingStyle: 'Batsman',
+          jerseyNumber: '45',
+          status: 'Active',
+          teamName: 'Colaba Strikers'
+        },
+        {
+          playerId: 'PL-KOHLI-18',
+          fullName: 'Virat Kohli',
+          email: 'virat.kohli@trivab.com',
+          mobile: '9876543211',
+          playingStyle: 'Batsman',
+          jerseyNumber: '18',
+          status: 'Active',
+          teamName: 'Churchgate Kings'
+        },
+        {
+          playerId: 'PL-DHONI-7',
+          fullName: 'MS Dhoni',
+          email: 'ms.dhoni@trivab.com',
+          mobile: '9876543212',
+          playingStyle: 'Wicket Keeper',
+          jerseyNumber: '7',
+          status: 'Active',
+          teamName: 'Marine Drive Titans'
+        },
+        {
+          playerId: 'PL-PANDYA-33',
+          fullName: 'Hardik Pandya',
+          email: 'hardik.pandya@trivab.com',
+          mobile: '9876543213',
+          playingStyle: 'All-Rounder',
+          jerseyNumber: '33',
+          status: 'Active',
+          teamName: 'Bandra Blasters'
+        },
+        {
+          playerId: 'PL-TATA-01',
+          fullName: 'Ratan Tata',
+          email: 'ratan.tata@trivab.com',
+          mobile: '9876543214',
+          playingStyle: 'Batsman',
+          jerseyNumber: '1',
+          status: 'Active',
+          teamName: 'Tata Challengers'
+        },
+        {
+          playerId: 'PL-AMBANI-02',
+          fullName: 'Ambani XI',
+          email: 'ambani.xi@trivab.com',
+          mobile: '9876543215',
+          playingStyle: 'All-Rounder',
+          jerseyNumber: '2',
+          status: 'Active',
+          teamName: 'Reliance Stars'
+        }
+      ];
+
+      for (const p of playersToSeed) {
+        const matchedTeam = createdTeams.find(t => t.teamName === p.teamName);
+        const playerDoc = {
+          playerId: p.playerId,
+          fullName: p.fullName,
+          email: p.email,
+          mobile: p.mobile,
+          playingStyle: p.playingStyle,
+          jerseyNumber: p.jerseyNumber,
+          status: p.status,
+          teamId: matchedTeam ? matchedTeam.id : '',
+          teamName: p.teamName,
+          role: 'captain',
+          createdAt: new Date().toISOString()
+        };
+        await setDocument('players', p.playerId, playerDoc);
+      }
+
+      // 4. Seed Matches
+      const matchesToSeed = [
+        {
+          tournamentId: 'bapl-south',
+          teamA: 'Colaba Strikers',
+          teamB: 'Churchgate Kings',
+          venue: 'Wankhede Stadium',
+          date: '2026-06-15',
+          time: '18:00',
+          format: 'T20',
+          status: 'Upcoming',
+          createdAt: new Date().toISOString()
+        },
+        {
+          tournamentId: 'bapl-south',
+          teamA: 'Marine Drive Titans',
+          teamB: 'Colaba Strikers',
+          venue: 'Brabourne Stadium',
+          date: '2026-06-18',
+          time: '19:30',
+          format: 'T20',
+          status: 'Live',
+          tossWinner: 'Marine Drive Titans',
+          tossDecision: 'Batting',
+          teamAScore: '125/2 (12.4 overs)',
+          teamBScore: '',
+          result: '',
+          createdAt: new Date().toISOString()
+        },
+        {
+          tournamentId: 'bapl-north',
+          teamA: 'Bandra Blasters',
+          teamB: 'Colaba Strikers',
+          venue: 'DY Patil Stadium',
+          date: '2026-07-02',
+          time: '16:00',
+          format: 'T20',
+          status: 'Upcoming',
+          createdAt: new Date().toISOString()
+        },
+        {
+          tournamentId: 'baplcorporate-south',
+          teamA: 'Tata Challengers',
+          teamB: 'Reliance Stars',
+          venue: 'MCA Ground BKC',
+          date: '2026-05-24',
+          time: '14:00',
+          format: 'T20',
+          status: 'Completed',
+          tossWinner: 'Tata Challengers',
+          tossDecision: 'Bowling',
+          teamAScore: '168/4 (19.2 overs)',
+          teamBScore: '164/7 (20 overs)',
+          result: 'Tata Challengers won by 6 wickets',
+          createdAt: new Date().toISOString()
+        }
+      ];
+
+      for (const m of matchesToSeed) {
+        await addDocument('matches', m);
+      }
+
+      // 5. Seed Sponsors
+      const sponsorsToSeed = [
+        {
+          id: 's1',
+          data: {
+            name: 'Panchnaad Groups',
+            tier: 'Title Sponsor',
+            role: 'Title Sponsor',
+            bannerURL: '/logos/panchnaad.jpg',
+            website: 'http://panchnaadgroup.com',
+            description: 'Title Sponsor of the premier BAPL League, building the future of Mumbai.',
+            displayOrder: 1
+          }
+        },
+        {
+          id: 's2',
+          data: {
+            name: 'Nexus Sports',
+            tier: 'Co-Sponsor',
+            role: 'Sports & Apparel Partner',
+            bannerURL: '/logos/nexussports.jpg',
+            website: 'https://nexus.com',
+            description: 'Sports and apparel partner providing premium custom team kits.',
+            displayOrder: 2
+          }
+        },
+        {
+          id: 's3',
+          data: {
+            name: 'buffering',
+            tier: 'Co-Sponsor',
+            role: 'Media Partner',
+            bannerURL: '/logos/buffering.jpg',
+            website: 'https://buffering.in',
+            description: 'Official media coverage and broadcasting partner.',
+            displayOrder: 3
+          }
+        },
+        {
+          id: 's4',
+          data: {
+            name: 'Regal interior studios',
+            tier: 'Co-Sponsor',
+            role: 'Design & Decor Partner',
+            bannerURL: '/logos/regalinterior.jpg',
+            website: 'https://regalstudios.com',
+            description: 'Design and decor partner designing premium VIP enclosures.',
+            displayOrder: 4
+          }
+        },
+        {
+          id: 's5',
+          data: {
+            name: 'crickstore',
+            tier: 'Partner Sponsor',
+            role: 'Associate Partner',
+            bannerURL: '/logos/crickstore.jpg',
+            website: 'https://www.crickstore.com',
+            description: 'Associate partner supplying professional cricket equipment.',
+            displayOrder: 5
+          }
+        },
+        {
+          id: 's6',
+          data: {
+            name: 'hub town',
+            tier: 'Partner Sponsor',
+            role: 'Real Estate Partner',
+            bannerURL: '/logos/hubtown.jpg',
+            website: 'http://www.hubtown.co.in',
+            description: 'Real estate partner supporting community sports initiatives.',
+            displayOrder: 6
+          }
+        },
+        {
+          id: 's7',
+          data: {
+            name: 'physiorehability',
+            tier: 'Partner Sponsor',
+            role: 'Physio Partner',
+            bannerURL: '/logos/physiorehability.jpg',
+            website: 'https://physiorehab.com',
+            description: 'Official physiotherapy and muscle recovery partner.',
+            displayOrder: 7
+          }
+        },
+        {
+          id: 's8',
+          data: {
+            name: 'upurFit',
+            tier: 'Partner Sponsor',
+            role: 'Pain & Relief Partner',
+            bannerURL: '/logos/upurfit.jpg',
+            website: 'https://upurfit.com',
+            description: 'Pain relief and recovery partner keeping players fit.',
+            displayOrder: 8
+          }
+        },
+        {
+          id: 's9',
+          data: {
+            name: 'midday gujrati',
+            tier: 'Partner Sponsor',
+            role: 'News Partner',
+            bannerURL: '/logos/midday.jpg',
+            website: 'https://www.gujaratimidday.com',
+            description: 'Official Gujarati news media and print coverage partner.',
+            displayOrder: 9
+          }
+        }
+      ];
+
+      for (const s of sponsorsToSeed) {
+        await setDocument('sponsors', s.id, s.data);
+      }
+
+      setSeedingSuccess('Successfully initialized professional database with demo Tournaments, Teams, Captains, Matches, and Sponsors!');
+
+      
+      // Update counters dynamically
+      const [playersList, teamsCount, matchesList, tournamentsList] = await Promise.all([
+        getCollection('players'),
+        getCollection('teams'),
+        getCollection('matches'),
+        getCollection('tournaments'),
+      ]);
+
+      setStats({
+        totalPlayers: playersList.length,
+        totalTeams: teamsCount.length,
+        totalMatches: matchesList.length,
+        totalTournaments: tournamentsList.length,
+      });
+
     } catch (err) {
       console.error(err);
+      setSeedingSuccess('Error initializing database: ' + err.message);
+    } finally {
+      setSeeding(false);
     }
-  };
-
-  const handleExportPlayers = () => {
-    const headers = ['Player ID,Full Name,Email,Team Name,Playing Style,Jersey,Mobile\n'];
-    const rows = players.map(p => 
-      `"${p.playerId}","${p.fullName}","${p.email || ''}","${p.teamName}","${p.playingStyle}","${p.jerseyNumber}","${p.mobile}"\n`
-    );
-    const blob = new Blob([...headers, ...rows], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `TRIVAB-Players-${new Date().toISOString().slice(0,10)}.csv`;
-    link.click();
   };
 
   if (loading) return <Loader />;
 
   return (
-    <div className="admin-dashboard page-enter container section-padding">
-      <div className="dashboard-header flex justify-between items-end mb-xl">
-        <div>
-          <span className="text-gold text-sm font-bold uppercase tracking-wider">Control Panel</span>
-          <h1 className="display-md">Admin Dashboard</h1>
+    <div className="admin-page container section-padding">
+      <div className="page-header mb-xl">
+        <h1 className="display-sm text-gradient-gold">Admin Dashboard</h1>
+        <p className="text-secondary">Overview of the TRIVAB sports platform metrics and management console.</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="stats-grid mb-xl">
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+            <Users size={32} style={{ color: '#3b82f6' }} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-label">Total Players</div>
+            <div className="stat-value">{stats.totalPlayers}</div>
+          </div>
         </div>
-        <button onClick={handleExportPlayers} className="btn btn-gold btn-sm">
-          <FileSpreadsheet size={16} /> Export Players CSV
-        </button>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)' }}>
+            <Trophy size={32} style={{ color: '#22c55e' }} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-label">Total Teams</div>
+            <div className="stat-value">{stats.totalTeams}</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)' }}>
+            <Calendar size={32} style={{ color: '#a855f7' }} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-label">Total Matches</div>
+            <div className="stat-value">{stats.totalMatches}</div>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(249, 115, 22, 0.1)' }}>
+            <Trophy size={32} style={{ color: '#f97316' }} />
+          </div>
+          <div className="stat-content">
+            <div className="stat-label">Total Tournaments</div>
+            <div className="stat-value">{stats.totalTournaments}</div>
+          </div>
+        </div>
       </div>
 
-      <div className="tabs admin-tabs mb-xl">
-        <button onClick={() => setActiveTab('players')} className={`tab-btn ${activeTab === 'players' ? 'active' : ''}`}>
-          <Users size={16} /> Players List
-        </button>
-        <button onClick={() => setActiveTab('teams')} className={`tab-btn ${activeTab === 'teams' ? 'active' : ''}`}>
-          <Shield size={16} /> Teams
-        </button>
-        <button onClick={() => setActiveTab('tournaments')} className={`tab-btn ${activeTab === 'tournaments' ? 'active' : ''}`}>
-          <Trophy size={16} /> Tournaments
-        </button>
-        <button onClick={() => setActiveTab('matches')} className={`tab-btn ${activeTab === 'matches' ? 'active' : ''}`}>
-          <Calendar size={16} /> Matches
-        </button>
-        <button onClick={() => setActiveTab('sponsors')} className={`tab-btn ${activeTab === 'sponsors' ? 'active' : ''}`}>
-          <Award size={16} /> Sponsors
-        </button>
-        <button onClick={() => setActiveTab('logs')} className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`}>
-          <Activity size={16} /> QR Logs
-        </button>
+      {/* Charts & Analytics */}
+      <div className="admin-section mb-xl">
+        <h3 className="section-title">Squad Statistics & Analytics</h3>
+        <div className="grid grid-2 gap-lg">
+          <div className="admin-chart-panel">
+            <h4 className="text-md font-bold mb-md text-primary">Player Roles Distribution</h4>
+            <div style={{ width: '100%', height: 260 }}>
+              <ResponsiveContainer>
+                <BarChart data={roleChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
+                  <XAxis dataKey="name" stroke="var(--admin-text)" fontSize={12} />
+                  <YAxis stroke="var(--admin-text)" fontSize={12} />
+                  <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)' }} />
+                  <Bar dataKey="count" fill="var(--admin-accent)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="admin-chart-panel">
+            <h4 className="text-md font-bold mb-md text-primary">Match Status Distribution</h4>
+            <div style={{ width: '100%', height: 260 }}>
+              <ResponsiveContainer>
+                <BarChart data={matchChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
+                  <XAxis dataKey="name" stroke="var(--admin-text)" fontSize={12} />
+                  <YAxis stroke="var(--admin-text)" fontSize={12} />
+                  <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)' }} />
+                  <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="admin-content-card card">
-        {/* Tab 1: Players Management */}
-        {activeTab === 'players' && (
-          <div className="admin-subpanel">
-            <h3 className="text-lg font-bold mb-md text-gradient-gold">Manage Players ({players.length})</h3>
-            <div className="table-responsive">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Player Name</th>
-                    <th>ID</th>
-                    <th>Team</th>
-                    <th>Style</th>
-                    <th>Jersey</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {players.map((p) => (
-                    <tr key={p.playerId}>
-                      <td className="font-semi text-primary">{p.fullName}</td>
-                      <td>{p.playerId}</td>
-                      <td className="text-gold font-semi">{p.teamName}</td>
-                      <td><span className="badge badge-gold">{p.playingStyle}</span></td>
-                      <td>#{p.jerseyNumber}</td>
-                      <td>
-                        <button onClick={() => handleDeletePlayer(p.playerId)} className="btn-table-action text-red" title="Delete">
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Quick Actions */}
+      <div className="admin-section mb-xl">
+        <h3 className="section-title">Quick Actions</h3>
+        <div className="action-cards">
+          <Link to="/admin/tournaments" className="action-card">
+            <Trophy size={40} style={{ color: 'var(--admin-accent)' }} />
+            <h3>Manage Tournaments</h3>
+            <p>Create and schedule tournaments</p>
+          </Link>
+          <Link to="/admin/players" className="action-card">
+            <Users size={40} style={{ color: 'var(--admin-accent)' }} />
+            <h3>Manage Players</h3>
+            <p>Add, edit, or remove players</p>
+          </Link>
+          <Link to="/admin/teams" className="action-card">
+            <Trophy size={40} style={{ color: 'var(--admin-accent)' }} />
+            <h3>Manage Teams</h3>
+            <p>Create and manage teams</p>
+          </Link>
+          <Link to="/admin/matches" className="action-card">
+            <Calendar size={40} style={{ color: 'var(--admin-accent)' }} />
+            <h3>Schedule Matches</h3>
+            <p>Plan tournament fixtures</p>
+          </Link>
+          <Link to="/admin/images" className="action-card">
+            <Image size={40} style={{ color: 'var(--admin-accent)' }} />
+            <h3>Upload Images</h3>
+            <p>Upload media for tournament</p>
+          </Link>
+        </div>
+      </div>
+
+      {/* Database Initialization Panel */}
+      <div className="admin-section mb-xl">
+        <h3 className="section-title">System & Database Initialization</h3>
+        <div className="admin-seeding-panel">
+          <div className="flex flex-col gap-md">
+            <div className="flex items-center gap-md">
+              <Database size={32} style={{ color: 'var(--admin-accent)' }} />
+              <div>
+                <h4 className="text-md font-bold text-gradient-gold">Setup Demo Environment</h4>
+                <p className="text-secondary text-sm">
+                  If your database is brand new and empty, you won't be able to schedule matches or teams. Click below to automatically seed the database with tournaments, teams, and sample match data.
+                </p>
+              </div>
+            </div>
+            {seedingSuccess && (
+              <div className={`alert ${seedingSuccess.startsWith('Error') ? 'alert-error' : 'alert-success'} mt-md`}>
+                <AlertCircle size={18} />
+                <span>{seedingSuccess}</span>
+              </div>
+            )}
+            <div className="flex gap-md mt-md">
+              <button
+                type="button"
+                onClick={handleInitializeDatabase}
+                disabled={seeding}
+                className="btn btn-gold flex-1"
+                style={{ opacity: seeding ? 0.7 : 1 }}
+              >
+                {seeding ? 'Seeding Database...' : 'Initialize Professional Demo Data'}
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* Tab 2: Teams Management */}
-        {activeTab === 'teams' && (
-          <div className="admin-subpanel">
-            <h3 className="text-lg font-bold mb-md text-gradient-gold">Teams Configuration</h3>
-            <form onSubmit={handleCreateTeam} className="flex gap-md mb-xl items-end max-width-600">
-              <div className="form-group flex-1">
-                <label className="form-label">New Team Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Mumbai Kings"
-                  className="form-input"
-                  required
-                  value={newTeamName}
-                  onChange={(e) => setNewTeamName(e.target.value)}
-                />
-              </div>
-              <button type="submit" className="btn btn-gold">
-                <Plus size={18} /> Add Team
-              </button>
-            </form>
-
-            <h4 className="text-sm font-bold uppercase tracking-wider mb-sm">Current Teams ({teams.length})</h4>
-            <div className="table-responsive">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Team Name</th>
-                    <th>Registered Players</th>
-                    <th>Roster Slots</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {teams.map((t) => (
-                    <tr key={t.id}>
-                      <td className="font-semi text-primary">{t.teamName}</td>
-                      <td className="font-bold text-gold">{t.playerCount || 0} players</td>
-                      <td>
-                        <span className={`badge ${(t.playerCount || 0) >= 35 ? 'badge-red' : 'badge-green'}`}>
-                          {t.playerCount >= 35 ? 'Roster Filled' : `${35 - (t.playerCount || 0)} Slots Available`}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Tab 3: Tournaments Management */}
-        {activeTab === 'tournaments' && (
-          <div className="admin-subpanel">
-            <h3 className="text-lg font-bold mb-md text-gradient-gold">Configure Tournaments</h3>
-            <form onSubmit={handleCreateTournament} className="flex gap-md mb-xl items-end max-width-600">
-              <div className="form-group flex-1">
-                <label className="form-label">Tournament Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Mumbai T20 League"
-                  className="form-input"
-                  required
-                  value={newTournName}
-                  onChange={(e) => setNewTournName(e.target.value)}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Initial Status</label>
-                <select className="form-select" value={newTournStatus} onChange={(e) => setNewTournStatus(e.target.value)}>
-                  <option value="Upcoming">Upcoming</option>
-                  <option value="Live">Live</option>
-                  <option value="Completed">Completed</option>
-                </select>
-              </div>
-              <button type="submit" className="btn btn-gold">
-                <Plus size={18} /> Create
-              </button>
-            </form>
-
-            <div className="grid grid-3 gap-lg">
-              {tournaments.map((t) => (
-                <div className="card" key={t.id}>
-                  <h4 className="font-bold text-lg mb-xs">{t.name}</h4>
-                  <span className={`badge ${t.status === 'Live' ? 'badge-red' : 'badge-gold'}`}>{t.status}</span>
+      {/* Recent Activity */}
+      <div className="admin-section">
+        <h3 className="section-title">Recent Activity</h3>
+        <div style={{
+          borderBottom: '1px solid var(--admin-border)',
+          overflow: 'hidden',
+        }}>
+          {recentActivity.length > 0 ? (
+            <div>
+              {recentActivity.map((activity, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: 'var(--space-md) var(--space-lg)',
+                    borderBottom: idx < recentActivity.length - 1 ? '1px solid var(--admin-border)' : 'none',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+                    <Activity size={18} style={{ color: 'var(--admin-accent)' }} />
+                    <div>
+                      <p style={{ margin: 0, color: 'var(--admin-text)' }}>
+                        {activity.type === 'player' && '🎮 New player added: '}
+                        {activity.type === 'team' && '🏏 New team created: '}
+                        {activity.type === 'match' && '⏰ New match scheduled: '}
+                        <strong>{activity.name}</strong>
+                      </p>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--admin-text)', opacity: 0.6 }}>
+                        {activity.time ? new Date(activity.time).toLocaleDateString() : 'Recently'}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} style={{ color: 'var(--admin-text)', opacity: 0.5 }} />
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Tab 4: Match Schedule Scheduler */}
-        {activeTab === 'matches' && (
-          <div className="admin-subpanel">
-            <h3 className="text-lg font-bold mb-md text-gradient-gold">Schedule Match Fixings</h3>
-            <form onSubmit={handleCreateMatch} className="flex flex-col gap-md mb-xl max-width-600">
-              <div className="grid grid-2 gap-md">
-                <div className="form-group">
-                  <label className="form-label">Team A</label>
-                  <select className="form-select" value={matchTeamA} onChange={(e) => setMatchTeamA(e.target.value)}>
-                    {teams.map(t => <option key={t.id} value={t.teamName}>{t.teamName}</option>)}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Team B</label>
-                  <select className="form-select" value={matchTeamB} onChange={(e) => setMatchTeamB(e.target.value)}>
-                    {teams.map(t => <option key={t.id} value={t.teamName}>{t.teamName}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-3 gap-md">
-                <div className="form-group">
-                  <label className="form-label">Date</label>
-                  <input type="date" className="form-input" required value={matchDate} onChange={(e) => setMatchDate(e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Time</label>
-                  <input type="time" className="form-input" required value={matchTime} onChange={(e) => setMatchTime(e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Venue</label>
-                  <input type="text" placeholder="Venue Stadium" className="form-input" required value={matchVenue} onChange={(e) => setMatchVenue(e.target.value)} />
-                </div>
-              </div>
-              <button type="submit" className="btn btn-gold align-self-start">
-                <Calendar size={18} /> Schedule Match
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* Tab 5: Sponsor Management */}
-        {activeTab === 'sponsors' && (
-          <div className="admin-subpanel">
-            <h3 className="text-lg font-bold mb-md text-gradient-gold">Manage League Sponsors</h3>
-            <form onSubmit={handleCreateSponsor} className="flex flex-col gap-md mb-xl max-width-600">
-              <div className="grid grid-2 gap-md">
-                <div className="form-group">
-                  <label className="form-label">Sponsor Company Name</label>
-                  <input type="text" placeholder="Apex Pro Batting" className="form-input" required value={sponsorName} onChange={(e) => setSponsorName(e.target.value)} />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Sponsorship Tier</label>
-                  <select className="form-select" value={sponsorTier} onChange={(e) => setSponsorTier(e.target.value)}>
-                    <option value="Title Sponsor">Title Sponsor</option>
-                    <option value="Co-Sponsor">Co-Sponsor</option>
-                    <option value="Partner Sponsor">Partner Sponsor</option>
-                  </select>
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Website URL Link</label>
-                <input type="url" placeholder="https://apex.com" className="form-input" required value={sponsorLink} onChange={(e) => setSponsorLink(e.target.value)} />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Description Info</label>
-                <textarea placeholder="Describe this partner organization..." className="form-textarea" required value={sponsorDesc} onChange={(e) => setSponsorDesc(e.target.value)} />
-              </div>
-              <button type="submit" className="btn btn-gold align-self-start">
-                <Plus size={18} /> Add Partner
-              </button>
-            </form>
-          </div>
-        )}
-
-        {/* Tab 6: QR Scan Logs */}
-        {activeTab === 'logs' && (
-          <div className="admin-subpanel">
-            <h3 className="text-lg font-bold mb-md text-gradient-gold">QR Verification logs</h3>
-            <div className="table-responsive">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Date & Time Scanned</th>
-                    <th>Scanned Player Name</th>
-                    <th>Team Name</th>
-                    <th>Verification Result</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {scanLogs.length === 0 ? (
-                    <tr>
-                      <td colSpan="4" className="text-center text-muted">No scan activities logged yet today.</td>
-                    </tr>
-                  ) : (
-                    scanLogs.map((log) => (
-                      <tr key={log.id}>
-                        <td>{new Date(log.scannedAt).toLocaleString()}</td>
-                        <td className="font-semi text-primary">{log.fullName || log.playerId}</td>
-                        <td>{log.teamName || 'N/A'}</td>
-                        <td>
-                          <span className={`badge ${log.status === 'Success' ? 'badge-green' : 'badge-red'}`}>
-                            {log.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+          ) : (
+            <div style={{
+              padding: 'var(--space-xl)',
+              textAlign: 'center',
+              color: 'var(--admin-text)',
+              opacity: 0.5,
+            }}>
+              <AlertCircle size={32} style={{ marginBottom: 'var(--space-md)' }} />
+              <p>No recent activity</p>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

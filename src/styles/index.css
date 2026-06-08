@@ -9,31 +9,31 @@
    ============================================================ */
 :root {
   /* Brand Colors */
-  --gold: #9D1C1C;
-  --gold-light: #C41E3A;
-  --gold-dark: #5C0A0A;
-  --gold-glow: rgba(157, 28, 28, 0.25);
+  --gold: #800000;
+  --gold-light: #9D1C1C;
+  --gold-dark: #4A0202;
+  --gold-glow: rgba(128, 0, 0, 0.25);
 
   /* Dark Theme (default) */
-  --bg-primary: #0A0C10;
-  --bg-secondary: #111420;
-  --bg-card: #161B26;
-  --bg-card-hover: #1C2233;
-  --bg-glass: rgba(22, 27, 38, 0.75);
+  --bg-primary: #0D0606;
+  --bg-secondary: #160B0B;
+  --bg-card: #1F1111;
+  --bg-card-hover: #291818;
+  --bg-glass: rgba(31, 17, 17, 0.75);
   --bg-overlay: rgba(0, 0, 0, 0.6);
 
-  --text-primary: #F0F4FF;
-  --text-secondary: #A8B3CF;
-  --text-muted: #5C6680;
-  --text-gold: #C41E3A;
+  --text-primary: #FDF9F9;
+  --text-secondary: #D4C2C2;
+  --text-muted: #806666;
+  --text-gold: #9D1C1C;
 
-  --border: rgba(157, 28, 28, 0.15);
+  --border: rgba(128, 0, 0, 0.2);
   --border-card: rgba(255, 255, 255, 0.06);
-  --border-focus: rgba(196, 30, 58, 0.5);
+  --border-focus: rgba(157, 28, 28, 0.5);
 
-  --navy: #0D1B3E;
-  --navy-mid: #132244;
-  --navy-light: #1A2D5A;
+  --navy: #1F0A0A;
+  --navy-mid: #2C0F0F;
+  --navy-light: #3F1414;
 
   --accent-blue: #1E4DB7;
   --accent-blue-light: #3B6BDB;
@@ -45,16 +45,16 @@
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
   --shadow-lg: 0 8px 32px rgba(0,0,0,0.6);
-  --shadow-gold: 0 0 24px rgba(196, 30, 58, 0.2);
-  --shadow-gold-strong: 0 0 40px rgba(196, 30, 58, 0.35);
+  --shadow-gold: 0 0 24px rgba(128, 0, 0, 0.25);
+  --shadow-gold-strong: 0 0 40px rgba(128, 0, 0, 0.4);
   --shadow-card: 0 4px 24px rgba(0,0,0,0.45);
 
   /* Gradients */
-  --gradient-gold: linear-gradient(135deg, #9D1C1C 0%, #C41E3A 50%, #5C0A0A 100%);
-  --gradient-gold-subtle: linear-gradient(135deg, rgba(157, 28, 28, 0.1) 0%, rgba(157, 28, 28, 0.05) 100%);
-  --gradient-navy: linear-gradient(135deg, #0D1B3E 0%, #132244 100%);
-  --gradient-hero: linear-gradient(135deg, #0A0C10 0%, #0D1B3E 50%, #0A0C10 100%);
-  --gradient-card: linear-gradient(145deg, #161B26, #111420);
+  --gradient-gold: linear-gradient(135deg, #800000 0%, #9D1C1C 50%, #4A0202 100%);
+  --gradient-gold-subtle: linear-gradient(135deg, rgba(128, 0, 0, 0.1) 0%, rgba(128, 0, 0, 0.05) 100%);
+  --gradient-navy: linear-gradient(135deg, #1F0A0A 0%, #2C0F0F 100%);
+  --gradient-hero: linear-gradient(135deg, #0D0606 0%, #2C0F0F 50%, #0D0606 100%);
+  --gradient-card: linear-gradient(145deg, #1F1111, #160B0B);
   --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
 
   /* Typography */
@@ -93,24 +93,32 @@
    2. LIGHT THEME OVERRIDES
    ============================================================ */
 [data-theme="light"] {
-  --bg-primary: #F4F6FB;
-  --bg-secondary: #E8ECF5;
+  --bg-primary: #FDFBFB;
+  --bg-secondary: #F6EEEE;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F0F4FF;
+  --bg-card-hover: #FAF4F4;
   --bg-glass: rgba(255, 255, 255, 0.85);
   --bg-overlay: rgba(0, 0, 0, 0.4);
 
-  --text-primary: #0A0C10;
-  --text-secondary: #3D4B6B;
-  --text-muted: #8A96B0;
+  --text-primary: #1A0707;
+  --text-secondary: #6B4D4D;
+  --text-muted: #A38585;
 
-  --border: rgba(157, 28, 28, 0.25);
+  --border: rgba(128, 0, 0, 0.25);
   --border-card: rgba(0, 0, 0, 0.08);
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.15);
-  --shadow-card: 0 4px 24px rgba(0,0,0,0.1);
+  --navy: #F6EEEE;
+  --navy-mid: #EEDDDD;
+  --navy-light: #E5CCCC;
+
+  --gradient-hero: linear-gradient(135deg, #FDFBFB 0%, #F6EEEE 50%, #FDFBFB 100%);
+  --gradient-navy: linear-gradient(135deg, #F6EEEE 0%, #EEDDDD 100%);
+  --gradient-card: linear-gradient(145deg, #FFFFFF, #FDFBFB);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(128, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(128, 0, 0, 0.08);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.05);
 }
 
 /* ============================================================
@@ -834,19 +842,50 @@ ul, ol {
 
 @media (max-width: 768px) {
   :root {
-    --space-4xl: 64px;
-    --space-3xl: 48px;
+    --space-4xl: 56px;
+    --space-3xl: 40px;
+    --space-2xl: 28px;
+    --space-xl: 20px;
+    --space-lg: 16px;
+    --space-md: 12px;
+    --space-sm: 8px;
   }
 
   .grid-4,
   .grid-3,
-  .grid-2 { grid-template-columns: 1fr; }
+  .grid-2 { 
+    grid-template-columns: 1fr; 
+    gap: var(--space-lg);
+  }
 
   .container { padding: 0 var(--space-md); }
 
-  .card { padding: var(--space-lg); }
+  .card { padding: var(--space-md); }
 
   .section-padding { padding: var(--space-3xl) 0; }
+
+  /* Scale down button padding and font-size on mobile */
+  .btn {
+    padding: 10px 22px;
+    font-size: 0.85rem;
+    gap: var(--space-xs);
+  }
+  .btn-sm {
+    padding: 6px 14px;
+    font-size: 0.75rem;
+  }
+  .btn-lg {
+    padding: 12px 28px;
+    font-size: 0.95rem;
+  }
+
+  /* Scale down form inputs */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
 
   .tabs {
     overflow-x: auto;
@@ -856,6 +895,38 @@ ul, ol {
 }
 
 @media (max-width: 480px) {
-  :root { --space-4xl: 48px; }
-  .btn-lg { padding: 14px 28px; }
+  :root {
+    --space-4xl: 40px;
+    --space-3xl: 32px;
+    --space-2xl: 22px;
+    --space-xl: 16px;
+    --space-lg: 12px;
+    --space-md: 10px;
+  }
+
+  .btn {
+    padding: 8px 18px;
+    font-size: 0.8rem;
+  }
+
+  .btn-sm {
+    padding: 5px 12px;
+    font-size: 0.7rem;
+  }
+
+  .btn-lg {
+    padding: 10px 24px;
+    font-size: 0.9rem;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .section-title {
+    font-size: 1.8rem !important;
+  }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import { getDocument, getCollection, where, logQRScan } from '../firebase/firestore';
+import { getDocument, getCollection, getPlayerByEmail, where, logQRScan } from '../firebase/firestore';
 import { Scan, ShieldAlert, ShieldCheck, Camera, Search, UserCheck } from 'lucide-react';
 import './QRScanner.css';
 
@@ -12,9 +12,19 @@ export default function QRScanner() {
   const [searchId, setSearchId] = useState('');
   const [status, setStatus] = useState('idle'); // idle | scanning | verified | failed
   const [errorMessage, setErrorMessage] = useState('');
+  const [cameraSupported, setCameraSupported] = useState(true);
   const scannerRef = useRef(null);
 
   useEffect(() => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.isSecureContext) {
+        console.warn('Camera not supported or insecure context:', {
+          mediaDevices: !!navigator.mediaDevices,
+          getUserMedia: !!navigator.mediaDevices?.getUserMedia,
+          secureContext: window.isSecureContext,
+        });
+      setCameraSupported(false);
+      return undefined;
+    }
     // Standard setup for camera scan
     const scanner = new Html5QrcodeScanner('qr-scanner-camera-box', {
       fps: 10,
@@ -34,8 +44,12 @@ export default function QRScanner() {
       }
     );
 
+    scannerRef.current = scanner;
+
     return () => {
-      scanner.clear().catch(e => console.log('Scanner clear warning'));
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch((e) => console.log('Scanner clear warning'));
+      }
     };
   }, []);
 
@@ -58,6 +72,23 @@ export default function QRScanner() {
 
       // Query player database
       const profile = await getDocument('players', parsedData.playerId);
+
+      if (!profile && parsedData.email) {
+        setStatus('scanning');
+        const fallbackProfile = await getPlayerByEmail(parsedData.email);
+        if (fallbackProfile) {
+          setPlayerInfo(fallbackProfile);
+          setStatus('verified');
+          await logQRScan({
+            playerId: fallbackProfile.playerId,
+            fullName: fallbackProfile.fullName,
+            teamName: fallbackProfile.teamName,
+            scannedAt: new Date().toISOString(),
+            status: 'Success'
+          });
+          return;
+        }
+      }
 
       if (profile) {
         setPlayerInfo(profile);
@@ -116,7 +147,14 @@ export default function QRScanner() {
             <span className="text-sm font-bold">Device Camera Scanner</span>
           </div>
 
-          <div id="qr-scanner-camera-box" style={{ width: '100%', minHeight: '300px' }} />
+          <div id="qr-scanner-camera-box" style={{ width: '100%', minHeight: '300px' }}>
+            {!cameraSupported && (
+              <div className="text-center text-sm text-red py-lg">
+                <p>Camera access is not available in this browser or context.</p>
+                <p>Please open the app using a secure connection, or use the manual Player ID lookup below.</p>
+              </div>
+            )}
+          </div>
 
           <div className="divider" style={{ margin: '15px 0' }} />
 

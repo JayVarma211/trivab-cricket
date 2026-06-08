@@ -5,7 +5,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { logoutUser } from '../../firebase/auth';
 import {
   Trophy, Users, Calendar, Star, Award, ScanLine,
-  Sun, Moon, Menu, X, ChevronDown, LogOut, User,
+  Sun, Moon, Menu, X, ChevronDown, ChevronRight, LogOut, User,
   LayoutDashboard, Shield, Zap
 } from 'lucide-react';
 import './Navbar.css';
@@ -16,7 +16,17 @@ const NAV_LINKS = [
   { to: '/schedule', label: 'Schedule' },
   { to: '/mvp-stats', label: 'MVP & Stats' },
   { to: '/sponsors', label: 'Sponsors' },
+  { to: '/organize', label: 'Organize' },
   { to: '/about', label: 'About' },
+];
+
+const TOURNAMENTS_MENU = [
+  { label: 'BAPL', to: '/tournaments/type/bapl', logo: '/logos/bapllogo.jpg' },
+  { label: 'BAPL XPRESS', to: '/tournaments/type/baplxpress', logo: '/logos/bapllogo.jpg' },
+  { label: 'BAPL Corporate CUP', to: '/tournaments/type/baplcorporate', logo: '/logos/baplcorporate.jpg' },
+  { label: 'Trivab Monsoon Championship', to: '/tournaments/trivab-monsoon', logo: '/logos/trivabmonsoon.jpg' },
+  { label: 'BAPL DADS T20', to: '/tournaments/type/bapldads', logo: '/logos/bapldadst20.jpg' },
+  { label: 'BAPL KIDS', to: '/tournaments/baplkids', logo: '/logos/bapllogo.jpg' }
 ];
 
 export default function Navbar() {
@@ -28,6 +38,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [dropOpen, setDropOpen] = useState(false);
   const dropRef = useRef(null);
+  const [tournamentsDropOpen, setTournamentsDropOpen] = useState(false);
+  const tournamentsDropRef = useRef(null);
+  const [mobileTournamentsOpen, setMobileTournamentsOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -38,11 +51,13 @@ export default function Navbar() {
   useEffect(() => {
     setMenuOpen(false);
     setDropOpen(false);
+    setTournamentsDropOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
     const handler = (e) => {
       if (dropRef.current && !dropRef.current.contains(e.target)) setDropOpen(false);
+      if (tournamentsDropRef.current && !tournamentsDropRef.current.contains(e.target)) setTournamentsDropOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -76,26 +91,50 @@ export default function Navbar() {
       <div className="navbar-inner container">
         {/* Logo */}
         <Link to="/" className="navbar-logo">
-          <div className="logo-icon">
-            <Trophy size={22} />
-          </div>
-          <span className="logo-text">
-            TRIVAB<span className="logo-dot">.</span>
-          </span>
+          <img src="/logos/trivabsports.jpg" className="logo-image" alt="TRIVAB SPORTS" />
         </Link>
 
         {/* Desktop Nav */}
         <nav className="navbar-links">
-          {NAV_LINKS.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-              end={to === '/'}
-            >
-              {label}
-            </NavLink>
-          ))}
+          {NAV_LINKS.map(({ to, label }) => {
+            if (label === 'Tournaments') {
+              return (
+                <div key={to} className="nav-dropdown-wrapper" ref={tournamentsDropRef}>
+                  <button
+                    className={`nav-link dropdown-trigger ${location.pathname.startsWith('/tournaments') ? 'active' : ''}`}
+                    onClick={() => setTournamentsDropOpen(prev => !prev)}
+                  >
+                    Tournaments <ChevronDown size={14} className={`drop-caret ${tournamentsDropOpen ? 'open' : ''}`} />
+                  </button>
+                  {tournamentsDropOpen && (
+                    <div className="tournaments-nav-dropdown animate-fade-in-down">
+                      {TOURNAMENTS_MENU.map((item) => (
+                        <Link
+                          key={item.label}
+                          to={item.to}
+                          className="tournaments-nav-item"
+                          onClick={() => setTournamentsDropOpen(false)}
+                        >
+                          <img src={item.logo} className="nav-menu-logo" alt={item.label} />
+                          <span>{item.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                end={to === '/'}
+              >
+                {label}
+              </NavLink>
+            );
+          })}
         </nav>
 
         {/* Right actions */}
@@ -151,6 +190,9 @@ export default function Navbar() {
             <div className="auth-btns">
               <Link to="/login" className="btn btn-outline btn-sm">Login</Link>
               <Link to="/register" className="btn btn-gold btn-sm">Register</Link>
+              <Link to="/admin/login" className="btn btn-outline btn-sm" title="Admin Login">
+                <Shield size={16} /> Admin
+              </Link>
             </div>
           )}
 
@@ -169,11 +211,45 @@ export default function Navbar() {
       {menuOpen && (
         <div className="mobile-menu animate-fade-in-down">
           <div className="mobile-nav-links">
-            {NAV_LINKS.map(({ to, label }) => (
-              <NavLink key={to} to={to} className="mobile-nav-link" end={to === '/'}>
-                {label}
-              </NavLink>
-            ))}
+            {NAV_LINKS.map(({ to, label }) => {
+              if (label === 'Tournaments') {
+                return (
+                  <div key={to} className="mobile-dropdown-wrapper" style={{ width: '100%' }}>
+                    <button
+                      className="mobile-nav-link"
+                      onClick={() => setMobileTournamentsOpen(prev => !prev)}
+                      style={{ width: '100%', justifyContent: 'space-between', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <Trophy size={18} /> Tournaments
+                      </span>
+                      <ChevronDown size={16} style={{ transform: mobileTournamentsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                    </button>
+                    {mobileTournamentsOpen && (
+                      <div className="mobile-submenu-list" style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                        {TOURNAMENTS_MENU.map((item) => (
+                          <Link
+                            key={item.label}
+                            to={item.to}
+                            className="mobile-nav-link"
+                            style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                            onClick={() => setMenuOpen(false)}
+                          >
+                            <img src={item.logo} style={{ width: '20px', height: '20px', borderRadius: '4px', objectFit: 'cover' }} alt={item.label} />
+                            <span>{item.label}</span>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <NavLink key={to} to={to} className="mobile-nav-link" end={to === '/'}>
+                  {label}
+                </NavLink>
+              );
+            })}
             <NavLink to="/scanner" className="mobile-nav-link scanner-link">
               <ScanLine size={18} /> Scan QR Code
             </NavLink>
@@ -192,6 +268,9 @@ export default function Navbar() {
               <>
                 <Link to="/login" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>Login</Link>
                 <Link to="/register" className="btn btn-gold" style={{ width: '100%', justifyContent: 'center' }}>Register</Link>
+                <Link to="/admin/login" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setMenuOpen(false)}>
+                  <Shield size={16} /> Admin Login
+                </Link>
               </>
             )}
           </div>

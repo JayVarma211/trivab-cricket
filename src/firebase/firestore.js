@@ -47,8 +47,29 @@ export const subscribeCollection = (col, constraints, callback) => {
 };
 
 // ── Players ──────────────────────────────────────────────────
-export const getPlayerByUID = (uid) =>
-  getCollection('players', [where('uid', '==', uid), limit(1)]).then((r) => r[0] || null);
+export const getPlayerByUID = async (uid) => {
+  const players = await getCollection('players', [where('uid', '==', uid), limit(1)]);
+  if (players && players.length > 0) return players[0];
+  return getDocument('players', uid);
+};
+
+export const getPlayerByEmail = async (email) => {
+  if (!email) return null;
+  const players = await getCollection('players', [where('email', '==', email), limit(1)]);
+  return players && players.length > 0 ? players[0] : null;
+};
+
+export const getPlayerByUIDOrEmail = async (uid, email) => {
+  const byUid = await getPlayerByUID(uid);
+  if (byUid) return byUid;
+  return getPlayerByEmail(email);
+};
+
+export const getPlayerByUIDFallback = async (uid) => {
+  const player = await getPlayerByUID(uid);
+  if (player) return player;
+  return getDocument('players', uid);
+};
 
 export const getPlayersByTeam = (teamId) =>
   getCollection('players', [where('teamId', '==', teamId), orderBy('createdAt', 'desc')]);

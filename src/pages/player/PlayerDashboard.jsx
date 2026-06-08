@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getPlayerByUID, getCollection, where } from '../../firebase/firestore';
+import { getPlayerByUIDOrEmail, getCollection, where } from '../../firebase/firestore';
 import { ShieldCheck, User, Award, Settings, Bell, Calendar, Trophy } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import './Player.css';
@@ -17,7 +17,7 @@ export default function PlayerDashboard() {
     const fetchDashboardData = async () => {
       if (!user) return;
       try {
-        const playerProfile = await getPlayerByUID(user.uid);
+        const playerProfile = await getPlayerByUIDOrEmail(user.uid, user.email);
         setPlayer(playerProfile);
 
         if (playerProfile) {

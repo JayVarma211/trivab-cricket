@@ -32,7 +32,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #000;
+  color: #fff;
 }
 
 .footer-tagline {
@@ -63,7 +63,7 @@
 
 .social-btn:hover {
   background: var(--gradient-gold);
-  color: #000;
+  color: #fff;
   border-color: transparent;
   transform: translateY(-2px);
   box-shadow: var(--shadow-gold);
@@ -117,7 +117,7 @@
   gap: 6px;
   margin-top: var(--space-lg);
   padding: 8px 14px;
-  background: rgba(212,175,55,0.08);
+  background: rgba(128, 0, 0, 0.08);
   border: 1px solid var(--border);
   border-radius: var(--radius-full);
   font-size: 0.8rem;

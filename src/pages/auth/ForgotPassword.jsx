@@ -28,8 +28,8 @@ export default function ForgotPassword() {
 
   return (
     <div className="auth-page page-enter">
-      <div className="orb orb-gold" style={{ top: '10%', left: '5%', width: '400px', height: '400px' }} />
-      <div className="orb orb-navy" style={{ bottom: '10%', right: '5%', width: '500px', height: '500px' }} />
+      <div className="orb orb-gold spline-float-1" style={{ top: '10%', left: '5%', width: '400px', height: '400px' }} />
+      <div className="orb orb-navy spline-float-2" style={{ bottom: '10%', right: '5%', width: '500px', height: '500px' }} />
 
       <div className="container auth-container">
         <div className="auth-card card-gold">

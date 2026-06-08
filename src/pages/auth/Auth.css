@@ -41,7 +41,7 @@
   height: 60px;
   border-radius: var(--radius-md);
   background: var(--gradient-gold);
-  color: #000;
+  color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -167,5 +167,11 @@
   }
   .full-width-btn {
     grid-column: span 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-md) !important;
   }
 }

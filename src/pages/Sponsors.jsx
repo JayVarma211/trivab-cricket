@@ -3,33 +3,106 @@ import { getAllSponsors } from '../firebase/firestore';
 import { Award, ShieldAlert, Star, ShieldCheck, Heart } from 'lucide-react';
 import './Sponsors.css';
 
+const FALLBACK_SPONSORS = [
+  { 
+    id: 's1', 
+    name: 'Panchnaad Groups', 
+    tier: 'Title Sponsor', 
+    role: 'Title Sponsor',
+    bannerURL: '/logos/panchnaad.jpg', 
+    website: 'http://panchnaadgroup.com', 
+    description: 'Title Sponsor of the premier BAPL League, building the future of Mumbai.' 
+  },
+  { 
+    id: 's2', 
+    name: 'Nexus Sports', 
+    tier: 'Co-Sponsor', 
+    role: 'Sports & Apparel Partner',
+    bannerURL: '/logos/nexussports.jpg', 
+    website: 'https://nexus.com', 
+    description: 'Sports and apparel partner providing premium custom team kits.' 
+  },
+  { 
+    id: 's3', 
+    name: 'buffering', 
+    tier: 'Co-Sponsor', 
+    role: 'Media Partner',
+    bannerURL: '/logos/buffering.jpg', 
+    website: 'https://buffering.in', 
+    description: 'Official media coverage and broadcasting partner.' 
+  },
+  { 
+    id: 's4', 
+    name: 'Regal interior studios', 
+    tier: 'Co-Sponsor', 
+    role: 'Design & Decor Partner',
+    bannerURL: '/logos/regalinterior.jpg', 
+    website: 'https://regalstudios.com', 
+    description: 'Design and decor partner designing premium VIP enclosures.' 
+  },
+  { 
+    id: 's5', 
+    name: 'crickstore', 
+    tier: 'Partner Sponsor', 
+    role: 'Associate Partner',
+    bannerURL: '/logos/crickstore.jpg', 
+    website: 'https://www.crickstore.com', 
+    description: 'Associate partner supplying professional cricket equipment.' 
+  },
+  { 
+    id: 's6', 
+    name: 'hub town', 
+    tier: 'Partner Sponsor', 
+    role: 'Real Estate Partner',
+    bannerURL: '/logos/hubtown.jpg', 
+    website: 'http://www.hubtown.co.in', 
+    description: 'Real estate partner supporting community sports initiatives.' 
+  },
+  { 
+    id: 's7', 
+    name: 'physiorehability', 
+    tier: 'Partner Sponsor', 
+    role: 'Physio Partner',
+    bannerURL: '/logos/physiorehability.jpg', 
+    website: 'https://physiorehab.com', 
+    description: 'Official physiotherapy and muscle recovery partner.' 
+  },
+  { 
+    id: 's8', 
+    name: 'upurFit', 
+    tier: 'Partner Sponsor', 
+    role: 'Pain & Relief Partner',
+    bannerURL: '/logos/upurfit.jpg', 
+    website: 'https://upurfit.com', 
+    description: 'Pain relief and recovery partner keeping players fit.' 
+  },
+  { 
+    id: 's9', 
+    name: 'midday gujrati', 
+    tier: 'Partner Sponsor', 
+    role: 'News Partner',
+    bannerURL: '/logos/midday.jpg', 
+    website: 'https://www.gujaratimidday.com', 
+    description: 'Official Gujarati news media and print coverage partner.' 
+  }
+];
+
 export default function Sponsors() {
-  const [sponsors, setSponsors] = useState([]);
+  const [sponsors, setSponsors] = useState(FALLBACK_SPONSORS);
 
   useEffect(() => {
     const fetchSponsors = async () => {
       try {
         const list = await getAllSponsors();
-        setSponsors(list);
+        if (list && list.length > 0) {
+          setSponsors(list);
+        }
       } catch (err) {
-        console.log('Using default mock sponsors');
-        // Fallback default list
-        setSponsors([
-          { id: 's1', name: 'Apex Sports Equipment', tier: 'Title Sponsor', bannerURL: '', website: 'https://apex.com', description: 'Apex provides professional match-grade bats, leather balls, and batting equipment for all matches.' },
-          { id: 's2', name: 'Cricket Energy Drinks', tier: 'Co-Sponsor', bannerURL: '', website: 'https://energy.com', description: 'Keep hydrated and energized. Fueling the players of TRIVAB Tournaments.' },
-          { id: 's3', name: 'Golden Bat Ltd', tier: 'Partner Sponsor', bannerURL: '', website: 'https://golden.com', description: 'Premier bat manufacturers specialized in English willow crafting.' },
-          { id: 's4', name: 'Mumbai Sports Clinics', tier: 'Partner Sponsor', bannerURL: '', website: 'https://mumbaiclinic.com', description: 'Official medical support and physiotherapy provider.' }
-        ]);
+        console.log('Error fetching sponsors from Firestore, keeping fallback defaults:', err);
       }
     };
     fetchSponsors();
   }, []);
-
-  const getTierIcon = (tier) => {
-    if (tier === 'Title Sponsor') return <Award size={20} className="text-gold" />;
-    if (tier === 'Co-Sponsor') return <Star size={20} className="text-gold" />;
-    return <Heart size={20} className="text-gold" />;
-  };
 
   return (
     <div className="sponsors-page page-enter container section-padding">
@@ -51,15 +124,19 @@ export default function Sponsors() {
               .map((sponsor) => (
                 <div className="card sponsor-card title-tier-card" key={sponsor.id}>
                   <div className="sponsor-meta">
-                    <span className="badge badge-gold">Title Partner</span>
+                    <span className="badge badge-gold">{sponsor.role || 'Title Sponsor'}</span>
                     <h3 className="text-lg font-bold mt-sm">{sponsor.name}</h3>
                     <p className="text-secondary text-sm mt-xs">{sponsor.description}</p>
                     <a href={sponsor.website} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm mt-md">
                       Visit Website
                     </a>
                   </div>
-                  <div className="sponsor-logo-box text-gradient-gold">
-                    {sponsor.name.split(' ').map(w => w[0]).join('')}
+                  <div className="sponsor-logo-box">
+                    {sponsor.bannerURL ? (
+                      <img src={sponsor.bannerURL} alt={`${sponsor.name} logo`} className="sponsor-logo-img" />
+                    ) : (
+                      <span className="text-gradient-gold">{sponsor.name.split(' ').map(w => w[0]).join('')}</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -77,15 +154,19 @@ export default function Sponsors() {
               .map((sponsor) => (
                 <div className="card sponsor-card" key={sponsor.id}>
                   <div className="sponsor-meta">
-                    <span className="badge badge-blue">Co-Sponsor</span>
+                    <span className="badge badge-blue">{sponsor.role || 'Co-Sponsor'}</span>
                     <h3 className="text-lg font-bold mt-sm">{sponsor.name}</h3>
                     <p className="text-secondary text-sm mt-xs">{sponsor.description}</p>
                     <a href={sponsor.website} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm mt-md">
                       Visit Website
                     </a>
                   </div>
-                  <div className="sponsor-logo-box text-blue">
-                    {sponsor.name.split(' ').map(w => w[0]).join('')}
+                  <div className="sponsor-logo-box">
+                    {sponsor.bannerURL ? (
+                      <img src={sponsor.bannerURL} alt={`${sponsor.name} logo`} className="sponsor-logo-img" />
+                    ) : (
+                      <span className="text-blue">{sponsor.name.split(' ').map(w => w[0]).join('')}</span>
+                    )}
                   </div>
                 </div>
               ))}
@@ -102,10 +183,17 @@ export default function Sponsors() {
               .filter((s) => s.tier !== 'Title Sponsor' && s.tier !== 'Co-Sponsor')
               .map((sponsor) => (
                 <div className="card sponsor-card partner-card" key={sponsor.id}>
-                  <div className="sponsor-logo-box small text-muted">
-                    {sponsor.name.split(' ').map(w => w[0]).join('')}
+                  <div className="sponsor-logo-box small">
+                    {sponsor.bannerURL ? (
+                      <img src={sponsor.bannerURL} alt={`${sponsor.name} logo`} className="sponsor-logo-img" />
+                    ) : (
+                      <span className="text-muted">{sponsor.name.split(' ').map(w => w[0]).join('')}</span>
+                    )}
                   </div>
                   <div className="sponsor-meta mt-sm">
+                    <span className="badge badge-orange text-xs mb-xs" style={{ display: 'inline-block' }}>
+                      {sponsor.role || 'Partner Sponsor'}
+                    </span>
                     <h3 className="text-sm font-bold">{sponsor.name}</h3>
                     <p className="text-muted text-xs mt-xs">{sponsor.description}</p>
                     <a href={sponsor.website} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm mt-sm">

@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getCollection, limit, orderBy } from '../firebase/firestore';
-import { Trophy, Calendar, ShieldCheck, Sparkles, ArrowRight, Star, Heart, CheckCircle2 } from 'lucide-react';
+import { getCollection, limit } from '../firebase/firestore';
+import { Trophy, Calendar, ShieldCheck, Sparkles, ArrowRight, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 import './Home.css';
 
 export default function Home() {
   const [recentTournaments, setRecentTournaments] = useState([]);
   const [upcomingMatches, setUpcomingMatches] = useState([]);
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     players: '1,200+',
     tournaments: '15+',
     teams: '32',
@@ -15,7 +16,6 @@ export default function Home() {
   });
 
   useEffect(() => {
-    // Attempt loading mock/live data
     const fetchHomeData = async () => {
       try {
         const tourn = await getCollection('tournaments', [limit(3)]);
@@ -24,7 +24,6 @@ export default function Home() {
         setUpcomingMatches(matches);
       } catch (e) {
         console.log('Using default landing page items due to db config');
-        // Fallback default state
         setRecentTournaments([
           { id: 't1', name: 'Champions Cup 2026', status: 'Live', description: 'Elite T20 faceoff' },
           { id: 't2', name: 'Under-25 Premier League', status: 'Upcoming', description: 'Next-gen talent show' },
@@ -39,100 +38,100 @@ export default function Home() {
     fetchHomeData();
   }, []);
 
+  // Framer Motion Animation Variants
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: { staggerChildren: 0.15 }
+    }
+  };
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+  };
+
+  const scaleUp = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } }
+  };
+
   return (
     <div className="home-page page-enter">
       {/* Hero Section */}
       <section className="hero-section bg-gradient-animated">
-        <div className="orb orb-gold" style={{ top: '10%', left: '15%', width: '400px', height: '400px' }} />
-        <div className="orb orb-blue" style={{ bottom: '15%', right: '10%', width: '500px', height: '500px' }} />
+        {/* Animated Background Effects */}
+        <div className="floating-ambient-particles">
+          <div className="particle p1" />
+          <div className="particle p2" />
+          <div className="particle p3" />
+        </div>
 
-        <div className="container hero-container">
-          <div className="hero-content animate-fade-in-up">
-            <span className="section-label">
+        <div className="orb orb-gold spline-float-1" style={{ top: '10%', left: '15%', width: '400px', height: '400px' }} />
+        <div className="orb orb-blue spline-float-2" style={{ bottom: '15%', right: '10%', width: '500px', height: '500px' }} />
+
+        <div className="container hero-container centered">
+          <motion.div 
+            className="hero-content"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+          >
+            <motion.span className="section-label" variants={fadeInUp}>
               <Sparkles size={14} /> The Elite Cricket Suite
-            </span>
-            <h1 className="display-2xl hero-title">
+            </motion.span>
+            
+            <motion.h1 className="display-2xl hero-title" variants={fadeInUp}>
               Manage Cricket <br />
               <span className="text-gradient-gold">Tournaments & Teams</span>
-            </h1>
-            <p className="hero-subtitle text-secondary">
+            </motion.h1>
+            
+            <motion.p className="hero-subtitle text-secondary" variants={fadeInUp}>
               TRIVAB is a professional sports-tech management suite built to empower admins, team captains, and players with automatic Digital ID generation, real-time match scheduling, QR code verification, and MVP stats.
-            </p>
-            <div className="hero-actions">
+            </motion.p>
+            
+            <motion.div className="hero-actions" variants={fadeInUp}>
               <Link to="/register" className="btn btn-gold btn-lg">
                 Join As Player <ArrowRight size={18} />
               </Link>
               <Link to="/tournaments" className="btn btn-outline btn-lg">
                 Browse Tournaments
               </Link>
-            </div>
-          </div>
-
-          <div className="hero-image-container animate-fade-in-right">
-            {/* Visual placeholder rendering interactive interface simulation */}
-            <div className="premium-showcase-card card">
-              <div className="showcase-header">
-                <div className="live-dot"><span className="text-xs font-bold text-red">LIVE</span></div>
-                <span className="text-xs text-muted">CRICKET CHAMPIONSHIP</span>
-              </div>
-              <div className="showcase-match-row">
-                <div className="team-col">
-                  <div className="team-badge-sim">MUM</div>
-                  <span className="team-name-sim">Mumbai</span>
-                </div>
-                <div className="score-col">
-                  <span className="score-sim text-gradient-gold">172 / 4</span>
-                  <span className="overs-sim text-muted">18.4 Overs</span>
-                </div>
-                <div className="vs-col text-muted font-bold">VS</div>
-                <div className="team-col">
-                  <div className="team-badge-sim" style={{ background: '#1E4DB7' }}>DEL</div>
-                  <span className="team-name-sim">Delhi</span>
-                </div>
-              </div>
-              <div className="divider" style={{ margin: '15px 0' }} />
-              <div className="showcase-id-teaser">
-                <div className="mini-id-card">
-                  <div className="mini-avatar" />
-                  <div className="mini-details">
-                    <span className="text-xs font-bold">Rohan Sharma</span>
-                    <span className="text-xxs text-muted">ID: TRIVAB-MUM-2026-9812</span>
-                  </div>
-                  <div className="mini-qr" />
-                </div>
-                <p className="text-xs text-secondary text-center">
-                  ✨ Instant Digital player ID card generation with secure QR verification on the spot.
-                </p>
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Stats Counter Section */}
       <section className="stats-strip container section-padding-sm">
-        <div className="grid grid-4 gap-lg">
-          <div className="stat-card">
+        <motion.div 
+          className="grid grid-4 gap-lg"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={containerVariants}
+        >
+          <motion.div className="stat-card" variants={fadeInUp}>
             <div className="stat-icon"><Trophy size={20} /></div>
             <span className="stat-value">{stats.tournaments}</span>
             <span className="stat-label">Tournaments Hosted</span>
-          </div>
-          <div className="stat-card">
+          </motion.div>
+          <motion.div className="stat-card" variants={fadeInUp}>
             <div className="stat-icon"><Star size={20} /></div>
             <span className="stat-value">{stats.players}</span>
             <span className="stat-label">Registered Players</span>
-          </div>
-          <div className="stat-card">
+          </motion.div>
+          <motion.div className="stat-card" variants={fadeInUp}>
             <div className="stat-icon"><Calendar size={20} /></div>
             <span className="stat-value">{stats.matches}</span>
             <span className="stat-label">Matches Completed</span>
-          </div>
-          <div className="stat-card">
+          </motion.div>
+          <motion.div className="stat-card" variants={fadeInUp}>
             <div className="stat-icon"><ShieldCheck size={20} /></div>
             <span className="stat-value">{stats.teams}</span>
             <span className="stat-label">Active Cricket Teams</span>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Feature Blocks */}
@@ -143,29 +142,35 @@ export default function Home() {
           <p className="section-subtitle">Take your cricket tournament to the next tier with robust management workflows.</p>
         </div>
 
-        <div className="grid grid-3 gap-xl">
-          <div className="card feature-box">
+        <motion.div 
+          className="grid grid-3 gap-xl"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={containerVariants}
+        >
+          <motion.div className="card feature-box" variants={scaleUp} whileHover={{ y: -5 }}>
             <div className="feature-icon"><AwardIcon /></div>
             <h3 className="display-sm text-gradient-gold">Digital Player ID Card</h3>
             <p className="text-secondary text-sm">
               Register profiles online. Automatically obtain a digital cricket passport card with player picture, jersey number, and credentials.
             </p>
-          </div>
-          <div className="card feature-box">
+          </motion.div>
+          <motion.div className="card feature-box" variants={scaleUp} whileHover={{ y: -5 }}>
             <div className="feature-icon"><QrIcon /></div>
             <h3 className="display-sm text-gradient-gold">QR Verification</h3>
             <p className="text-secondary text-sm">
               Organizers scan QR codes directly from the app interface to instantly verify player profiles and team rosters on match days.
             </p>
-          </div>
-          <div className="card feature-box">
+          </motion.div>
+          <motion.div className="card feature-box" variants={scaleUp} whileHover={{ y: -5 }}>
             <div className="feature-icon"><TeamIcon /></div>
             <h3 className="display-sm text-gradient-gold">Team Cap Trackers</h3>
             <p className="text-secondary text-sm">
               Captain-specific databases track registration caps (up to 35 players) and automatically block surplus submissions when rosters fill.
             </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Sponsors Horizontal Strip */}
@@ -175,17 +180,63 @@ export default function Home() {
             Supported by top-tier Sponsors
           </h4>
           <div className="ticker-wrap">
-            <div className="ticker-content gap-xl flex">
-              <span className="ticker-logo">🏅 APEX SPORTS</span>
-              <span className="ticker-logo">🏏 GOLDEN BAT LTD</span>
-              <span className="ticker-logo">🥤 CRICKET ENERGY</span>
-              <span className="ticker-logo">🏆 TRIVAB GLOBAL</span>
-              <span className="ticker-logo">⚡ ACTIVE PRO</span>
+            <div className="ticker-content gap-xl flex items-center">
+              <div className="ticker-logo-frame">
+                <img src="/logos/panchnaad.jpg" alt="Panchnaad Groups" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/nexussports.jpg" alt="Nexus Sports" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/buffering.jpg" alt="buffering" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/regalinterior.jpg" alt="Regal interior studios" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/crickstore.jpg" alt="crickstore" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/hubtown.jpg" alt="hub town" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/physiorehability.jpg" alt="physiorehability" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/upurfit.jpg" alt="upurFit" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/midday.jpg" alt="midday gujrati" className="ticker-logo-img" />
+              </div>
+
               {/* Duplicate for infinite effect */}
-              <span className="ticker-logo">🏅 APEX SPORTS</span>
-              <span className="ticker-logo">🏏 GOLDEN BAT LTD</span>
-              <span className="ticker-logo">🥤 CRICKET ENERGY</span>
-              <span className="ticker-logo">🏆 TRIVAB GLOBAL</span>
+              <div className="ticker-logo-frame">
+                <img src="/logos/panchnaad.jpg" alt="Panchnaad Groups" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/nexussports.jpg" alt="Nexus Sports" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/buffering.jpg" alt="buffering" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/regalinterior.jpg" alt="Regal interior studios" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/crickstore.jpg" alt="crickstore" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/hubtown.jpg" alt="hub town" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/physiorehability.jpg" alt="physiorehability" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/upurfit.jpg" alt="upurFit" className="ticker-logo-img" />
+              </div>
+              <div className="ticker-logo-frame">
+                <img src="/logos/midday.jpg" alt="midday gujrati" className="ticker-logo-img" />
+              </div>
             </div>
           </div>
         </div>
@@ -203,9 +254,15 @@ export default function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-3 gap-lg">
+        <motion.div 
+          className="grid grid-3 gap-lg"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={containerVariants}
+        >
           {recentTournaments.map((t) => (
-            <div className="card tournament-summary-card" key={t.id}>
+            <motion.div className="card tournament-summary-card" key={t.id} variants={fadeInUp} whileHover={{ y: -5 }}>
               <div className="flex justify-between items-start mb-sm">
                 <span className={`badge ${t.status === 'Live' ? 'badge-red' : t.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
                   {t.status}
@@ -216,9 +273,9 @@ export default function Home() {
               <Link to={`/tournaments/${t.id}`} className="btn btn-navy btn-sm" style={{ width: '100%' }}>
                 Tournament Details
               </Link>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
     </div>
   );
@@ -233,6 +290,7 @@ function AwardIcon() {
   );
 }
 
+// Inline Icons for QR
 function QrIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -244,6 +302,7 @@ function QrIcon() {
   );
 }
 
+// Inline Icons for Team
 function TeamIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

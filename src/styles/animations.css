@@ -139,9 +139,13 @@
 
 /* ---- Animated gradient background ---- */
 .bg-gradient-animated {
-  background: linear-gradient(-45deg, #0A0C10, #0D1B3E, #132244, #0A0C10);
+  background: linear-gradient(-45deg, #0D0606, #1F0A0A, #2C0F0F, #0D0606);
   background-size: 400% 400%;
   animation: gradientShift 8s ease infinite;
+}
+
+[data-theme="light"] .bg-gradient-animated {
+  background: linear-gradient(-45deg, #FDFBFB, #F6EEEE, #EEDDDD, #FDFBFB);
 }
 
 /* ---- Glow effect ---- */
@@ -163,15 +167,19 @@
 }
 
 .orb-gold {
-  background: radial-gradient(circle, rgba(157,28,28,0.2), transparent 70%);
+  background: radial-gradient(circle, rgba(128,0,0,0.25), transparent 70%);
 }
 
 .orb-navy {
-  background: radial-gradient(circle, rgba(13,27,62,0.8), transparent 70%);
+  background: radial-gradient(circle, rgba(44,15,15,0.85), transparent 70%);
+}
+
+[data-theme="light"] .orb-navy {
+  background: radial-gradient(circle, rgba(229, 204, 204, 0.4), transparent 70%);
 }
 
 .orb-blue {
-  background: radial-gradient(circle, rgba(30,77,183,0.15), transparent 70%);
+  background: radial-gradient(circle, rgba(128,0,0,0.15), transparent 70%);
 }
 
 /* ---- Live dot indicator ---- */
@@ -250,4 +258,45 @@
 /* ---- Page transition wrapper ---- */
 .page-enter {
   animation: fadeInUp 0.45s ease forwards;
+}
+
+/* ---- Spline-style interactive floating background effects & hover state transitions ---- */
+@keyframes splineFloat1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+@keyframes splineFloat2 {
+  0%, 100% { transform: translate(0, 0) scale(1.05); }
+  50% { transform: translate(-45px, 45px) scale(0.9); }
+}
+
+@keyframes splineFloat3 {
+  0%, 100% { transform: translate(0, 0) scale(0.95); }
+  50% { transform: translate(50px, -30px) scale(1.15); }
+}
+
+.spline-float-1 {
+  animation: splineFloat1 18s ease-in-out infinite;
+}
+
+.spline-float-2 {
+  animation: splineFloat2 24s ease-in-out infinite;
+}
+
+.spline-float-3 {
+  animation: splineFloat3 20s ease-in-out infinite;
+}
+
+.spline-hover-card {
+  position: relative;
+  transition: transform var(--transition-spring), border-color var(--transition-base), box-shadow var(--transition-base), background var(--transition-base);
+}
+
+.spline-hover-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--gold);
+  box-shadow: 0 16px 36px rgba(128, 0, 0, 0.15), 0 0 24px var(--gold-glow);
+  background: var(--bg-card-hover);
 }

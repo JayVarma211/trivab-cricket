@@ -31,39 +31,20 @@
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   text-decoration: none;
   flex-shrink: 0;
+  transition: transform var(--transition-base);
 }
 
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: var(--gradient-gold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #000;
-  box-shadow: 0 4px 16px rgba(212,175,55,0.35);
-  transition: transform var(--transition-spring), box-shadow var(--transition-base);
+.navbar-logo:hover {
+  transform: scale(1.03);
 }
 
-.navbar-logo:hover .logo-icon {
-  transform: scale(1.08) rotate(-3deg);
-  box-shadow: var(--shadow-gold-strong);
-}
-
-.logo-text {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  letter-spacing: 0.04em;
-}
-
-.logo-dot {
-  color: var(--gold);
+.logo-image {
+  height: 46px;
+  border-radius: 6px;
+  object-fit: contain;
+  box-shadow: 0 4px 12px rgba(128, 0, 0, 0.15);
 }
 
 /* ---- Desktop nav links ---- */
@@ -90,7 +71,7 @@
 
 .nav-link.active {
   color: var(--gold);
-  background: rgba(212,175,55,0.08);
+  background: rgba(128, 0, 0, 0.08);
   font-weight: 600;
 }
 
@@ -102,7 +83,7 @@
 }
 
 .scanner-btn {
-  background: rgba(212,175,55,0.1);
+  background: rgba(128, 0, 0, 0.1);
   border: 1px solid var(--border);
   color: var(--gold);
   transition: all var(--transition-base);
@@ -110,7 +91,7 @@
 
 .scanner-btn:hover {
   background: var(--gradient-gold);
-  color: #000;
+  color: #fff;
   box-shadow: var(--shadow-gold);
   transform: scale(1.05);
 }
@@ -167,7 +148,7 @@
   justify-content: center;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #000;
+  color: #fff;
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -203,7 +184,7 @@
   border-radius: var(--radius-full);
 }
 
-.role-badge.admin   { background: rgba(212,175,55,0.2); color: var(--gold); }
+.role-badge.admin   { background: rgba(128, 0, 0, 0.15); color: var(--gold); }
 .role-badge.captain { background: rgba(30,77,183,0.2);  color: var(--accent-blue-light); }
 .role-badge.player  { background: rgba(16,185,129,0.2); color: var(--accent-green); }
 
@@ -314,7 +295,7 @@
 
 .scanner-link {
   color: var(--gold);
-  background: rgba(212,175,55,0.05);
+  background: rgba(128, 0, 0, 0.05);
   border: 1px solid var(--border);
 }
 
@@ -335,3 +316,62 @@
 @media (max-width: 480px) {
   .logo-text    { font-size: 1.2rem; }
 }
+
+/* ---- Tournaments Nav Dropdown ---- */
+.nav-dropdown-wrapper {
+  position: relative;
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.tournaments-nav-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 950;
+}
+
+.tournaments-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.tournaments-nav-item:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.nav-menu-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border-card);
+}
+
+

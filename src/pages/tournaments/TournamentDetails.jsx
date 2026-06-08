@@ -5,6 +5,19 @@ import { Trophy, Calendar, MapPin, Users, Award, Shield } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import './Tournaments.css';
 
+const PREDEFINED_TOURNAMENTS = [
+  { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.' },
+  { id: 'bapl-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL League.' },
+  { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.' },
+  { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.' },
+  { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.' },
+  { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'North Mumbai Edition of the BAPL Corporate Cup.' },
+  { id: 'trivab-monsoon', name: 'Trivab Monsoon Championship', logo: '/logos/trivabmonsoon.jpg', description: 'The grand Trivab Monsoon Championship tournament.' },
+  { id: 'bapldads-south', name: 'BAPL DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL DADS T20 League.' },
+  { id: 'bapldads-north', name: 'BAPL DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'North Mumbai Edition of the BAPL DADS T20 League.' },
+  { id: 'baplkids', name: 'BAPL KIDS', logo: '/logos/bapllogo.jpg', description: 'The BAPL KIDS Cricket Championship.' },
+];
+
 export default function TournamentDetails() {
   const { id } = useParams();
   const [tournament, setTournament] = useState(null);
@@ -15,21 +28,43 @@ export default function TournamentDetails() {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const tourn = await getDocument('tournaments', id);
+        let tourn = await getDocument('tournaments', id);
+        
+        if (!tourn) {
+          const fallback = PREDEFINED_TOURNAMENTS.find(p => p.id === id);
+          if (fallback) {
+            tourn = {
+              id: fallback.id,
+              name: fallback.name,
+              logo: fallback.logo,
+              description: fallback.description,
+              status: 'Upcoming',
+              winner: 'TBD',
+              runnerUp: 'TBD'
+            };
+          }
+        }
+        
         setTournament(tourn);
 
         const mList = await getCollection('matches', [where('tournamentId', '==', id)]);
         setMatches(mList);
 
-        const tList = await getCollection('teams');
+        const tList = await getCollection('teams', [where('tournamentId', '==', id)]);
         setTeams(tList);
       } catch (err) {
         console.log('Using default mock tournament details page');
+        const fallback = PREDEFINED_TOURNAMENTS.find(p => p.id === id) || {
+          name: 'Champions Cup 2026',
+          logo: null,
+          description: 'The ultimate T20 championship faceoff featuring regional elite sports clubs competing for the TRIVAB Champions Cup.',
+        };
         setTournament({
           id: id,
-          name: 'Champions Cup 2026',
+          name: fallback.name,
           status: 'Live',
-          description: 'The ultimate T20 championship faceoff featuring regional elite sports clubs competing for the TRIVAB Champions Cup.',
+          description: fallback.description,
+          logo: fallback.logo,
           winner: 'TBD',
           runnerUp: 'TBD'
         });
@@ -63,10 +98,19 @@ export default function TournamentDetails() {
   return (
     <div className="tournament-details-page page-enter container section-padding">
       <div className="flex justify-between items-start mb-xl gap-lg flex-wrap">
-        <div>
-          <span className="badge badge-red mb-xs">{tournament.status}</span>
-          <h1 className="display-md text-gradient-gold">{tournament.name}</h1>
-          <p className="text-secondary max-width-600 mt-xs">{tournament.description}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          {tournament.logo && (
+            <img 
+              src={tournament.logo} 
+              alt={tournament.name} 
+              style={{ width: 80, height: 80, borderRadius: '12px', objectFit: 'cover', border: '1px solid var(--border)' }} 
+            />
+          )}
+          <div>
+            <span className="badge badge-red mb-xs">{tournament.status}</span>
+            <h1 className="display-md text-gradient-gold">{tournament.name}</h1>
+            <p className="text-secondary max-width-600 mt-xs">{tournament.description}</p>
+          </div>
         </div>
         <div className="card winner-details-box flex gap-md items-center">
           <Trophy size={36} className="text-gold" />

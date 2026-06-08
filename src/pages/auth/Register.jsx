@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { registerUser } from '../../firebase/auth';
-import { setDocument, getAllTeams } from '../../firebase/firestore';
-import { uploadPlayerPhoto } from '../../firebase/storage';
+import { setDocument, addDocument, updateDocument, getAllTeams } from '../../firebase/firestore';
+import uploadImageToCloudinary from '../../services/cloudinary';
 import { generatePlayerID } from '../../utils/generatePlayerID';
 import {
   User, Mail, Lock, Phone, Upload, AlertCircle, Eye, EyeOff, Trophy, Shirt
@@ -31,6 +31,7 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [teams, setTeams] = useState([]);
+  const [teamName, setTeamName] = useState('');
 
   // Load existing teams
   useEffect(() => {
@@ -50,9 +51,9 @@ export default function Register() {
       } catch (err) {
         console.error('Error fetching teams, using fallbacks:', err);
         const exampleTeams = [
-          { id: 'example-mi', teamName: 'Mumbai Indians (Example)' },
-          { id: 'example-csk', teamName: 'Chennai Super Kings (Example)' },
-          { id: 'example-rcb', teamName: 'Royal Challengers Bangalore (Example)' }
+          { id: 'example-mi', teamName: 'Mumbai Indians ' },
+          { id: 'example-csk', teamName: 'Chennai Super Kings ' },
+          { id: 'example-rcb', teamName: 'Royal Challengers Bangalore ' }
         ];
         setTeams(exampleTeams);
         setTeamSelection(exampleTeams[0].id);
@@ -84,70 +85,116 @@ export default function Register() {
 
       // 2. Generate Unique Player ID & QR Data
       const selectedTeamObj = teams.find(t => t.id === teamSelection);
-      const teamName = selectedTeamObj ? selectedTeamObj.teamName : 'Free Agent';
-      const generatedId = generatePlayerID(teamName);
+      const existingTeamName = selectedTeamObj ? selectedTeamObj.teamName : 'Free Agent';
+      const generatedId = generatePlayerID(role === 'captain' ? teamName.trim() || 'GEN' : existingTeamName);
 
-      // 3. Upload photo to Firebase Storage if present
-      let photoURL = '';
-      if (photo) {
-        try {
-          photoURL = await uploadPlayerPhoto(photo, generatedId);
-        } catch (storageErr) {
-          console.warn('Storage failed or is mock mode, using base64 fallback', storageErr);
-          photoURL = photoPreview || '';
+      // Enforce Max player limit (35)
+      if (role === 'player' && selectedTeamObj && !selectedTeamObj.id.startsWith('example-')) {
+        const currentCount = selectedTeamObj.playerCount || 0;
+        const maxLimit = selectedTeamObj.maxPlayers || 35;
+        if (currentCount >= maxLimit) {
+          throw new Error(`Registration failed. The team ${selectedTeamObj.teamName} has reached its roster limit of ${maxLimit} players.`);
         }
       }
 
-      // 4. Save to Firestore
+      // 3. Upload photo to Cloudinary if present
+      let photoURL = '';
+      if (photo) {
+        try {
+          photoURL = await uploadImageToCloudinary(photo);
+        } catch (err) {
+          console.error(err);
+          throw new Error('Failed to upload profile image');
+        }
+      }
+
+      // 4. Save Firestore documents
       const userProfileData = {
         uid: firebaseUser.uid,
+        name: fullName,
         email,
-        role, // player or captain
-        createdAt: new Date().toISOString()
-      };
-
-      const playerProfileData = {
-        playerId: generatedId,
-        uid: firebaseUser.uid,
-        fullName,
+        role,
         mobile,
-        email,
-        teamId: teamSelection,
-        teamName,
-        playingStyle,
-        jerseyNumber,
         photoURL,
-        qrCodeURL: '', // populated during QR gen
-        pdfURL: '',
-        status: 'Active',
         createdAt: new Date().toISOString()
       };
 
-      // Write user profile (role etc.)
-      await setDocument('users', firebaseUser.uid, userProfileData);
-      
-      // Write detailed player record
-      await setDocument('players', generatedId, playerProfileData);
+      let selectedTeamId = teamSelection;
+      let selectedTeamName = existingTeamName;
 
-      // If registered as captain, also create captain record
+      if (role === 'captain') {
+        if (!teamName.trim()) {
+          throw new Error('Please enter your team name for captain registration.');
+        }
+
+        const teamDoc = await addDocument('teams', {
+          teamName: teamName.trim(),
+          city: '',
+          logoURL: '',
+          captainId: firebaseUser.uid,
+          captainName: fullName,
+          playerCount: 0,
+          maxPlayers: 35,
+          wins: 0,
+          losses: 0,
+          createdAt: new Date().toISOString()
+        });
+
+        selectedTeamId = teamDoc.id;
+        selectedTeamName = teamName.trim();
+      }
+
+      await setDocument('users', firebaseUser.uid, userProfileData);
+
+      if (role === 'player') {
+        const playerProfileData = {
+          playerId: generatedId,
+          uid: firebaseUser.uid,
+          fullName,
+          mobile,
+          email,
+          teamId: selectedTeamId,
+          teamName: selectedTeamName,
+          playingStyle,
+          jerseyNumber,
+          photoURL,
+          qrValue: generatedId,
+          qrCodeURL: '',
+          pdfURL: '',
+          status: 'Active',
+          createdAt: new Date().toISOString()
+        };
+
+        await setDocument('players', generatedId, playerProfileData);
+
+        // Increment team player count
+        if (selectedTeamId && !selectedTeamId.startsWith('example-') && selectedTeamObj) {
+          const currentCount = selectedTeamObj.playerCount || 0;
+          await updateDocument('teams', selectedTeamId, {
+            playerCount: currentCount + 1
+          });
+        }
+      }
+
       if (role === 'captain') {
         const captainData = {
           captainId: `CAPT-${generatedId.split('-').pop()}`,
           uid: firebaseUser.uid,
           fullName,
-          teamId: teamSelection,
-          teamName,
+          teamId: selectedTeamId,
+          teamName: selectedTeamName,
           mobile,
           email,
+          photoURL,
           createdAt: new Date().toISOString()
         };
         await setDocument('captains', firebaseUser.uid, captainData);
-        // Also update team table to reference this captain
-        if (teamSelection) {
-          await setDocument('teams', teamSelection, {
-            captainId: firebaseUser.uid
-          });
-        }
+        
+        // Also update team doc with captain details
+        await updateDocument('teams', selectedTeamId, {
+          captainName: fullName,
+          captainId: firebaseUser.uid
+        });
       }
 
       setUserProfile(userProfileData);
@@ -165,8 +212,8 @@ export default function Register() {
 
   return (
     <div className="auth-page page-enter">
-      <div className="orb orb-gold" style={{ top: '5%', right: '5%', width: '400px', height: '400px' }} />
-      <div className="orb orb-navy" style={{ bottom: '5%', left: '5%', width: '500px', height: '500px' }} />
+      <div className="orb orb-gold spline-float-1" style={{ top: '5%', right: '5%', width: '400px', height: '400px' }} />
+      <div className="orb orb-navy spline-float-2" style={{ bottom: '5%', left: '5%', width: '500px', height: '500px' }} />
 
       <div className="container auth-container">
         <div className="auth-card card-gold register-card">
@@ -262,40 +309,67 @@ export default function Register() {
 
               <div className="form-group">
                 <label className="form-label">Sign Up Role</label>
-                <select
-                  className="form-select"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  disabled={loading}
-                >
-                  <option value="player">Player</option>
-                  <option value="captain">Team Captain</option>
-                </select>
+                <div className="auth-role-switcher flex gap-sm">
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${role === 'player' ? 'btn-gold' : 'btn-outline'}`}
+                    onClick={() => setRole('player')}
+                    disabled={loading}
+                  >
+                    Player
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${role === 'captain' ? 'btn-gold' : 'btn-outline'}`}
+                    onClick={() => setRole('captain')}
+                    disabled={loading}
+                  >
+                    Team Captain
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Column 2: Player Details & Photo */}
             <div className="form-column">
-              <div className="form-group">
-                <label className="form-label">Team Selection</label>
-                <select
-                  className="form-select"
-                  value={teamSelection}
-                  onChange={(e) => setTeamSelection(e.target.value)}
-                  required
-                  disabled={loading}
-                >
-                  {teams.length === 0 ? (
-                    <option value="">-- No teams available --</option>
-                  ) : (
-                    teams.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.teamName}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
+              {role === 'player' ? (
+                <div className="form-group">
+                  <label className="form-label">Team Selection</label>
+                  <select
+                    className="form-select"
+                    value={teamSelection}
+                    onChange={(e) => setTeamSelection(e.target.value)}
+                    required
+                    disabled={loading}
+                  >
+                    {teams.length === 0 ? (
+                      <option value="">-- No teams available --</option>
+                    ) : (
+                      teams.map((t) => {
+                        const isFull = t.playerCount >= (t.maxPlayers || 35) && !t.id.startsWith('example-');
+                        return (
+                          <option key={t.id} value={t.id} disabled={isFull}>
+                            {t.teamName} {t.id.startsWith('example-') ? '' : `(${t.playerCount || 0}/${t.maxPlayers || 35})${isFull ? ' - FULL' : ''}`}
+                          </option>
+                        );
+                      })
+                    )}
+                  </select>
+                </div>
+              ) : (
+                <div className="form-group">
+                  <label className="form-label">Team Name</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Enter your team name"
+                    required={role === 'captain'}
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              )}
 
               <div className="form-group">
                 <label className="form-label">Playing Style</label>

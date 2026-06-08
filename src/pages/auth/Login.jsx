@@ -11,6 +11,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loginRole, setLoginRole] = useState('player');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,10 @@ export default function Login() {
       const user = await loginUser(email, password);
       const profile = await getDocument('users', user.uid);
       if (profile) {
+        if (profile.role !== loginRole && profile.role !== 'admin') {
+          setError(`You are registered as ${profile.role}. Please use the ${profile.role === 'captain' ? 'Captain' : 'Player'} login option.`);
+          return;
+        }
         setUserProfile(profile);
         if (profile.role === 'admin') navigate('/admin/dashboard');
         else if (profile.role === 'captain') navigate('/captain/dashboard');
@@ -40,8 +45,8 @@ export default function Login() {
 
   return (
     <div className="auth-page page-enter">
-      <div className="orb orb-gold" style={{ top: '10%', left: '5%', width: '400px', height: '400px' }} />
-      <div className="orb orb-navy" style={{ bottom: '10%', right: '5%', width: '500px', height: '500px' }} />
+      <div className="orb orb-gold spline-float-1" style={{ top: '10%', left: '5%', width: '400px', height: '400px' }} />
+      <div className="orb orb-navy spline-float-2" style={{ bottom: '10%', right: '5%', width: '500px', height: '500px' }} />
 
       <div className="container auth-container">
         <div className="auth-card card-gold">
@@ -52,6 +57,24 @@ export default function Login() {
             <h2 className="display-sm text-gradient-gold">Welcome Back</h2>
             <p className="text-secondary text-sm">Access your TRIVAB platform dashboard</p>
           </div>
+
+          <div className="auth-role-switcher mb-md flex gap-sm">
+            <button
+              type="button"
+              className={`btn btn-sm ${loginRole === 'player' ? 'btn-gold' : 'btn-outline'}`}
+              onClick={() => setLoginRole('player')}
+            >
+              Player Login
+            </button>
+            <button
+              type="button"
+              className={`btn btn-sm ${loginRole === 'captain' ? 'btn-gold' : 'btn-outline'}`}
+              onClick={() => setLoginRole('captain')}
+            >
+              Captain Login
+            </button>
+          </div>
+          <p className="text-xs text-muted mb-lg">Choose the correct access type before signing in.</p>
 
           {error && (
             <div className="alert alert-error">

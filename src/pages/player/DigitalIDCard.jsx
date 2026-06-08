@@ -1,26 +1,39 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { getPlayerByUID, setDocument } from '../../firebase/firestore';
-import { uploadPlayerQR, uploadPlayerPDF } from '../../firebase/storage';
+import { getPlayerByUIDOrEmail, getDocument } from '../../firebase/firestore';
 import { generateIDCardPDF, downloadIDCardPDF } from '../../utils/generateIDCardPDF';
 import { QRCodeSVG } from 'qrcode.react';
-import { Award, Download, Share2, Shield, User, Trophy } from 'lucide-react';
+import { Download, User, Trophy } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import './Player.css';
 
 export default function DigitalIDCard() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [player, setPlayer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [qrBlobURL, setQrBlobURL] = useState('');
-  const qrRef = useRef(null);
 
   useEffect(() => {
     const fetchPlayer = async () => {
       if (!user) return;
       try {
-        const data = await getPlayerByUID(user.uid);
+        let data = null;
+        if (role === 'captain') {
+          const captData = await getDocument('captains', user.uid);
+          if (captData) {
+            data = {
+              ...captData,
+              playerId: captData.captainId,
+              playingStyle: 'Team Captain',
+              jerseyNumber: 'N/A'
+            };
+          }
+        }
+        
+        if (!data) {
+          data = await getPlayerByUIDOrEmail(user.uid, user.email);
+        }
+        
         setPlayer(data);
       } catch (err) {
         console.error(err);
@@ -29,28 +42,7 @@ export default function DigitalIDCard() {
       }
     };
     fetchPlayer();
-  }, [user]);
-
-  // Handle uploading PDF and QR to storage to complete the generation loop
-  const handleFinalizeStorage = async () => {
-    if (!player) return;
-    setGenerating(true);
-    try {
-      // 1. Generate PDF blob
-      const pdfBlob = await generateIDCardPDF('player-card-render');
-      const pdfURL = await uploadPlayerPDF(pdfBlob, player.playerId);
-
-      // 2. Capture QR code as URL (using SVG fallback)
-      const updatedData = { ...player, pdfURL };
-      await setDocument('players', player.playerId, updatedData);
-      setPlayer(updatedData);
-      alert('Your digital ID Card PDF has been generated and saved to Firebase Storage!');
-    } catch (err) {
-      console.error('Finalization err:', err);
-    } finally {
-      setGenerating(false);
-    }
-  };
+  }, [user, role]);
 
   if (loading) return <Loader />;
 
@@ -70,6 +62,9 @@ export default function DigitalIDCard() {
     teamName: player.teamName,
     playingStyle: player.playingStyle,
     jerseyNumber: player.jerseyNumber
+    ,
+    email: player.email,
+    uid: player.uid
   });
 
   return (
@@ -124,8 +119,8 @@ export default function DigitalIDCard() {
                   <span className="id-stat-lbl">PLAYER ID</span>
                   <span className="id-code-text">{player.playerId}</span>
                 </div>
-                <div className="id-qr-box" ref={qrRef}>
-                  <QRCodeSVG value={qrValue} size={64} bgColor="#ffffff" fgColor="#000000" level="H" />
+                <div className="id-qr-box">
+                  <QRCodeSVG value={player.playerId} size={64} bgColor="#ffffff" fgColor="#000000" level="H" />
                 </div>
               </div>
             </div>
@@ -133,38 +128,38 @@ export default function DigitalIDCard() {
         </div>
 
         {/* Info panel */}
-        <div className="id-actions-panel card">
-          <h2 className="text-lg font-bold text-gradient-gold">ID Card Options</h2>
-          <p className="text-secondary text-sm mb-lg">
-            This card is dynamically linked to your database entry. Present the QR code to tournament officials for scanning on match day to confirm your registration status.
-          </p>
+        <div className="id-actions-panel card flex flex-col items-center justify-between" style={{ minHeight: '400px' }}>
+          <div>
+            <h2 className="text-lg font-bold text-gradient-gold mb-sm text-center">ID Card Options</h2>
+            <p className="text-secondary text-sm mb-lg text-center">
+              This card is dynamically linked to your database entry. Present the QR code to tournament officials for scanning on match day to confirm your registration status.
+            </p>
 
-          <div className="flex flex-col gap-md">
-            <button
-              onClick={() => downloadIDCardPDF('player-card-render', `${player.playerId}.pdf`)}
-              className="btn btn-gold w-full"
-            >
-              <Download size={18} /> Download ID Card PDF
-            </button>
-            <button
-              onClick={handleFinalizeStorage}
-              className="btn btn-outline w-full"
-              disabled={generating}
-            >
-              <Award size={18} /> {generating ? 'Saving PDF...' : 'Upload & Sync PDF to Database'}
-            </button>
-
-            {player.pdfURL && (
-              <a
-                href={player.pdfURL}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-navy text-center w-full"
-                style={{ display: 'block' }}
+            <div className="flex flex-col gap-md">
+              <button
+                onClick={async () => {
+                  setGenerating(true);
+                  try {
+                    await downloadIDCardPDF('player-card-render', `${player.playerId}.pdf`);
+                  } catch (e) {
+                    console.error(e);
+                  } finally {
+                    setGenerating(false);
+                  }
+                }}
+                className="btn btn-gold w-full"
+                disabled={generating}
               >
-                View Stored PDF Document
-              </a>
-            )}
+                <Download size={18} /> {generating ? 'Preparing PDF...' : 'Download ID Card PDF'}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center justify-center text-center gap-xs mt-lg">
+            <div className="qr-container bg-white p-sm rounded-md" style={{ display: 'inline-block', padding: '12px', background: '#fff', borderRadius: '8px' }}>
+              <QRCodeSVG value={player.playerId} size={220} />
+            </div>
+            <span className="text-xs text-muted mt-xs">Verify Pass QR: {player.playerId}</span>
           </div>
         </div>
       </div>
