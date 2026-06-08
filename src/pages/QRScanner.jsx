@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Html5Qrcode } from 'html5-qrcode';
 import { getDocument, getPlayerByEmail, logQRScan } from '../firebase/firestore';
-import { Scan, ShieldAlert, ShieldCheck, Camera, Search, UserCheck, Play, Square } from 'lucide-react';
+import { Scan, ShieldAlert, ShieldCheck, Camera, Search, UserCheck, Play, Square, Loader2 } from 'lucide-react';
 import './QRScanner.css';
 
 export default function QRScanner() {
@@ -14,6 +14,7 @@ export default function QRScanner() {
   const [errorMessage, setErrorMessage] = useState('');
   const [cameraSupported, setCameraSupported] = useState(true);
   const [isScanning, setIsScanning] = useState(false);
+  const [isCameraLoading, setIsCameraLoading] = useState(false);
   const scannerRef = useRef(null);
 
   useEffect(() => {
@@ -36,6 +37,8 @@ export default function QRScanner() {
   }, []);
 
   const startScanning = async () => {
+    if (isCameraLoading || isScanning) return;
+    setIsCameraLoading(true);
     setErrorMessage('');
     setScanResult(null);
     setPlayerInfo(null);
@@ -43,11 +46,11 @@ export default function QRScanner() {
 
     if (!cameraSupported) {
       setErrorMessage('Camera access is not supported in this browser context (requires HTTPS).');
+      setIsCameraLoading(false);
       return;
     }
 
     try {
-      setIsScanning(true);
       const html5QrCode = new Html5Qrcode('qr-scanner-camera-box');
       scannerRef.current = html5QrCode;
 
@@ -73,9 +76,13 @@ export default function QRScanner() {
           // Silent failure logs for standard camera noise
         }
       );
+
+      setIsScanning(true);
+      setIsCameraLoading(false);
     } catch (err) {
       console.error('Camera starting error:', err);
       setIsScanning(false);
+      setIsCameraLoading(false);
       setStatus('failed');
       setErrorMessage('Could not open camera. Please check permissions and try again.');
     }
@@ -187,7 +194,11 @@ export default function QRScanner() {
           </div>
 
           <div className="camera-action-btn-container" style={{ marginBottom: '15px' }}>
-            {!isScanning ? (
+            {isCameraLoading ? (
+              <button type="button" disabled className="btn btn-gold w-full flex items-center justify-center gap-sm" style={{ opacity: 0.7 }}>
+                <Loader2 size={18} className="animate-spin" /> Starting camera...
+              </button>
+            ) : !isScanning ? (
               <button type="button" onClick={startScanning} className="btn btn-gold w-full flex items-center justify-center gap-sm">
                 <Play size={18} /> Start Camera Scanner
               </button>
@@ -201,21 +212,34 @@ export default function QRScanner() {
           <div className="scanner-viewport-wrapper">
             {isScanning && <div className="scanner-laser-line" />}
             {isScanning && <div className="scanner-overlay-square" />}
-            <div id="qr-scanner-camera-box">
-              {!isScanning && (
-                <div className="text-center text-sm text-secondary py-lg" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '300px', gap: '10px' }}>
-                  <Camera size={32} style={{ color: 'var(--text-muted)' }} />
-                  <p style={{ margin: 0 }}>Camera is currently off.</p>
-                  <p className="text-xs text-muted" style={{ margin: 0 }}>Click the button above to start scanning.</p>
-                </div>
-              )}
-              {isScanning && !cameraSupported && (
-                <div className="text-center text-sm text-red py-lg">
-                  <p>Camera access is not available in this browser or context.</p>
-                  <p>Please open the app using a secure connection (HTTPS).</p>
-                </div>
-              )}
-            </div>
+            
+            {/* The actual HTML camera element - ALWAYS EMPTY for React rendering to avoid DOM reconciliation errors */}
+            <div id="qr-scanner-camera-box" style={{ width: '100%', height: '100%' }}></div>
+
+            {/* Absolute overlays for placeholders so React does not touch children of qr-scanner-camera-box */}
+            {!isScanning && !isCameraLoading && (
+              <div className="camera-placeholder">
+                <Camera size={32} style={{ color: 'var(--text-muted)', marginBottom: '10px' }} />
+                <p style={{ margin: 0 }}>Camera is currently off.</p>
+                <p className="text-xs text-muted" style={{ margin: 0, marginTop: '4px' }}>Click the button above to start scanning.</p>
+              </div>
+            )}
+
+            {isCameraLoading && (
+              <div className="camera-placeholder">
+                <Loader2 size={32} className="animate-spin text-gold" style={{ marginBottom: '10px' }} />
+                <p style={{ margin: 0 }}>Initializing camera feed...</p>
+                <p className="text-xs text-muted" style={{ margin: 0, marginTop: '4px' }}>Please grant permissions if prompted.</p>
+              </div>
+            )}
+
+            {isScanning && !cameraSupported && (
+              <div className="camera-placeholder">
+                <ShieldAlert size={32} className="text-red" style={{ marginBottom: '10px' }} />
+                <p style={{ margin: 0, color: 'var(--accent-red)' }}>Camera access is not available.</p>
+                <p className="text-xs text-muted" style={{ margin: 0, marginTop: '4px' }}>Please ensure HTTPS secure context is active.</p>
+              </div>
+            )}
           </div>
 
           <div className="divider" style={{ margin: '15px 0' }} />
