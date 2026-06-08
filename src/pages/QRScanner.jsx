@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Html5QrcodeScanner } from 'html5-qrcode';
-import { getDocument, getCollection, getPlayerByEmail, where, logQRScan } from '../firebase/firestore';
-import { Scan, ShieldAlert, ShieldCheck, Camera, Search, UserCheck } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
+import { getDocument, getPlayerByEmail, logQRScan } from '../firebase/firestore';
+import { Scan, ShieldAlert, ShieldCheck, Camera, Search, UserCheck, Play, Square } from 'lucide-react';
 import './QRScanner.css';
 
 export default function QRScanner() {
@@ -13,45 +13,84 @@ export default function QRScanner() {
   const [status, setStatus] = useState('idle'); // idle | scanning | verified | failed
   const [errorMessage, setErrorMessage] = useState('');
   const [cameraSupported, setCameraSupported] = useState(true);
+  const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef(null);
 
   useEffect(() => {
+    // Check if mediaDevices are supported in this context
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.isSecureContext) {
-        console.warn('Camera not supported or insecure context:', {
-          mediaDevices: !!navigator.mediaDevices,
-          getUserMedia: !!navigator.mediaDevices?.getUserMedia,
-          secureContext: window.isSecureContext,
-        });
+      console.warn('Camera not supported or insecure context:', {
+        mediaDevices: !!navigator.mediaDevices,
+        getUserMedia: !!navigator.mediaDevices?.getUserMedia,
+        secureContext: window.isSecureContext,
+      });
       setCameraSupported(false);
-      return undefined;
     }
-    // Standard setup for camera scan
-    const scanner = new Html5QrcodeScanner('qr-scanner-camera-box', {
-      fps: 10,
-      qrbox: { width: 250, height: 250 },
-      aspectRatio: 1.0
-    });
-
-    scanner.render(
-      async (decodedText) => {
-        // Success callback
-        scanner.clear();
-        setScanResult(decodedText);
-        handleVerification(decodedText);
-      },
-      (error) => {
-        // Silent error logs to avoid clutter
-      }
-    );
-
-    scannerRef.current = scanner;
 
     return () => {
-      if (scannerRef.current) {
-        scannerRef.current.clear().catch((e) => console.log('Scanner clear warning'));
+      // Cleanup: stop scanning if still running when page unmounts
+      if (scannerRef.current && scannerRef.current.isScanning) {
+        scannerRef.current.stop().catch((e) => console.log('Scanner cleanup warning:', e));
       }
     };
   }, []);
+
+  const startScanning = async () => {
+    setErrorMessage('');
+    setScanResult(null);
+    setPlayerInfo(null);
+    setStatus('idle');
+
+    if (!cameraSupported) {
+      setErrorMessage('Camera access is not supported in this browser context (requires HTTPS).');
+      return;
+    }
+
+    try {
+      setIsScanning(true);
+      const html5QrCode = new Html5Qrcode('qr-scanner-camera-box');
+      scannerRef.current = html5QrCode;
+
+      const config = {
+        fps: 10,
+        qrbox: (width, height) => {
+          const size = Math.min(width, height) * 0.7;
+          return { width: size, height: size };
+        },
+        aspectRatio: 1.0
+      };
+
+      await html5QrCode.start(
+        { facingMode: 'environment' }, // Explicitly request back-facing camera
+        config,
+        async (decodedText) => {
+          // On QR Code Scan Success
+          await stopScanning();
+          setScanResult(decodedText);
+          handleVerification(decodedText);
+        },
+        (errorMessage) => {
+          // Silent failure logs for standard camera noise
+        }
+      );
+    } catch (err) {
+      console.error('Camera starting error:', err);
+      setIsScanning(false);
+      setStatus('failed');
+      setErrorMessage('Could not open camera. Please check permissions and try again.');
+    }
+  };
+
+  const stopScanning = async () => {
+    if (scannerRef.current && scannerRef.current.isScanning) {
+      try {
+        await scannerRef.current.stop();
+      } catch (err) {
+        console.warn('Error stopping scanner:', err);
+      }
+    }
+    setIsScanning(false);
+  };
 
   const handleVerification = async (dataString) => {
     setStatus('scanning');
@@ -147,13 +186,36 @@ export default function QRScanner() {
             <span className="text-sm font-bold">Device Camera Scanner</span>
           </div>
 
-          <div id="qr-scanner-camera-box" style={{ width: '100%', minHeight: '300px' }}>
-            {!cameraSupported && (
-              <div className="text-center text-sm text-red py-lg">
-                <p>Camera access is not available in this browser or context.</p>
-                <p>Please open the app using a secure connection, or use the manual Player ID lookup below.</p>
-              </div>
+          <div className="camera-action-btn-container" style={{ marginBottom: '15px' }}>
+            {!isScanning ? (
+              <button type="button" onClick={startScanning} className="btn btn-gold w-full flex items-center justify-center gap-sm">
+                <Play size={18} /> Start Camera Scanner
+              </button>
+            ) : (
+              <button type="button" onClick={stopScanning} className="btn btn-outline text-red w-full flex items-center justify-center gap-sm">
+                <Square size={18} /> Stop Camera Scanner
+              </button>
             )}
+          </div>
+
+          <div className="scanner-viewport-wrapper">
+            {isScanning && <div className="scanner-laser-line" />}
+            {isScanning && <div className="scanner-overlay-square" />}
+            <div id="qr-scanner-camera-box">
+              {!isScanning && (
+                <div className="text-center text-sm text-secondary py-lg" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: '300px', gap: '10px' }}>
+                  <Camera size={32} style={{ color: 'var(--text-muted)' }} />
+                  <p style={{ margin: 0 }}>Camera is currently off.</p>
+                  <p className="text-xs text-muted" style={{ margin: 0 }}>Click the button above to start scanning.</p>
+                </div>
+              )}
+              {isScanning && !cameraSupported && (
+                <div className="text-center text-sm text-red py-lg">
+                  <p>Camera access is not available in this browser or context.</p>
+                  <p>Please open the app using a secure connection (HTTPS).</p>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="divider" style={{ margin: '15px 0' }} />

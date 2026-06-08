@@ -71,6 +71,61 @@
   border-bottom: none;
 }
 
+/* Custom Camera Viewport Overlays */
+.scanner-viewport-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.0;
+  max-width: 350px;
+  margin: 0 auto var(--space-md) auto;
+  border: 1px solid var(--border);
+  background: #000;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+#qr-scanner-camera-box {
+  width: 100%;
+  height: 100%;
+}
+
+#qr-scanner-camera-box video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+.scanner-laser-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold, #800000);
+  box-shadow: 0 0 10px var(--gold, #800000);
+  animation: laserScan 2.2s infinite linear;
+  z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes laserScan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+
+.scanner-overlay-square {
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  width: 70%;
+  height: 70%;
+  border: 2px dashed var(--gold, #800000);
+  box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.55); /* Dark transparent margins */
+  z-index: 5;
+  pointer-events: none;
+  border-radius: var(--radius-sm);
+}
+
 @media (max-width: 768px) {
   .scanner-grid {
     grid-template-columns: 1fr;
