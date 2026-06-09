@@ -16,19 +16,15 @@
 }
 
 .loader-logo {
-  width: 72px;
-  height: 72px;
-  border-radius: var(--radius-lg);
-  background: var(--gradient-gold);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
-  font-size: 2rem;
-  font-weight: 900;
-  color: #000;
   animation: floatY 2s ease-in-out infinite;
-  box-shadow: var(--shadow-gold-strong);
+}
+
+.loader-logo-img {
+  height: 72px;
+  object-fit: contain;
 }
 
 .loader-spinner {

@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { logoutUser } from '../../firebase/auth';
 import {
-  Users, Trophy, Calendar, Image, BarChart3, LogOut, Menu, Shield, Home
+  Users, Trophy, Calendar, Image, BarChart3, LogOut, Menu, Shield, Home, ClipboardList
 } from 'lucide-react';
 import '../../pages/admin/Admin.css';
 
@@ -26,6 +26,7 @@ export default function AdminLayout({ children }) {
     { label: 'Teams', icon: <Trophy size={20} />, to: '/admin/teams' },
     { label: 'Matches', icon: <Calendar size={20} />, to: '/admin/matches' },
     { label: 'Images', icon: <Image size={20} />, to: '/admin/images' },
+    { label: 'Organize Form', icon: <ClipboardList size={20} />, to: '/admin/organize-form' },
   ];
 
   return (
@@ -34,7 +35,7 @@ export default function AdminLayout({ children }) {
       <aside className={`admin-sidebar ${sidebarOpen ? 'open-sidebar' : 'closed'}`}>
         <div className="sidebar-header">
           <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <img src="/logos/trivabsports.webp" style={{ height: '48px', borderRadius: '4px', objectFit: 'contain' }} alt="TRIVAB SPORTS" />
+            <img src="/logos/trivabsports.webp" style={{ height: '60px', objectFit: 'contain' }} alt="TRIVAB SPORTS" />
           </Link>
           <button className="sidebar-toggle-close" onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--admin-text)', cursor: 'pointer', fontSize: '1.25rem' }}>✕</button>
         </div>

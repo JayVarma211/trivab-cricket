@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getDocument, getCollection, where } from '../../firebase/firestore';
+import { getDocument, getCollection, where, updateDocument, getPlayerByUIDOrEmail } from '../../firebase/firestore';
+import { useAuth } from '../../context/AuthContext';
 import { Trophy, Calendar, MapPin, Users, Award, Shield } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import './Tournaments.css';
@@ -24,6 +25,12 @@ export default function TournamentDetails() {
   const [matches, setMatches] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const { user, role } = useAuth();
+  const [playerProfile, setPlayerProfile] = useState(null);
+  const [hasJoined, setHasJoined] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [joinMessage, setJoinMessage] = useState('');
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -78,11 +85,64 @@ export default function TournamentDetails() {
           { id: 't3', teamName: 'Chennai Super Kings', captainName: 'MS Dhoni' }
         ]);
       } finally {
+        if (user) {
+          try {
+            const profile = await getPlayerByUIDOrEmail(user.uid, user.email);
+            setPlayerProfile(profile);
+            if (profile && profile.joinedTournaments) {
+              const joined = profile.joinedTournaments.some(t => {
+                const idToCompare = typeof t === 'string' ? t : t.id;
+                return idToCompare === id;
+              });
+              setHasJoined(joined);
+            }
+          } catch (e) {
+            console.error("Error fetching player profile:", e);
+          }
+        }
         setLoading(false);
       }
     };
     fetchDetails();
-  }, [id]);
+  }, [id, user]);
+
+  const handleJoinTournament = async () => {
+    if (!user) {
+      alert('Please log in as a player to join this tournament!');
+      return;
+    }
+    if (!playerProfile) {
+      alert('Only registered players can join tournaments. Please update your profile or register as a player.');
+      return;
+    }
+    setJoining(true);
+    setJoinMessage('');
+    try {
+      const newRegistration = {
+        id: tournament.id || id,
+        name: tournament.name || 'Tournament Edition',
+        joinedAt: new Date().toISOString()
+      };
+      const currentJoined = playerProfile.joinedTournaments || [];
+      const updatedJoined = [...currentJoined, newRegistration];
+      
+      await updateDocument('players', playerProfile.id, {
+        joinedTournaments: updatedJoined
+      });
+      
+      setPlayerProfile(prev => ({
+        ...prev,
+        joinedTournaments: updatedJoined
+      }));
+      setHasJoined(true);
+      setJoinMessage('Successfully joined tournament!');
+    } catch (e) {
+      console.error("Error joining tournament:", e);
+      alert('Failed to join tournament. Please try again.');
+    } finally {
+      setJoining(false);
+    }
+  };
 
   if (loading) return <Loader />;
 
@@ -110,6 +170,31 @@ export default function TournamentDetails() {
             <span className="badge badge-red mb-xs">{tournament.status}</span>
             <h1 className="display-md text-gradient-gold">{tournament.name}</h1>
             <p className="text-secondary max-width-600 mt-xs">{tournament.description}</p>
+            
+            {user ? (
+              role === 'admin' ? (
+                <div className="mt-md" style={{ display: 'inline-block' }}><span className="badge badge-gold">Admin View</span></div>
+              ) : (
+                <div className="mt-md" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+                  {hasJoined ? (
+                    <button className="btn btn-gold btn-sm" disabled style={{ opacity: 0.8, cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      ✓ Joined Tournament
+                    </button>
+                  ) : (
+                    <button className="btn btn-gold btn-sm" onClick={handleJoinTournament} disabled={joining} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {joining ? 'Joining...' : 'Join this Tournament'}
+                    </button>
+                  )}
+                  {joinMessage && <span className="text-xs text-green font-bold" style={{ color: '#22c55e' }}>{joinMessage}</span>}
+                </div>
+              )
+            ) : (
+              <div className="mt-md">
+                <Link to="/login" className="btn btn-gold btn-sm">
+                  Login to Join Tournament
+                </Link>
+              </div>
+            )}
           </div>
         </div>
         <div className="card winner-details-box flex gap-md items-center">

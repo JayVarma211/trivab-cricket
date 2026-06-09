@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { addDocument } from '../../firebase/firestore';
+import { addDocument, getDocument } from '../../firebase/firestore';
 import {
   Trophy, Calendar, Users, MapPin, Award, CheckCircle, ChevronLeft, ChevronRight, Mail, Phone, Building, ClipboardList, ShieldAlert
 } from 'lucide-react';
@@ -29,6 +29,14 @@ export default function Organize() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   
+  const [formConfig, setFormConfig] = useState({
+    formTitle: 'Booking & Inquiry Form',
+    formSubtitle: 'Fill out details about your tournament plans and our representative will call you back with estimates.',
+    types: 'Corporate Cup, Turf Championship, T20 League, Box Cricket Tournament, Monsoon Cup',
+    teamsOptions: '4-6, 8, 12, 16, 20+',
+    requestPlaceholder: 'Describe turf choices, custom kit sizing, schedule times, or umpire details...'
+  });
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,6 +47,34 @@ export default function Organize() {
     proposedDate: '',
     message: ''
   });
+
+  useEffect(() => {
+    const fetchFormConfig = async () => {
+      try {
+        const config = await getDocument('settings', 'organizeForm');
+        if (config) {
+          setFormConfig({
+            formTitle: config.formTitle || 'Booking & Inquiry Form',
+            formSubtitle: config.formSubtitle || 'Fill out details about your tournament plans and our representative will call you back with estimates.',
+            types: config.types || 'Corporate Cup, Turf Championship, T20 League, Box Cricket Tournament, Monsoon Cup',
+            teamsOptions: config.teamsOptions || '4-6, 8, 12, 16, 20+',
+            requestPlaceholder: config.requestPlaceholder || 'Describe turf choices, custom kit sizing, schedule times, or umpire details...'
+          });
+
+          const firstType = (config.types || 'Corporate Cup').split(',')[0].trim();
+          const firstTeams = (config.teamsOptions || '8').split(',')[0].trim();
+          setFormData(prev => ({
+            ...prev,
+            tournamentType: firstType,
+            expectedTeams: firstTeams
+          }));
+        }
+      } catch (err) {
+        console.error('Error fetching organize form config:', err);
+      }
+    };
+    fetchFormConfig();
+  }, []);
 
   // Automatic slideshow transition every 5 seconds
   useEffect(() => {
@@ -260,9 +296,9 @@ export default function Organize() {
           ) : (
             <>
               <h3 className="text-lg font-bold text-gradient-gold mb-sm flex items-center gap-sm">
-                <ClipboardList size={22} /> Booking & Inquiry Form
+                <ClipboardList size={22} /> {formConfig.formTitle}
               </h3>
-              <p className="text-sm text-secondary mb-md">Fill out details about your tournament plans and our representative will call you back with estimates.</p>
+              <p className="text-sm text-secondary mb-md">{formConfig.formSubtitle}</p>
               
               {error && (
                 <div className="alert alert-error mb-md">
@@ -333,11 +369,10 @@ export default function Organize() {
                       value={formData.tournamentType}
                       onChange={handleInputChange}
                     >
-                      <option value="Corporate Cup">Corporate Cup</option>
-                      <option value="Turf Championship">Turf Championship</option>
-                      <option value="T20 League">T20 Leather League</option>
-                      <option value="Box Cricket Tournament">Box Cricket Tournament</option>
-                      <option value="Monsoon Cup">Monsoon Cup</option>
+                      {formConfig.types.split(',').map(type => {
+                        const t = type.trim();
+                        return <option key={t} value={t}>{t}</option>;
+                      })}
                     </select>
                   </div>
                   <div className="form-group">
@@ -348,11 +383,10 @@ export default function Organize() {
                       value={formData.expectedTeams}
                       onChange={handleInputChange}
                     >
-                      <option value="4-6">4 to 6 Teams</option>
-                      <option value="8">8 Teams</option>
-                      <option value="12">12 Teams</option>
-                      <option value="16">16 Teams</option>
-                      <option value="20+">20+ Teams</option>
+                      {formConfig.teamsOptions.split(',').map(teams => {
+                        const tc = teams.trim();
+                        return <option key={tc} value={tc}>{tc}</option>;
+                      })}
                     </select>
                   </div>
                 </div>
@@ -374,7 +408,7 @@ export default function Organize() {
                     name="message"
                     className="form-input"
                     rows="3"
-                    placeholder="Describe turf choices, custom kit sizing, schedule times, or umpire details..."
+                    placeholder={formConfig.requestPlaceholder}
                     value={formData.message}
                     onChange={handleInputChange}
                   />

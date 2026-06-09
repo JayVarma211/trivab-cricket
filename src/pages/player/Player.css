@@ -85,14 +85,13 @@
 }
 
 .id-card-logo {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 0.95rem;
-  letter-spacing: 1px;
-  color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 4px;
+}
+
+.id-card-brand-logo {
+  height: 32px;
+  object-fit: contain;
 }
 
 .id-card-badge {

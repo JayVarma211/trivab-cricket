@@ -37,16 +37,15 @@
 }
 
 .auth-logo {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--radius-md);
-  background: var(--gradient-gold);
-  color: #fff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-gold-strong);
   margin-bottom: var(--space-md);
+}
+
+.auth-logo img {
+  height: 70px;
+  object-fit: contain;
 }
 
 .auth-header h2 {

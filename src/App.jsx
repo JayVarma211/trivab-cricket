@@ -23,7 +23,6 @@ import TournamentDetails from './pages/tournaments/TournamentDetails';
 import MatchSchedule from './pages/MatchSchedule';
 import Sponsors from './pages/Sponsors';
 import QRScanner from './pages/QRScanner';
-import MVPStats from './pages/MVPStats';
 import Organize from './pages/organize/Organize';
 import TournamentTypeDetails from './pages/tournaments/TournamentTypeDetails';
 
@@ -40,6 +39,7 @@ import AdminTeams from './pages/admin/AdminTeams';
 import AdminMatches from './pages/admin/AdminMatches';
 import AdminImages from './pages/admin/AdminImages';
 import AdminTournaments from './pages/admin/AdminTournaments';
+import AdminOrganizeForm from './pages/admin/AdminOrganizeForm';
 
 export default function App() {
   const { loading } = useAuth();
@@ -68,7 +68,6 @@ export default function App() {
           <Route path="/schedule" element={<MatchSchedule />} />
           <Route path="/sponsors" element={<Sponsors />} />
           <Route path="/scanner" element={<QRScanner />} />
-          <Route path="/mvp-stats" element={<MVPStats />} />
           <Route path="/organize" element={<Organize />} />
 
           {/* Player */}
@@ -127,6 +126,13 @@ export default function App() {
             <AdminProtectedRoute>
               <AdminLayout>
                 <AdminTournaments />
+              </AdminLayout>
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/organize-form" element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <AdminOrganizeForm />
               </AdminLayout>
             </AdminProtectedRoute>
           } />

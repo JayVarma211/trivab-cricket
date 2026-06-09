@@ -171,9 +171,13 @@ export default function CaptainDashboard() {
 
         {/* Players List */}
         <div className="card players-table-card">
-          <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
+          <h3 className="text-lg font-bold mb-sm text-gradient-gold flex items-center gap-sm">
             <Users size={20} /> Squad Players List ({players.length})
           </h3>
+          <div className="alert alert-info flex gap-xs items-center mb-md" style={{ padding: '10px 14px', background: 'rgba(128, 0, 0, 0.15)', border: '1px solid rgba(128, 0, 0, 0.3)', color: 'var(--text-primary)', borderRadius: '6px', marginBottom: '16px' }}>
+            <ShieldAlert size={16} style={{ color: 'var(--gold)' }} />
+            <span style={{ fontSize: '0.8rem' }}><strong>Roster Management:</strong> Player additions/removals are restricted to Administrators. Captains have read-only access to squad records.</span>
+          </div>
           <div className="table-responsive">
             <table className="data-table">
               <thead>

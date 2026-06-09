@@ -6,7 +6,6 @@ const QUICK_LINKS = [
   { to: '/', label: 'Home' },
   { to: '/tournaments', label: 'Tournaments' },
   { to: '/schedule', label: 'Match Schedule' },
-  { to: '/mvp-stats', label: 'MVP & Stats' },
   { to: '/sponsors', label: 'Sponsors' },
 ];
 
@@ -23,11 +22,8 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-top container">
         <div className="footer-brand">
-          <Link to="/" className="footer-logo">
-            <div className="footer-logo-icon">
-              <Trophy size={20} />
-            </div>
-            <span>TRIVAB<span style={{ color: 'var(--gold)' }}>.</span></span>
+          <Link to="/" className="footer-logo-container">
+            <img src="/logos/trivabsports.webp" className="footer-logo-img" alt="TRIVAB SPORTS" />
           </Link>
           <p className="footer-tagline">
             The ultimate cricket management platform for teams, players, captains, and administrators.

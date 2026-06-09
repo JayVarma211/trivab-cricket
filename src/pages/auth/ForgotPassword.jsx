@@ -35,7 +35,7 @@ export default function ForgotPassword() {
         <div className="auth-card card-gold">
           <div className="auth-header">
             <div className="auth-logo">
-              <Trophy size={28} />
+              <img src="/logos/trivabsports.webp" alt="TRIVAB SPORTS" />
             </div>
             <h2 className="display-sm text-gradient-gold">Reset Password</h2>
             <p className="text-secondary text-sm">Reset password instructions will be sent via email</p>

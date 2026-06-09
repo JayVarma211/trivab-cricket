@@ -20,6 +20,10 @@ export default function AdminPlayers() {
   const [error, setError] = useState('');
   const [selectedPlayerForDetails, setSelectedPlayerForDetails] = useState(null);
 
+  const [activeTab, setActiveTab] = useState('players');
+  const [captains, setCaptains] = useState([]);
+  const [selectedCaptainForDetails, setSelectedCaptainForDetails] = useState(null);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -40,8 +44,10 @@ export default function AdminPlayers() {
     try {
       const playersData = await getCollection('players', []);
       const teamsData = await getCollection('teams', []);
+      const captainsData = await getCollection('captains', []);
       setPlayers(playersData);
       setTeams(teamsData);
+      setCaptains(captainsData);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load data');
@@ -177,6 +183,23 @@ export default function AdminPlayers() {
     }
   };
 
+  const handleDeleteCaptain = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this captain profile?')) return;
+    try {
+      const captainToDelete = captains.find(c => c.id === id);
+      await deleteDocument('captains', id);
+      if (captainToDelete && captainToDelete.teamId) {
+        await updateDocument('teams', captainToDelete.teamId, {
+          captainName: '',
+          captainId: ''
+        });
+      }
+      fetchData();
+    } catch (err) {
+      setError('Failed to delete captain profile');
+    }
+  };
+
   const handleEdit = (player) => {
     setFormData({
       fullName: player.fullName,
@@ -212,24 +235,50 @@ export default function AdminPlayers() {
     p.teamName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredCaptains = captains.filter(c =>
+    c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.teamName?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) return <div className="container section-padding"><p>Loading...</p></div>;
 
   return (
     <div className="admin-page container section-padding">
-      <div className="page-header flex justify-between items-center mb-xl">
+      <div className="page-header flex justify-between items-center mb-md">
         <div>
-          <h1 className="display-sm text-gradient-gold">Player Management</h1>
-          <p className="text-secondary">Total Players: {players.length}</p>
+          <h1 className="display-sm text-gradient-gold">Roster Management</h1>
+          <p className="text-secondary">Manage registered players, captains, and tournament participation.</p>
         </div>
+        {activeTab === 'players' && (
+          <button
+            onClick={() => {
+              resetForm();
+              setEditingId(null);
+              setShowForm(!showForm);
+            }}
+            className="btn btn-gold"
+          >
+            <Plus size={18} /> Add Player
+          </button>
+        )}
+      </div>
+
+      {/* Tabs Toggle */}
+      <div className="flex gap-md mb-xl" style={{ borderBottom: '1px solid var(--admin-border)', paddingBottom: '12px' }}>
         <button
-          onClick={() => {
-            resetForm();
-            setEditingId(null);
-            setShowForm(!showForm);
-          }}
-          className="btn btn-gold"
+          className={`btn ${activeTab === 'players' ? 'btn-gold' : 'btn-outline'} btn-sm`}
+          onClick={() => { setActiveTab('players'); setShowForm(false); }}
+          style={{ padding: '8px 16px', fontSize: '0.85rem' }}
         >
-          <Plus size={18} /> Add Player
+          Registered Players ({players.length})
+        </button>
+        <button
+          className={`btn ${activeTab === 'captains' ? 'btn-gold' : 'btn-outline'} btn-sm`}
+          onClick={() => { setActiveTab('captains'); setShowForm(false); }}
+          style={{ padding: '8px 16px', fontSize: '0.85rem' }}
+        >
+          Team Captains ({captains.length})
         </button>
       </div>
 
@@ -240,7 +289,7 @@ export default function AdminPlayers() {
         </div>
       )}
 
-      {showForm && (
+      {activeTab === 'players' && showForm && (
         <div className="card card-gold mb-xl p-lg">
           <h2 className="text-lg font-bold mb-md">
             {editingId ? 'Edit Player' : 'Add New Player'}
@@ -361,66 +410,135 @@ export default function AdminPlayers() {
         <Search size={18} />
         <input
           type="text"
-          placeholder="Search by name, email, or team..."
+          placeholder={activeTab === 'players' ? "Search players by name, email, or team..." : "Search captains by name, email, or team..."}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="form-input"
         />
       </div>
 
-      <div className="table-responsive card">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Player Name</th>
-              <th>Email</th>
-              <th>Team</th>
-              <th>Position</th>
-              <th>Jersey</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPlayers.map(player => (
-              <tr key={player.id}>
-                <td className="font-semi">{player.fullName}</td>
-                <td>{player.email}</td>
-                <td className="text-gold font-semi">{player.teamName}</td>
-                <td><span className="badge badge-gold">{player.playingStyle}</span></td>
-                <td>#{player.jerseyNumber}</td>
-                <td><span className="badge badge-green">{player.status}</span></td>
-                <td>
-                  <div className="flex gap-sm">
-                    <button
-                      onClick={() => setSelectedPlayerForDetails(player)}
-                      className="btn-table-action text-blue"
-                      title="View Details"
-                      style={{ color: '#3b82f6' }}
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleEdit(player)}
-                      className="btn-table-action text-gold"
-                      title="Edit"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(player.id)}
-                      className="btn-table-action text-red"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
+      {activeTab === 'players' ? (
+        <div className="table-responsive card">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Player Name</th>
+                <th>Email</th>
+                <th>Team</th>
+                <th>Position</th>
+                <th>Jersey</th>
+                <th>Joined Tournaments</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {filteredPlayers.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="text-center text-muted">No players found.</td>
+                </tr>
+              ) : (
+                filteredPlayers.map(player => (
+                  <tr key={player.id}>
+                    <td className="font-semi">{player.fullName}</td>
+                    <td>{player.email}</td>
+                    <td className="text-gold font-semi">{player.teamName || 'Free Agent'}</td>
+                    <td><span className="badge badge-gold">{player.playingStyle}</span></td>
+                    <td>#{player.jerseyNumber || 'N/A'}</td>
+                    <td style={{ fontSize: '0.8rem', maxWidth: '200px' }} className="truncate" title={
+                      player.joinedTournaments && player.joinedTournaments.length > 0
+                        ? player.joinedTournaments.map(t => typeof t === 'string' ? t : t.name || t.id).join(', ')
+                        : 'None'
+                    }>
+                      {player.joinedTournaments && player.joinedTournaments.length > 0
+                        ? player.joinedTournaments.map(t => typeof t === 'string' ? t : t.name || t.id).join(', ')
+                        : 'None'}
+                    </td>
+                    <td><span className="badge badge-green">{player.status}</span></td>
+                    <td>
+                      <div className="flex gap-sm">
+                        <button
+                          onClick={() => setSelectedPlayerForDetails(player)}
+                          className="btn-table-action text-blue"
+                          title="View Details"
+                          style={{ color: '#3b82f6' }}
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(player)}
+                          className="btn-table-action text-gold"
+                          title="Edit"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(player.id)}
+                          className="btn-table-action text-red"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="table-responsive card">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Captain Name</th>
+                <th>Email</th>
+                <th>Mobile</th>
+                <th>Managed Team</th>
+                <th>Captain ID</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCaptains.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="text-center text-muted">No captains found.</td>
+                </tr>
+              ) : (
+                filteredCaptains.map(captain => (
+                  <tr key={captain.id}>
+                    <td className="font-semi">{captain.fullName}</td>
+                    <td>{captain.email}</td>
+                    <td>{captain.mobile}</td>
+                    <td className="text-gold font-semi">{captain.teamName || 'Unassigned'}</td>
+                    <td><code>{captain.captainId || captain.id}</code></td>
+                    <td>
+                      <div className="flex gap-sm">
+                        <button
+                          onClick={() => setSelectedCaptainForDetails(captain)}
+                          className="btn-table-action text-blue"
+                          title="View Details"
+                          style={{ color: '#3b82f6' }}
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCaptain(captain.id)}
+                          className="btn-table-action text-red"
+                          title="Delete"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {selectedPlayerForDetails && (
         <div className="modal-overlay" onClick={() => setSelectedPlayerForDetails(null)}>
@@ -452,6 +570,11 @@ export default function AdminPlayers() {
                 <div className="flex justify-between"><span className="opacity-70">Mobile:</span><span>{selectedPlayerForDetails.mobile}</span></div>
                 <div className="flex justify-between"><span className="opacity-70">Team Name:</span><strong className="text-gold">{selectedPlayerForDetails.teamName || 'Free Agent'}</strong></div>
                 <div className="flex justify-between"><span className="opacity-70">Jersey No:</span><span>#{selectedPlayerForDetails.jerseyNumber || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Joined Tournaments:</span><span className="text-gold font-bold" style={{ textAlign: 'right', maxWidth: '240px' }}>
+                  {selectedPlayerForDetails.joinedTournaments && selectedPlayerForDetails.joinedTournaments.length > 0
+                    ? selectedPlayerForDetails.joinedTournaments.map(t => typeof t === 'string' ? t : t.name || t.id).join(', ')
+                    : 'None'}
+                </span></div>
                 <div className="flex justify-between"><span className="opacity-70">Status:</span><span className="text-green">{selectedPlayerForDetails.status}</span></div>
               </div>
               
@@ -461,6 +584,47 @@ export default function AdminPlayers() {
                 <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={220} />
               </div>
               <p className="text-xs text-secondary opacity-60">Verified Player QR Code Pass</p>
+            </div>
+          </div>
+        </div>
+      )}
+      {selectedCaptainForDetails && (
+        <div className="modal-overlay" onClick={() => setSelectedCaptainForDetails(null)}>
+          <div className="modal-content card card-gold" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: 'var(--space-xl)' }}>
+            <button className="modal-close" onClick={() => setSelectedCaptainForDetails(null)}>✕</button>
+            <h3 className="text-lg font-bold text-gradient-gold mb-md">Captain Verification Details</h3>
+            
+            <div className="flex flex-col items-center gap-md text-center">
+              <div className="avatar-xl mb-sm" style={{ width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', border: '3px solid var(--admin-accent)' }}>
+                {selectedCaptainForDetails.photoURL ? (
+                  <img src={selectedCaptainForDetails.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div className="avatar-xl flex items-center justify-center bg-secondary font-bold text-gold" style={{ width: '100%', height: '100%' }}>
+                    {selectedCaptainForDetails.fullName[0]?.toUpperCase() || 'C'}
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <h4 className="text-xl font-bold">{selectedCaptainForDetails.fullName}</h4>
+                <span className="badge badge-gold mt-xs">Team Captain</span>
+              </div>
+              
+              <div className="divider" />
+              
+              <div className="w-full text-sm text-left flex flex-col gap-xs" style={{ color: 'var(--admin-text)' }}>
+                <div className="flex justify-between"><span className="opacity-70">Captain ID:</span><strong>{selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}</strong></div>
+                <div className="flex justify-between"><span className="opacity-70">Email:</span><span>{selectedCaptainForDetails.email}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Mobile:</span><span>{selectedCaptainForDetails.mobile}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Managed Team:</span><strong className="text-gold">{selectedCaptainForDetails.teamName || 'Unassigned'}</strong></div>
+              </div>
+              
+              <div className="divider" />
+              
+              <div className="qr-container bg-white p-sm rounded-md" style={{ display: 'inline-block', padding: '12px', background: '#fff', borderRadius: '8px' }}>
+                <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={220} />
+              </div>
+              <p className="text-xs text-secondary opacity-60">Verified Captain QR Code Pass</p>
             </div>
           </div>
         </div>

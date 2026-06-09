@@ -83,7 +83,7 @@ export default function DigitalIDCard() {
             <div className="id-card-inner">
               <div className="id-card-header">
                 <div className="id-card-logo">
-                  <Trophy size={16} /> TRIVAB
+                  <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
                 </div>
                 <div className="id-card-badge">VERIFIED PASS</div>
               </div>

@@ -219,7 +219,7 @@ export default function Register() {
         <div className="auth-card card-gold register-card">
           <div className="auth-header">
             <div className="auth-logo">
-              <Trophy size={28} />
+              <img src="/logos/trivabsports.webp" alt="TRIVAB SPORTS" />
             </div>
             <h2 className="display-sm text-gradient-gold">Join the Platform</h2>
             <p className="text-secondary text-sm">Register your profile for tournaments & matches</p>

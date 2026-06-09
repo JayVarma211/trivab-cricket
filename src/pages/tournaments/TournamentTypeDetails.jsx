@@ -11,8 +11,8 @@ const PARENT_TOURNAMENTS = {
     description: 'The premier BAPL League, featuring top cricket squads in Mumbai competing across editions. Experience professional-grade cricket structure, turf pitches, and certified umpiring.',
     logo: '/logos/bapllogo.jpg',
     editions: [
-      { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.', location: 'South Mumbai Arenas' },
       { id: 'bapl-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL League.', location: 'North Mumbai Grounds' },
+      { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.', location: 'South Mumbai Arenas' },
     ]
   },
   'baplxpress': {
@@ -20,8 +20,8 @@ const PARENT_TOURNAMENTS = {
     description: 'Fast-paced, action-packed T20 matches in the BAPL XPRESS League. Dynamic short formats, aggressive play styles, and electric atmospheres.',
     logo: '/logos/bapllogo.jpg',
     editions: [
+      { id: 'baplxpress-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'North Mumbai Turf Arenas' },
       { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'South Mumbai Turfs' },
-      { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'North Mumbai Turf Arenas' },
     ]
   },
   'baplcorporate': {
@@ -29,8 +29,8 @@ const PARENT_TOURNAMENTS = {
     description: 'The ultimate corporate face-off, blending workplace camaraderie with cricket passion. Weekend leagues designed for corporate clubs and business houses.',
     logo: '/logos/baplcorporate.jpg',
     editions: [
-      { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.', location: 'South Mumbai Corporate Grounds' },
       { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'North Mumbai Edition of the BAPL Corporate Cup.', location: 'North Mumbai Sports Hubs' },
+      { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.', location: 'South Mumbai Corporate Grounds' },
     ]
   },
   'bapldads': {
@@ -38,8 +38,8 @@ const PARENT_TOURNAMENTS = {
     description: 'Celebrating cricket passion for the seasoned veterans in the BAPL DADS T20 tournament. Relive the glory days in a highly competitive senior division.',
     logo: '/logos/bapldadst20.jpg',
     editions: [
-      { id: 'bapldads-south', name: 'BAPL DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL DADS T20 League.', location: 'South Mumbai Turf Grounds' },
       { id: 'bapldads-north', name: 'BAPL DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'North Mumbai Edition of the BAPL DADS T20 League.', location: 'North Mumbai Arenas' },
+      { id: 'bapldads-south', name: 'BAPL DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL DADS T20 League.', location: 'South Mumbai Turf Grounds' },
     ]
   }
 };
@@ -142,6 +142,11 @@ export default function TournamentTypeDetails() {
           
           return (
             <div key={edition.id} className="card edition-hub-card border-top-gold page-enter">
+              {edition.id.includes('south') && (
+                <div className="edition-card-overlay">
+                  <div className="coming-soon-badge">Coming Soon</div>
+                </div>
+              )}
               {/* Card Header Overlay Visual */}
               <div className="edition-card-visual flex items-center justify-between p-lg">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

@@ -52,7 +52,7 @@ export default function Login() {
         <div className="auth-card card-gold">
           <div className="auth-header">
             <div className="auth-logo">
-              <Trophy size={28} />
+              <img src="/logos/trivabsports.webp" alt="TRIVAB SPORTS" />
             </div>
             <h2 className="display-sm text-gradient-gold">Welcome Back</h2>
             <p className="text-secondary text-sm">Access your TRIVAB platform dashboard</p>

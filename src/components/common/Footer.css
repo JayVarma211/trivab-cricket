@@ -12,27 +12,16 @@
 }
 
 /* Brand */
-.footer-logo {
-  display: flex;
+.footer-logo-container {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--text-primary);
   margin-bottom: var(--space-md);
   text-decoration: none;
 }
 
-.footer-logo-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--gradient-gold);
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
+.footer-logo-img {
+  height: 60px;
+  object-fit: contain;
 }
 
 .footer-tagline {

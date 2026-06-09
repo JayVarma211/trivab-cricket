@@ -12,12 +12,11 @@ import './Navbar.css';
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
+  { to: '/about', label: 'About Us' },
   { to: '/tournaments', label: 'Tournaments' },
   { to: '/schedule', label: 'Schedule' },
-  { to: '/mvp-stats', label: 'MVP & Stats' },
   { to: '/sponsors', label: 'Sponsors' },
   { to: '/organize', label: 'Organize' },
-  { to: '/about', label: 'About' },
 ];
 
 const TOURNAMENTS_MENU = [

@@ -57,12 +57,45 @@
   flex-direction: column;
   height: 100%;
   transition: all var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
 }
 
 .edition-hub-card:hover {
   transform: translateY(-8px);
   border-color: var(--gold);
   box-shadow: 0 12px 36px rgba(212, 175, 55, 0.15);
+}
+
+/* Blurred Coming Soon overlay */
+.edition-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(9, 9, 11, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: inherit;
+  pointer-events: all;
+}
+
+.coming-soon-badge {
+  background: linear-gradient(135deg, #800000 0%, #d4af37 100%);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.1em;
+  border: 1.5px solid var(--gold);
 }
 
 .edition-card-logo {

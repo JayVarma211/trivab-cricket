@@ -86,8 +86,8 @@ export default function AdminLogin() {
       <div className="container auth-container">
         <div className="auth-card card-gold login-card" style={{ maxWidth: '420px', margin: '0 auto' }}>
           <div className="auth-header">
-            <div className="auth-logo" style={{ color: 'var(--gold)' }}>
-              <Shield size={28} />
+            <div className="auth-logo">
+              <img src="/logos/trivabsports.webp" alt="TRIVAB SPORTS" />
             </div>
             <h2 className="display-sm text-gradient-gold">Admin Login</h2>
             <p className="text-secondary text-sm">Access tournament management console</p>
