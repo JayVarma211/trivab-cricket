@@ -1024,3 +1024,19 @@
   to { opacity: 1; }
 }
 
+/* Player and Captain Inspection Responsive Layout */
+.player-details-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-xl);
+  margin-top: var(--space-md);
+}
+
+@media (max-width: 768px) {
+  .player-details-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+}
+
+

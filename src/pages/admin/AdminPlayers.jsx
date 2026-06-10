@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, setDocument, updateDocument, deleteDocument } from '../../firebase/firestore';
 import { uploadImageToCloudinary } from '../../services/cloudinary';
-import { Users, Trash2, Plus, AlertCircle, Search, Edit2, Upload, Eye, Download } from 'lucide-react';
+import { Users, Trash2, Plus, AlertCircle, Search, Edit2, Upload, Eye, Download, User } from 'lucide-react';
 import { generatePlayerID } from '../../utils/generatePlayerID';
 import { QRCodeSVG } from 'qrcode.react';
+import { downloadIDCardPDF } from '../../utils/generateIDCardPDF';
 import './Admin.css';
+import '../player/Player.css';
 
 export default function AdminPlayers() {
   const { role } = useAuth();
@@ -1076,67 +1078,244 @@ export default function AdminPlayers() {
 
       {selectedPlayerForDetails && (
         <div className="modal-overlay" onClick={() => setSelectedPlayerForDetails(null)}>
-          <div className="modal-content card card-gold animate-scale-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: 'var(--space-xl)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div 
+            className="modal-content card card-gold animate-scale-in" 
+            onClick={e => e.stopPropagation()} 
+            style={{ 
+              maxWidth: '850px', 
+              width: '95%',
+              padding: 'var(--space-xl)', 
+              maxHeight: '90vh', 
+              overflowY: 'auto',
+              border: '1px solid var(--admin-border)',
+              background: 'var(--admin-card-bg)',
+              color: 'var(--admin-text)'
+            }}
+          >
             <button className="modal-close" onClick={() => setSelectedPlayerForDetails(null)}>✕</button>
-            <h3 className="text-lg font-bold text-gradient-gold mb-md">Player Verification Details</h3>
             
-            <div className="flex flex-col items-center gap-md text-center">
-              <div className="avatar-xl mb-sm" style={{ width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', border: '3px solid var(--admin-accent)' }}>
-                {selectedPlayerForDetails.photoURL ? (
-                  <img src={selectedPlayerForDetails.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div className="avatar-xl flex items-center justify-center bg-secondary font-bold text-gold" style={{ width: '100%', height: '100%' }}>
-                    {selectedPlayerForDetails.fullName[0]?.toUpperCase() || 'P'}
-                  </div>
-                )}
-              </div>
+            <div className="flex justify-between items-center mb-lg pb-sm" style={{ borderBottom: '1px solid var(--admin-border)' }}>
+              <h3 className="text-lg font-bold text-gradient-gold">Player Profile Details & Pass</h3>
+              <button 
+                onClick={async () => {
+                  try {
+                    await downloadIDCardPDF('admin-player-card-render', `${selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}.pdf`);
+                  } catch (e) {
+                    console.error("PDF download failed:", e);
+                    alert("Failed to generate PDF pass");
+                  }
+                }}
+                className="btn btn-gold btn-sm"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', fontSize: '0.8rem' }}
+              >
+                <Download size={14} /> Download ID Card
+              </button>
+            </div>
+            
+            <div className="player-details-grid">
               
-              <div>
-                <h4 className="text-xl font-bold">{selectedPlayerForDetails.fullName}</h4>
-                <span className="badge badge-gold mt-xs">{selectedPlayerForDetails.playingStyle}</span>
-              </div>
-              
-              <div className="divider" />
-              
-              <div className="w-full text-sm text-left flex flex-col gap-xs" style={{ color: 'var(--admin-text)', maxHeight: '420px', overflowY: 'auto', paddingRight: '6px' }}>
-                <div className="flex justify-between"><span className="opacity-70">Player ID:</span><strong>{selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</strong></div>
-                <div className="flex justify-between"><span className="opacity-70">Email:</span><span>{selectedPlayerForDetails.email}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">CricHeroes Regis No:</span><span>{selectedPlayerForDetails.cricHeroesRegNo || selectedPlayerForDetails.mobile || 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Date of Birth:</span><span>{selectedPlayerForDetails.dob || 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Blood Group:</span><span>{selectedPlayerForDetails.bloodGroup || 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Emergency Contact:</span><span>{selectedPlayerForDetails.emergencyContactName ? `${selectedPlayerForDetails.emergencyContactName} (${selectedPlayerForDetails.emergencyContactMobile})` : 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Instagram:</span><span>{selectedPlayerForDetails.instagramId ? `@${selectedPlayerForDetails.instagramId}` : 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Team Name:</span><strong className="text-gold">{selectedPlayerForDetails.teamName || 'Free Agent'}</strong></div>
-                <div className="flex justify-between"><span className="opacity-70">Jersey No:</span><span>#{selectedPlayerForDetails.jerseyNumber || 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Track Pant Size:</span><span>{selectedPlayerForDetails.trackPantSize || 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">T-Shirt Size:</span><span>{selectedPlayerForDetails.tshirtSize || 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Sleeve Type:</span><span>{selectedPlayerForDetails.sleeveType || 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">MCA Player:</span><span>{selectedPlayerForDetails.mcaPlayer ? 'Yes' : 'No'}</span></div>
-                {selectedPlayerForDetails.mcaPlayer && (
-                  <>
-                    <div className="flex justify-between"><span className="opacity-70">MCA ID Number:</span><span>{selectedPlayerForDetails.mcaIdNumber || 'N/A'}</span></div>
-                    {selectedPlayerForDetails.mcaCardURL && (
-                      <div className="flex flex-col gap-xs mt-xs mb-sm">
-                        <span className="opacity-70 text-xs font-bold uppercase">MCA Card:</span>
-                        <a href={selectedPlayerForDetails.mcaCardURL} target="_blank" rel="noreferrer" style={{ display: 'block' }}>
-                          <img 
-                            src={selectedPlayerForDetails.mcaCardURL} 
-                            alt="MCA Card" 
-                            style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: '6px', border: '1px solid var(--border)' }} 
-                          />
-                        </a>
+              {/* Left Column: ID Card Render & Main Actions */}
+              <div className="flex flex-col items-center gap-md">
+                
+                {/* ID Card Wrapper */}
+                <div className="card-render-wrapper" style={{ transform: 'scale(0.9)', transformOrigin: 'top center', marginBottom: '-20px' }}>
+                  <div className="id-card-element" id="admin-player-card-render" style={{ margin: '0 auto' }}>
+                    <div className="id-card-gold-accent" />
+                    <div className="id-card-inner">
+                      <div className="id-card-header">
+                        <div className="id-card-logo">
+                          <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
+                        </div>
+                        <div className="id-card-badge">VERIFIED PASS</div>
                       </div>
+
+                      <div className="id-card-body">
+                        <div className="id-player-photo">
+                          {selectedPlayerForDetails.photoURL ? (
+                            <img src={selectedPlayerForDetails.photoURL} alt={selectedPlayerForDetails.fullName} />
+                          ) : (
+                            <User size={48} />
+                          )}
+                        </div>
+
+                        <div className="id-player-details">
+                          <h3 className="id-player-name">{selectedPlayerForDetails.fullName}</h3>
+                          <span className="id-player-style">{selectedPlayerForDetails.playingStyle}</span>
+                          
+                          <div className="id-player-stats-row">
+                            {selectedPlayerForDetails.teamName && selectedPlayerForDetails.teamName !== 'Free Agent' && selectedPlayerForDetails.teamName !== 'free-agent' && (
+                              <div>
+                                <span className="id-stat-lbl">TEAM</span>
+                                <span className="id-stat-val text-gradient-gold">{selectedPlayerForDetails.teamName}</span>
+                              </div>
+                            )}
+                            <div>
+                              <span className="id-stat-lbl">JERSEY</span>
+                              <span className="id-stat-val text-gradient-gold">#{selectedPlayerForDetails.jerseyNumber || 'N/A'}</span>
+                            </div>
+                            <div>
+                              <span className="id-stat-lbl">MATCHES</span>
+                              <span className="id-stat-val text-gradient-gold">
+                                {selectedPlayerForDetails.joinedTournaments
+                                  ? selectedPlayerForDetails.joinedTournaments.reduce((acc, t) => acc + (t.matchesPlayed || 0), 0)
+                                  : 0}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="id-card-footer">
+                        <div className="id-code-group">
+                          <span className="id-stat-lbl">PLAYER ID</span>
+                          <span className="id-code-text">{selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</span>
+                        </div>
+                        <div className="id-qr-box">
+                          <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={64} bgColor="#ffffff" fgColor="#000000" level="H" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="divider w-full" />
+                
+                {/* Secondary QR verification view */}
+                <div className="flex flex-col items-center gap-xs text-center w-full bg-secondary p-sm rounded-md" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--admin-border)', padding: '12px' }}>
+                  <div className="bg-white p-xs rounded-md" style={{ display: 'inline-block', background: '#fff', padding: '8px' }}>
+                    <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={110} />
+                  </div>
+                  <span className="text-xs text-muted mt-xs">Verify Pass QR: {selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</span>
+                </div>
+              </div>
+
+              {/* Right Column: Full Profile & Tournament Details */}
+              <div className="flex flex-col gap-md">
+                
+                {/* Section: Registration Information */}
+                <div>
+                  <h4 className="text-xs font-bold text-gradient-gold uppercase tracking-wider mb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingBottom: '4px' }}>Registration Profile</h4>
+                  
+                  <div className="grid grid-2 gap-sm text-sm" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                    
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Full Name</span>
+                      <strong className="text-gold">{selectedPlayerForDetails.fullName}</strong>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Player ID</span>
+                      <strong>{selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</strong>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px', gridColumn: 'span 2' }}>
+                      <span className="text-xs text-muted block mb-xxs">Email Address</span>
+                      <span>{selectedPlayerForDetails.email}</span>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">CricHeroes Regis No.</span>
+                      <span>{selectedPlayerForDetails.cricHeroesRegNo || selectedPlayerForDetails.mobile || 'N/A'}</span>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Instagram ID</span>
+                      {selectedPlayerForDetails.instagramId ? (
+                        <a 
+                          href={`https://instagram.com/${selectedPlayerForDetails.instagramId}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="text-blue"
+                          style={{ color: '#60a5fa', textDecoration: 'underline' }}
+                        >
+                          @{selectedPlayerForDetails.instagramId}
+                        </a>
+                      ) : (
+                        <span>N/A</span>
+                      )}
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Date of Birth</span>
+                      <span>{selectedPlayerForDetails.dob || 'N/A'}</span>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Blood Group</span>
+                      <span>{selectedPlayerForDetails.bloodGroup || 'N/A'}</span>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px', gridColumn: 'span 2' }}>
+                      <span className="text-xs text-muted block mb-xxs">Emergency Contact</span>
+                      <span>
+                        {selectedPlayerForDetails.emergencyContactName 
+                          ? `${selectedPlayerForDetails.emergencyContactName} (${selectedPlayerForDetails.emergencyContactMobile})` 
+                          : 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Kit & Team Details */}
+                <div>
+                  <h4 className="text-xs font-bold text-gradient-gold uppercase tracking-wider mb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingBottom: '4px' }}>Kit & Playing Style</h4>
+                  
+                  <div className="grid grid-3 gap-sm text-sm" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+                    <div className="p-xs rounded-md text-center" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px' }}>
+                      <span className="text-xs text-muted block mb-xxs">T-Shirt</span>
+                      <strong>{selectedPlayerForDetails.tshirtSize || 'N/A'}</strong>
+                    </div>
+                    <div className="p-xs rounded-md text-center" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Track Pant</span>
+                      <strong>{selectedPlayerForDetails.trackPantSize || 'N/A'}</strong>
+                    </div>
+                    <div className="p-xs rounded-md text-center" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Sleeve Type</span>
+                      <strong>{selectedPlayerForDetails.sleeveType || 'N/A'}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: MCA Registration */}
+                <div>
+                  <h4 className="text-xs font-bold text-gradient-gold uppercase tracking-wider mb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingBottom: '4px' }}>MCA Card Verification</h4>
+                  
+                  <div className="p-xs rounded-md flex flex-col gap-xs" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '12px' }}>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted">MCA Registered:</span>
+                      <strong>{selectedPlayerForDetails.mcaPlayer ? 'Yes' : 'No'}</strong>
+                    </div>
+                    
+                    {selectedPlayerForDetails.mcaPlayer && (
+                      <>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted">MCA ID Number:</span>
+                          <strong>{selectedPlayerForDetails.mcaIdNumber || 'N/A'}</strong>
+                        </div>
+                        {selectedPlayerForDetails.mcaCardURL && (
+                          <div className="mt-xs">
+                            <span className="text-xs text-muted block mb-xs">Card Attachment Preview:</span>
+                            <a href={selectedPlayerForDetails.mcaCardURL} target="_blank" rel="noreferrer" style={{ display: 'inline-block' }}>
+                              <img 
+                                src={selectedPlayerForDetails.mcaCardURL} 
+                                alt="MCA Card" 
+                                style={{ maxHeight: '80px', maxWidth: '100%', objectFit: 'contain', borderRadius: '4px', border: '1px solid var(--admin-border)' }} 
+                              />
+                            </a>
+                          </div>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-                
-                <div className="divider" style={{ margin: '12px 0' }} />
-                
-                <div className="flex flex-col gap-xs w-full">
-                  <span className="opacity-70 text-xs font-bold uppercase block mb-xs">Joined Tournaments & Roles</span>
-                  {selectedPlayerForDetails.joinedTournaments && selectedPlayerForDetails.joinedTournaments.length > 0 ? (
-                    <div className="flex flex-col gap-sm" style={{ maxHeight: '180px', overflowY: 'auto', width: '100%' }}>
-                      {selectedPlayerForDetails.joinedTournaments.map((t, idx) => {
+                  </div>
+                </div>
+
+                {/* Section: Joined Tournaments Roster */}
+                <div>
+                  <h4 className="text-xs font-bold text-gradient-gold uppercase tracking-wider mb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingBottom: '4px' }}>Joined Tournaments & Matches</h4>
+                  
+                  <div className="flex flex-col gap-sm">
+                    {selectedPlayerForDetails.joinedTournaments && selectedPlayerForDetails.joinedTournaments.length > 0 ? (
+                      selectedPlayerForDetails.joinedTournaments.map((t, idx) => {
                         const tName = typeof t === 'string' ? t : t.name || t.id;
                         const tId = typeof t === 'string' ? t : t.id;
                         const teamName = t.teamName || 'N/A';
@@ -1144,13 +1323,21 @@ export default function AdminPlayers() {
                         const matchesPlayed = t.matchesPlayed !== undefined ? t.matchesPlayed : 0;
                         
                         return (
-                          <div key={tId || idx} className="card p-xs flex flex-col gap-xs" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', padding: '8px 12px', borderRadius: '6px' }}>
+                          <div 
+                            key={tId || idx} 
+                            className="flex flex-col gap-xs p-xs rounded-md" 
+                            style={{ 
+                              background: 'rgba(128, 0, 0, 0.05)', 
+                              border: '1px solid rgba(128, 0, 0, 0.2)', 
+                              padding: '10px 14px' 
+                            }}
+                          >
                             <div className="flex justify-between items-center">
-                              <span className="font-bold text-xs truncate" style={{ maxWidth: '200px' }}>{tName}</span>
-                              <span className="badge badge-gold" style={{ fontSize: '0.65rem', padding: '2px 6px' }}>{matchesPlayed} Matches</span>
+                              <span className="font-bold text-sm truncate" style={{ maxWidth: '240px' }}>{tName}</span>
+                              <span className="badge badge-gold" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>{matchesPlayed} Matches</span>
                             </div>
-                            <div className="flex justify-between items-center text-xs opacity-80 mt-xs">
-                              <span>Team: <strong className="text-gold">{teamName}</strong> ({roleLabel})</span>
+                            <div className="flex justify-between items-center text-xs opacity-95 mt-xs">
+                              <span>Representing: <strong className="text-gold">{teamName}</strong> ({roleLabel})</span>
                               <button 
                                 onClick={async (e) => {
                                   e.stopPropagation();
@@ -1163,69 +1350,172 @@ export default function AdminPlayers() {
                                   }
                                 }}
                                 className="btn btn-outline"
-                                style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '4px', height: 'auto' }}
+                                style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '4px', height: 'auto', border: '1px solid var(--admin-accent)' }}
                               >
                                 Edit Matches
                               </button>
                             </div>
                           </div>
                         );
-                      })}
-                    </div>
-                  ) : (
-                    <span className="text-xs text-muted">No tournaments joined.</span>
-                  )}
+                      })
+                    ) : (
+                      <span className="text-xs text-muted">No active tournament rosters.</span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-between mt-sm"><span className="opacity-70">Status:</span><span className="text-green">{selectedPlayerForDetails.status}</span></div>
+
+                <div className="flex justify-between mt-sm" style={{ borderTop: '1px solid var(--admin-border)', paddingTop: '8px' }}>
+                  <span className="opacity-70 text-sm">Status:</span>
+                  <span className="text-green text-sm font-bold">{selectedPlayerForDetails.status}</span>
+                </div>
+
               </div>
-              
-              <div className="divider" />
-              
-              <div className="qr-container bg-white p-sm rounded-md" style={{ display: 'inline-block', padding: '12px', background: '#fff', borderRadius: '8px' }}>
-                <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={140} />
-              </div>
-              <p className="text-xs text-secondary opacity-60">Verified Player QR Code Pass</p>
+
             </div>
           </div>
         </div>
       )}
       {selectedCaptainForDetails && (
         <div className="modal-overlay" onClick={() => setSelectedCaptainForDetails(null)}>
-          <div className="modal-content card card-gold animate-scale-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: 'var(--space-xl)', maxHeight: '90vh', overflowY: 'auto' }}>
+          <div 
+            className="modal-content card card-gold animate-scale-in" 
+            onClick={e => e.stopPropagation()} 
+            style={{ 
+              maxWidth: '850px', 
+              width: '95%',
+              padding: 'var(--space-xl)', 
+              maxHeight: '90vh', 
+              overflowY: 'auto',
+              border: '1px solid var(--admin-border)',
+              background: 'var(--admin-card-bg)',
+              color: 'var(--admin-text)'
+            }}
+          >
             <button className="modal-close" onClick={() => setSelectedCaptainForDetails(null)}>✕</button>
-            <h3 className="text-lg font-bold text-gradient-gold mb-md">Captain Verification Details</h3>
             
-            <div className="flex flex-col items-center gap-md text-center">
-              <div className="avatar-xl mb-sm" style={{ width: 120, height: 120, borderRadius: '50%', overflow: 'hidden', border: '3px solid var(--admin-accent)' }}>
-                {selectedCaptainForDetails.photoURL ? (
-                  <img src={selectedCaptainForDetails.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div className="avatar-xl flex items-center justify-center bg-secondary font-bold text-gold" style={{ width: '100%', height: '100%' }}>
-                    {selectedCaptainForDetails.fullName[0]?.toUpperCase() || 'C'}
+            <div className="flex justify-between items-center mb-lg pb-sm" style={{ borderBottom: '1px solid var(--admin-border)' }}>
+              <h3 className="text-lg font-bold text-gradient-gold">Captain Profile Details & Pass</h3>
+              <button 
+                onClick={async () => {
+                  try {
+                    await downloadIDCardPDF('admin-captain-card-render', `${selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}.pdf`);
+                  } catch (e) {
+                    console.error("PDF download failed:", e);
+                    alert("Failed to generate PDF pass");
+                  }
+                }}
+                className="btn btn-gold btn-sm"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', fontSize: '0.8rem' }}
+              >
+                <Download size={14} /> Download ID Card
+              </button>
+            </div>
+            
+            <div className="player-details-grid">
+              
+              {/* Left Column: ID Card Render & Main Actions */}
+              <div className="flex flex-col items-center gap-md">
+                
+                {/* ID Card Wrapper */}
+                <div className="card-render-wrapper" style={{ transform: 'scale(0.9)', transformOrigin: 'top center', marginBottom: '-20px' }}>
+                  <div className="id-card-element" id="admin-captain-card-render" style={{ margin: '0 auto' }}>
+                    <div className="id-card-gold-accent" />
+                    <div className="id-card-inner">
+                      <div className="id-card-header">
+                        <div className="id-card-logo">
+                          <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
+                        </div>
+                        <div className="id-card-badge">VERIFIED PASS</div>
+                      </div>
+
+                      <div className="id-card-body">
+                        <div className="id-player-photo">
+                          {selectedCaptainForDetails.photoURL ? (
+                            <img src={selectedCaptainForDetails.photoURL} alt={selectedCaptainForDetails.fullName} />
+                          ) : (
+                            <User size={48} />
+                          )}
+                        </div>
+
+                        <div className="id-player-details">
+                          <h3 className="id-player-name">{selectedCaptainForDetails.fullName}</h3>
+                          <span className="id-player-style">Team Captain</span>
+                          
+                          <div className="id-player-stats-row">
+                            {selectedCaptainForDetails.teamName && (
+                              <div>
+                                <span className="id-stat-lbl">TEAM</span>
+                                <span className="id-stat-val text-gradient-gold">{selectedCaptainForDetails.teamName}</span>
+                              </div>
+                            )}
+                            <div>
+                              <span className="id-stat-lbl">ROLE</span>
+                              <span className="id-stat-val text-gradient-gold">CAPTAIN</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="id-card-footer">
+                        <div className="id-code-group">
+                          <span className="id-stat-lbl">CAPTAIN ID</span>
+                          <span className="id-code-text">{selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}</span>
+                        </div>
+                        <div className="id-qr-box">
+                          <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={64} bgColor="#ffffff" fgColor="#000000" level="H" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                )}
+                </div>
+
+                <div className="divider w-full" />
+                
+                {/* Secondary QR verification view */}
+                <div className="flex flex-col items-center gap-xs text-center w-full bg-secondary p-sm rounded-md" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--admin-border)', padding: '12px' }}>
+                  <div className="bg-white p-xs rounded-md" style={{ display: 'inline-block', background: '#fff', padding: '8px' }}>
+                    <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={110} />
+                  </div>
+                  <span className="text-xs text-muted mt-xs">Verify Pass QR: {selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}</span>
+                </div>
               </div>
-              
-              <div>
-                <h4 className="text-xl font-bold">{selectedCaptainForDetails.fullName}</h4>
-                <span className="badge badge-gold mt-xs">Team Captain</span>
+
+              {/* Right Column: Full Profile */}
+              <div className="flex flex-col gap-md">
+                
+                <div>
+                  <h4 className="text-xs font-bold text-gradient-gold uppercase tracking-wider mb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingBottom: '4px' }}>Captain Profile</h4>
+                  
+                  <div className="flex flex-col gap-sm text-sm">
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Full Name</span>
+                      <strong className="text-gold">{selectedCaptainForDetails.fullName}</strong>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Captain ID</span>
+                      <strong>{selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}</strong>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Email Address</span>
+                      <span>{selectedCaptainForDetails.email}</span>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Mobile Number</span>
+                      <span>{selectedCaptainForDetails.mobile || 'N/A'}</span>
+                    </div>
+
+                    <div className="p-xs rounded-md" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px 12px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Managed Team</span>
+                      <strong className="text-gold">{selectedCaptainForDetails.teamName || 'Unassigned'}</strong>
+                    </div>
+                  </div>
+                </div>
+
               </div>
-              
-              <div className="divider" />
-              
-              <div className="w-full text-sm text-left flex flex-col gap-xs" style={{ color: 'var(--admin-text)' }}>
-                <div className="flex justify-between"><span className="opacity-70">Captain ID:</span><strong>{selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}</strong></div>
-                <div className="flex justify-between"><span className="opacity-70">Email:</span><span>{selectedCaptainForDetails.email}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Mobile:</span><span>{selectedCaptainForDetails.mobile}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Managed Team:</span><strong className="text-gold">{selectedCaptainForDetails.teamName || 'Unassigned'}</strong></div>
-              </div>
-              
-              <div className="divider" />
-              
-              <div className="qr-container bg-white p-sm rounded-md" style={{ display: 'inline-block', padding: '12px', background: '#fff', borderRadius: '8px' }}>
-                <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={140} />
-              </div>
-              <p className="text-xs text-secondary opacity-60">Verified Captain QR Code Pass</p>
+
             </div>
           </div>
         </div>
