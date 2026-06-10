@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, setDocument, updateDocument, deleteDocument } from '../../firebase/firestore';
 import { uploadImageToCloudinary } from '../../services/cloudinary';
-import { Users, Trash2, Plus, AlertCircle, Search, Edit2, Upload, Eye } from 'lucide-react';
+import { Users, Trash2, Plus, AlertCircle, Search, Edit2, Upload, Eye, Download } from 'lucide-react';
 import { generatePlayerID } from '../../utils/generatePlayerID';
 import { QRCodeSVG } from 'qrcode.react';
 import './Admin.css';
@@ -29,11 +29,24 @@ export default function AdminPlayers() {
     fullName: '',
     email: '',
     mobile: '',
+    cricHeroesRegNo: '',
+    emergencyContactName: '',
+    emergencyContactMobile: '',
+    bloodGroup: '',
+    dob: '',
     teamId: '',
     teamName: '',
     playingStyle: 'Batsman',
     jerseyNumber: '',
     photo: null,
+    instagramId: '',
+    tshirtSize: '',
+    trackPantSize: '',
+    sleeveType: '',
+    mcaPlayer: false,
+    mcaIdNumber: '',
+    mcaCardURL: '',
+    mcaCardFile: null,
   });
 
   useEffect(() => {
@@ -93,6 +106,11 @@ export default function AdminPlayers() {
         photoURL = await uploadImageToCloudinary(formData.photo);
       }
 
+      let mcaCardURL = '';
+      if (formData.mcaCardFile) {
+        mcaCardURL = await uploadImageToCloudinary(formData.mcaCardFile);
+      }
+
       if (editingId) {
         const previousPlayer = players.find(p => p.id === editingId);
         let playerTournaments = previousPlayer?.joinedTournaments || [];
@@ -137,7 +155,8 @@ export default function AdminPlayers() {
               photoURL: photoURL || formData.photoURL || previousPlayer?.photoURL || '',
               playingStyle: formData.playingStyle || 'Batsman',
               jerseyNumber: formData.jerseyNumber || '',
-              mobile: formData.mobile || '',
+              mobile: formData.mobile || formData.cricHeroesRegNo || '',
+              cricHeroesRegNo: formData.cricHeroesRegNo || formData.mobile || '',
               tournamentId: teamObj.tournamentId,
               tournamentName: tournamentName,
               teamId: formData.teamId,
@@ -151,7 +170,12 @@ export default function AdminPlayers() {
         const playerData = {
           fullName: formData.fullName,
           email: formData.email,
-          mobile: formData.mobile,
+          mobile: formData.mobile || formData.cricHeroesRegNo || '',
+          cricHeroesRegNo: formData.cricHeroesRegNo || formData.mobile || '',
+          emergencyContactName: formData.emergencyContactName || '',
+          emergencyContactMobile: formData.emergencyContactMobile || '',
+          bloodGroup: formData.bloodGroup || '',
+          dob: formData.dob || '',
           teamId: formData.teamId,
           teamName: formData.teamName,
           playingStyle: formData.playingStyle,
@@ -159,7 +183,14 @@ export default function AdminPlayers() {
           photoURL: photoURL || formData.photoURL || '',
           status: 'Active',
           playerId: previousPlayer?.playerId || editingId,
-          joinedTournaments: playerTournaments
+          joinedTournaments: playerTournaments,
+          instagramId: formData.instagramId || '',
+          tshirtSize: formData.tshirtSize || '',
+          trackPantSize: formData.trackPantSize || '',
+          sleeveType: formData.sleeveType || '',
+          mcaPlayer: formData.mcaPlayer,
+          mcaIdNumber: formData.mcaPlayer ? formData.mcaIdNumber : '',
+          mcaCardURL: mcaCardURL || formData.mcaCardURL || '',
         };
         await updateDocument('players', editingId, playerData);
 
@@ -213,7 +244,8 @@ export default function AdminPlayers() {
               photoURL: photoURL || '',
               playingStyle: formData.playingStyle || 'Batsman',
               jerseyNumber: formData.jerseyNumber || '',
-              mobile: formData.mobile || '',
+              mobile: formData.mobile || formData.cricHeroesRegNo || '',
+              cricHeroesRegNo: formData.cricHeroesRegNo || formData.mobile || '',
               tournamentId: teamObj.tournamentId,
               tournamentName: tournamentName,
               teamId: formData.teamId,
@@ -228,7 +260,12 @@ export default function AdminPlayers() {
           playerId: generatedId,
           fullName: formData.fullName,
           email: formData.email,
-          mobile: formData.mobile,
+          mobile: formData.mobile || formData.cricHeroesRegNo || '',
+          cricHeroesRegNo: formData.cricHeroesRegNo || formData.mobile || '',
+          emergencyContactName: formData.emergencyContactName || '',
+          emergencyContactMobile: formData.emergencyContactMobile || '',
+          bloodGroup: formData.bloodGroup || '',
+          dob: formData.dob || '',
           teamId: formData.teamId,
           teamName: formData.teamName,
           playingStyle: formData.playingStyle,
@@ -236,7 +273,14 @@ export default function AdminPlayers() {
           photoURL: photoURL || '',
           status: 'Active',
           createdAt: new Date().toISOString(),
-          joinedTournaments: playerTournaments
+          joinedTournaments: playerTournaments,
+          instagramId: formData.instagramId || '',
+          tshirtSize: formData.tshirtSize || '',
+          trackPantSize: formData.trackPantSize || '',
+          sleeveType: formData.sleeveType || '',
+          mcaPlayer: formData.mcaPlayer,
+          mcaIdNumber: formData.mcaPlayer ? formData.mcaIdNumber : '',
+          mcaCardURL: mcaCardURL || '',
         };
         await setDocument('players', generatedId, playerData);
 
@@ -344,15 +388,28 @@ export default function AdminPlayers() {
 
   const handleEdit = (player) => {
     setFormData({
-      fullName: player.fullName,
-      email: player.email,
-      mobile: player.mobile,
-      teamId: player.teamId,
-      teamName: player.teamName,
-      playingStyle: player.playingStyle,
-      jerseyNumber: player.jerseyNumber,
-      photoURL: player.photoURL,
+      fullName: player.fullName || '',
+      email: player.email || '',
+      mobile: player.mobile || '',
+      cricHeroesRegNo: player.cricHeroesRegNo || '',
+      emergencyContactName: player.emergencyContactName || '',
+      emergencyContactMobile: player.emergencyContactMobile || '',
+      bloodGroup: player.bloodGroup || '',
+      dob: player.dob || '',
+      teamId: player.teamId || '',
+      teamName: player.teamName || '',
+      playingStyle: player.playingStyle || 'Batsman',
+      jerseyNumber: player.jerseyNumber || '',
+      photoURL: player.photoURL || '',
       photo: null,
+      instagramId: player.instagramId || '',
+      tshirtSize: player.tshirtSize || '',
+      trackPantSize: player.trackPantSize || '',
+      sleeveType: player.sleeveType || '',
+      mcaPlayer: !!player.mcaPlayer,
+      mcaIdNumber: player.mcaIdNumber || '',
+      mcaCardURL: player.mcaCardURL || '',
+      mcaCardFile: null,
     });
     setEditingId(player.id);
     setShowForm(true);
@@ -363,12 +420,146 @@ export default function AdminPlayers() {
       fullName: '',
       email: '',
       mobile: '',
+      cricHeroesRegNo: '',
+      emergencyContactName: '',
+      emergencyContactMobile: '',
+      bloodGroup: '',
+      dob: '',
       teamId: '',
       teamName: '',
       playingStyle: 'Batsman',
       jerseyNumber: '',
+      photoURL: '',
       photo: null,
+      instagramId: '',
+      tshirtSize: '',
+      trackPantSize: '',
+      sleeveType: '',
+      mcaPlayer: false,
+      mcaIdNumber: '',
+      mcaCardURL: '',
+      mcaCardFile: null,
     });
+  };
+
+  const escapeCSV = (val) => {
+    if (val === undefined || val === null) return '';
+    let str = String(val);
+    str = str.replace(/"/g, '""');
+    if (str.includes(',') || str.includes('\n') || str.includes('\r') || str.includes('"')) {
+      return `"${str}"`;
+    }
+    return str;
+  };
+
+  const exportPlayersToCSV = () => {
+    const headers = [
+      'Player ID',
+      'Full Name',
+      'Email',
+      'CricHeroes Regis No',
+      'Date of Birth',
+      'Blood Group',
+      'Emergency Contact Name',
+      'Emergency Contact Mobile',
+      'Playing Style',
+      'Jersey Number',
+      'Instagram ID',
+      'T-Shirt Size',
+      'Track Pant Size',
+      'Sleeve Type',
+      'MCA Player',
+      'MCA ID Number',
+      'MCA Card URL',
+      'Team Name',
+      'Status',
+      'Joined Tournaments & Matches',
+      'Created At'
+    ];
+
+    const rows = players.map(p => {
+      const tournamentsJoinedStr = p.joinedTournaments && p.joinedTournaments.length > 0
+        ? p.joinedTournaments.map(t => {
+            const name = typeof t === 'string' ? t : t.name || t.id;
+            const matches = t.matchesPlayed !== undefined ? t.matchesPlayed : 0;
+            return `${name} (${matches} matches)`;
+          }).join('; ')
+        : 'None';
+
+      return [
+        p.playerId || p.id || '',
+        p.fullName || '',
+        p.email || '',
+        p.cricHeroesRegNo || p.mobile || '',
+        p.dob || '',
+        p.bloodGroup || '',
+        p.emergencyContactName || '',
+        p.emergencyContactMobile || '',
+        p.playingStyle || '',
+        p.jerseyNumber !== undefined ? p.jerseyNumber : '',
+        p.instagramId || '',
+        p.tshirtSize || '',
+        p.trackPantSize || '',
+        p.sleeveType || '',
+        p.mcaPlayer ? 'Yes' : 'No',
+        p.mcaIdNumber || '',
+        p.mcaCardURL || '',
+        p.teamName || 'Free Agent',
+        p.status || '',
+        tournamentsJoinedStr,
+        p.createdAt || ''
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(escapeCSV).join(','))
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `trivab_players_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportCaptainsToCSV = () => {
+    const headers = [
+      'Captain ID',
+      'Full Name',
+      'Email',
+      'Mobile',
+      'Managed Team',
+      'Created At'
+    ];
+
+    const rows = captains.map(c => [
+      c.captainId || c.id || '',
+      c.fullName || '',
+      c.email || '',
+      c.mobile || '',
+      c.teamName || 'Unassigned',
+      c.createdAt || ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(escapeCSV).join(','))
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `trivab_captains_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const filteredPlayers = players.filter(p =>
@@ -392,18 +583,39 @@ export default function AdminPlayers() {
           <h1 className="display-sm text-gradient-gold">Roster Management</h1>
           <p className="text-secondary">Manage registered players, captains, and tournament participation.</p>
         </div>
-        {activeTab === 'players' && (
-          <button
-            onClick={() => {
-              resetForm();
-              setEditingId(null);
-              setShowForm(!showForm);
-            }}
-            className="btn btn-gold"
-          >
-            <Plus size={18} /> Add Player
-          </button>
-        )}
+        <div className="flex gap-sm flex-wrap">
+          {activeTab === 'players' ? (
+            <>
+              <button
+                onClick={exportPlayersToCSV}
+                className="btn btn-outline"
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--admin-accent)', color: 'var(--admin-text)' }}
+                title="Download all player details as Excel/CSV"
+              >
+                <Download size={18} /> Download Excel
+              </button>
+              <button
+                onClick={() => {
+                  resetForm();
+                  setEditingId(null);
+                  setShowForm(!showForm);
+                }}
+                className="btn btn-gold"
+              >
+                <Plus size={18} /> Add Player
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={exportCaptainsToCSV}
+              className="btn btn-outline"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--admin-accent)', color: 'var(--admin-text)' }}
+              title="Download all captain details as Excel/CSV"
+            >
+              <Download size={18} /> Download Excel
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs Toggle */}
@@ -432,12 +644,13 @@ export default function AdminPlayers() {
       )}
 
       {activeTab === 'players' && showForm && (
-        <div className="card card-gold mb-xl p-lg">
-          <h2 className="text-lg font-bold mb-md">
+        <div className="card card-gold mb-xl p-lg animate-scale-in">
+          <h2 className="text-lg font-bold mb-md text-gradient-gold">
             {editingId ? 'Edit Player' : 'Add New Player'}
           </h2>
           
           <form onSubmit={handleSubmit} className="grid grid-2 gap-md">
+            {/* Personal Details */}
             <div className="form-group">
               <label className="form-label">Full Name</label>
               <input
@@ -463,17 +676,64 @@ export default function AdminPlayers() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Mobile</label>
+              <label className="form-label">CricHeroes Regis No.</label>
               <input
-                type="tel"
-                name="mobile"
+                type="text"
+                name="cricHeroesRegNo"
                 className="form-input"
+                placeholder="Registration ID"
                 required
-                value={formData.mobile}
+                value={formData.cricHeroesRegNo || formData.mobile}
                 onChange={handleInputChange}
               />
             </div>
 
+            <div className="form-group">
+              <label className="form-label">Date of Birth</label>
+              <input
+                type="date"
+                name="dob"
+                className="form-input"
+                required
+                value={formData.dob}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Blood Group</label>
+              <select
+                name="bloodGroup"
+                className="form-select"
+                required
+                value={formData.bloodGroup}
+                onChange={handleInputChange}
+              >
+                <option value="">-- Choose Blood Group --</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Instagram ID</label>
+              <input
+                type="text"
+                name="instagramId"
+                className="form-input"
+                placeholder="Username without @"
+                value={formData.instagramId}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            {/* Playing Details */}
             <div className="form-group">
               <label className="form-label">Team</label>
               <select
@@ -481,7 +741,7 @@ export default function AdminPlayers() {
                 value={formData.teamId}
                 onChange={(e) => handleTeamChange(e.target.value)}
               >
-                <option value="">Select Team</option>
+                <option value="">Select Team (Free Agent)</option>
                 {teams.map(team => (
                   <option key={team.id} value={team.id}>{team.teamName}</option>
                 ))}
@@ -514,6 +774,138 @@ export default function AdminPlayers() {
                 onChange={handleInputChange}
               />
             </div>
+
+            <div className="form-group">
+              <label className="form-label">Sleeve Type</label>
+              <select
+                name="sleeveType"
+                className="form-select"
+                required
+                value={formData.sleeveType}
+                onChange={handleInputChange}
+              >
+                <option value="">-- Choose Sleeve Type --</option>
+                <option value="Half Sleeve">Half Sleeve</option>
+                <option value="Full Sleeve">Full Sleeve</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">T-Shirt Size</label>
+              <select
+                name="tshirtSize"
+                className="form-select"
+                required
+                value={formData.tshirtSize}
+                onChange={handleInputChange}
+              >
+                <option value="">-- Choose T-Shirt Size --</option>
+                <option value="S (36)">S (36)</option>
+                <option value="M (38)">M (38)</option>
+                <option value="L (40)">L (40)</option>
+                <option value="XL (42)">XL (42)</option>
+                <option value="XXL (44)">XXL (44)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Track Pant Size</label>
+              <select
+                name="trackPantSize"
+                className="form-select"
+                required
+                value={formData.trackPantSize}
+                onChange={handleInputChange}
+              >
+                <option value="">-- Choose Track Pant Size --</option>
+                <option value="S (30)">S (30)</option>
+                <option value="M (32)">M (32)</option>
+                <option value="L (34)">L (34)</option>
+                <option value="XL (36)">XL (36)</option>
+                <option value="XXL (38)">XXL (38)</option>
+              </select>
+            </div>
+
+            {/* Emergency & MCA Details */}
+            <div className="form-group">
+              <label className="form-label">Emergency Contact Name</label>
+              <input
+                type="text"
+                name="emergencyContactName"
+                className="form-input"
+                required
+                value={formData.emergencyContactName}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Emergency Contact Number</label>
+              <input
+                type="tel"
+                name="emergencyContactMobile"
+                className="form-input"
+                required
+                value={formData.emergencyContactMobile}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">MCA Registered Player?</label>
+              <select
+                name="mcaPlayer"
+                className="form-select"
+                value={formData.mcaPlayer ? 'yes' : 'no'}
+                onChange={(e) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    mcaPlayer: e.target.value === 'yes'
+                  }));
+                }}
+              >
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+
+            {formData.mcaPlayer && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">MCA ID Number</label>
+                  <input
+                    type="text"
+                    name="mcaIdNumber"
+                    className="form-input"
+                    required={formData.mcaPlayer}
+                    value={formData.mcaIdNumber}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="form-group col-2">
+                  <label className="form-label">MCA Card Photo</label>
+                  <div className="flex gap-md items-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          mcaCardFile: e.target.files[0]
+                        }));
+                      }}
+                      className="form-input flex-1"
+                    />
+                    {formData.mcaCardURL && (
+                      <a href={formData.mcaCardURL} target="_blank" rel="noreferrer">
+                        <img src={formData.mcaCardURL} alt="MCA Card" className="avatar-sm" style={{ objectFit: 'cover', border: '1px solid var(--admin-border)' }} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="form-group col-2">
               <label className="form-label">Player Photo</label>
