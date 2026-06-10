@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDocument, setDocument } from '../../firebase/firestore';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase/config';
 import '../auth/Auth.css';
 
 const cleanEnvVar = (val) => {
@@ -12,10 +14,9 @@ const cleanEnvVar = (val) => {
 
 const ADMIN_EMAIL = cleanEnvVar(import.meta.env.VITE_ADMIN_EMAIL);
 const ADMIN_PASSWORD = cleanEnvVar(import.meta.env.VITE_ADMIN_PASSWORD);
-const ADMIN_UID = 'admin-trivab'; // Fixed admin UID
 
 export default function AdminLogin() {
-  const { setAdminAuth } = useAuth();
+  const { setUserProfile } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -29,33 +30,55 @@ export default function AdminLogin() {
     setError('');
     setLoading(true);
 
-    if (email !== ADMIN_EMAIL) {
+    if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       setError('Admin login is restricted to the fixed admin account.');
       setLoading(false);
       return;
     }
 
-    if (password !== ADMIN_PASSWORD) {
-      setError('Invalid password. Please check your credentials.');
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Create admin user profile
-      const userProfile = {
-        uid: ADMIN_UID,
-        name: 'Admin',
-        email: ADMIN_EMAIL,
-        role: 'admin',
-        mobile: '',
-        photoURL: '',
-        status: 'Active',
-        createdAt: new Date().toISOString(),
-      };
+      let firebaseUser;
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        firebaseUser = cred.user;
+      } catch (authErr) {
+        console.warn("Direct admin sign-in failed, checking if we need to auto-create admin:", authErr);
+        if (password === ADMIN_PASSWORD) {
+          try {
+            const cred = await createUserWithEmailAndPassword(auth, email, password);
+            firebaseUser = cred.user;
+          } catch (createErr) {
+            console.error("Auto-create admin failed:", createErr);
+            throw authErr;
+          }
+        } else {
+          throw authErr;
+        }
+      }
 
-      setAdminAuth(userProfile);
-      setTimeout(() => navigate('/admin/dashboard'), 100);
+      // Check if admin user exists in Firestore, create if not
+      let userProfile = await getDocument('users', firebaseUser.uid);
+      
+      if (!userProfile) {
+        // Create admin user in Firestore
+        userProfile = {
+          uid: firebaseUser.uid,
+          name: 'Admin',
+          email: email,
+          role: 'admin',
+          mobile: '',
+          photoURL: '',
+          status: 'Active',
+          createdAt: new Date().toISOString(),
+        };
+        await setDocument('users', firebaseUser.uid, userProfile);
+      } else if (userProfile.role !== 'admin') {
+        userProfile.role = 'admin';
+        await setDocument('users', firebaseUser.uid, userProfile);
+      }
+
+      setUserProfile(userProfile);
+      navigate('/admin/dashboard');
     } catch (err) {
       console.error("Admin login error:", err);
       setError('Incorrect admin email or password. Please check your credentials and try again.');

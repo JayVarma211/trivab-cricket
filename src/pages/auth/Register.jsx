@@ -17,7 +17,6 @@ export default function Register() {
   // Form State
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [playingStyle, setPlayingStyle] = useState('Batsman');
   const [jerseyNumber, setJerseyNumber] = useState('');
@@ -25,6 +24,11 @@ export default function Register() {
   const [photoPreview, setPhotoPreview] = useState(null);
 
   // New Fields Form State
+  const [cricHeroesRegNo, setCricHeroesRegNo] = useState('');
+  const [emergencyContactName, setEmergencyContactName] = useState('');
+  const [emergencyContactMobile, setEmergencyContactMobile] = useState('');
+  const [bloodGroup, setBloodGroup] = useState('');
+  const [dob, setDob] = useState('');
   const [mcaPlayer, setMcaPlayer] = useState('no'); // 'yes' | 'no'
   const [mcaIdNumber, setMcaIdNumber] = useState('');
   const [mcaCardPhoto, setMcaCardPhoto] = useState(null);
@@ -70,6 +74,18 @@ export default function Register() {
 
     try {
       // 1. Validations
+      if (!cricHeroesRegNo) {
+        throw new Error('Please enter your CricHeroes Registration Number.');
+      }
+      if (!dob) {
+        throw new Error('Please select your Date of Birth.');
+      }
+      if (!bloodGroup) {
+        throw new Error('Please select your Blood Group.');
+      }
+      if (!emergencyContactName || !emergencyContactMobile) {
+        throw new Error('Please enter Emergency Contact Name and Number.');
+      }
       if (!trackPantSize) {
         throw new Error('Please select your track pant size.');
       }
@@ -111,7 +127,7 @@ export default function Register() {
         name: fullName,
         email,
         role: 'player', // All users register with a common player role
-        mobile,
+        mobile: cricHeroesRegNo, // CricHeroes Regis No. mapped to primary mobile field
         photoURL,
         createdAt: new Date().toISOString()
       };
@@ -122,7 +138,12 @@ export default function Register() {
         playerId: generatedId,
         uid: firebaseUser.uid,
         fullName,
-        mobile,
+        mobile: cricHeroesRegNo, // CricHeroes Regis No. mapped to primary mobile field
+        cricHeroesRegNo,
+        emergencyContactName,
+        emergencyContactMobile,
+        bloodGroup,
+        dob,
         email,
         playingStyle,
         jerseyNumber,
@@ -186,7 +207,7 @@ export default function Register() {
             <input type="text" name="dummy-email" style={{ display: 'none' }} autoComplete="new-username" />
             <input type="password" name="dummy-password" style={{ display: 'none' }} autoComplete="new-password" />
             
-            {/* Column 1: Core credentials & apparel sizes */}
+            {/* Column 1: Identity & Credentials */}
             <div className="form-column">
               <div className="form-group">
                 <label className="form-label">Full Name</label>
@@ -195,7 +216,7 @@ export default function Register() {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Enter your name"
+                    placeholder="Enter your full name"
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
@@ -216,23 +237,6 @@ export default function Register() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    disabled={loading}
-                    autoComplete="off"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Mobile Number</label>
-                <div className="input-wrapper">
-                  <Phone className="input-icon-left" size={18} />
-                  <input
-                    type="tel"
-                    className="form-input"
-                    placeholder="10 digit number"
-                    required
-                    value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
                     disabled={loading}
                     autoComplete="off"
                   />
@@ -265,6 +269,41 @@ export default function Register() {
               </div>
 
               <div className="form-group">
+                <label className="form-label">Date of Birth</label>
+                <div className="input-wrapper">
+                  <input
+                    type="date"
+                    className="form-input"
+                    required
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Blood Group</label>
+                <select
+                  className="form-select"
+                  value={bloodGroup}
+                  onChange={(e) => setBloodGroup(e.target.value)}
+                  required
+                  disabled={loading}
+                >
+                  <option value="">-- Select Blood Group --</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+
+              <div className="form-group">
                 <label className="form-label">Instagram ID</label>
                 <div className="input-wrapper">
                   <span className="input-icon-left text-muted font-semi" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>@</span>
@@ -281,59 +320,92 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Track Pant Size</label>
-                <select
-                  className="form-select"
-                  value={trackPantSize}
-                  onChange={(e) => setTrackPantSize(e.target.value)}
-                  required
-                  disabled={loading}
-                >
-                  <option value="">-- Choose Track Pant Size --</option>
-                  <option value="S">S</option>
-                  <option value="M">M</option>
-                  <option value="L">L</option>
-                  <option value="XL">XL</option>
-                  <option value="XXL">XXL</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">T-Shirt Size</label>
-                <select
-                  className="form-select"
-                  value={tshirtSize}
-                  onChange={(e) => setTshirtSize(e.target.value)}
-                  required
-                  disabled={loading}
-                >
-                  <option value="">-- Choose T-Shirt Size --</option>
-                  <option value="S">S</option>
-                  <option value="M">M</option>
-                  <option value="L">L</option>
-                  <option value="XL">XL</option>
-                  <option value="XXL">XXL</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Sleeve Type</label>
-                <select
-                  className="form-select"
-                  value={sleeveType}
-                  onChange={(e) => setSleeveType(e.target.value)}
-                  required
-                  disabled={loading}
-                >
-                  <option value="">-- Choose Sleeve Type --</option>
-                  <option value="Half Sleeve">Half Sleeve</option>
-                  <option value="Full Sleeve">Full Sleeve</option>
-                </select>
+                <label className="form-label">Profile Photo</label>
+                <div className="file-upload-container">
+                  {photoPreview ? (
+                    <div className="photo-preview-wrap">
+                      <img src={photoPreview} alt="Preview" className="photo-preview" />
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => {
+                          setPhoto(null);
+                          setPhotoPreview(null);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="file-upload-label">
+                      <Upload size={24} />
+                      <span className="text-xs font-medium">Upload Image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoChange}
+                        disabled={loading}
+                        style={{ display: 'none' }}
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Column 2: Player Details & Photo */}
+            {/* Column 2: Player Details & Contact */}
             <div className="form-column">
+              <div className="form-group">
+                <label className="form-label">CricHeroes Regis No.</label>
+                <div className="input-wrapper">
+                  <Phone className="input-icon-left" size={18} />
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Enter CricHeroes Registration ID"
+                    required
+                    value={cricHeroesRegNo}
+                    onChange={(e) => setCricHeroesRegNo(e.target.value)}
+                    disabled={loading}
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Emergency Contact Person Name</label>
+                <div className="input-wrapper">
+                  <User className="input-icon-left" size={18} />
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Name of contact person"
+                    required
+                    value={emergencyContactName}
+                    onChange={(e) => setEmergencyContactName(e.target.value)}
+                    disabled={loading}
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Emergency Contact Number</label>
+                <div className="input-wrapper">
+                  <Phone className="input-icon-left" size={18} />
+                  <input
+                    type="tel"
+                    className="form-input"
+                    placeholder="Emergency mobile number"
+                    required
+                    value={emergencyContactMobile}
+                    onChange={(e) => setEmergencyContactMobile(e.target.value)}
+                    disabled={loading}
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Playing Style</label>
                 <select
@@ -363,6 +435,57 @@ export default function Register() {
                     disabled={loading}
                   />
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Sleeve Type</label>
+                <select
+                  className="form-select"
+                  value={sleeveType}
+                  onChange={(e) => setSleeveType(e.target.value)}
+                  required
+                  disabled={loading}
+                >
+                  <option value="">-- Choose Sleeve Type --</option>
+                  <option value="Half Sleeve">Half Sleeve</option>
+                  <option value="Full Sleeve">Full Sleeve</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">T-Shirt Size</label>
+                <select
+                  className="form-select"
+                  value={tshirtSize}
+                  onChange={(e) => setTshirtSize(e.target.value)}
+                  required
+                  disabled={loading}
+                >
+                  <option value="">-- Choose T-Shirt Size --</option>
+                  <option value="S (36)">S (36)</option>
+                  <option value="M (38)">M (38)</option>
+                  <option value="L (40)">L (40)</option>
+                  <option value="XL (42)">XL (42)</option>
+                  <option value="XXL (44)">XXL (44)</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Track Pant Size</label>
+                <select
+                  className="form-select"
+                  value={trackPantSize}
+                  onChange={(e) => setTrackPantSize(e.target.value)}
+                  required
+                  disabled={loading}
+                >
+                  <option value="">-- Choose Track Pant Size --</option>
+                  <option value="S (30)">S (30)</option>
+                  <option value="M (32)">M (32)</option>
+                  <option value="L (34)">L (34)</option>
+                  <option value="XL (36)">XL (36)</option>
+                  <option value="XXL (38)">XXL (38)</option>
+                </select>
               </div>
 
               <div className="form-group">
@@ -426,39 +549,6 @@ export default function Register() {
                   </div>
                 </>
               )}
-
-              <div className="form-group">
-                <label className="form-label">Profile Photo</label>
-                <div className="file-upload-container">
-                  {photoPreview ? (
-                    <div className="photo-preview-wrap">
-                      <img src={photoPreview} alt="Preview" className="photo-preview" />
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={() => {
-                          setPhoto(null);
-                          setPhotoPreview(null);
-                        }}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="file-upload-label">
-                      <Upload size={24} />
-                      <span className="text-xs font-medium">Upload Image</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePhotoChange}
-                        disabled={loading}
-                        style={{ display: 'none' }}
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
             </div>
 
             <button type="submit" className="btn btn-gold btn-lg auth-submit-btn full-width-btn" disabled={loading}>

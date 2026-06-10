@@ -183,9 +183,9 @@ export default function PlayerProfile() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Mobile Number</label>
+              <label className="form-label">CricHeroes Regis No.</label>
               <input
-                type="tel"
+                type="text"
                 className="form-input"
                 required
                 value={mobile}

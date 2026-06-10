@@ -684,7 +684,7 @@ export default function AdminPlayers() {
 
       {selectedPlayerForDetails && (
         <div className="modal-overlay" onClick={() => setSelectedPlayerForDetails(null)}>
-          <div className="modal-content card card-gold" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: 'var(--space-xl)' }}>
+          <div className="modal-content card card-gold animate-scale-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: 'var(--space-xl)', maxHeight: '90vh', overflowY: 'auto' }}>
             <button className="modal-close" onClick={() => setSelectedPlayerForDetails(null)}>✕</button>
             <h3 className="text-lg font-bold text-gradient-gold mb-md">Player Verification Details</h3>
             
@@ -709,7 +709,10 @@ export default function AdminPlayers() {
               <div className="w-full text-sm text-left flex flex-col gap-xs" style={{ color: 'var(--admin-text)', maxHeight: '420px', overflowY: 'auto', paddingRight: '6px' }}>
                 <div className="flex justify-between"><span className="opacity-70">Player ID:</span><strong>{selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</strong></div>
                 <div className="flex justify-between"><span className="opacity-70">Email:</span><span>{selectedPlayerForDetails.email}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Mobile:</span><span>{selectedPlayerForDetails.mobile}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">CricHeroes Regis No:</span><span>{selectedPlayerForDetails.cricHeroesRegNo || selectedPlayerForDetails.mobile || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Date of Birth:</span><span>{selectedPlayerForDetails.dob || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Blood Group:</span><span>{selectedPlayerForDetails.bloodGroup || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Emergency Contact:</span><span>{selectedPlayerForDetails.emergencyContactName ? `${selectedPlayerForDetails.emergencyContactName} (${selectedPlayerForDetails.emergencyContactMobile})` : 'N/A'}</span></div>
                 <div className="flex justify-between"><span className="opacity-70">Instagram:</span><span>{selectedPlayerForDetails.instagramId ? `@${selectedPlayerForDetails.instagramId}` : 'N/A'}</span></div>
                 <div className="flex justify-between"><span className="opacity-70">Team Name:</span><strong className="text-gold">{selectedPlayerForDetails.teamName || 'Free Agent'}</strong></div>
                 <div className="flex justify-between"><span className="opacity-70">Jersey No:</span><span>#{selectedPlayerForDetails.jerseyNumber || 'N/A'}</span></div>
@@ -787,7 +790,7 @@ export default function AdminPlayers() {
               <div className="divider" />
               
               <div className="qr-container bg-white p-sm rounded-md" style={{ display: 'inline-block', padding: '12px', background: '#fff', borderRadius: '8px' }}>
-                <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={220} />
+                <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={140} />
               </div>
               <p className="text-xs text-secondary opacity-60">Verified Player QR Code Pass</p>
             </div>
@@ -796,7 +799,7 @@ export default function AdminPlayers() {
       )}
       {selectedCaptainForDetails && (
         <div className="modal-overlay" onClick={() => setSelectedCaptainForDetails(null)}>
-          <div className="modal-content card card-gold" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: 'var(--space-xl)' }}>
+          <div className="modal-content card card-gold animate-scale-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '450px', padding: 'var(--space-xl)', maxHeight: '90vh', overflowY: 'auto' }}>
             <button className="modal-close" onClick={() => setSelectedCaptainForDetails(null)}>✕</button>
             <h3 className="text-lg font-bold text-gradient-gold mb-md">Captain Verification Details</h3>
             
@@ -828,7 +831,7 @@ export default function AdminPlayers() {
               <div className="divider" />
               
               <div className="qr-container bg-white p-sm rounded-md" style={{ display: 'inline-block', padding: '12px', background: '#fff', borderRadius: '8px' }}>
-                <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={220} />
+                <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={140} />
               </div>
               <p className="text-xs text-secondary opacity-60">Verified Captain QR Code Pass</p>
             </div>

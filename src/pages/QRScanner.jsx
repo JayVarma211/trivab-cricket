@@ -306,41 +306,27 @@ export default function QRScanner() {
 
               <ul className="flex flex-col gap-sm result-list">
                 <li className="flex justify-between">
-                  <span className="text-muted text-sm">Player ID</span>
+                  <span className="text-muted text-sm">Full Name</span>
+                  <span className="font-semi text-sm">{playerInfo.fullName}</span>
+                </li>
+                <li className="flex justify-between">
+                  <span className="text-muted text-sm">ID No.</span>
                   <span className="font-semi text-sm">{playerInfo.playerId}</span>
                 </li>
                 <li className="flex justify-between">
-                  <span className="text-muted text-sm">Team Name</span>
-                  <span className="font-semi text-sm text-gold">{playerInfo.teamName}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-muted text-sm">Jersey Number</span>
-                  <span className="font-semi text-sm">#{playerInfo.jerseyNumber}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-muted text-sm">Contact Number</span>
-                  <span className="font-semi text-sm">{playerInfo.mobile}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-muted text-sm">Total Matches Played</span>
-                  <span className="font-bold text-sm text-gold">
-                    {playerInfo.joinedTournaments 
-                      ? playerInfo.joinedTournaments.reduce((acc, t) => acc + (t.matchesPlayed || 0), 0) 
-                      : 0} Matches
-                  </span>
+                  <span className="text-muted text-sm">Playing Style</span>
+                  <span className="font-semi text-sm text-gold">{playerInfo.playingStyle}</span>
                 </li>
                 <li className="flex flex-col gap-xs mt-xs border-top pt-xs" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                  <span className="text-muted text-xs font-bold uppercase block mb-xs">Tournament Roster & Matches</span>
+                  <span className="text-muted text-xs font-bold uppercase block mb-xs">Tournament & Matches Played</span>
                   {playerInfo.joinedTournaments && playerInfo.joinedTournaments.length > 0 ? (
                     <div className="flex flex-col gap-xs w-full">
                       {playerInfo.joinedTournaments.map((t, idx) => {
                         const tName = typeof t === 'string' ? t : t.name || t.id;
-                        const teamName = t.teamName || 'N/A';
                         const matchesPlayed = t.matchesPlayed !== undefined ? t.matchesPlayed : 0;
                         return (
                           <div key={idx} className="flex justify-between items-center text-xs py-xxs" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', paddingBottom: '4px' }}>
-                            <span className="truncate font-semi text-primary" style={{ maxWidth: '140px' }} title={tName}>{tName}</span>
-                            <span className="text-muted truncate" style={{ maxWidth: '100px' }} title={teamName}>({teamName})</span>
+                            <span className="font-semi text-primary" title={tName}>{tName}</span>
                             <span className="text-gold font-bold">{matchesPlayed} Matches</span>
                           </div>
                         );
@@ -349,10 +335,6 @@ export default function QRScanner() {
                   ) : (
                     <span className="text-xs text-muted">No tournaments joined.</span>
                   )}
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-muted text-sm">Roster Status</span>
-                  <span className="badge badge-green">Active Member</span>
                 </li>
               </ul>
             </div>
