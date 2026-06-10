@@ -2,14 +2,17 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Loader from '../../components/common/Loader';
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'trivabsportsandevents@gmail.com';
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
 
 export default function AdminProtectedRoute({ children }) {
-  const { user, userProfile, role, loading } = useAuth();
+  const { user, userProfile, role, loading, adminMode } = useAuth();
 
   if (loading) return <Loader />;
 
-  if (!user || !userProfile || role !== 'admin' || userProfile.role !== 'admin' || user.email !== ADMIN_EMAIL) {
+  // Allow access if admin mode is active or if user has admin role and email matches
+  const isAdminAuthed = adminMode || (userProfile?.role === 'admin' && user?.email === ADMIN_EMAIL);
+
+  if (!isAdminAuthed) {
     return <Navigate to="/admin/login" replace />;
   }
 

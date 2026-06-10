@@ -60,9 +60,42 @@ export const getPlayerByEmail = async (email) => {
 };
 
 export const getPlayerByUIDOrEmail = async (uid, email) => {
-  const byUid = await getPlayerByUID(uid);
-  if (byUid) return byUid;
-  return getPlayerByEmail(email);
+  let player = await getPlayerByUID(uid);
+  if (player) return player;
+  
+  player = await getPlayerByEmail(email);
+  if (player) return player;
+
+  try {
+    const captain = await getDocument('captains', uid);
+    if (captain) {
+      const generatedId = `PL-${uid.substring(0, 5).toUpperCase()}`;
+      const playerProfileData = {
+        playerId: generatedId,
+        uid: uid,
+        fullName: captain.fullName,
+        mobile: captain.mobile || '',
+        email: captain.email || email || '',
+        teamId: captain.teamId || '',
+        teamName: captain.teamName || '',
+        playingStyle: 'All-Rounder',
+        jerseyNumber: '7',
+        photoURL: captain.photoURL || '',
+        qrValue: generatedId,
+        qrCodeURL: '',
+        pdfURL: '',
+        status: 'Active',
+        createdAt: new Date().toISOString(),
+        joinedTournaments: []
+      };
+      await setDocument('players', generatedId, playerProfileData);
+      return playerProfileData;
+    }
+  } catch (err) {
+    console.error("Auto-provision fallback failed for captain:", err);
+  }
+
+  return null;
 };
 
 export const getPlayerByUIDFallback = async (uid) => {

@@ -28,12 +28,20 @@ export default function PlayerDashboard() {
           ]);
           setNotifications(notifs);
 
-          // Fetch matches for their team
-          if (playerProfile.teamId) {
-            const teamMatches = await getCollection('matches', [
-              where('teamA', '==', playerProfile.teamName)
-            ]);
-            setMatches(teamMatches);
+          // Fetch matches for all their teams across joined tournaments
+          const joined = playerProfile.joinedTournaments || [];
+          const teamNames = joined.map(j => j.teamName).filter(Boolean);
+          if (playerProfile.teamName && !teamNames.includes(playerProfile.teamName)) {
+            teamNames.push(playerProfile.teamName);
+          }
+
+          if (teamNames.length > 0) {
+            const allMatches = await getCollection('matches');
+            const userMatches = allMatches.filter(m => 
+              teamNames.includes(m.teamA) || teamNames.includes(m.teamB)
+            );
+            userMatches.sort((a, b) => new Date(a.date) - new Date(b.date));
+            setMatches(userMatches);
           }
         }
       } catch (err) {
@@ -152,6 +160,32 @@ export default function PlayerDashboard() {
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      </div>
+
+      {/* Tournaments Enrollment Section */}
+      <div className="card mt-xl">
+        <h2 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
+          <Trophy size={20} /> My Tournament Enrollments
+        </h2>
+
+        <div>
+          <h3 className="text-sm font-bold mb-sm opacity-80 font-semi">Active Registrations</h3>
+          {player.joinedTournaments && player.joinedTournaments.length > 0 ? (
+            <div className="flex flex-col gap-sm">
+              {player.joinedTournaments.map((t, idx) => (
+                <div key={t.id || idx} className="flex justify-between items-center p-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
+                  <div>
+                    <h4 className="text-sm font-bold text-primary">{t.name}</h4>
+                    <p className="text-xs text-muted">Representing: <strong className="text-gold">{t.teamName}</strong></p>
+                  </div>
+                  <span className="badge badge-gold">{t.matchesPlayed || 0} Matches Played</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted">You have not joined any tournaments yet. Join a tournament directly from the Tournaments page.</p>
           )}
         </div>
       </div>

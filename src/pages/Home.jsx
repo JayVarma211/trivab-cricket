@@ -242,6 +242,69 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Tournaments Horizontal Strip */}
+      <section className="tournaments-ticker section-padding-sm" style={{ borderTop: '1px solid var(--border-card)', background: 'var(--bg-primary)' }}>
+        <div className="container">
+          <h4 className="text-center text-muted text-xs font-bold uppercase tracking-wider mb-sm" style={{ color: 'var(--gold)' }}>
+            Our Tournaments
+          </h4>
+          <div className="ticker-wrap">
+            <div className="ticker-content gap-xl flex items-center animate-marquee">
+              <div className="tournament-ticker-frame">
+                <img src="/logos/bapllogo.jpg" alt="BAPL Logo" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplt20north.jpg" alt="BAPL North" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplt20south.jpg" alt="BAPL South" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplxpresst20north.jpg" alt="BAPL Xpress North" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplxpresst20south.jpg" alt="BAPL Xpress South" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplcorporate.jpg" alt="BAPL Corporate" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/bapldadst20.jpg" alt="BAPL Dads" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/trivabmonsoon.jpg" alt="Trivab Monsoon" className="tournament-ticker-img" />
+              </div>
+
+              {/* Duplicate for infinite effect */}
+              <div className="tournament-ticker-frame">
+                <img src="/logos/bapllogo.jpg" alt="BAPL Logo" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplt20north.jpg" alt="BAPL North" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplt20south.jpg" alt="BAPL South" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplxpresst20north.jpg" alt="BAPL Xpress North" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplxpresst20south.jpg" alt="BAPL Xpress South" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplcorporate.jpg" alt="BAPL Corporate" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/bapldadst20.jpg" alt="BAPL Dads" className="tournament-ticker-img" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/trivabmonsoon.jpg" alt="Trivab Monsoon" className="tournament-ticker-img" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Tournaments Grid Snippet */}
       <section className="recent-tournaments-section container section-padding">
         <div className="flex justify-between items-end mb-lg">
@@ -277,6 +340,19 @@ export default function Home() {
           ))}
         </motion.div>
       </section>
+
+      {/* SVG Filter to remove white backgrounds from tournament logos */}
+      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none', width: 0, height: 0 }}>
+        <defs>
+          <filter id="remove-white">
+            <feColorMatrix type="luminanceToAlpha" result="lum" />
+            <feComponentTransfer in="lum" result="mask">
+              <feFuncA type="table" tableValues="1 1 1 1 1 1 1 1 1 1 1 1 1 0.8 0" />
+            </feComponentTransfer>
+            <feComposite operator="in" in="SourceGraphic" in2="mask" />
+          </filter>
+        </defs>
+      </svg>
     </div>
   );
 }

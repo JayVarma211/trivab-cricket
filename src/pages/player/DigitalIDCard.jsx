@@ -61,11 +61,12 @@ export default function DigitalIDCard() {
     fullName: player.fullName,
     teamName: player.teamName,
     playingStyle: player.playingStyle,
-    jerseyNumber: player.jerseyNumber
-    ,
+    jerseyNumber: player.jerseyNumber,
     email: player.email,
     uid: player.uid
   });
+
+  const showTeam = player.teamName && player.teamName !== 'Free Agent' && player.teamName !== 'free-agent';
 
   return (
     <div className="digital-id-page page-enter container section-padding">
@@ -102,13 +103,23 @@ export default function DigitalIDCard() {
                   <span className="id-player-style">{player.playingStyle}</span>
                   
                   <div className="id-player-stats-row">
-                    <div>
-                      <span className="id-stat-lbl">TEAM</span>
-                      <span className="id-stat-val text-gradient-gold">{player.teamName || 'Free Agent'}</span>
-                    </div>
+                    {showTeam && (
+                      <div>
+                        <span className="id-stat-lbl">TEAM</span>
+                        <span className="id-stat-val text-gradient-gold">{player.teamName}</span>
+                      </div>
+                    )}
                     <div>
                       <span className="id-stat-lbl">JERSEY</span>
                       <span className="id-stat-val text-gradient-gold">#{player.jerseyNumber || 'N/A'}</span>
+                    </div>
+                    <div>
+                      <span className="id-stat-lbl">MATCHES</span>
+                      <span className="id-stat-val text-gradient-gold">
+                        {player.joinedTournaments
+                          ? player.joinedTournaments.reduce((acc, t) => acc + (t.matchesPlayed || 0), 0)
+                          : 0}
+                      </span>
                     </div>
                   </div>
                 </div>

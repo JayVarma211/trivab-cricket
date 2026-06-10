@@ -15,12 +15,8 @@ export default function MatchSchedule() {
         const list = await getCollection('matches', [orderBy('date')]);
         setMatches(list);
       } catch (err) {
-        console.log('Using default mock match list');
-        setMatches([
-          { id: 'm1', teamA: 'Mumbai Knights', teamB: 'Delhi Dynamos', venue: 'Wankhede Stadium, Mumbai', date: '2026-05-31', time: '18:30', status: 'Upcoming' },
-          { id: 'm2', teamA: 'Chennai Super Kings', teamB: 'Kolkata Warriors', venue: 'Chepauk Stadium, Chennai', date: '2026-06-01', time: '16:00', status: 'Live' },
-          { id: 'm3', teamA: 'Royal Challengers', teamB: 'Sunrisers Hyderabad', venue: 'Chinnaswamy Stadium, Bengaluru', date: '2026-05-28', time: '19:30', status: 'Completed', scoreA: '189/6', scoreB: '192/4' }
-        ]);
+        console.error('Error fetching matches:', err);
+        setMatches([]);
       } finally {
         setLoading(false);
       }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { registerUser } from '../../firebase/auth';
-import { setDocument, addDocument, updateDocument, getAllTeams } from '../../firebase/firestore';
+import { setDocument, addDocument, updateDocument, getAllTeams, getCollection, orderBy } from '../../firebase/firestore';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import { generatePlayerID } from '../../utils/generatePlayerID';
 import {
@@ -19,48 +19,25 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('player'); // player | captain
-  const [teamSelection, setTeamSelection] = useState('');
   const [playingStyle, setPlayingStyle] = useState('Batsman');
   const [jerseyNumber, setJerseyNumber] = useState('');
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
 
+  // New Fields Form State
+  const [mcaPlayer, setMcaPlayer] = useState('no'); // 'yes' | 'no'
+  const [mcaIdNumber, setMcaIdNumber] = useState('');
+  const [mcaCardPhoto, setMcaCardPhoto] = useState(null);
+  const [mcaCardPhotoPreview, setMcaCardPhotoPreview] = useState(null);
+  const [trackPantSize, setTrackPantSize] = useState('');
+  const [tshirtSize, setTshirtSize] = useState('');
+  const [sleeveType, setSleeveType] = useState('');
+  const [instagramId, setInstagramId] = useState('');
+
   // UI States
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [teams, setTeams] = useState([]);
-  const [teamName, setTeamName] = useState('');
-
-  // Load existing teams
-  useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const teamList = await getAllTeams();
-        const exampleTeams = [
-          { id: 'example-mi', teamName: 'Mumbai Indians (Example)' },
-          { id: 'example-csk', teamName: 'Chennai Super Kings (Example)' },
-          { id: 'example-rcb', teamName: 'Royal Challengers Bangalore (Example)' }
-        ];
-        const combinedTeams = [...teamList, ...exampleTeams];
-        setTeams(combinedTeams);
-        if (combinedTeams.length > 0) {
-          setTeamSelection(combinedTeams[0].id);
-        }
-      } catch (err) {
-        console.error('Error fetching teams, using fallbacks:', err);
-        const exampleTeams = [
-          { id: 'example-mi', teamName: 'Mumbai Indians ' },
-          { id: 'example-csk', teamName: 'Chennai Super Kings ' },
-          { id: 'example-rcb', teamName: 'Royal Challengers Bangalore ' }
-        ];
-        setTeams(exampleTeams);
-        setTeamSelection(exampleTeams[0].id);
-      }
-    };
-    fetchTeams();
-  }, []);
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -74,30 +51,50 @@ export default function Register() {
     }
   };
 
+  const handleMcaCardChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setMcaCardPhoto(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setMcaCardPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // 1. Register User in Firebase Auth
+      // 1. Validations
+      if (!trackPantSize) {
+        throw new Error('Please select your track pant size.');
+      }
+      if (!tshirtSize) {
+        throw new Error('Please select your t-shirt size.');
+      }
+      if (!sleeveType) {
+        throw new Error('Please select your sleeve type.');
+      }
+
+      // 2. Register User in Firebase Auth
       const firebaseUser = await registerUser(email, password, fullName);
 
-      // 2. Generate Unique Player ID & QR Data
-      const selectedTeamObj = teams.find(t => t.id === teamSelection);
-      const existingTeamName = selectedTeamObj ? selectedTeamObj.teamName : 'Free Agent';
-      const generatedId = generatePlayerID(role === 'captain' ? teamName.trim() || 'GEN' : existingTeamName);
-
-      // Enforce Max player limit (35)
-      if (role === 'player' && selectedTeamObj && !selectedTeamObj.id.startsWith('example-')) {
-        const currentCount = selectedTeamObj.playerCount || 0;
-        const maxLimit = selectedTeamObj.maxPlayers || 35;
-        if (currentCount >= maxLimit) {
-          throw new Error(`Registration failed. The team ${selectedTeamObj.teamName} has reached its roster limit of ${maxLimit} players.`);
+      // 3. Upload MCA card photo to Cloudinary if applicable
+      let mcaCardURL = '';
+      if (mcaPlayer === 'yes' && mcaCardPhoto) {
+        try {
+          mcaCardURL = await uploadImageToCloudinary(mcaCardPhoto);
+        } catch (err) {
+          console.error(err);
+          throw new Error('Failed to upload MCA card image');
         }
       }
 
-      // 3. Upload photo to Cloudinary if present
+      // 4. Upload profile photo to Cloudinary if present
       let photoURL = '';
       if (photo) {
         try {
@@ -108,100 +105,52 @@ export default function Register() {
         }
       }
 
-      // 4. Save Firestore documents
+      // 5. Save Firestore documents
       const userProfileData = {
         uid: firebaseUser.uid,
         name: fullName,
         email,
-        role,
+        role: 'player', // All users register with a common player role
         mobile,
         photoURL,
         createdAt: new Date().toISOString()
       };
 
-      let selectedTeamId = teamSelection;
-      let selectedTeamName = existingTeamName;
+      const generatedId = generatePlayerID('Free Agent');
 
-      if (role === 'captain') {
-        if (!teamName.trim()) {
-          throw new Error('Please enter your team name for captain registration.');
-        }
-
-        const teamDoc = await addDocument('teams', {
-          teamName: teamName.trim(),
-          city: '',
-          logoURL: '',
-          captainId: firebaseUser.uid,
-          captainName: fullName,
-          playerCount: 0,
-          maxPlayers: 35,
-          wins: 0,
-          losses: 0,
-          createdAt: new Date().toISOString()
-        });
-
-        selectedTeamId = teamDoc.id;
-        selectedTeamName = teamName.trim();
-      }
+      const playerProfileData = {
+        playerId: generatedId,
+        uid: firebaseUser.uid,
+        fullName,
+        mobile,
+        email,
+        playingStyle,
+        jerseyNumber,
+        photoURL,
+        qrValue: generatedId,
+        qrCodeURL: '',
+        pdfURL: '',
+        status: 'Active',
+        createdAt: new Date().toISOString(),
+        joinedTournaments: [], // Empty initially, players join tournaments later
+        teamId: '',
+        teamName: 'Free Agent',
+        mcaPlayer: mcaPlayer === 'yes',
+        mcaIdNumber: mcaPlayer === 'yes' ? mcaIdNumber : '',
+        mcaCardURL: mcaPlayer === 'yes' ? mcaCardURL : '',
+        trackPantSize,
+        tshirtSize,
+        sleeveType,
+        instagramId
+      };
 
       await setDocument('users', firebaseUser.uid, userProfileData);
-
-      if (role === 'player') {
-        const playerProfileData = {
-          playerId: generatedId,
-          uid: firebaseUser.uid,
-          fullName,
-          mobile,
-          email,
-          teamId: selectedTeamId,
-          teamName: selectedTeamName,
-          playingStyle,
-          jerseyNumber,
-          photoURL,
-          qrValue: generatedId,
-          qrCodeURL: '',
-          pdfURL: '',
-          status: 'Active',
-          createdAt: new Date().toISOString()
-        };
-
-        await setDocument('players', generatedId, playerProfileData);
-
-        // Increment team player count
-        if (selectedTeamId && !selectedTeamId.startsWith('example-') && selectedTeamObj) {
-          const currentCount = selectedTeamObj.playerCount || 0;
-          await updateDocument('teams', selectedTeamId, {
-            playerCount: currentCount + 1
-          });
-        }
-      }
-
-      if (role === 'captain') {
-        const captainData = {
-          captainId: `CAPT-${generatedId.split('-').pop()}`,
-          uid: firebaseUser.uid,
-          fullName,
-          teamId: selectedTeamId,
-          teamName: selectedTeamName,
-          mobile,
-          email,
-          photoURL,
-          createdAt: new Date().toISOString()
-        };
-        await setDocument('captains', firebaseUser.uid, captainData);
-        
-        // Also update team doc with captain details
-        await updateDocument('teams', selectedTeamId, {
-          captainName: fullName,
-          captainId: firebaseUser.uid
-        });
-      }
+      await setDocument('players', generatedId, playerProfileData);
 
       setUserProfile(userProfileData);
       
-      // Navigate to dashboard
-      if (role === 'captain') navigate('/captain/dashboard');
-      else navigate('/player/dashboard');
+      // Navigate to player dashboard
+      navigate('/player/dashboard');
 
     } catch (err) {
       setError(err.message || 'Registration failed. Please check inputs.');
@@ -232,8 +181,12 @@ export default function Register() {
             </div>
           )}
 
-          <form className="auth-form register-form-grid" onSubmit={handleSubmit}>
-            {/* Column 1: Core credentials */}
+          <form className="auth-form register-form-grid" onSubmit={handleSubmit} autoComplete="off">
+            {/* Dummy hidden inputs to prevent browser autofill */}
+            <input type="text" name="dummy-email" style={{ display: 'none' }} autoComplete="new-username" />
+            <input type="password" name="dummy-password" style={{ display: 'none' }} autoComplete="new-password" />
+            
+            {/* Column 1: Core credentials & apparel sizes */}
             <div className="form-column">
               <div className="form-group">
                 <label className="form-label">Full Name</label>
@@ -247,6 +200,7 @@ export default function Register() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     disabled={loading}
+                    autoComplete="off"
                   />
                 </div>
               </div>
@@ -263,6 +217,7 @@ export default function Register() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={loading}
+                    autoComplete="off"
                   />
                 </div>
               </div>
@@ -279,6 +234,7 @@ export default function Register() {
                     value={mobile}
                     onChange={(e) => setMobile(e.target.value)}
                     disabled={loading}
+                    autoComplete="off"
                   />
                 </div>
               </div>
@@ -295,6 +251,7 @@ export default function Register() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}
+                    autoComplete="new-password"
                   />
                   <button
                     type="button"
@@ -308,69 +265,75 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Sign Up Role</label>
-                <div className="auth-role-switcher flex gap-sm">
-                  <button
-                    type="button"
-                    className={`btn btn-sm ${role === 'player' ? 'btn-gold' : 'btn-outline'}`}
-                    onClick={() => setRole('player')}
+                <label className="form-label">Instagram ID</label>
+                <div className="input-wrapper">
+                  <span className="input-icon-left text-muted font-semi" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>@</span>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="username"
+                    value={instagramId}
+                    onChange={(e) => setInstagramId(e.target.value)}
                     disabled={loading}
-                  >
-                    Player
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn btn-sm ${role === 'captain' ? 'btn-gold' : 'btn-outline'}`}
-                    onClick={() => setRole('captain')}
-                    disabled={loading}
-                  >
-                    Team Captain
-                  </button>
+                    style={{ paddingLeft: '28px' }}
+                  />
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Track Pant Size</label>
+                <select
+                  className="form-select"
+                  value={trackPantSize}
+                  onChange={(e) => setTrackPantSize(e.target.value)}
+                  required
+                  disabled={loading}
+                >
+                  <option value="">-- Choose Track Pant Size --</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="XXL">XXL</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">T-Shirt Size</label>
+                <select
+                  className="form-select"
+                  value={tshirtSize}
+                  onChange={(e) => setTshirtSize(e.target.value)}
+                  required
+                  disabled={loading}
+                >
+                  <option value="">-- Choose T-Shirt Size --</option>
+                  <option value="S">S</option>
+                  <option value="M">M</option>
+                  <option value="L">L</option>
+                  <option value="XL">XL</option>
+                  <option value="XXL">XXL</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Sleeve Type</label>
+                <select
+                  className="form-select"
+                  value={sleeveType}
+                  onChange={(e) => setSleeveType(e.target.value)}
+                  required
+                  disabled={loading}
+                >
+                  <option value="">-- Choose Sleeve Type --</option>
+                  <option value="Half Sleeve">Half Sleeve</option>
+                  <option value="Full Sleeve">Full Sleeve</option>
+                </select>
               </div>
             </div>
 
             {/* Column 2: Player Details & Photo */}
             <div className="form-column">
-              {role === 'player' ? (
-                <div className="form-group">
-                  <label className="form-label">Team Selection</label>
-                  <select
-                    className="form-select"
-                    value={teamSelection}
-                    onChange={(e) => setTeamSelection(e.target.value)}
-                    required
-                    disabled={loading}
-                  >
-                    {teams.length === 0 ? (
-                      <option value="">-- No teams available --</option>
-                    ) : (
-                      teams.map((t) => {
-                        const isFull = t.playerCount >= (t.maxPlayers || 35) && !t.id.startsWith('example-');
-                        return (
-                          <option key={t.id} value={t.id} disabled={isFull}>
-                            {t.teamName} {t.id.startsWith('example-') ? '' : `(${t.playerCount || 0}/${t.maxPlayers || 35})${isFull ? ' - FULL' : ''}`}
-                          </option>
-                        );
-                      })
-                    )}
-                  </select>
-                </div>
-              ) : (
-                <div className="form-group">
-                  <label className="form-label">Team Name</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Enter your team name"
-                    required={role === 'captain'}
-                    value={teamName}
-                    onChange={(e) => setTeamName(e.target.value)}
-                    disabled={loading}
-                  />
-                </div>
-              )}
-
               <div className="form-group">
                 <label className="form-label">Playing Style</label>
                 <select
@@ -401,6 +364,68 @@ export default function Register() {
                   />
                 </div>
               </div>
+
+              <div className="form-group">
+                <label className="form-label">MCA Registered Player?</label>
+                <select
+                  className="form-select"
+                  value={mcaPlayer}
+                  onChange={(e) => setMcaPlayer(e.target.value)}
+                  disabled={loading}
+                >
+                  <option value="no">No</option>
+                  <option value="yes">Yes</option>
+                </select>
+              </div>
+
+              {mcaPlayer === 'yes' && (
+                <>
+                  <div className="form-group">
+                    <label className="form-label">MCA ID Number</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Enter MCA Registration ID"
+                      required={mcaPlayer === 'yes'}
+                      value={mcaIdNumber}
+                      onChange={(e) => setMcaIdNumber(e.target.value)}
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">MCA Card Photo</label>
+                    <div className="file-upload-container">
+                      {mcaCardPhotoPreview ? (
+                        <div className="photo-preview-wrap">
+                          <img src={mcaCardPhotoPreview} alt="MCA Card Preview" className="photo-preview" style={{ maxHeight: '80px', objectFit: 'contain' }} />
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            onClick={() => {
+                              setMcaCardPhoto(null);
+                              setMcaCardPhotoPreview(null);
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="file-upload-label">
+                          <Upload size={24} />
+                          <span className="text-xs font-medium">Upload MCA Card</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleMcaCardChange}
+                            disabled={loading}
+                            style={{ display: 'none' }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="form-group">
                 <label className="form-label">Profile Photo</label>
@@ -437,7 +462,7 @@ export default function Register() {
             </div>
 
             <button type="submit" className="btn btn-gold btn-lg auth-submit-btn full-width-btn" disabled={loading}>
-              {loading ? 'Creating Account & Unique ID...' : 'Complete Registration'}
+              {loading ? 'Creating Account & Profile...' : 'Complete Registration'}
             </button>
           </form>
 

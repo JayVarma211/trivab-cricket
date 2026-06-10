@@ -11,7 +11,6 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loginRole, setLoginRole] = useState('player');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,10 +24,6 @@ export default function Login() {
       const user = await loginUser(email, password);
       const profile = await getDocument('users', user.uid);
       if (profile) {
-        if (profile.role !== loginRole && profile.role !== 'admin') {
-          setError(`You are registered as ${profile.role}. Please use the ${profile.role === 'captain' ? 'Captain' : 'Player'} login option.`);
-          return;
-        }
         setUserProfile(profile);
         if (profile.role === 'admin') navigate('/admin/dashboard');
         else if (profile.role === 'captain') navigate('/captain/dashboard');
@@ -37,7 +32,16 @@ export default function Login() {
         navigate('/player/dashboard');
       }
     } catch (err) {
-      setError(err.message || 'Failed to login. Please check credentials.');
+      console.error("Login error:", err);
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        setError('Incorrect email or password. Please check your credentials and try again.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Invalid email format. Please enter a valid email address.');
+      } else if (err.code === 'auth/user-disabled') {
+        setError('This account has been disabled. Please contact support.');
+      } else {
+        setError('Incorrect email or password. Please check your credentials and try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -58,24 +62,6 @@ export default function Login() {
             <p className="text-secondary text-sm">Access your TRIVAB platform dashboard</p>
           </div>
 
-          <div className="auth-role-switcher mb-md flex gap-sm">
-            <button
-              type="button"
-              className={`btn btn-sm ${loginRole === 'player' ? 'btn-gold' : 'btn-outline'}`}
-              onClick={() => setLoginRole('player')}
-            >
-              Player Login
-            </button>
-            <button
-              type="button"
-              className={`btn btn-sm ${loginRole === 'captain' ? 'btn-gold' : 'btn-outline'}`}
-              onClick={() => setLoginRole('captain')}
-            >
-              Captain Login
-            </button>
-          </div>
-          <p className="text-xs text-muted mb-lg">Choose the correct access type before signing in.</p>
-
           {error && (
             <div className="alert alert-error">
               <AlertCircle size={18} />
@@ -83,7 +69,10 @@ export default function Login() {
             </div>
           )}
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="auth-form" onSubmit={handleSubmit} autoComplete="off">
+            {/* Dummy hidden inputs to prevent browser autofill */}
+            <input type="text" name="dummy-email" style={{ display: 'none' }} autoComplete="new-username" />
+            <input type="password" name="dummy-password" style={{ display: 'none' }} autoComplete="new-password" />
             <div className="form-group">
               <label className="form-label">Email Address</label>
               <div className="input-wrapper">
@@ -96,6 +85,7 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -115,6 +105,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"

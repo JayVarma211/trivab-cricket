@@ -35,7 +35,7 @@ export default function AdminLayout({ children }) {
       <aside className={`admin-sidebar ${sidebarOpen ? 'open-sidebar' : 'closed'}`}>
         <div className="sidebar-header">
           <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <img src="/logos/trivabsports.webp" style={{ height: '60px', objectFit: 'contain' }} alt="TRIVAB SPORTS" />
+            <img src="/logos/trivabsports.webp" style={{ height: '80px', objectFit: 'contain' }} alt="TRIVAB SPORTS" />
           </Link>
           <button className="sidebar-toggle-close" onClick={() => setSidebarOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--admin-text)', cursor: 'pointer', fontSize: '1.25rem' }}>✕</button>
         </div>

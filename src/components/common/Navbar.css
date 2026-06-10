@@ -41,7 +41,7 @@
 }
 
 .logo-image {
-  height: 68px;
+  height: 85px;
   object-fit: contain;
 }
 
@@ -58,13 +58,14 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--text-secondary);
-  transition: color var(--transition-fast), background var(--transition-fast);
+  transition: color var(--transition-base), background var(--transition-base), transform var(--transition-spring);
   white-space: nowrap;
 }
 
 .nav-link:hover {
   color: var(--text-primary);
   background: var(--bg-card);
+  transform: translateY(-2px);
 }
 
 .nav-link.active {
@@ -84,7 +85,7 @@
   background: rgba(128, 0, 0, 0.1);
   border: 1px solid var(--border);
   color: var(--gold);
-  transition: all var(--transition-base);
+  transition: all var(--transition-spring);
 }
 
 .scanner-btn:hover {
@@ -98,13 +99,14 @@
   background: var(--bg-card);
   border: 1px solid var(--border-card);
   color: var(--text-secondary);
-  transition: all var(--transition-base);
+  transition: all var(--transition-spring);
 }
 
 .theme-toggle:hover {
   color: var(--gold);
   border-color: var(--border);
   background: var(--bg-card-hover);
+  transform: scale(1.05);
 }
 
 /* ---- Auth buttons ---- */

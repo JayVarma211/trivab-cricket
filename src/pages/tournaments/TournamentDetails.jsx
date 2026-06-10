@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getDocument, getCollection, where, updateDocument, getPlayerByUIDOrEmail } from '../../firebase/firestore';
+import { getDocument, getCollection, where, updateDocument, setDocument, addDocument, getPlayerByUIDOrEmail } from '../../firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
-import { Trophy, Calendar, MapPin, Users, Award, Shield } from 'lucide-react';
+import { Trophy, Calendar, MapPin, Users, Award, Shield, Upload } from 'lucide-react';
 import Loader from '../../components/common/Loader';
+import uploadImageToCloudinary from '../../services/cloudinary';
 import './Tournaments.css';
 
 const PREDEFINED_TOURNAMENTS = [
@@ -31,6 +32,15 @@ export default function TournamentDetails() {
   const [hasJoined, setHasJoined] = useState(false);
   const [joining, setJoining] = useState(false);
   const [joinMessage, setJoinMessage] = useState('');
+  
+  // Join Modal States
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [joinRole, setJoinRole] = useState(''); // 'captain' | 'player'
+  const [newTeamName, setNewTeamName] = useState('');
+  const [newTeamLogo, setNewTeamLogo] = useState(null);
+  const [newTeamLogoPreview, setNewTeamLogoPreview] = useState(null);
+  const [selectedTeamId, setSelectedTeamId] = useState('');
+  const [modalError, setModalError] = useState('');
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -60,30 +70,19 @@ export default function TournamentDetails() {
         const tList = await getCollection('teams', [where('tournamentId', '==', id)]);
         setTeams(tList);
       } catch (err) {
-        console.log('Using default mock tournament details page');
-        const fallback = PREDEFINED_TOURNAMENTS.find(p => p.id === id) || {
-          name: 'Champions Cup 2026',
-          logo: null,
-          description: 'The ultimate T20 championship faceoff featuring regional elite sports clubs competing for the TRIVAB Champions Cup.',
-        };
-        setTournament({
-          id: id,
+        console.error('Error fetching tournament details:', err);
+        const fallback = PREDEFINED_TOURNAMENTS.find(p => p.id === id);
+        setTournament(fallback ? {
+          id: fallback.id,
           name: fallback.name,
-          status: 'Live',
-          description: fallback.description,
           logo: fallback.logo,
+          description: fallback.description,
+          status: 'Upcoming',
           winner: 'TBD',
           runnerUp: 'TBD'
-        });
-        setMatches([
-          { id: 'm1', teamA: 'Mumbai Knights', teamB: 'Delhi Dynamos', venue: 'Wankhede Stadium', date: '2026-05-31', time: '18:30', status: 'Upcoming' },
-          { id: 'm2', teamA: 'Chennai Super Kings', teamB: 'Kolkata Warriors', venue: 'Chepauk Stadium', date: '2026-06-01', time: '16:00', status: 'Upcoming' }
-        ]);
-        setTeams([
-          { id: 't1', teamName: 'Mumbai Knights', captainName: 'Rohit Sharma' },
-          { id: 't2', teamName: 'Delhi Dynamos', captainName: 'Rishabh Pant' },
-          { id: 't3', teamName: 'Chennai Super Kings', captainName: 'MS Dhoni' }
-        ]);
+        } : null);
+        setMatches([]);
+        setTeams([]);
       } finally {
         if (user) {
           try {
@@ -106,39 +105,191 @@ export default function TournamentDetails() {
     fetchDetails();
   }, [id, user]);
 
-  const handleJoinTournament = async () => {
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewTeamLogo(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewTeamLogoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleJoinTournament = async (e) => {
+    if (e) e.preventDefault();
     if (!user) {
-      alert('Please log in as a player to join this tournament!');
+      alert('Please log in to join this tournament!');
       return;
     }
     if (!playerProfile) {
-      alert('Only registered players can join tournaments. Please update your profile or register as a player.');
+      alert('Player profile not found. Please complete your registration.');
       return;
     }
+    if (!joinRole) {
+      setModalError('Please select your role.');
+      return;
+    }
+
     setJoining(true);
+    setModalError('');
     setJoinMessage('');
+
     try {
+      let teamId = '';
+      let teamName = '';
+
+      if (joinRole === 'captain') {
+        if (!newTeamName.trim()) {
+          throw new Error('Please enter a team name.');
+        }
+
+        // Upload logo to Cloudinary if selected
+        let logoURL = '';
+        if (newTeamLogo) {
+          try {
+            logoURL = await uploadImageToCloudinary(newTeamLogo);
+          } catch (err) {
+            console.error(err);
+            throw new Error('Failed to upload team logo.');
+          }
+        }
+
+        // 1. Create a new team document
+        const teamDoc = await addDocument('teams', {
+          teamName: newTeamName.trim(),
+          city: '',
+          logoURL,
+          captainId: user.uid,
+          captainName: playerProfile.fullName,
+          playerCount: 1, // Captain is counted as 1st player
+          maxPlayers: 35,
+          wins: 0,
+          losses: 0,
+          tournamentId: tournament.id || id,
+          tournamentName: tournament.name || 'Tournament Edition',
+          createdAt: new Date().toISOString()
+        });
+
+        teamId = teamDoc.id;
+        teamName = newTeamName.trim();
+
+        // 2. Write/Update the Captain profile
+        const captId = `CAPT-${playerProfile.id.split('-').pop()}`;
+        await setDocument('captains', user.uid, {
+          captainId: captId,
+          uid: user.uid,
+          fullName: playerProfile.fullName,
+          teamId: teamId,
+          teamName: teamName,
+          mobile: playerProfile.mobile || '',
+          email: playerProfile.email,
+          photoURL: playerProfile.photoURL || '',
+          createdAt: new Date().toISOString()
+        });
+
+        // 3. Update User's global role to captain in Auth context / database
+        await updateDocument('users', user.uid, {
+          role: 'captain'
+        });
+
+        // 4. Send Admin Notification
+        await addDocument('admin_notifications', {
+          type: 'captain_joined',
+          title: 'New Team Enrolled',
+          message: `${playerProfile.fullName} registered team "${teamName}" as Captain for tournament "${tournament.name}"`,
+          createdAt: new Date().toISOString(),
+          read: false
+        });
+
+      } else {
+        // Player Role
+        if (!selectedTeamId) {
+          throw new Error('Please select a team.');
+        }
+
+        const teamObj = teams.find(t => t.id === selectedTeamId);
+        if (!teamObj) {
+          throw new Error('Selected team not found.');
+        }
+
+        // Check roster limit
+        if ((teamObj.playerCount || 0) >= 35) {
+          throw new Error(`The team ${teamObj.teamName} has reached its limit of 35 players.`);
+        }
+
+        teamId = selectedTeamId;
+        teamName = teamObj.teamName;
+
+        // 1. Update team headcount
+        await updateDocument('teams', selectedTeamId, {
+          playerCount: (teamObj.playerCount || 0) + 1
+        });
+
+        // 2. Send Admin Notification
+        await addDocument('admin_notifications', {
+          type: 'player_joined',
+          title: 'New Roster Enrollment',
+          message: `${playerProfile.fullName} joined team "${teamName}" as Player for tournament "${tournament.name}"`,
+          createdAt: new Date().toISOString(),
+          read: false
+        });
+      }
+
+      // Create a registration record for ease of relational queries
+      const regId = `${playerProfile.id}_${tournament.id || id}`;
+      await setDocument('registrations', regId, {
+        id: regId,
+        playerId: playerProfile.id,
+        playerName: playerProfile.fullName,
+        playerEmail: playerProfile.email,
+        photoURL: playerProfile.photoURL || '',
+        playingStyle: playerProfile.playingStyle || 'Batsman',
+        jerseyNumber: playerProfile.jerseyNumber || '',
+        mobile: playerProfile.mobile || '',
+        tournamentId: tournament.id || id,
+        tournamentName: tournament.name || 'Tournament Edition',
+        teamId,
+        teamName,
+        role: joinRole,
+        matchesPlayed: 0,
+        joinedAt: new Date().toISOString()
+      });
+
+      // Update Player Profile joinedTournaments list locally and in DB
       const newRegistration = {
         id: tournament.id || id,
         name: tournament.name || 'Tournament Edition',
+        teamId,
+        teamName,
+        role: joinRole,
+        matchesPlayed: 0,
         joinedAt: new Date().toISOString()
       };
+      
       const currentJoined = playerProfile.joinedTournaments || [];
       const updatedJoined = [...currentJoined, newRegistration];
-      
+
       await updateDocument('players', playerProfile.id, {
         joinedTournaments: updatedJoined
       });
-      
+
       setPlayerProfile(prev => ({
         ...prev,
         joinedTournaments: updatedJoined
       }));
       setHasJoined(true);
       setJoinMessage('Successfully joined tournament!');
-    } catch (e) {
-      console.error("Error joining tournament:", e);
-      alert('Failed to join tournament. Please try again.');
+      setShowJoinModal(false);
+
+      // Reload participating teams
+      const tList = await getCollection('teams', [where('tournamentId', '==', id)]);
+      setTeams(tList);
+
+    } catch (err) {
+      console.error(err);
+      setModalError(err.message || 'Failed to join tournament. Please try again.');
     } finally {
       setJoining(false);
     }
@@ -175,14 +326,14 @@ export default function TournamentDetails() {
               role === 'admin' ? (
                 <div className="mt-md" style={{ display: 'inline-block' }}><span className="badge badge-gold">Admin View</span></div>
               ) : (
-                <div className="mt-md" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+                <div className="mt-md" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
                   {hasJoined ? (
                     <button className="btn btn-gold btn-sm" disabled style={{ opacity: 0.8, cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       ✓ Joined Tournament
                     </button>
                   ) : (
-                    <button className="btn btn-gold btn-sm" onClick={handleJoinTournament} disabled={joining} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      {joining ? 'Joining...' : 'Join this Tournament'}
+                    <button className="btn btn-gold btn-sm" onClick={() => { setModalError(''); setJoinRole(''); setNewTeamName(''); setSelectedTeamId(''); setShowJoinModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      Join this Tournament
                     </button>
                   )}
                   {joinMessage && <span className="text-xs text-green font-bold" style={{ color: '#22c55e' }}>{joinMessage}</span>}
@@ -257,6 +408,116 @@ export default function TournamentDetails() {
           </ul>
         </div>
       </div>
+      {showJoinModal && (
+        <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowJoinModal(false)}>✕</button>
+            <h3 className="text-lg font-bold text-gradient-gold mb-md">Join {tournament.name}</h3>
+            
+            {modalError && (
+              <div className="alert alert-error mb-md" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', borderRadius: '6px' }}>
+                <span className="text-xs">{modalError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleJoinTournament} className="flex flex-col gap-md">
+              <div className="form-group">
+                <label className="form-label">Select Your Role</label>
+                <select
+                  className="form-select"
+                  value={joinRole}
+                  onChange={(e) => setJoinRole(e.target.value)}
+                  required
+                  disabled={joining}
+                  style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+                >
+                  <option value="">-- Choose Role --</option>
+                  <option value="captain">Captain (Enroll a new Team)</option>
+                  <option value="player">Player (Join an existing Team)</option>
+                </select>
+              </div>
+
+              {joinRole === 'captain' && (
+                <>
+                  <div className="form-group">
+                    <label className="form-label">Team Name</label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Enter new team name"
+                      value={newTeamName}
+                      onChange={(e) => setNewTeamName(e.target.value)}
+                      required
+                      disabled={joining}
+                      style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Team Logo (Optional)</label>
+                    <div className="file-upload-container">
+                      {newTeamLogoPreview ? (
+                        <div className="photo-preview-wrap">
+                          <img src={newTeamLogoPreview} alt="Logo Preview" className="photo-preview" style={{ maxHeight: '80px', objectFit: 'contain' }} />
+                          <button
+                            type="button"
+                            className="btn btn-outline btn-sm"
+                            onClick={() => {
+                              setNewTeamLogo(null);
+                              setNewTeamLogoPreview(null);
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <label className="file-upload-label" style={{ padding: '15px', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', border: '1.5px dashed var(--border-card)', borderRadius: '6px' }}>
+                          <Upload size={20} />
+                          <span className="text-xs font-medium">Upload Team Logo</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoChange}
+                            disabled={joining}
+                            style={{ display: 'none' }}
+                          />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {joinRole === 'player' && (
+                <div className="form-group">
+                  <label className="form-label">Select Team</label>
+                  <select
+                    className="form-select"
+                    value={selectedTeamId}
+                    onChange={(e) => setSelectedTeamId(e.target.value)}
+                    required
+                    disabled={joining}
+                    style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+                  >
+                    <option value="">-- Choose Team --</option>
+                    {teams.map(t => (
+                      <option key={t.id} value={t.id}>{t.teamName} ({t.playerCount || 0}/35 players)</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="btn btn-gold btn-md mt-sm w-full"
+                disabled={joining || !joinRole}
+              >
+                {joining ? 'Enrolling...' : 'Complete Enrollment'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

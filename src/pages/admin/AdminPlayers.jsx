@@ -23,6 +23,7 @@ export default function AdminPlayers() {
   const [activeTab, setActiveTab] = useState('players');
   const [captains, setCaptains] = useState([]);
   const [selectedCaptainForDetails, setSelectedCaptainForDetails] = useState(null);
+  const [tournaments, setTournaments] = useState([]);
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -45,9 +46,11 @@ export default function AdminPlayers() {
       const playersData = await getCollection('players', []);
       const teamsData = await getCollection('teams', []);
       const captainsData = await getCollection('captains', []);
+      const tournamentsData = await getCollection('tournaments', []);
       setPlayers(playersData);
       setTeams(teamsData);
       setCaptains(captainsData);
+      setTournaments(tournamentsData);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load data');
@@ -92,6 +95,59 @@ export default function AdminPlayers() {
 
       if (editingId) {
         const previousPlayer = players.find(p => p.id === editingId);
+        let playerTournaments = previousPlayer?.joinedTournaments || [];
+
+        if (formData.teamId) {
+          const teamObj = teams.find(t => t.id === formData.teamId);
+          if (teamObj && teamObj.tournamentId) {
+            const tournObj = tournaments.find(t => t.id === teamObj.tournamentId);
+            const tournamentName = tournObj?.name || 'Tournament Edition';
+            
+            const alreadyJoined = playerTournaments.some(t => {
+              const idToCompare = typeof t === 'string' ? t : t.id;
+              if (idToCompare === teamObj.tournamentId) {
+                t.teamId = formData.teamId;
+                t.teamName = teamObj.teamName;
+                return true;
+              }
+              return false;
+            });
+            
+            if (!alreadyJoined) {
+              playerTournaments = [
+                ...playerTournaments,
+                {
+                  id: teamObj.tournamentId,
+                  name: tournamentName,
+                  teamId: formData.teamId,
+                  teamName: teamObj.teamName,
+                  matchesPlayed: 0,
+                  joinedAt: new Date().toISOString()
+                }
+              ];
+            }
+            
+            // Upsert registration in Firestore
+            const regId = `${editingId}_${teamObj.tournamentId}`;
+            await setDocument('registrations', regId, {
+              id: regId,
+              playerId: editingId,
+              playerName: formData.fullName,
+              playerEmail: formData.email,
+              photoURL: photoURL || formData.photoURL || previousPlayer?.photoURL || '',
+              playingStyle: formData.playingStyle || 'Batsman',
+              jerseyNumber: formData.jerseyNumber || '',
+              mobile: formData.mobile || '',
+              tournamentId: teamObj.tournamentId,
+              tournamentName: tournamentName,
+              teamId: formData.teamId,
+              teamName: teamObj.teamName,
+              matchesPlayed: 0,
+              joinedAt: new Date().toISOString()
+            });
+          }
+        }
+
         const playerData = {
           fullName: formData.fullName,
           email: formData.email,
@@ -102,7 +158,8 @@ export default function AdminPlayers() {
           jerseyNumber: formData.jerseyNumber,
           photoURL: photoURL || formData.photoURL || '',
           status: 'Active',
-          playerId: previousPlayer?.playerId || editingId
+          playerId: previousPlayer?.playerId || editingId,
+          joinedTournaments: playerTournaments
         };
         await updateDocument('players', editingId, playerData);
 
@@ -127,6 +184,46 @@ export default function AdminPlayers() {
         }
       } else {
         const generatedId = generatePlayerID(formData.teamName || 'GEN');
+        let playerTournaments = [];
+
+        if (formData.teamId) {
+          const teamObj = teams.find(t => t.id === formData.teamId);
+          if (teamObj && teamObj.tournamentId) {
+            const tournObj = tournaments.find(t => t.id === teamObj.tournamentId);
+            const tournamentName = tournObj?.name || 'Tournament Edition';
+            
+            playerTournaments = [
+              {
+                id: teamObj.tournamentId,
+                name: tournamentName,
+                teamId: formData.teamId,
+                teamName: teamObj.teamName,
+                matchesPlayed: 0,
+                joinedAt: new Date().toISOString()
+              }
+            ];
+
+            // Create registration record
+            const regId = `${generatedId}_${teamObj.tournamentId}`;
+            await setDocument('registrations', regId, {
+              id: regId,
+              playerId: generatedId,
+              playerName: formData.fullName,
+              playerEmail: formData.email,
+              photoURL: photoURL || '',
+              playingStyle: formData.playingStyle || 'Batsman',
+              jerseyNumber: formData.jerseyNumber || '',
+              mobile: formData.mobile || '',
+              tournamentId: teamObj.tournamentId,
+              tournamentName: tournamentName,
+              teamId: formData.teamId,
+              teamName: teamObj.teamName,
+              matchesPlayed: 0,
+              joinedAt: new Date().toISOString()
+            });
+          }
+        }
+
         const playerData = {
           playerId: generatedId,
           fullName: formData.fullName,
@@ -138,7 +235,8 @@ export default function AdminPlayers() {
           jerseyNumber: formData.jerseyNumber,
           photoURL: photoURL || '',
           status: 'Active',
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          joinedTournaments: playerTournaments
         };
         await setDocument('players', generatedId, playerData);
 
@@ -159,6 +257,50 @@ export default function AdminPlayers() {
       resetForm();
     } catch (err) {
       setError(err.message || 'Failed to save player');
+    }
+  };
+
+  const updateMatchesPlayed = async (playerId, tournamentId, newCount) => {
+    try {
+      const regId = `${playerId}_${tournamentId}`;
+      await updateDocument('registrations', regId, {
+        matchesPlayed: newCount
+      });
+
+      const playerDoc = players.find(p => p.id === playerId);
+      if (playerDoc && playerDoc.joinedTournaments) {
+        const updatedJoined = playerDoc.joinedTournaments.map(t => {
+          const idToCompare = typeof t === 'string' ? t : t.id;
+          if (idToCompare === tournamentId) {
+            return {
+              ...t,
+              matchesPlayed: newCount
+            };
+          }
+          return t;
+        });
+        await updateDocument('players', playerId, {
+          joinedTournaments: updatedJoined
+        });
+        
+        setPlayers(prev => prev.map(p => {
+          if (p.id === playerId) {
+            return {
+              ...p,
+              joinedTournaments: updatedJoined
+            };
+          }
+          return p;
+        }));
+        
+        setSelectedPlayerForDetails(prev => ({
+          ...prev,
+          joinedTournaments: updatedJoined
+        }));
+      }
+    } catch (err) {
+      console.error("Error updating matches played:", err);
+      alert("Failed to update matches played");
     }
   };
 
@@ -564,18 +706,82 @@ export default function AdminPlayers() {
               
               <div className="divider" />
               
-              <div className="w-full text-sm text-left flex flex-col gap-xs" style={{ color: 'var(--admin-text)' }}>
+              <div className="w-full text-sm text-left flex flex-col gap-xs" style={{ color: 'var(--admin-text)', maxHeight: '420px', overflowY: 'auto', paddingRight: '6px' }}>
                 <div className="flex justify-between"><span className="opacity-70">Player ID:</span><strong>{selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</strong></div>
                 <div className="flex justify-between"><span className="opacity-70">Email:</span><span>{selectedPlayerForDetails.email}</span></div>
                 <div className="flex justify-between"><span className="opacity-70">Mobile:</span><span>{selectedPlayerForDetails.mobile}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Instagram:</span><span>{selectedPlayerForDetails.instagramId ? `@${selectedPlayerForDetails.instagramId}` : 'N/A'}</span></div>
                 <div className="flex justify-between"><span className="opacity-70">Team Name:</span><strong className="text-gold">{selectedPlayerForDetails.teamName || 'Free Agent'}</strong></div>
                 <div className="flex justify-between"><span className="opacity-70">Jersey No:</span><span>#{selectedPlayerForDetails.jerseyNumber || 'N/A'}</span></div>
-                <div className="flex justify-between"><span className="opacity-70">Joined Tournaments:</span><span className="text-gold font-bold" style={{ textAlign: 'right', maxWidth: '240px' }}>
-                  {selectedPlayerForDetails.joinedTournaments && selectedPlayerForDetails.joinedTournaments.length > 0
-                    ? selectedPlayerForDetails.joinedTournaments.map(t => typeof t === 'string' ? t : t.name || t.id).join(', ')
-                    : 'None'}
-                </span></div>
-                <div className="flex justify-between"><span className="opacity-70">Status:</span><span className="text-green">{selectedPlayerForDetails.status}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Track Pant Size:</span><span>{selectedPlayerForDetails.trackPantSize || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">T-Shirt Size:</span><span>{selectedPlayerForDetails.tshirtSize || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">Sleeve Type:</span><span>{selectedPlayerForDetails.sleeveType || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="opacity-70">MCA Player:</span><span>{selectedPlayerForDetails.mcaPlayer ? 'Yes' : 'No'}</span></div>
+                {selectedPlayerForDetails.mcaPlayer && (
+                  <>
+                    <div className="flex justify-between"><span className="opacity-70">MCA ID Number:</span><span>{selectedPlayerForDetails.mcaIdNumber || 'N/A'}</span></div>
+                    {selectedPlayerForDetails.mcaCardURL && (
+                      <div className="flex flex-col gap-xs mt-xs mb-sm">
+                        <span className="opacity-70 text-xs font-bold uppercase">MCA Card:</span>
+                        <a href={selectedPlayerForDetails.mcaCardURL} target="_blank" rel="noreferrer" style={{ display: 'block' }}>
+                          <img 
+                            src={selectedPlayerForDetails.mcaCardURL} 
+                            alt="MCA Card" 
+                            style={{ width: '100%', maxHeight: '120px', objectFit: 'contain', borderRadius: '6px', border: '1px solid var(--border)' }} 
+                          />
+                        </a>
+                      </div>
+                    )}
+                  </>
+                )}
+                
+                <div className="divider" style={{ margin: '12px 0' }} />
+                
+                <div className="flex flex-col gap-xs w-full">
+                  <span className="opacity-70 text-xs font-bold uppercase block mb-xs">Joined Tournaments & Roles</span>
+                  {selectedPlayerForDetails.joinedTournaments && selectedPlayerForDetails.joinedTournaments.length > 0 ? (
+                    <div className="flex flex-col gap-sm" style={{ maxHeight: '180px', overflowY: 'auto', width: '100%' }}>
+                      {selectedPlayerForDetails.joinedTournaments.map((t, idx) => {
+                        const tName = typeof t === 'string' ? t : t.name || t.id;
+                        const tId = typeof t === 'string' ? t : t.id;
+                        const teamName = t.teamName || 'N/A';
+                        const roleLabel = t.role ? t.role.charAt(0).toUpperCase() + t.role.slice(1) : 'Player';
+                        const matchesPlayed = t.matchesPlayed !== undefined ? t.matchesPlayed : 0;
+                        
+                        return (
+                          <div key={tId || idx} className="card p-xs flex flex-col gap-xs" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', padding: '8px 12px', borderRadius: '6px' }}>
+                            <div className="flex justify-between items-center">
+                              <span className="font-bold text-xs truncate" style={{ maxWidth: '200px' }}>{tName}</span>
+                              <span className="badge badge-gold" style={{ fontSize: '0.65rem', padding: '2px 6px' }}>{matchesPlayed} Matches</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs opacity-80 mt-xs">
+                              <span>Team: <strong className="text-gold">{teamName}</strong> ({roleLabel})</span>
+                              <button 
+                                onClick={async (e) => {
+                                  e.stopPropagation();
+                                  const newValStr = prompt(`Enter matches played for ${selectedPlayerForDetails.fullName} in ${tName}:`, matchesPlayed);
+                                  if (newValStr !== null) {
+                                    const newVal = parseInt(newValStr, 10);
+                                    if (!isNaN(newVal)) {
+                                      await updateMatchesPlayed(selectedPlayerForDetails.id, tId, newVal);
+                                    }
+                                  }
+                                }}
+                                className="btn btn-outline"
+                                style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '4px', height: 'auto' }}
+                              >
+                                Edit Matches
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted">No tournaments joined.</span>
+                  )}
+                </div>
+                <div className="flex justify-between mt-sm"><span className="opacity-70">Status:</span><span className="text-green">{selectedPlayerForDetails.status}</span></div>
               </div>
               
               <div className="divider" />

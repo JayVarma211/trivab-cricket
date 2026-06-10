@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { loginUser, registerUser } from '../../firebase/auth';
 import { getDocument, setDocument } from '../../firebase/firestore';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
 import '../auth/Auth.css';
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'trivabsportsandevents@gmail.com';
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'trivab@123';
+const cleanEnvVar = (val) => {
+  if (!val) return '';
+  return val.trim().replace(/^["']|["']$/g, '');
+};
+
+const ADMIN_EMAIL = cleanEnvVar(import.meta.env.VITE_ADMIN_EMAIL);
+const ADMIN_PASSWORD = cleanEnvVar(import.meta.env.VITE_ADMIN_PASSWORD);
+const ADMIN_UID = 'admin-trivab'; // Fixed admin UID
 
 export default function AdminLogin() {
-  const { setUserProfile } = useAuth();
+  const { setAdminAuth } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -31,48 +36,29 @@ export default function AdminLogin() {
     }
 
     if (password !== ADMIN_PASSWORD) {
-      setError('Invalid admin password.');
+      setError('Invalid password. Please check your credentials.');
       setLoading(false);
       return;
     }
 
     try {
-      let user;
-      try {
-        user = await loginUser(email, password);
-      } catch (loginError) {
-        // Since the email and password already match the fixed ADMIN_EMAIL and ADMIN_PASSWORD,
-        // if the account doesn't exist yet, we attempt to register it on the fly.
-        try {
-          user = await registerUser(email, password, 'Admin');
-        } catch (regError) {
-          throw loginError;
-        }
-      }
+      // Create admin user profile
+      const userProfile = {
+        uid: ADMIN_UID,
+        name: 'Admin',
+        email: ADMIN_EMAIL,
+        role: 'admin',
+        mobile: '',
+        photoURL: '',
+        status: 'Active',
+        createdAt: new Date().toISOString(),
+      };
 
-      let userProfile = await getDocument('users', user.uid);
-      if (!userProfile) {
-        userProfile = {
-          uid: user.uid,
-          name: 'Admin',
-          email: ADMIN_EMAIL,
-          role: 'admin',
-          mobile: '',
-          photoURL: '',
-          status: 'Active',
-          createdAt: new Date().toISOString(),
-        };
-        await setDocument('users', user.uid, userProfile);
-      }
-
-      if (userProfile.role !== 'admin' || user.email !== ADMIN_EMAIL) {
-        throw new Error('Access denied. Admin privileges required.');
-      }
-
-      setUserProfile(userProfile);
-      navigate('/admin/dashboard');
+      setAdminAuth(userProfile);
+      setTimeout(() => navigate('/admin/dashboard'), 100);
     } catch (err) {
-      setError(err.message || 'Admin login failed. Please check credentials.');
+      console.error("Admin login error:", err);
+      setError('Incorrect admin email or password. Please check your credentials and try again.');
     } finally {
       setLoading(false);
     }
@@ -100,7 +86,10 @@ export default function AdminLogin() {
             </div>
           )}
 
-          <form className="auth-form" onSubmit={handleSubmit}>
+          <form className="auth-form" onSubmit={handleSubmit} autoComplete="off">
+            {/* Dummy hidden inputs to prevent browser autofill */}
+            <input type="text" name="dummy-email" style={{ display: 'none' }} autoComplete="new-username" />
+            <input type="password" name="dummy-password" style={{ display: 'none' }} autoComplete="new-password" />
             <div className="form-group">
               <label className="form-label">Email Address</label>
               <div className="input-wrapper">
@@ -108,11 +97,12 @@ export default function AdminLogin() {
                 <input
                   type="email"
                   className="form-input"
-                  placeholder="name@example.com"
+                  placeholder="Enter admin email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -124,11 +114,12 @@ export default function AdminLogin() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   className="form-input"
-                  placeholder="Enter password"
+                  placeholder="Enter admin password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
+                  autoComplete="new-password"
                 />
                 <button
                   type="button"

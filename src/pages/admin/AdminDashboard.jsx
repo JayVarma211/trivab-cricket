@@ -25,6 +25,7 @@ export default function AdminDashboard() {
   const [recentActivity, setRecentActivity] = useState([]);
   const [roleChartData, setRoleChartData] = useState([]);
   const [matchChartData, setMatchChartData] = useState([]);
+  const [enrollNotifications, setEnrollNotifications] = useState([]);
 
   useEffect(() => {
     if (role !== 'admin') {
@@ -35,11 +36,12 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [players, teams, matches, tournaments] = await Promise.all([
+        const [players, teams, matches, tournaments, notifications] = await Promise.all([
           getCollection('players'),
           getCollection('teams'),
           getCollection('matches'),
           getCollection('tournaments'),
+          getCollection('admin_notifications')
         ]);
 
         setStats({
@@ -48,6 +50,11 @@ export default function AdminDashboard() {
           totalMatches: matches.length,
           totalTournaments: tournaments.length,
         });
+
+        const sortedNotifications = (notifications || [])
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 10);
+        setEnrollNotifications(sortedNotifications);
 
         // Playing Style Data
         const stylesCount = {
@@ -685,6 +692,60 @@ export default function AdminDashboard() {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Roster Enrollments Feed (Admin Notifications) */}
+      <div className="admin-section mb-xl">
+        <h3 className="section-title">Roster Enrollments Feed</h3>
+        <div style={{
+          borderBottom: '1px solid var(--admin-border)',
+          overflow: 'hidden',
+        }}>
+          {enrollNotifications.length > 0 ? (
+            <div>
+              {enrollNotifications.map((notif, idx) => (
+                <div
+                  key={notif.id || idx}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: 'var(--space-md) var(--space-lg)',
+                    borderBottom: idx < enrollNotifications.length - 1 ? '1px solid var(--admin-border)' : 'none',
+                    background: notif.type === 'captain_joined' ? 'rgba(212, 175, 55, 0.03)' : 'transparent'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
+                    <div style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      borderRadius: '50%', 
+                      background: notif.type === 'captain_joined' ? 'var(--gold)' : '#22c55e' 
+                    }} />
+                    <div>
+                      <p style={{ margin: 0, color: 'var(--admin-text)' }}>
+                        <strong>{notif.title}</strong>: {notif.message}
+                      </p>
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--admin-text)', opacity: 0.6 }}>
+                        {notif.createdAt ? new Date(notif.createdAt).toLocaleString() : 'Just now'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{
+              padding: 'var(--space-xl)',
+              textAlign: 'center',
+              color: 'var(--admin-text)',
+              opacity: 0.5,
+            }}>
+              <AlertCircle size={32} style={{ marginBottom: 'var(--space-md)' }} />
+              <p>No new roster enrollment notifications yet</p>
+            </div>
+          )}
         </div>
       </div>
 

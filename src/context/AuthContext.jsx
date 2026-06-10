@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [adminMode, setAdminMode] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthChange(async (firebaseUser) => {
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setUserProfile(null);
         setRole(null);
+        setAdminMode(false);
       }
       setLoading(false);
     });
@@ -40,8 +42,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setAdminAuth = (profile) => {
+    setUserProfile(profile);
+    setRole('admin');
+    setAdminMode(true);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, userProfile, role, loading, setUserProfile: updateUserProfile }}>
+    <AuthContext.Provider value={{ user, userProfile, role, loading, setUserProfile: updateUserProfile, adminMode, setAdminAuth }}>
       {children}
     </AuthContext.Provider>
   );
