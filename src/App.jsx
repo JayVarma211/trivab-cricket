@@ -21,7 +21,8 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import TournamentList from './pages/tournaments/TournamentList';
 import TournamentDetails from './pages/tournaments/TournamentDetails';
 import MatchSchedule from './pages/MatchSchedule';
-import Sponsors from './pages/Sponsors';
+import Services from './pages/Services';
+import Gallery from './pages/Gallery';
 import QRScanner from './pages/QRScanner';
 import TournamentTypeDetails from './pages/tournaments/TournamentTypeDetails';
 import NewsEvents from './pages/NewsEvents';
@@ -37,9 +38,11 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminPlayers from './pages/admin/AdminPlayers';
 import AdminTeams from './pages/admin/AdminTeams';
 import AdminMatches from './pages/admin/AdminMatches';
+import AdminMatchDay from './pages/admin/AdminMatchDay';
 import AdminImages from './pages/admin/AdminImages';
 import AdminTournaments from './pages/admin/AdminTournaments';
 import AdminNews from './pages/admin/AdminNews';
+import AdminInquiries from './pages/admin/AdminInquiries';
 
 export default function App() {
   const { loading } = useAuth();
@@ -66,7 +69,8 @@ export default function App() {
           <Route path="/tournaments/:id" element={<TournamentDetails />} />
           <Route path="/tournaments/type/:typeId" element={<TournamentTypeDetails />} />
           <Route path="/schedule" element={<MatchSchedule />} />
-          <Route path="/sponsors" element={<Sponsors />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/scanner" element={<QRScanner />} />
           <Route path="/news" element={<NewsEvents />} />
 
@@ -115,6 +119,13 @@ export default function App() {
               </AdminLayout>
             </AdminProtectedRoute>
           } />
+          <Route path="/admin/matches/:matchId/manage" element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <AdminMatchDay />
+              </AdminLayout>
+            </AdminProtectedRoute>
+          } />
           <Route path="/admin/images" element={
             <AdminProtectedRoute>
               <AdminLayout>
@@ -133,6 +144,13 @@ export default function App() {
             <AdminProtectedRoute>
               <AdminLayout>
                 <AdminNews />
+              </AdminLayout>
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/inquiries" element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <AdminInquiries />
               </AdminLayout>
             </AdminProtectedRoute>
           } />

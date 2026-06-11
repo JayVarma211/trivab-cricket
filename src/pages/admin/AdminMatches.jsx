@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, addDocument, updateDocument, deleteDocument } from '../../firebase/firestore';
-import { Calendar, Trash2, Plus, AlertCircle, Edit2, Search } from 'lucide-react';
+import { Calendar, Trash2, Plus, AlertCircle, Edit2, Search, Activity } from 'lucide-react';
 import './Admin.css';
 
 export default function AdminMatches() {
@@ -384,6 +384,13 @@ export default function AdminMatches() {
                   <td><span className={`badge ${getStatusBadgeClass(match.status)}`}>{match.status}</span></td>
                   <td>
                     <div className="flex gap-sm">
+                      <button
+                        onClick={() => navigate(`/admin/matches/${match.id}/manage`)}
+                        className="btn-table-action text-gold"
+                        title="Manage Match Day"
+                      >
+                        <Activity size={16} />
+                      </button>
                       <button
                         onClick={() => handleEdit(match)}
                         className="btn-table-action text-gold"

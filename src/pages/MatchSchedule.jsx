@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getCollection, orderBy } from '../firebase/firestore';
-import { Calendar, MapPin, Search, ShieldCheck } from 'lucide-react';
+import { Calendar, MapPin, Search, ShieldCheck, Trophy, Users, X } from 'lucide-react';
 import Loader from '../components/common/Loader';
 import './tournaments/Tournaments.css';
 
@@ -8,6 +8,7 @@ export default function MatchSchedule() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All'); // All | Live | Upcoming | Completed
+  const [selectedMatchForModal, setSelectedMatchForModal] = useState(null);
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -56,7 +57,20 @@ export default function MatchSchedule() {
       ) : (
         <div className="grid grid-2 gap-xl">
           {filteredMatches.map((m) => (
-            <div className={`card match-card-main ${m.status === 'Live' ? 'border-red-live' : ''}`} key={m.id}>
+            <div 
+              className={`card match-card-main ${m.status === 'Live' ? 'border-red-live' : ''}`} 
+              key={m.id}
+              onClick={() => setSelectedMatchForModal(m)}
+              style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.5)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
               <div className="flex justify-between items-center mb-md">
                 <span className={`badge ${m.status === 'Live' ? 'badge-red' : m.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
                   {m.status}
@@ -72,12 +86,14 @@ export default function MatchSchedule() {
                     {m.teamA[0]}
                   </div>
                   <span className="font-semi text-sm text-primary">{m.teamA}</span>
-                  {m.status === 'Completed' && <span className="text-lg font-bold text-gradient-gold mt-xs">{m.scoreA || 'N/A'}</span>}
+                  {(m.status === 'Completed' || m.status === 'Live') && (
+                    <span className="text-lg font-bold text-gradient-gold mt-xs">{m.teamAScore || '—'}</span>
+                  )}
                 </div>
 
                 <div className="score-vs text-center">
                   <span className="text-xs font-bold text-muted block">VS</span>
-                  {m.status === 'Live' && <span className="live-dot text-xs text-red font-bold">LIVE MATCH</span>}
+                  {m.status === 'Live' && <span className="live-dot text-xs text-red font-bold animate-pulse">LIVE MATCH</span>}
                 </div>
 
                 <div className="score-team flex flex-col items-center">
@@ -85,18 +101,132 @@ export default function MatchSchedule() {
                     {m.teamB[0]}
                   </div>
                   <span className="font-semi text-sm text-primary">{m.teamB}</span>
-                  {m.status === 'Completed' && <span className="text-lg font-bold text-gradient-gold mt-xs">{m.scoreB || 'N/A'}</span>}
+                  {(m.status === 'Completed' || m.status === 'Live') && (
+                    <span className="text-lg font-bold text-gradient-gold mt-xs">{m.teamBScore || '—'}</span>
+                  )}
                 </div>
               </div>
+
+              {m.result && (
+                <div className="match-result text-center mb-md py-xxs px-sm rounded text-xs font-semi text-gold" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}>
+                  🏆 {m.result}
+                </div>
+              )}
 
               <div className="divider mb-md" />
 
               <div className="flex justify-between items-center text-xs text-muted">
                 <span className="flex items-center gap-xs"><MapPin size={12} /> {m.venue}</span>
-                <span className="font-semi">T20 Match</span>
+                <span className="text-gold font-semi" style={{ textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px' }}>Click to view Squads</span>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Match Details & squads Modal */}
+      {selectedMatchForModal && (
+        <div className="modal-overlay" onClick={() => setSelectedMatchForModal(null)} style={{ display: 'flex', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
+            <button className="modal-close" onClick={() => setSelectedMatchForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
+
+            {/* Header info */}
+            <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-card)', paddingBottom: '16px' }}>
+              <span className={`badge ${selectedMatchForModal.status === 'Live' ? 'badge-red' : selectedMatchForModal.status === 'Upcoming' ? 'badge-gold' : 'badge-green'} mb-xs`}>
+                {selectedMatchForModal.status}
+              </span>
+              <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: '4px 0 0 0' }}>
+                {selectedMatchForModal.teamA} vs {selectedMatchForModal.teamB}
+              </h3>
+              <p className="text-secondary text-xs flex justify-center items-center gap-xs mt-xs">
+                <Calendar size={12} /> {selectedMatchForModal.date} @ {selectedMatchForModal.time} IST | <MapPin size={12} /> {selectedMatchForModal.venue}
+              </p>
+            </div>
+
+            {/* Match status details */}
+            <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-card)', marginBottom: '20px', textAlign: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <span className="text-sm font-bold text-primary block">{selectedMatchForModal.teamA}</span>
+                  {(selectedMatchForModal.status === 'Completed' || selectedMatchForModal.status === 'Live') && (
+                    <span className="text-xl font-bold text-gradient-gold block mt-xs">{selectedMatchForModal.teamAScore || '—'}</span>
+                  )}
+                </div>
+                <span className="text-xs text-muted font-bold">VS</span>
+                <div style={{ textAlign: 'center' }}>
+                  <span className="text-sm font-bold text-primary block">{selectedMatchForModal.teamB}</span>
+                  {(selectedMatchForModal.status === 'Completed' || selectedMatchForModal.status === 'Live') && (
+                    <span className="text-xl font-bold text-gradient-gold block mt-xs">{selectedMatchForModal.teamBScore || '—'}</span>
+                  )}
+                </div>
+              </div>
+
+              {selectedMatchForModal.tossWinner && (
+                <div className="text-xs text-muted mt-md border-top pt-xs" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                  🏏 <strong>Toss:</strong> {selectedMatchForModal.tossWinner} won and chose to {selectedMatchForModal.tossDecision || 'Bat'} first.
+                </div>
+              )}
+
+              {selectedMatchForModal.result && (
+                <div className="text-sm text-gold font-bold mt-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <Trophy size={16} /> {selectedMatchForModal.result}
+                </div>
+              )}
+            </div>
+
+            {/* Squad lists */}
+            <div style={{ textAlign: 'left' }}>
+              <h4 className="text-xs font-bold text-muted uppercase tracking-wider mb-sm flex items-center gap-xs" style={{ fontSize: '0.7rem' }}>
+                <Users size={14} className="text-gold" /> Playing XI / XIII Squads
+              </h4>
+
+              {(!selectedMatchForModal.playing13A || selectedMatchForModal.playing13A.length === 0) && (!selectedMatchForModal.playing13B || selectedMatchForModal.playing13B.length === 0) ? (
+                <p className="text-xs text-muted text-center py-md" style={{ margin: 0 }}>
+                  Rosters have not been submitted/scanned by admin yet for this fixture.
+                </p>
+              ) : (
+                <div className="grid grid-2 gap-lg mt-sm">
+                  {/* Team A list */}
+                  <div>
+                    <h5 className="text-xs font-bold text-gold mb-xs">{selectedMatchForModal.teamA}</h5>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '250px', overflowY: 'auto' }}>
+                      {(selectedMatchForModal.playing13A || []).map((p, idx) => (
+                        <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: 'var(--bg-secondary)', borderRadius: '6px', border: '1px solid var(--border-card)' }}>
+                          <span className="text-xs font-bold text-muted" style={{ minWidth: '16px' }}>{idx + 1}.</span>
+                          <div className="avatar avatar-sm bg-primary text-gold" style={{ width: '24px', height: '24px', fontSize: '0.65rem', borderRadius: '50%', overflow: 'hidden' }}>
+                            {p.photoURL ? <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : p.fullName[0]}
+                          </div>
+                          <div style={{ textAlign: 'left' }}>
+                            <span className="text-xs font-semi text-primary block" style={{ lineHeight: 1.1 }}>{p.fullName}</span>
+                            <span className="text-muted" style={{ fontSize: '0.6rem', opacity: 0.8 }}>#{p.jerseyNumber || '—'} | {p.playingStyle || 'Player'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Team B list */}
+                  <div>
+                    <h5 className="text-xs font-bold text-gold mb-xs">{selectedMatchForModal.teamB}</h5>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '250px', overflowY: 'auto' }}>
+                      {(selectedMatchForModal.playing13B || []).map((p, idx) => (
+                        <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: 'var(--bg-secondary)', borderRadius: '6px', border: '1px solid var(--border-card)' }}>
+                          <span className="text-xs font-bold text-muted" style={{ minWidth: '16px' }}>{idx + 1}.</span>
+                          <div className="avatar avatar-sm bg-primary text-gold" style={{ width: '24px', height: '24px', fontSize: '0.65rem', borderRadius: '50%', overflow: 'hidden' }}>
+                            {p.photoURL ? <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : p.fullName[0]}
+                          </div>
+                          <div style={{ textAlign: 'left' }}>
+                            <span className="text-xs font-semi text-primary block" style={{ lineHeight: 1.1 }}>{p.fullName}</span>
+                            <span className="text-muted" style={{ fontSize: '0.6rem', opacity: 0.8 }}>#{p.jerseyNumber || '—'} | {p.playingStyle || 'Player'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

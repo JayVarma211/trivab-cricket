@@ -173,74 +173,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Sponsors Horizontal Strip */}
-      <section className="sponsors-ticker section-padding-sm bg-secondary">
-        <div className="container">
-          <h4 className="text-center text-muted text-xs font-bold uppercase tracking-wider mb-sm">
-            Supported by top-tier Sponsors
-          </h4>
-          <div className="ticker-wrap">
-            <div className="ticker-content gap-xl flex items-center">
-              <div className="ticker-logo-frame">
-                <img src="/logos/panchnaad.jpg" alt="Panchnaad Groups" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/nexussports.jpg" alt="Nexus Sports" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/buffering.jpg" alt="buffering" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/regalinterior.jpg" alt="Regal interior studios" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/crickstore.jpg" alt="crickstore" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/hubtown.jpg" alt="hub town" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/physiorehability.jpg" alt="physiorehability" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/upurfit.jpg" alt="upurFit" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/midday.jpg" alt="midday gujrati" className="ticker-logo-img" />
-              </div>
 
-              {/* Duplicate for infinite effect */}
-              <div className="ticker-logo-frame">
-                <img src="/logos/panchnaad.jpg" alt="Panchnaad Groups" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/nexussports.jpg" alt="Nexus Sports" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/buffering.jpg" alt="buffering" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/regalinterior.jpg" alt="Regal interior studios" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/crickstore.jpg" alt="crickstore" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/hubtown.jpg" alt="hub town" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/physiorehability.jpg" alt="physiorehability" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/upurfit.jpg" alt="upurFit" className="ticker-logo-img" />
-              </div>
-              <div className="ticker-logo-frame">
-                <img src="/logos/midday.jpg" alt="midday gujrati" className="ticker-logo-img" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Tournaments Horizontal Strip */}
       <section className="tournaments-ticker section-padding-sm" style={{ borderTop: '1px solid var(--border-card)', background: 'var(--bg-primary)' }}>

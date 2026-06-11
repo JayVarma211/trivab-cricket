@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getCollection, addDocument, updateDocument, deleteDocument } from '../../firebase/firestore';
-import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search } from 'lucide-react';
+import { getCollection, addDocument, updateDocument, deleteDocument, where } from '../../firebase/firestore';
+import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, X, Users, Loader2 } from 'lucide-react';
 import './Admin.css';
 
 export default function AdminTeams() {
@@ -28,10 +28,29 @@ export default function AdminTeams() {
     tournamentName: '',
   });
 
+  const [selectedTournamentFilter, setSelectedTournamentFilter] = useState('All');
+  const [selectedTeamForModal, setSelectedTeamForModal] = useState(null);
+  const [teamModalPlayers, setTeamModalPlayers] = useState([]);
+  const [loadingTeamModal, setLoadingTeamModal] = useState(false);
+
   useEffect(() => {
     if (role !== 'admin') navigate('/admin/login');
     fetchData();
   }, [role, navigate]);
+
+  const handleTeamClick = async (team) => {
+    setSelectedTeamForModal(team);
+    setLoadingTeamModal(true);
+    setTeamModalPlayers([]);
+    try {
+      const players = await getCollection('players', [where('teamId', '==', team.id)]);
+      setTeamModalPlayers(players || []);
+    } catch (err) {
+      console.error("Error loading team roster:", err);
+    } finally {
+      setLoadingTeamModal(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -139,10 +158,12 @@ export default function AdminTeams() {
     });
   };
 
-  const filteredTeams = teams.filter(t =>
-    t.teamName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.city?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTeams = teams.filter(t => {
+    const matchesSearch = t.teamName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         t.city?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTournament = selectedTournamentFilter === 'All' || t.tournamentId === selectedTournamentFilter;
+    return matchesSearch && matchesTournament;
+  });
 
   if (loading) return <div className="container section-padding"><p>Loading...</p></div>;
 
@@ -306,20 +327,46 @@ export default function AdminTeams() {
         </div>
       )}
 
-      <div className="search-box mb-lg">
-        <Search size={18} />
-        <input
-          type="text"
-          placeholder="Search by team name or city..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-input"
-        />
+      <div style={{ display: 'flex', gap: 'var(--space-md)', marginBottom: 'var(--space-lg)', flexWrap: 'wrap' }}>
+        <div className="search-box" style={{ flex: 1, marginBottom: 0 }}>
+          <Search size={18} />
+          <input
+            type="text"
+            placeholder="Search by team name or city..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="form-input"
+          />
+        </div>
+        <select
+          value={selectedTournamentFilter}
+          onChange={(e) => setSelectedTournamentFilter(e.target.value)}
+          className="form-select"
+          style={{ width: 'auto', minWidth: '220px' }}
+        >
+          <option value="All">All Tournaments</option>
+          {tournaments.map(t => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-3 gap-lg">
         {filteredTeams.map(team => (
-          <div key={team.id} className="card card-gold p-lg">
+          <div 
+            key={team.id} 
+            className="card card-gold p-lg" 
+            onClick={() => handleTeamClick(team)}
+            style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'none';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
             <div className="flex justify-between items-start mb-md">
               <div>
                 <h3 className="text-lg font-bold text-gradient-gold">{team.teamName}</h3>
@@ -353,7 +400,7 @@ export default function AdminTeams() {
               )}
             </div>
 
-            <div className="flex gap-md">
+            <div className="flex gap-md" onClick={e => e.stopPropagation()}>
               <button
                 onClick={() => handleEdit(team)}
                 className="btn btn-outline flex-1"
@@ -370,6 +417,68 @@ export default function AdminTeams() {
           </div>
         ))}
       </div>
+
+      {/* Roster Squad details modal */}
+      {selectedTeamForModal && (
+        <div className="modal-overlay" onClick={() => setSelectedTeamForModal(null)} style={{ display: 'flex', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '540px', width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
+            <button className="modal-close" onClick={() => setSelectedTeamForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', borderBottom: '1px solid var(--border-card)', paddingBottom: '16px' }}>
+              <div className="avatar avatar-md bg-secondary text-gold font-bold" style={{ width: '48px', height: '48px', fontSize: '1.25rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                {selectedTeamForModal.teamName[0]}
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: 0 }}>{selectedTeamForModal.teamName}</h3>
+                <p className="text-secondary text-xs" style={{ margin: '4px 0 0 0', opacity: 0.8 }}>
+                  Captain: <strong>{selectedTeamForModal.captainName || 'N/A'}</strong> | League: <strong>{selectedTeamForModal.tournamentName || 'Trivab Tournament'}</strong>
+                </p>
+              </div>
+            </div>
+
+            {loadingTeamModal ? (
+              <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', color: 'var(--text-muted)' }}>
+                <Loader2 size={32} className="spin text-gold" style={{ margin: '0 auto var(--space-sm)' }} />
+                <p style={{ fontSize: '0.85rem' }}>Loading roster details...</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ textAlign: 'left' }}>
+                  <h4 className="text-xs font-bold text-muted uppercase tracking-wider mb-xs" style={{ fontSize: '0.7rem' }}>Squad Members ({teamModalPlayers.length})</h4>
+                  {teamModalPlayers.length === 0 ? (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>No players registered in this squad roster yet.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '280px', overflowY: 'auto' }}>
+                      {teamModalPlayers.map((p, idx) => {
+                        const tournObj = p.joinedTournaments?.find(jt => (typeof jt === 'string' ? jt : jt.id) === selectedTeamForModal.tournamentId);
+                        const tournMatches = tournObj?.matchesPlayed !== undefined ? tournObj.matchesPlayed : 0;
+                        return (
+                          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 12px', background: 'var(--bg-secondary)', borderRadius: '6px', border: '1px solid var(--border-card)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <span className="text-xs text-muted" style={{ minWidth: '16px' }}>{idx + 1}.</span>
+                              <div className="avatar avatar-sm bg-primary text-gold" style={{ width: '24px', height: '24px', fontSize: '0.65rem', borderRadius: '50%', overflow: 'hidden' }}>
+                                {p.photoURL ? <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : p.fullName[0]}
+                              </div>
+                              <div style={{ textAlign: 'left' }}>
+                                <span className="text-xs font-semi text-primary block" style={{ lineHeight: 1.1 }}>{p.fullName}</span>
+                                <span className="text-muted" style={{ fontSize: '0.6rem', opacity: 0.8 }}>{p.playingStyle || 'Player'}</span>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span className="badge badge-gold" style={{ fontSize: '0.65rem' }}>Matches: {tournMatches} (Total: {p.matchesPlayed || 0})</span>
+                              <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>#{p.jerseyNumber || '—'}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

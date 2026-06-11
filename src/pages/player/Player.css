@@ -57,8 +57,48 @@
   position: relative;
   overflow: hidden;
   box-shadow: var(--shadow-gold-strong);
-  color: var(--text-primary);
+  color: #FDF9F9 !important;
   font-family: var(--font-body);
+}
+
+.id-card-element .id-player-name {
+  color: #FFFFFF !important;
+}
+
+.id-card-element .id-player-style {
+  color: #d4af37 !important;
+  background: rgba(212, 175, 55, 0.15) !important;
+}
+
+.id-card-element .id-stat-lbl {
+  color: #A0B0D0 !important;
+}
+
+.id-card-element .id-stat-val {
+  color: #FFFFFF !important;
+}
+
+.id-card-element .id-code-text {
+  color: #FFFFFF !important;
+}
+
+.id-player-tournaments-row {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.id-tournaments-val {
+  font-size: 0.72rem;
+  color: #d4af37 !important;
+  font-weight: 600;
+  text-align: center;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
 }
 
 .id-card-gold-accent {

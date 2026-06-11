@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { logoutUser } from '../../firebase/auth';
 import {
   Users, Trophy, Calendar, Image, BarChart3, LogOut, Menu, Home,
-  Newspaper, X, ChevronRight, Shield
+  Newspaper, X, ChevronRight, Shield, Scan, MessageSquare
 } from 'lucide-react';
 import '../../pages/admin/Admin.css';
 
@@ -27,6 +27,7 @@ export default function AdminLayout({ children }) {
     { label: 'Matches', icon: <Calendar size={20} />, to: '/admin/matches', section: 'main' },
     { label: 'Images', icon: <Image size={20} />, to: '/admin/images', section: 'main' },
     { label: 'News & Events', icon: <Newspaper size={20} />, to: '/admin/news', section: 'content' },
+    { label: 'Inquiries', icon: <MessageSquare size={20} />, to: '/admin/inquiries', section: 'content' },
   ];
 
   const mainItems = menuItems.filter(i => i.section === 'main');
@@ -129,6 +130,9 @@ export default function AdminLayout({ children }) {
             <span className="admin-header-page">Admin Console</span>
           </div>
           <div className="admin-header-right">
+            <Link to="/scanner" className="admin-header-scan-btn" title="Scan Players QR">
+              <Scan size={20} style={{ marginRight: '8px' }} />
+            </Link>
             <div className="admin-header-user">
               <div className="admin-header-avatar">
                 {user?.photoURL ? (

@@ -35,16 +35,16 @@
   height: 120px;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid var(--border-card);
-  box-shadow: var(--shadow-lg);
-  background-color: var(--bg-card);
+  background: transparent;
   flex-shrink: 0;
 }
 
 .parent-hub-logo {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  background: transparent;
 }
 
 .parent-hub-info h1 {
@@ -99,11 +99,13 @@
 }
 
 .edition-card-logo {
-  width: 50px;
-  height: 50px;
-  border-radius: var(--radius-md);
-  object-fit: cover;
-  border: 1px solid var(--border-card);
+  width: 64px;
+  height: 64px;
+  border-radius: 0;
+  object-fit: contain;
+  background: transparent;
+  mix-blend-mode: screen;
+  flex-shrink: 0;
 }
 
 /* Stats Box */
@@ -215,4 +217,13 @@
   .grid-2 {
     grid-template-columns: 1fr;
   }
+}
+
+/* Light theme: flip blend mode so white logo backgrounds disappear on light page */
+[data-theme="light"] .edition-card-logo {
+  mix-blend-mode: multiply;
+}
+
+[data-theme="light"] .parent-hub-logo {
+  mix-blend-mode: multiply;
 }

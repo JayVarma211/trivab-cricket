@@ -5,6 +5,7 @@ import { registerUser } from '../../firebase/auth';
 import { setDocument, addDocument, updateDocument, getAllTeams, getCollection, orderBy } from '../../firebase/firestore';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import { generatePlayerID } from '../../utils/generatePlayerID';
+import { sendOTPEmail } from '../../services/email';
 import {
   User, Mail, Lock, Phone, Upload, AlertCircle, Eye, EyeOff, Trophy, Shirt
 } from 'lucide-react';
@@ -43,6 +44,18 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Custom clothes sizes
+  const [customTshirtSize, setCustomTshirtSize] = useState('');
+  const [customTrackPantSize, setCustomTrackPantSize] = useState('');
+
+  // OTP Verification States
+  const [generatedOtp, setGeneratedOtp] = useState('');
+  const [userOtpInput, setUserOtpInput] = useState('');
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -70,32 +83,77 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+
+    // 1. Validations
+    if (!cricHeroesRegNo) {
+      setError('Please enter your Contact No. (CricHeroes Registered No.).');
+      return;
+    }
+    if (!dob) {
+      setError('Please select your Date of Birth.');
+      return;
+    }
+    if (!bloodGroup) {
+      setError('Please select your Blood Group.');
+      return;
+    }
+    if (!emergencyContactName || !emergencyContactMobile) {
+      setError('Please enter Emergency Contact Name and Number.');
+      return;
+    }
+    if (!trackPantSize) {
+      setError('Please select your track pant size.');
+      return;
+    }
+    if (trackPantSize === 'Other' && !customTrackPantSize.trim()) {
+      setError('Please type your custom track pant size.');
+      return;
+    }
+    if (!tshirtSize) {
+      setError('Please select your t-shirt size.');
+      return;
+    }
+    if (tshirtSize === 'Other' && !customTshirtSize.trim()) {
+      setError('Please type your custom t-shirt size.');
+      return;
+    }
+    if (!sleeveType) {
+      setError('Please select your sleeve type.');
+      return;
+    }
+
+    // Trigger OTP Flow
+    setOtpLoading(true);
+    setOtpError('');
+    setUserOtpInput('');
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(otp);
+    setShowOtpModal(true);
 
     try {
-      // 1. Validations
-      if (!cricHeroesRegNo) {
-        throw new Error('Please enter your CricHeroes Registration Number.');
-      }
-      if (!dob) {
-        throw new Error('Please select your Date of Birth.');
-      }
-      if (!bloodGroup) {
-        throw new Error('Please select your Blood Group.');
-      }
-      if (!emergencyContactName || !emergencyContactMobile) {
-        throw new Error('Please enter Emergency Contact Name and Number.');
-      }
-      if (!trackPantSize) {
-        throw new Error('Please select your track pant size.');
-      }
-      if (!tshirtSize) {
-        throw new Error('Please select your t-shirt size.');
-      }
-      if (!sleeveType) {
-        throw new Error('Please select your sleeve type.');
-      }
+      await sendOTPEmail(email, fullName, otp);
+      setOtpSent(true);
+    } catch (err) {
+      console.error(err);
+      setOtpError('Failed to send verification email. Please check your email and try again.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
+  const handleVerifyAndRegister = async (e) => {
+    e.preventDefault();
+    setOtpError('');
+
+    if (userOtpInput !== generatedOtp) {
+      setOtpError('Invalid verification code. Please check your email or resend.');
+      return;
+    }
+
+    setLoading(true);
+    setShowOtpModal(false);
+
+    try {
       // 2. Register User in Firebase Auth
       const firebaseUser = await registerUser(email, password, fullName);
 
@@ -134,6 +192,9 @@ export default function Register() {
 
       const generatedId = generatePlayerID('Free Agent');
 
+      const finalTshirtSize = tshirtSize === 'Other' ? customTshirtSize.trim() : tshirtSize;
+      const finalTrackPantSize = trackPantSize === 'Other' ? customTrackPantSize.trim() : trackPantSize;
+
       const playerProfileData = {
         playerId: generatedId,
         uid: firebaseUser.uid,
@@ -159,8 +220,8 @@ export default function Register() {
         mcaPlayer: mcaPlayer === 'yes',
         mcaIdNumber: mcaPlayer === 'yes' ? mcaIdNumber : '',
         mcaCardURL: mcaPlayer === 'yes' ? mcaCardURL : '',
-        trackPantSize,
-        tshirtSize,
+        trackPantSize: finalTrackPantSize,
+        tshirtSize: finalTshirtSize,
         sleeveType,
         instagramId
       };
@@ -356,13 +417,13 @@ export default function Register() {
             {/* Column 2: Player Details & Contact */}
             <div className="form-column">
               <div className="form-group">
-                <label className="form-label">CricHeroes Regis No.</label>
+                <label className="form-label">Contact No. (CricHeroes Registered No.)</label>
                 <div className="input-wrapper">
                   <Phone className="input-icon-left" size={18} />
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Enter CricHeroes Registration ID"
+                    placeholder="Enter Contact No. (CricHeroes Registered No.)"
                     required
                     value={cricHeroesRegNo}
                     onChange={(e) => setCricHeroesRegNo(e.target.value)}
@@ -467,7 +528,20 @@ export default function Register() {
                   <option value="L (40)">L (40)</option>
                   <option value="XL (42)">XL (42)</option>
                   <option value="XXL (44)">XXL (44)</option>
+                  <option value="Other">Other</option>
                 </select>
+                {tshirtSize === 'Other' && (
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Enter your T-shirt size manually"
+                    value={customTshirtSize}
+                    onChange={(e) => setCustomTshirtSize(e.target.value)}
+                    required
+                    disabled={loading}
+                    style={{ marginTop: '8px' }}
+                  />
+                )}
               </div>
 
               <div className="form-group">
@@ -485,7 +559,20 @@ export default function Register() {
                   <option value="L (34)">L (34)</option>
                   <option value="XL (36)">XL (36)</option>
                   <option value="XXL (38)">XXL (38)</option>
+                  <option value="Other">Other</option>
                 </select>
+                {trackPantSize === 'Other' && (
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Enter your track size manually"
+                    value={customTrackPantSize}
+                    onChange={(e) => setCustomTrackPantSize(e.target.value)}
+                    required
+                    disabled={loading}
+                    style={{ marginTop: '8px' }}
+                  />
+                )}
               </div>
 
               <div className="form-group">
@@ -562,6 +649,108 @@ export default function Register() {
           </div>
         </div>
       </div>
+
+      {/* OTP Verification Modal */}
+      {showOtpModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.85)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 'var(--space-lg)',
+          backdropFilter: 'blur(8px)'
+        }}>
+          <div className="card card-gold animate-fade-in-down" style={{
+            width: '100%',
+            maxWidth: '420px',
+            padding: 'var(--space-xl)',
+            textAlign: 'center',
+            position: 'relative',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)'
+          }}>
+            <h2 className="display-sm text-gradient-gold mb-sm" style={{ margin: '0 0 12px 0' }}>Email Verification</h2>
+            <p className="text-secondary text-sm mb-md" style={{ lineHeight: 1.5, marginBottom: '20px' }}>
+              A 6-digit verification code has been sent to <strong>{email}</strong>. Please enter the code below to verify your email.
+            </p>
+
+            {!import.meta.env.VITE_EMAILJS_SERVICE_ID && (
+              <div className="alert alert-warning mb-md" style={{ fontSize: '0.75rem', padding: '8px 12px', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', color: '#fcd34d', borderRadius: '6px', marginBottom: '16px' }}>
+                EmailJS not configured in .env. <br/><strong>Mock OTP: {generatedOtp}</strong> (also printed in console).
+              </div>
+            )}
+
+            {otpError && (
+              <div className="alert alert-error mb-md" style={{ fontSize: '0.8rem', padding: '8px 12px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#fca5a5', borderRadius: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <AlertCircle size={16} style={{ flexShrink: 0 }} /> <span>{otpError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyAndRegister} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <input
+                type="text"
+                className="form-input text-center"
+                placeholder="------"
+                maxLength={6}
+                required
+                value={userOtpInput}
+                onChange={e => setUserOtpInput(e.target.value.replace(/\D/g, ''))}
+                style={{ fontSize: '1.8rem', letterSpacing: '8px', fontWeight: 'bold', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1.5px solid var(--border-card)', padding: '10px' }}
+                disabled={otpLoading || loading}
+              />
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                <button
+                  type="button"
+                  className="btn btn-outline w-full btn-sm"
+                  onClick={() => setShowOtpModal(false)}
+                  disabled={otpLoading || loading}
+                  style={{ border: '1px solid var(--border)', borderRadius: '24px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-gold w-full btn-sm"
+                  disabled={otpLoading || loading || userOtpInput.length !== 6}
+                  style={{ borderRadius: '24px' }}
+                >
+                  {loading ? 'Registering...' : 'Verify & Register'}
+                </button>
+              </div>
+            </form>
+
+            <div style={{ marginTop: '20px' }}>
+              <button
+                type="button"
+                className="auth-link text-xs"
+                onClick={async () => {
+                  setOtpError('');
+                  setOtpLoading(true);
+                  const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                  setGeneratedOtp(newOtp);
+                  try {
+                    await sendOTPEmail(email, fullName, newOtp);
+                    setOtpSent(true);
+                    alert('Verification code resent successfully!');
+                  } catch (err) {
+                    setOtpError('Failed to resend code.');
+                  } finally {
+                    setOtpLoading(false);
+                  }
+                }}
+                disabled={otpLoading || loading}
+                style={{ background: 'none', border: 'none', color: 'var(--gold)', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Resend Code
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

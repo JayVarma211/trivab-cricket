@@ -1331,6 +1331,23 @@
   color: rgba(255,255,255,0.8);
 }
 
+.admin-header-scan-btn {
+  color: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.admin-header-scan-btn:hover {
+  color: #d4af37;
+  background: rgba(255,255,255,0.06);
+  transform: scale(1.1);
+}
+
 /* ---- New Main Content Area ---- */
 .admin-main-content-area {
   flex: 1;
@@ -1429,6 +1446,8 @@
 [data-theme="light"] .admin-header-logo-text { color: #800000; }
 [data-theme="light"] .admin-header-page { color: rgba(0,0,0,0.4); }
 [data-theme="light"] .admin-header-username { color: rgba(0,0,0,0.75); }
+[data-theme="light"] .admin-header-scan-btn { color: rgba(0,0,0,0.5); }
+[data-theme="light"] .admin-header-scan-btn:hover { color: #800000; background: rgba(0,0,0,0.04); }
 [data-theme="light"] .admin-hamburger { color: rgba(0,0,0,0.5); }
 [data-theme="light"] .sidebar-footer-link,
 [data-theme="light"] .sidebar-logout-btn { color: rgba(0,0,0,0.45); }

@@ -6,7 +6,8 @@ import { logoutUser } from '../../firebase/auth';
 import {
   Trophy, Users, Calendar, Star, Award, Newspaper,
   Sun, Moon, Menu, X, ChevronDown, ChevronRight, LogOut, User,
-  LayoutDashboard, Shield, Zap, Globe, Briefcase, Heart, Building2
+  LayoutDashboard, Shield, Zap, Globe, Briefcase, Heart, Building2,
+  Image, Mail
 } from 'lucide-react';
 import './Navbar.css';
 
@@ -19,11 +20,35 @@ const TOURNAMENTS_MENU = [
   { label: 'BAPL KIDS', to: '/tournaments/baplkids', logo: '/logos/bapllogo.jpg' }
 ];
 
+const IndiaFlag = () => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', width: '18px', height: '12px', borderRadius: '2px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)', marginRight: '2px' }}>
+    <svg width="18" height="12" viewBox="0 0 18 12">
+      <rect width="18" height="4" fill="#FF9933" />
+      <rect y="4" width="18" height="4" fill="#FFFFFF" />
+      <rect y="8" width="18" height="4" fill="#138808" />
+      <circle cx="9" cy="6" r="1.2" fill="#000080" />
+    </svg>
+  </span>
+);
+
+const CommunityIcon = () => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', color: '#d4af37' }}>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="6" cy="11" r="2.5" />
+      <circle cx="12" cy="7" r="3" />
+      <circle cx="18" cy="11" r="2.5" />
+      <path d="M2 20c0-2.5 1.5-4 3.5-4h0.5l1 1.5" />
+      <path d="M22 20c0-2.5-1.5-4-3.5-4h-0.5l-1 1.5" />
+      <path d="M7.5 20c0-3.5 1.5-5.5 4.5-5.5s4.5 2 4.5 5.5" />
+    </svg>
+  </span>
+);
+
 const SERVICES_MENU = [
-  { label: 'International Cricket Tour', icon: <Globe size={16} /> },
-  { label: 'Domestic Cricket', icon: <Trophy size={16} /> },
-  { label: 'Corporate Sports Events', icon: <Building2 size={16} /> },
-  { label: 'Community Sport Events', icon: <Heart size={16} /> },
+  { label: 'International Cricket Tour', icon: <Globe size={16} />, to: '/services?type=international' },
+  { label: 'Domestic Cricket Tour', icon: <IndiaFlag />, to: '/services?type=domestic' },
+  { label: 'Corporate Sports Events', icon: <Building2 size={16} />, to: '/services?type=corporate' },
+  { label: 'Community Sport Events', icon: <CommunityIcon />, to: '/services?type=community' },
 ];
 
 export default function Navbar() {
@@ -126,8 +151,8 @@ export default function Navbar() {
             )}
           </div>
 
-          <NavLink to="/schedule" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Schedule</NavLink>
-          <NavLink to="/sponsors" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Sponsors</NavLink>
+           <NavLink to="/schedule" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Schedule</NavLink>
+          <NavLink to="/gallery" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Gallery</NavLink>
 
           {/* Our Services Dropdown */}
           <div className="nav-dropdown-wrapper" ref={servicesDropRef}>
@@ -140,10 +165,15 @@ export default function Navbar() {
             {servicesDropOpen && (
               <div className="services-nav-dropdown animate-fade-in-down">
                 {SERVICES_MENU.map((item) => (
-                  <div key={item.label} className="services-nav-item" onClick={() => setServicesDropOpen(false)}>
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className="services-nav-item"
+                    onClick={() => setServicesDropOpen(false)}
+                  >
                     <span className="service-icon">{item.icon}</span>
                     <span>{item.label}</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
@@ -152,6 +182,9 @@ export default function Navbar() {
           {/* News & Events */}
           <NavLink to="/news" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             News &amp; Events
+          </NavLink>
+          <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            Contact Us
           </NavLink>
         </nav>
 
@@ -254,8 +287,12 @@ export default function Navbar() {
               )}
             </div>
 
-            <NavLink to="/schedule" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>Schedule</NavLink>
-            <NavLink to="/sponsors" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>Sponsors</NavLink>
+            <NavLink to="/schedule" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
+              <Calendar size={18} /> Schedule
+            </NavLink>
+            <NavLink to="/gallery" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
+              <Image size={18} /> Gallery
+            </NavLink>
 
             {/* Mobile Our Services */}
             <div className="mobile-dropdown-wrapper" style={{ width: '100%' }}>
@@ -272,14 +309,16 @@ export default function Navbar() {
               {mobileServicesOpen && (
                 <div style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
                   {SERVICES_MENU.map((item) => (
-                    <div
+                    <Link
                       key={item.label}
+                      to={item.to}
                       className="mobile-nav-link"
-                      style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'default' }}
+                      style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                      onClick={() => setMenuOpen(false)}
                     >
                       {item.icon}
                       <span>{item.label}</span>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -288,6 +327,9 @@ export default function Navbar() {
             {/* News & Events */}
             <NavLink to="/news" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
               <Newspaper size={18} /> News &amp; Events
+            </NavLink>
+            <NavLink to="/contact" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
+              <Mail size={18} /> Contact Us
             </NavLink>
           </div>
 

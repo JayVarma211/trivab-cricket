@@ -27,6 +27,12 @@ export default function TournamentDetails() {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Team Details Modal States
+  const [selectedTeamForModal, setSelectedTeamForModal] = useState(null);
+  const [teamModalPlayers, setTeamModalPlayers] = useState([]);
+  const [teamModalTournaments, setTeamModalTournaments] = useState([]);
+  const [loadingTeamModal, setLoadingTeamModal] = useState(false);
+
   const { user, role } = useAuth();
   const [playerProfile, setPlayerProfile] = useState(null);
   const [hasJoined, setHasJoined] = useState(false);
@@ -41,6 +47,29 @@ export default function TournamentDetails() {
   const [newTeamLogoPreview, setNewTeamLogoPreview] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [modalError, setModalError] = useState('');
+
+  const handleTeamClick = async (team) => {
+    setSelectedTeamForModal(team);
+    setLoadingTeamModal(true);
+    setTeamModalPlayers([]);
+    setTeamModalTournaments([]);
+    try {
+      // 1. Fetch team players roster
+      const players = await getCollection('players', [where('teamId', '==', team.id)]);
+      setTeamModalPlayers(players);
+      
+      // 2. Fetch other tournaments they play in (based on same team name or captain)
+      const queryField = team.captainId ? 'captainId' : 'teamName';
+      const queryVal = team.captainId || team.teamName;
+      const otherTeamDocs = await getCollection('teams', [where(queryField, '==', queryVal)]);
+      const tourns = otherTeamDocs.map(doc => doc.tournamentName || 'Trivab Tournament');
+      setTeamModalTournaments([...new Set(tourns)]);
+    } catch (err) {
+      console.error("Error loading team roster:", err);
+    } finally {
+      setLoadingTeamModal(false);
+    }
+  };
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -395,14 +424,18 @@ export default function TournamentDetails() {
           </h3>
           <ul className="flex flex-col gap-sm team-details-list">
             {teams.map((t) => (
-              <li className="team-item-row flex justify-between items-center" key={t.id}>
+              <li className="team-item-row flex justify-between items-center" key={t.id} onClick={() => handleTeamClick(t)} style={{ cursor: 'pointer', transition: 'background-color 0.2s', padding: '10px 14px', borderRadius: '8px' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                 <div className="flex items-center gap-sm">
-                  <div className="avatar avatar-sm bg-secondary text-gold font-bold">
-                    {t.teamName[0]}
+                  <div className="avatar avatar-sm bg-secondary text-gold font-bold" style={{ width: '32px', height: '32px', fontSize: '0.9rem', borderRadius: '6px', overflow: 'hidden' }}>
+                    {t.logoURL ? (
+                      <img src={t.logoURL} alt={t.teamName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      t.teamName[0]
+                    )}
                   </div>
                   <span className="font-semi text-sm text-primary">{t.teamName}</span>
                 </div>
-                <span className="badge badge-gold">Active Squad</span>
+                <span className="badge badge-gold" style={{ fontSize: '0.65rem' }}>View Squad</span>
               </li>
             ))}
           </ul>
@@ -515,6 +548,108 @@ export default function TournamentDetails() {
                 {joining ? 'Enrolling...' : 'Complete Enrollment'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Team Details Modal */}
+      {selectedTeamForModal && (
+        <div className="modal-overlay" onClick={() => setSelectedTeamForModal(null)} style={{ display: 'flex', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '580px', width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
+            <button className="modal-close" onClick={() => setSelectedTeamForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
+            
+            {/* Header info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', borderBottom: '1px solid var(--border-card)', paddingBottom: '16px' }}>
+              <div className="avatar avatar-lg bg-secondary text-gold font-bold" style={{ width: '60px', height: '60px', fontSize: '1.5rem', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                {selectedTeamForModal.logoURL ? (
+                  <img src={selectedTeamForModal.logoURL} alt={selectedTeamForModal.teamName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  selectedTeamForModal.teamName[0]
+                )}
+              </div>
+              <div style={{ textAlign: 'left' }}>
+                <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: 0 }}>{selectedTeamForModal.teamName}</h3>
+                <p className="text-secondary text-xs" style={{ margin: '4px 0 0 0', opacity: 0.8 }}>
+                  Captain: <strong>{selectedTeamForModal.captainName || 'N/A'}</strong>
+                </p>
+              </div>
+            </div>
+
+            {loadingTeamModal ? (
+              <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', color: 'var(--text-muted)' }}>
+                <div className="spinner" style={{ margin: '0 auto var(--space-sm)' }} />
+                <p style={{ fontSize: '0.85rem' }}>Loading squad details...</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                
+                {/* Stats Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', background: 'var(--bg-secondary)', padding: '12px 6px', borderRadius: '8px', border: '1px solid var(--border-card)' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <span className="text-xs text-muted" style={{ display: 'block', fontSize: '0.65rem', letterSpacing: '0.5px' }}>SQUAD SIZE</span>
+                    <span className="text-sm font-bold text-primary" style={{ display: 'block', marginTop: '4px' }}>{teamModalPlayers.length} / 35</span>
+                  </div>
+                  <div style={{ textAlign: 'center', borderLeft: '1px solid var(--border-card)', borderRight: '1px solid var(--border-card)' }}>
+                    <span className="text-xs text-muted" style={{ display: 'block', fontSize: '0.65rem', letterSpacing: '0.5px' }}>MATCHES HERE</span>
+                    <span className="text-sm font-bold text-primary" style={{ display: 'block', marginTop: '4px' }}>
+                      {matches.filter(m => m.teamA === selectedTeamForModal.teamName || m.teamB === selectedTeamForModal.teamName).length}
+                    </span>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <span className="text-xs text-muted" style={{ display: 'block', fontSize: '0.65rem', letterSpacing: '0.5px' }}>TOTAL TOURNAMENTS</span>
+                    <span className="text-sm font-bold text-primary" style={{ display: 'block', marginTop: '4px' }}>{teamModalTournaments.length}</span>
+                  </div>
+                </div>
+
+                {/* Tournaments list */}
+                {teamModalTournaments.length > 0 && (
+                  <div style={{ textAlign: 'left' }}>
+                    <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ fontSize: '0.7rem' }}>Participating In:</h4>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '6px' }}>
+                      {teamModalTournaments.map((tName, idx) => (
+                        <span key={idx} className="badge badge-gold" style={{ fontSize: '0.68rem', textTransform: 'none', padding: '3px 10px' }}>{tName}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Squad roster list */}
+                <div style={{ textAlign: 'left' }}>
+                  <h4 className="text-xs font-bold text-muted uppercase tracking-wider mb-sm" style={{ fontSize: '0.7rem', marginBottom: '8px' }}>Squad Roster</h4>
+                  {teamModalPlayers.length === 0 ? (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>No players registered in this squad roster yet.</p>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '250px', overflowY: 'auto', paddingRight: '4px' }}>
+                      {teamModalPlayers.map(p => {
+                        const tournObj = p.joinedTournaments?.find(jt => (typeof jt === 'string' ? jt : jt.id) === id);
+                        const tournMatches = tournObj?.matchesPlayed !== undefined ? tournObj.matchesPlayed : 0;
+                        return (
+                          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--bg-secondary)', borderRadius: '6px', border: '1px solid var(--border-card)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <div className="avatar avatar-sm bg-primary text-gold" style={{ width: '28px', height: '28px', fontSize: '0.75rem', borderRadius: '50%', overflow: 'hidden' }}>
+                                {p.photoURL ? (
+                                  <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : (
+                                  p.fullName[0]
+                                )}
+                              </div>
+                              <div style={{ textAlign: 'left' }}>
+                                <span className="text-sm font-semi text-primary" style={{ display: 'block', lineHeight: 1.2 }}>{p.fullName}</span>
+                                <span className="text-muted" style={{ fontSize: '0.68rem', opacity: 0.8 }}>{p.playingStyle || 'Player'}</span>
+                                <span className="text-gold" style={{ fontSize: '0.68rem', display: 'block', marginTop: '2px' }}>
+                                  Matches: {tournMatches} (Total: {p.matchesPlayed || 0})
+                                </span>
+                              </div>
+                            </div>
+                            <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>#{p.jerseyNumber || '—'}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

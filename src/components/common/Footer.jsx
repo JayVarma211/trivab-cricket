@@ -6,7 +6,7 @@ const QUICK_LINKS = [
   { to: '/', label: 'Home' },
   { to: '/tournaments', label: 'Tournaments' },
   { to: '/schedule', label: 'Match Schedule' },
-  { to: '/sponsors', label: 'Sponsors' },
+  { to: '/gallery', label: 'Gallery' },
 ];
 
 const PLAYER_LINKS = [
@@ -25,9 +25,6 @@ export default function Footer() {
           <Link to="/" className="footer-logo-container">
             <img src="/logos/trivabsports.webp" className="footer-logo-img" alt="TRIVAB SPORTS" />
           </Link>
-          <p className="footer-tagline">
-            The ultimate cricket management platform for teams, players, captains, and administrators.
-          </p>
           <div className="footer-socials">
             <a href="https://www.instagram.com/baplcricket?igsh=NHQ2dWM0Y3Z5dnBj" target="_blank" rel="noreferrer" className="social-btn" aria-label="Instagram"><Instagram size={18} /></a>
             <a href="https://www.youtube.com/@baplcricket?si=dVnUedGn8K7gAmtP" target="_blank" rel="noreferrer" className="social-btn" aria-label="YouTube"><Youtube size={18} /></a>

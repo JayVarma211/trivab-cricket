@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { uploadImageToCloudinary } from '../../services/cloudinary';
 import { Upload, AlertCircle, Loader } from 'lucide-react';
+import { getCollection, addDocument, deleteDocument } from '../../firebase/firestore';
 import './Admin.css';
 
 export default function AdminImages() {
@@ -11,8 +12,22 @@ export default function AdminImages() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [uploadedImages, setUploadedImages] = useState([]);
+  const [images, setImages] = useState([]);
   const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const data = await getCollection('gallery');
+        const sorted = (data || []).sort((a, b) => new Date(b.uploadedAt || b.createdAt) - new Date(a.uploadedAt || a.createdAt));
+        setImages(sorted);
+      } catch (err) {
+        console.error("Failed to load gallery images:", err);
+      }
+    };
+    fetchImages();
+  }, []);
 
   if (role !== 'admin') navigate('/admin/login');
 
@@ -58,15 +73,38 @@ export default function AdminImages() {
           name: file.name,
           url,
           size: (file.size / 1024 / 1024).toFixed(2),
-          uploadedAt: new Date().toLocaleString()
+          uploadedAt: new Date().toISOString()
         };
       });
 
       const results = await Promise.all(uploadPromises);
-      setUploadedImages(prev => [...results, ...prev]);
+      
+      const saved = [];
+      for (const img of results) {
+        const docRef = await addDocument('gallery', img);
+        saved.push({ id: docRef.id, ...img });
+      }
+
+      setImages(prev => [...saved, ...prev]);
       setSuccess(`Successfully uploaded ${results.length} image(s)`);
     } catch (err) {
       setError(err.message || 'Failed to upload images');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this image from the gallery? This cannot be undone.')) return;
+    setLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      await deleteDocument('gallery', id);
+      setImages(prev => prev.filter(img => img.id !== id));
+      setSuccess('Image deleted successfully.');
+    } catch (err) {
+      setError('Failed to delete image: ' + err.message);
     } finally {
       setLoading(false);
     }
@@ -101,6 +139,8 @@ export default function AdminImages() {
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
+          onClick={() => !loading && fileInputRef.current?.click()}
+          style={{ cursor: 'pointer' }}
         >
           <div className="upload-content">
             {loading ? (
@@ -114,6 +154,7 @@ export default function AdminImages() {
                 <h3 className="text-lg font-bold mt-md">Drag images here</h3>
                 <p className="text-secondary text-sm">or click to select files</p>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   multiple
                   accept="image/*"
@@ -131,29 +172,43 @@ export default function AdminImages() {
         </p>
       </div>
 
-      {uploadedImages.length > 0 && (
+      {images.length > 0 && (
         <div className="card">
-          <h2 className="text-lg font-bold mb-md text-gradient-gold">Uploaded Images</h2>
+          <h2 className="text-lg font-bold mb-md text-gradient-gold">Uploaded Images ({images.length})</h2>
           <div className="grid grid-4 gap-lg">
-            {uploadedImages.map((img, idx) => (
-              <div key={idx} className="image-card">
-                <div className="image-container">
-                  <img src={img.url} alt={img.name} />
+            {images.map((img) => (
+              <div key={img.id} className="image-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '12px', padding: '12px', justifyContent: 'space-between' }}>
+                <div>
+                  <div className="image-container" style={{ aspectRatio: '16/10', overflow: 'hidden', borderRadius: '8px', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '8px' }}>
+                    <img src={img.url} alt={img.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} />
+                  </div>
+                  <div className="image-info">
+                    <p className="text-sm font-semi truncate" style={{ margin: '0 0 4px 0', color: 'var(--text-primary)' }} title={img.name}>{img.name}</p>
+                    <p className="text-xs text-secondary" style={{ margin: 0, opacity: 0.8 }}>Size: {img.size} MB</p>
+                    <p className="text-xs text-secondary" style={{ margin: '2px 0 0 0', opacity: 0.7 }}>
+                      {new Date(img.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </p>
+                  </div>
                 </div>
-                <div className="image-info">
-                  <p className="text-sm font-semi truncate">{img.name}</p>
-                  <p className="text-xs text-secondary">{img.size} MB</p>
-                  <p className="text-xs text-secondary">{img.uploadedAt}</p>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(img.url);
+                      alert('Image URL copied to clipboard!');
+                    }}
+                    className="btn btn-outline btn-sm"
+                    style={{ flex: 1, padding: '6px 12px', fontSize: '0.75rem', border: '1px solid var(--border)', borderRadius: '18px' }}
+                  >
+                    Copy URL
+                  </button>
+                  <button
+                    onClick={() => handleDelete(img.id)}
+                    className="btn btn-danger btn-sm"
+                    style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '18px', background: 'linear-gradient(135deg, #ef4444, #b91c1c)', color: '#fff' }}
+                  >
+                    Delete
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(img.url);
-                    alert('Image URL copied to clipboard!');
-                  }}
-                  className="btn btn-outline btn-sm w-full mt-md"
-                >
-                  Copy URL
-                </button>
               </div>
             ))}
           </div>

@@ -122,6 +122,19 @@ export default function DigitalIDCard() {
                       </span>
                     </div>
                   </div>
+
+                  <div className="id-player-tournaments-row">
+                    <span className="id-stat-lbl">TOURNAMENTS JOINED</span>
+                    <span className="id-tournaments-val" title={
+                      player.joinedTournaments && player.joinedTournaments.length > 0
+                        ? player.joinedTournaments.map(t => typeof t === 'string' ? t : (t.name || 'Trivab Tournament')).join(', ')
+                        : 'No Tournaments Joined'
+                    }>
+                      {player.joinedTournaments && player.joinedTournaments.length > 0
+                        ? player.joinedTournaments.map(t => typeof t === 'string' ? t : (t.name || 'Trivab Tournament')).join(', ')
+                        : 'No Tournaments Joined'}
+                    </span>
+                  </div>
                 </div>
               </div>
 

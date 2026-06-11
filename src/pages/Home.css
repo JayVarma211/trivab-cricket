@@ -235,47 +235,56 @@
 .tournaments-ticker {
   border-top: 1px solid var(--border-card);
   border-bottom: 1px solid var(--border-card);
+  background: var(--bg-primary);
 }
 
+/* Ticker frame — NO background, NO border, NO radius */
 .tournament-ticker-frame {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 90px;
-  width: 90px;
+  height: 110px;
+  width: 110px;
   flex-shrink: 0;
-  overflow: hidden;
-  transition: all var(--transition-fast);
+  transition: transform 0.3s ease;
+  background: transparent;
 }
 
 .tournament-ticker-frame:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px) scale(1.08);
 }
 
+/* The actual logo image — transparent background via screen blend */
 .tournament-ticker-img {
-  max-width: 100%;
-  max-height: 100%;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
-  border-radius: var(--radius-md);
-  transition: transform var(--transition-fast);
-  filter: url(#remove-white) drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
-}
-
-[data-theme="light"] .tournament-ticker-img {
-  filter: url(#remove-white) drop-shadow(0 0 6px rgba(128, 0, 0, 0.15));
+  transition: filter 0.3s ease;
+  /* screen blend = dark backgrounds of JPG logos become transparent on dark page */
+  mix-blend-mode: screen;
+  border-radius: 0;
+  background: transparent;
 }
 
 .tournament-ticker-frame:hover .tournament-ticker-img {
-  transform: scale(1.08);
+  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.6));
+}
+
+/* In light mode: multiply removes white backgrounds */
+[data-theme="light"] .tournament-ticker-img {
+  mix-blend-mode: multiply;
+}
+
+[data-theme="light"] .tournament-ticker-frame:hover .tournament-ticker-img {
+  filter: drop-shadow(0 0 10px rgba(128, 0, 0, 0.4));
 }
 
 /* Remove white background from logos using blend mode */
 .logo-no-bg {
-  mix-blend-mode: multiply;
+  mix-blend-mode: screen;
   background: transparent;
 }
 
-[data-theme="dark"] .logo-no-bg {
-  mix-blend-mode: screen;
-  filter: drop-shadow(0 0 6px rgba(255,255,255,0.15));
+[data-theme="light"] .logo-no-bg {
+  mix-blend-mode: multiply;
 }

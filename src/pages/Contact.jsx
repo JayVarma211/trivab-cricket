@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Instagram, Youtube, Facebook, MessageCircle } from 'lucide-react';
+import { sendContactEmail } from '../services/email';
+import { addDocument } from '../firebase/firestore';
 
 export default function Contact() {
   const [name, setName] = useState('');
@@ -9,25 +11,47 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
-    // Construct mailto link to provided address
-    const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
-      `[TRIVAB Inquiry] - ${subject}`
-    )}&body=${encodeURIComponent(
-      `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
-    )}`;
-    
-    // Open mail client
-    window.location.href = mailtoLink;
-    
-    setLoading(false);
-    setSubmitted(true);
-    setName('');
-    setEmail('');
-    setMessage('');
+    try {
+      // Always log the inquiry to Firestore for the admin console backup
+      await addDocument('contact_inquiries', {
+        name,
+        email,
+        subject,
+        message,
+        createdAt: new Date().toISOString()
+      });
+
+      const result = await sendContactEmail(name, email, subject, message);
+      if (result && result.mock) {
+        // Fall back to mailto if EmailJS is not configured in environment
+        const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
+          `[TRIVAB Inquiry] - ${subject}`
+        )}&body=${encodeURIComponent(
+          `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
+        )}`;
+        window.location.href = mailtoLink;
+      }
+      
+      setSubmitted(true);
+      setName('');
+      setEmail('');
+      setMessage('');
+    } catch (err) {
+      console.error("Failed to send email, falling back to mailto:", err);
+      const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
+        `[TRIVAB Inquiry] - ${subject}`
+      )}&body=${encodeURIComponent(
+        `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
+      )}`;
+      window.location.href = mailtoLink;
+      setSubmitted(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -65,7 +89,6 @@ export default function Contact() {
               <li className="flex gap-md items-center">
                 <div className="stat-icon" style={{ marginBottom: 0 }}><MapPin size={20} /></div>
                 <div>
-                  <span className="text-xs text-muted block">Headquarters</span>
                   <span className="text-sm text-secondary">B202, Raj Heights, MG Road Kandivali West,<br />Mumbai 400067, Maharashtra, India</span>
                 </div>
               </li>
