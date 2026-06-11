@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getCollection, setDocument, addDocument } from '../../firebase/firestore';
 import { logoutUser } from '../../firebase/auth';
 import {
-  Users, Trophy, Calendar, Image, ChevronRight, Activity, AlertCircle, Database, ScanLine
+  Users, Trophy, Calendar, Image, ChevronRight, Activity, AlertCircle, Database, Camera, Shield, Newspaper
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -552,8 +552,8 @@ export default function AdminDashboard() {
       {/* Stats Grid */}
       <div className="stats-grid mb-xl">
         <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
-            <Users size={32} style={{ color: '#3b82f6' }} />
+          <div className="stat-icon">
+            <Users size={28} />
           </div>
           <div className="stat-content">
             <div className="stat-label">Total Players</div>
@@ -562,8 +562,8 @@ export default function AdminDashboard() {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: 'rgba(34, 197, 94, 0.1)' }}>
-            <Trophy size={32} style={{ color: '#22c55e' }} />
+          <div className="stat-icon">
+            <Trophy size={28} />
           </div>
           <div className="stat-content">
             <div className="stat-label">Total Teams</div>
@@ -572,8 +572,8 @@ export default function AdminDashboard() {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: 'rgba(168, 85, 247, 0.1)' }}>
-            <Calendar size={32} style={{ color: '#a855f7' }} />
+          <div className="stat-icon">
+            <Calendar size={28} />
           </div>
           <div className="stat-content">
             <div className="stat-label">Total Matches</div>
@@ -582,8 +582,8 @@ export default function AdminDashboard() {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon" style={{ backgroundColor: 'rgba(249, 115, 22, 0.1)' }}>
-            <Trophy size={32} style={{ color: '#f97316' }} />
+          <div className="stat-icon">
+            <Trophy size={28} />
           </div>
           <div className="stat-content">
             <div className="stat-label">Total Tournaments</div>
@@ -594,7 +594,7 @@ export default function AdminDashboard() {
 
       {/* Charts & Analytics */}
       <div className="admin-section mb-xl">
-        <h3 className="section-title">Squad Statistics & Analytics</h3>
+        <h3 className="admin-section-title">Squad Statistics &amp; Analytics</h3>
         <div className="grid grid-2 gap-lg">
           <div className="admin-chart-panel">
             <h4 className="text-md font-bold mb-md text-primary">Player Roles Distribution</h4>
@@ -630,37 +630,56 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <div className="admin-section mb-xl">
-        <h3 className="section-title">Quick Actions</h3>
-        <div className="action-cards">
-          <Link to="/admin/tournaments" className="action-card">
-            <Trophy size={40} style={{ color: 'var(--admin-accent)' }} />
-            <h3>Manage Tournaments</h3>
-            <p>Create and schedule tournaments</p>
+        <h3 className="admin-section-title">Quick Actions</h3>
+        <div className="action-cards-grid">
+          <Link to="/admin/tournaments" className="action-card-new">
+            <div className="action-card-icon"><Trophy size={28} /></div>
+            <div className="action-card-info">
+              <h4>Manage Tournaments</h4>
+              <p>Create and schedule tournaments</p>
+            </div>
           </Link>
-          <Link to="/admin/players" className="action-card">
-            <Users size={40} style={{ color: 'var(--admin-accent)' }} />
-            <h3>Manage Players</h3>
-            <p>Add, edit, or remove players</p>
+          <Link to="/admin/players" className="action-card-new">
+            <div className="action-card-icon"><Users size={28} /></div>
+            <div className="action-card-info">
+              <h4>Manage Players</h4>
+              <p>Add, edit, or remove players</p>
+            </div>
           </Link>
-          <Link to="/admin/teams" className="action-card">
-            <Trophy size={40} style={{ color: 'var(--admin-accent)' }} />
-            <h3>Manage Teams</h3>
-            <p>Create and manage teams</p>
+          <Link to="/admin/teams" className="action-card-new">
+            <div className="action-card-icon"><Shield size={28} /></div>
+            <div className="action-card-info">
+              <h4>Manage Teams</h4>
+              <p>Create and manage teams</p>
+            </div>
           </Link>
-          <Link to="/admin/matches" className="action-card">
-            <Calendar size={40} style={{ color: 'var(--admin-accent)' }} />
-            <h3>Schedule Matches</h3>
-            <p>Plan tournament fixtures</p>
+          <Link to="/admin/matches" className="action-card-new">
+            <div className="action-card-icon"><Calendar size={28} /></div>
+            <div className="action-card-info">
+              <h4>Schedule Matches</h4>
+              <p>Plan tournament fixtures</p>
+            </div>
           </Link>
-          <Link to="/admin/images" className="action-card">
-            <Image size={40} style={{ color: 'var(--admin-accent)' }} />
-            <h3>Upload Images</h3>
-            <p>Upload media for tournament</p>
+          <Link to="/admin/images" className="action-card-new">
+            <div className="action-card-icon"><Image size={28} /></div>
+            <div className="action-card-info">
+              <h4>Upload Images</h4>
+              <p>Upload media for tournaments</p>
+            </div>
           </Link>
-          <Link to="/scanner" className="action-card" target="_blank" rel="noreferrer">
-            <ScanLine size={40} style={{ color: 'var(--admin-accent)' }} />
-            <h3>QR Scanner</h3>
-            <p>Scan &amp; verify player ID cards</p>
+          <Link to="/admin/news" className="action-card-new">
+            <div className="action-card-icon"><Newspaper size={28} /></div>
+            <div className="action-card-info">
+              <h4>News &amp; Events</h4>
+              <p>Publish news &amp; announcements</p>
+            </div>
+          </Link>
+          <Link to="/scanner" className="action-card-new action-card-scanner" target="_blank" rel="noreferrer">
+            <div className="action-card-icon scanner-icon"><Camera size={28} /></div>
+            <div className="action-card-info">
+              <h4>QR Scanner</h4>
+              <p>Scan &amp; verify player ID cards</p>
+            </div>
           </Link>
         </div>
       </div>

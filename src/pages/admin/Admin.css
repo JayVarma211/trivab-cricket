@@ -1434,3 +1434,159 @@
 [data-theme="light"] .sidebar-logout-btn { color: rgba(0,0,0,0.45); }
 [data-theme="light"] .sidebar-footer-link:hover { background: rgba(0,0,0,0.05); color: #000; }
 
+/* ============================================================
+   ADMIN SECTION TITLE — clean, no big red text
+   ============================================================ */
+.admin-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--admin-text);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--admin-border);
+}
+
+/* ============================================================
+   NEW HORIZONTAL ACTION CARDS GRID
+   ============================================================ */
+.action-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+.action-card-new {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--admin-text);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.action-card-new:hover {
+  border-color: var(--admin-accent);
+  background: rgba(128, 0, 0, 0.06);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.action-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: rgba(128, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--admin-accent);
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.action-card-new:hover .action-card-icon {
+  background: rgba(128, 0, 0, 0.18);
+}
+
+.action-card-info h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin: 0 0 3px 0;
+}
+
+.action-card-info p {
+  font-size: 0.78rem;
+  color: var(--admin-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* QR Scanner card — gold accent */
+.action-card-scanner .action-card-icon.scanner-icon {
+  background: rgba(212, 175, 55, 0.12);
+  color: #d4af37;
+}
+
+.action-card-scanner:hover {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.action-card-scanner:hover .action-card-icon.scanner-icon {
+  background: rgba(212, 175, 55, 0.2);
+}
+
+@media (max-width: 1100px) {
+  .action-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .action-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .action-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   FIX: Stat icon — use consistent crimson/gold theme
+   ============================================================ */
+.stat-icon {
+  background: rgba(128, 0, 0, 0.12) !important;
+  color: var(--admin-accent) !important;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  color: var(--admin-accent) !important;
+}
+
+/* ============================================================
+   FIX: Remove thick red line from old admin layout bleed
+   ============================================================ */
+.admin-dashboard-container {
+  border: none !important;
+}
+
+.admin-sidebar {
+  border-right: 1px solid var(--admin-border) !important;
+}
+
+/* Clean btn-table-action */
+.btn-table-action {
+  background: none;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-table-action:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--admin-accent);
+}
+

@@ -118,7 +118,7 @@ export default function Navbar() {
                     className="tournaments-nav-item"
                     onClick={() => setTournamentsDropOpen(false)}
                   >
-                    <img src={item.logo} className="nav-menu-logo" alt={item.label} style={{ mixBlendMode: 'multiply' }} />
+                    <img src={item.logo} className="nav-menu-logo" alt={item.label} />
                     <span>{item.label}</span>
                   </Link>
                 ))}
@@ -246,7 +246,7 @@ export default function Navbar() {
                       style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
                       onClick={() => setMenuOpen(false)}
                     >
-                      <img src={item.logo} style={{ width: '20px', height: '20px', borderRadius: '4px', objectFit: 'cover', mixBlendMode: 'multiply' }} alt={item.label} />
+                      <img src={item.logo} style={{ width: '22px', height: '22px', borderRadius: '4px', objectFit: 'cover', background: '#fff', padding: '1px' }} alt={item.label} />
                       <span>{item.label}</span>
                     </Link>
                   ))}
