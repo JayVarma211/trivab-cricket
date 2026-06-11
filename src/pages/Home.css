@@ -268,3 +268,14 @@
 .tournament-ticker-frame:hover .tournament-ticker-img {
   transform: scale(1.08);
 }
+
+/* Remove white background from logos using blend mode */
+.logo-no-bg {
+  mix-blend-mode: multiply;
+  background: transparent;
+}
+
+[data-theme="dark"] .logo-no-bg {
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.15));
+}

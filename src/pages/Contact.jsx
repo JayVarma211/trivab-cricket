@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Instagram, Youtube, Facebook, MessageCircle } from 'lucide-react';
 
 export default function Contact() {
   const [name, setName] = useState('');
@@ -34,8 +34,8 @@ export default function Contact() {
     <div className="contact-page page-enter container section-padding">
       <div className="section-header">
         <span className="section-label">Get in Touch</span>
-        <h1 className="section-title">Contact <span className="text-gradient-gold">TRIVAB Support</span></h1>
-        <p className="section-subtitle">Reach out for league hosting setups, sponsorships, or account queries.</p>
+        <h1 className="section-title">Contact <span className="text-gradient-gold">TRIVAB Sports</span></h1>
+        <p className="section-subtitle">Reach out for cricket tournament hosting, sponsorships, or any other queries.</p>
       </div>
 
       <div className="grid grid-2 gap-xl">
@@ -52,7 +52,7 @@ export default function Contact() {
                 <div className="stat-icon" style={{ marginBottom: 0 }}><Mail size={20} /></div>
                 <div>
                   <span className="text-xs text-muted block">Email Support</span>
-                  <a href="mailto:trivabsportsandevents@gmail.com" className="text-sm font-semi text-gold">trivabsportsandevents@gmail.com</a>
+                  <a href="mailto:trivabsports@gmail.com" className="text-sm font-semi text-gold">trivabsports@gmail.com</a>
                 </div>
               </li>
               <li className="flex gap-md items-center">
@@ -66,10 +66,61 @@ export default function Contact() {
                 <div className="stat-icon" style={{ marginBottom: 0 }}><MapPin size={20} /></div>
                 <div>
                   <span className="text-xs text-muted block">Headquarters</span>
-                  <span className="text-sm text-secondary">Mumbai Sports Hub, Maharashtra, India</span>
+                  <span className="text-sm text-secondary">B202, Raj Heights, MG Road Kandivali West,<br />Mumbai 400067, Maharashtra, India</span>
                 </div>
               </li>
             </ul>
+
+            {/* Social Media Links */}
+            <div style={{ marginTop: 'var(--space-xl)', paddingTop: 'var(--space-lg)', borderTop: '1px solid var(--border-card)' }}>
+              <h3 className="text-sm font-bold text-muted mb-md uppercase" style={{ letterSpacing: '0.08em' }}>Follow Us</h3>
+              <div style={{ display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
+                <a
+                  href="https://www.instagram.com/baplcricket?igsh=NHQ2dWM0Y3Z5dnBj"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="contact-social-btn"
+                  aria-label="Instagram"
+                  title="Instagram"
+                >
+                  <Instagram size={20} />
+                  <span>Instagram</span>
+                </a>
+                <a
+                  href="https://www.youtube.com/@baplcricket?si=dVnUedGn8K7gAmtP"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="contact-social-btn"
+                  aria-label="YouTube"
+                  title="YouTube"
+                >
+                  <Youtube size={20} />
+                  <span>YouTube</span>
+                </a>
+                <a
+                  href="https://wa.me/919930344130"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="contact-social-btn whatsapp-btn"
+                  aria-label="WhatsApp"
+                  title="WhatsApp"
+                >
+                  <MessageCircle size={20} />
+                  <span>WhatsApp</span>
+                </a>
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="contact-social-btn facebook-btn"
+                  aria-label="Facebook"
+                  title="Facebook"
+                >
+                  <Facebook size={20} />
+                  <span>Facebook</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -81,7 +132,7 @@ export default function Contact() {
             {submitted && (
               <div className="alert alert-success mb-md">
                 <CheckCircle2 size={18} />
-                <span>Thank you! Your inquiry has been sent to our cricket support panel.</span>
+                <span>Thank you! Your inquiry has been sent to our team.</span>
               </div>
             )}
 
@@ -121,7 +172,7 @@ export default function Contact() {
                   disabled={loading}
                 >
                   <option value="General Inquiry">General Inquiry</option>
-                  <option value="League Setup">League / Tournament Hosting</option>
+                  <option value="Organize Cricket Tournament">Organize Cricket Tournament</option>
                   <option value="Sponsorship">Sponsorship Opportunity</option>
                   <option value="Bug / Tech Support">Bug Report / Technical Support</option>
                 </select>
@@ -146,6 +197,39 @@ export default function Contact() {
           </div>
         </div>
       </div>
+
+      <style>{`
+        .contact-social-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 16px;
+          border-radius: var(--radius-md);
+          font-size: 0.85rem;
+          font-weight: 600;
+          text-decoration: none;
+          background: rgba(212, 175, 55, 0.08);
+          color: var(--text-secondary);
+          border: 1px solid var(--border-card);
+          transition: all var(--transition-fast);
+        }
+        .contact-social-btn:hover {
+          background: rgba(212, 175, 55, 0.15);
+          color: var(--gold);
+          border-color: var(--gold);
+          transform: translateY(-2px);
+        }
+        .contact-social-btn.whatsapp-btn:hover {
+          background: rgba(37, 211, 102, 0.12);
+          color: #25d366;
+          border-color: #25d366;
+        }
+        .contact-social-btn.facebook-btn:hover {
+          background: rgba(24, 119, 242, 0.12);
+          color: #1877f2;
+          border-color: #1877f2;
+        }
+      `}</style>
     </div>
   );
 }

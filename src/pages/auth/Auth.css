@@ -44,7 +44,7 @@
 }
 
 .auth-logo img {
-  height: 70px;
+  height: 100px;
   object-fit: contain;
 }
 
@@ -174,3 +174,38 @@
     padding: var(--space-md) !important;
   }
 }
+
+/* Admin login divider inside login form */
+.admin-login-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.admin-login-divider::before,
+.admin-login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-card);
+}
+
+.admin-login-alt-btn {
+  width: 100%;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.75;
+  font-size: 0.85rem;
+  padding: 10px;
+}
+
+.admin-login-alt-btn:hover {
+  opacity: 1;
+  color: var(--gold);
+  border-color: var(--gold);
+}
+

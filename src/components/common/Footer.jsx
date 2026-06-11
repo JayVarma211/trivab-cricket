@@ -12,7 +12,7 @@ const QUICK_LINKS = [
 const PLAYER_LINKS = [
   { to: '/register', label: 'Register as Player' },
   { to: '/login', label: 'Player Login' },
-  { to: '/scanner', label: 'Scan QR Code' },
+  { to: '/news', label: 'News & Events' },
   { to: '/about', label: 'About Us' },
   { to: '/contact', label: 'Contact Us' },
 ];
@@ -65,7 +65,7 @@ export default function Footer() {
             </li>
             <li>
               <MapPin size={16} />
-              <span className="footer-link">Mumbai, Maharashtra, India</span>
+              <span className="footer-link">B202, Raj Heights, MG Road<br />Kandivali West, Mumbai 400067,<br />Maharashtra, India</span>
             </li>
           </ul>
           <div className="footer-badge">

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { loginUser } from '../../firebase/auth';
 import { getDocument } from '../../firebase/firestore';
-import { Mail, Lock, Eye, EyeOff, Trophy, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Trophy, AlertCircle, Shield } from 'lucide-react';
 import './Auth.css';
 
 export default function Login() {
@@ -121,6 +121,14 @@ export default function Login() {
             <button type="submit" className="btn btn-gold btn-lg auth-submit-btn" disabled={loading}>
               {loading ? 'Logging In...' : 'Log In'}
             </button>
+
+            <div className="admin-login-divider">
+              <span>or</span>
+            </div>
+
+            <Link to="/admin/login" className="btn btn-outline btn-sm admin-login-alt-btn">
+              <Shield size={15} /> Admin Login
+            </Link>
           </form>
 
           <div className="auth-footer text-center">

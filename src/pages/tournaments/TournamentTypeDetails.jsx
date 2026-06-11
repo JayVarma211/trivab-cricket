@@ -11,8 +11,9 @@ const PARENT_TOURNAMENTS = {
     description: 'The premier BAPL League, featuring top cricket squads in Mumbai competing across editions. Experience professional-grade cricket structure, turf pitches, and certified umpiring.',
     logo: '/logos/bapllogo.jpg',
     editions: [
-      { id: 'bapl-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL League.', location: 'North Mumbai Grounds' },
-      { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.', location: 'South Mumbai Arenas' },
+      { id: 'bapl-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL League.', location: 'North Mumbai Grounds', comingSoon: false },
+      { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.', location: 'South Mumbai', comingSoon: true },
+      { id: 'bapl-pune', name: 'BAPL - Pune Edition', logo: '/logos/baplpune.jpg', description: 'Pune Edition of the premier BAPL League.', location: 'Pune', comingSoon: true },
     ]
   },
   'baplxpress': {
@@ -20,8 +21,9 @@ const PARENT_TOURNAMENTS = {
     description: 'Fast-paced, action-packed T20 matches in the BAPL XPRESS League. Dynamic short formats, aggressive play styles, and electric atmospheres.',
     logo: '/logos/bapllogo.jpg',
     editions: [
-      { id: 'baplxpress-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'North Mumbai Turf Arenas' },
-      { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'South Mumbai Turfs' },
+      { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'North Mumbai Turfs', comingSoon: false },
+      { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'South Mumbai Turfs', comingSoon: true },
+      { id: 'baplxpress-pune', name: 'BAPL XPRESS - Pune Edition', logo: '/logos/baplxpresst20puneedition.jpg', description: 'Pune Edition of the fast-paced BAPL XPRESS League.', location: 'Pune', comingSoon: true },
     ]
   },
   'baplcorporate': {
@@ -29,17 +31,19 @@ const PARENT_TOURNAMENTS = {
     description: 'The ultimate corporate face-off, blending workplace camaraderie with cricket passion. Weekend leagues designed for corporate clubs and business houses.',
     logo: '/logos/baplcorporate.jpg',
     editions: [
-      { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'North Mumbai Edition of the BAPL Corporate Cup.', location: 'North Mumbai Sports Hubs' },
-      { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.', location: 'South Mumbai Corporate Grounds' },
+      { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'North Mumbai Edition of the BAPL Corporate Cup.', location: 'North Mumbai Sports Hubs', comingSoon: false },
+      { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.', location: 'South Mumbai Corporate Grounds', comingSoon: true },
+      { id: 'baplcorporate-pune', name: 'BAPL Corporate CUP - Pune Edition', logo: '/logos/baplcorporatepuneedition.jpg', description: 'Pune Edition of the BAPL Corporate Cup.', location: 'Pune', comingSoon: true },
     ]
   },
   'bapldads': {
-    name: 'BAPL DADS T20',
-    description: 'Celebrating cricket passion for the seasoned veterans in the BAPL DADS T20 tournament. Relive the glory days in a highly competitive senior division.',
+    name: 'BAPL 40+ DADS T20',
+    description: 'Celebrating cricket passion for the seasoned veterans in the BAPL 40+ DADS T20 tournament. Relive the glory days in a highly competitive senior division.',
     logo: '/logos/bapldadst20.jpg',
     editions: [
-      { id: 'bapldads-north', name: 'BAPL DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'North Mumbai Edition of the BAPL DADS T20 League.', location: 'North Mumbai Arenas' },
-      { id: 'bapldads-south', name: 'BAPL DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL DADS T20 League.', location: 'South Mumbai Turf Grounds' },
+      { id: 'bapldads-north', name: 'BAPL 40+ DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'North Mumbai Edition of the BAPL 40+ DADS T20 League.', location: 'North Mumbai', comingSoon: false },
+      { id: 'bapldads-south', name: 'BAPL 40+ DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL 40+ DADS T20 League.', location: 'South Mumbai Turf Grounds', comingSoon: true },
+      { id: 'bapldads-pune', name: 'BAPL 40+ DADS T20 - Pune Edition', logo: '/logos/bapldadst20puneedition.jpg', description: 'Pune Edition of the BAPL 40+ DADS T20 League.', location: 'Pune', comingSoon: true },
     ]
   }
 };
@@ -54,7 +58,6 @@ export default function TournamentTypeDetails() {
   useEffect(() => {
     const data = PARENT_TOURNAMENTS[typeId];
     if (!data) {
-      // Redirect to general tournaments list if parent type ID doesn't exist
       navigate('/tournaments');
       return;
     }
@@ -76,7 +79,6 @@ export default function TournamentTypeDetails() {
         const teams = allTeams.filter(t => t.tournamentId === id);
         const matches = allMatches.filter(m => m.tournamentId === id);
         
-        // Find if any match is currently "Live"
         let status = 'Upcoming';
         if (matches.some(m => m.status === 'Live')) {
           status = 'Live';
@@ -119,30 +121,31 @@ export default function TournamentTypeDetails() {
       <div className="parent-hub-header flex gap-xl items-center mb-xl flex-wrap">
         {parentData.logo && (
           <div className="parent-hub-logo-wrapper">
-            <img src={parentData.logo} alt={parentData.name} className="parent-hub-logo animate-scale-in" />
+            <img src={parentData.logo} alt={parentData.name} className="parent-hub-logo animate-scale-in" style={{ mixBlendMode: 'multiply' }} />
           </div>
         )}
         <div className="parent-hub-info flex-1 min-width-300">
           <span className="badge badge-gold mb-xs">Tournament Category</span>
-          <h1 className="display-sm text-gradient-gold">{parentData.name} Championships</h1>
+          <h1 className="display-sm text-gradient-gold">{parentData.name}</h1>
           <p className="text-secondary mt-xs max-width-700">{parentData.description}</p>
         </div>
       </div>
 
       {/* Editions Grid Title */}
       <div className="section-title-wrapper mb-lg">
-        <h2 className="text-lg font-bold text-gradient-gold uppercase letter-spacing-04">Select Edition Arena</h2>
+        <h2 className="text-lg font-bold text-gradient-gold uppercase letter-spacing-04">Select Edition</h2>
         <p className="text-xs text-muted">Each edition features independent fixtures, standings, squads, and live statistics.</p>
       </div>
 
-      {/* Double-Edition Grid */}
-      <div className="grid grid-2 gap-xl">
+      {/* Edition Grid */}
+      <div className="edition-grid">
         {parentData.editions.map((edition) => {
           const stats = editionStats[edition.id] || { teamCount: 0, matchCount: 0, status: 'Upcoming' };
+          const isComingSoon = edition.comingSoon;
           
           return (
             <div key={edition.id} className="card edition-hub-card border-top-gold page-enter">
-              {edition.id.includes('south') && (
+              {isComingSoon && (
                 <div className="edition-card-overlay">
                   <div className="coming-soon-badge">Coming Soon</div>
                 </div>
@@ -151,11 +154,11 @@ export default function TournamentTypeDetails() {
               <div className="edition-card-visual flex items-center justify-between p-lg">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {edition.logo && (
-                    <img src={edition.logo} alt={edition.name} className="edition-card-logo" />
+                    <img src={edition.logo} alt={edition.name} className="edition-card-logo" style={{ mixBlendMode: 'multiply' }} />
                   )}
                   <div>
                     <span className={`badge ${stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : 'badge-gold'} mb-xs`}>
-                      {stats.status}
+                      {isComingSoon ? 'Coming Soon' : stats.status}
                     </span>
                     <h3 className="text-md font-bold text-gradient-gold">{edition.name}</h3>
                   </div>
@@ -191,12 +194,12 @@ export default function TournamentTypeDetails() {
                 <ul className="edition-features-list mb-lg text-sm text-secondary">
                   <li>✓ Certified Leather-Ball Umpiring</li>
                   <li>✓ Live Ball-by-Ball Mobile Scoring</li>
-                  <li>✓ Player Profile & Career Stats Tracking</li>
+                  <li>✓ Player Profile &amp; Career Stats Tracking</li>
                 </ul>
 
                 {/* Action CTA Button */}
                 <Link to={`/tournaments/${edition.id}`} className="btn btn-gold w-full text-center flex items-center justify-center gap-sm btn-arena">
-                  Enter Tournament Arena <ArrowRight size={16} className="arrow-icon" />
+                  View Tournament <ArrowRight size={16} className="arrow-icon" />
                 </Link>
               </div>
             </div>

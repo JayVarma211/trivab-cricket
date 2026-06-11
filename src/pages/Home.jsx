@@ -251,54 +251,78 @@ export default function Home() {
           <div className="ticker-wrap">
             <div className="ticker-content gap-xl flex items-center animate-marquee">
               <div className="tournament-ticker-frame">
-                <img src="/logos/bapllogo.jpg" alt="BAPL Logo" className="tournament-ticker-img" />
+                <img src="/logos/bapllogo.jpg" alt="BAPL Logo" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20north.jpg" alt="BAPL North" className="tournament-ticker-img" />
+                <img src="/logos/baplt20north.jpg" alt="BAPL North" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20south.jpg" alt="BAPL South" className="tournament-ticker-img" />
+                <img src="/logos/baplt20south.jpg" alt="BAPL South" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20north.jpg" alt="BAPL Xpress North" className="tournament-ticker-img" />
+                <img src="/logos/baplxpresst20north.jpg" alt="BAPL Xpress North" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20south.jpg" alt="BAPL Xpress South" className="tournament-ticker-img" />
+                <img src="/logos/baplxpresst20south.jpg" alt="BAPL Xpress South" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplcorporate.jpg" alt="BAPL Corporate" className="tournament-ticker-img" />
+                <img src="/logos/baplcorporate.jpg" alt="BAPL Corporate" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/bapldadst20.jpg" alt="BAPL Dads" className="tournament-ticker-img" />
+                <img src="/logos/bapldadst20.jpg" alt="BAPL Dads" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/trivabmonsoon.jpg" alt="Trivab Monsoon" className="tournament-ticker-img" />
+                <img src="/logos/trivabmonsoon.jpg" alt="Trivab Monsoon" className="tournament-ticker-img logo-no-bg" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplpune.jpg" alt="BAPL Pune" className="tournament-ticker-img logo-no-bg" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplxpresst20puneedition.jpg" alt="BAPL Xpress Pune" className="tournament-ticker-img logo-no-bg" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplcorporatepuneedition.jpg" alt="BAPL Corporate Pune" className="tournament-ticker-img logo-no-bg" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/bapldadst20puneedition.jpg" alt="BAPL Dads Pune" className="tournament-ticker-img logo-no-bg" />
               </div>
 
               {/* Duplicate for infinite effect */}
               <div className="tournament-ticker-frame">
-                <img src="/logos/bapllogo.jpg" alt="BAPL Logo" className="tournament-ticker-img" />
+                <img src="/logos/bapllogo.jpg" alt="BAPL Logo" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20north.jpg" alt="BAPL North" className="tournament-ticker-img" />
+                <img src="/logos/baplt20north.jpg" alt="BAPL North" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20south.jpg" alt="BAPL South" className="tournament-ticker-img" />
+                <img src="/logos/baplt20south.jpg" alt="BAPL South" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20north.jpg" alt="BAPL Xpress North" className="tournament-ticker-img" />
+                <img src="/logos/baplxpresst20north.jpg" alt="BAPL Xpress North" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20south.jpg" alt="BAPL Xpress South" className="tournament-ticker-img" />
+                <img src="/logos/baplxpresst20south.jpg" alt="BAPL Xpress South" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/baplcorporate.jpg" alt="BAPL Corporate" className="tournament-ticker-img" />
+                <img src="/logos/baplcorporate.jpg" alt="BAPL Corporate" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/bapldadst20.jpg" alt="BAPL Dads" className="tournament-ticker-img" />
+                <img src="/logos/bapldadst20.jpg" alt="BAPL Dads" className="tournament-ticker-img logo-no-bg" />
               </div>
               <div className="tournament-ticker-frame">
-                <img src="/logos/trivabmonsoon.jpg" alt="Trivab Monsoon" className="tournament-ticker-img" />
+                <img src="/logos/trivabmonsoon.jpg" alt="Trivab Monsoon" className="tournament-ticker-img logo-no-bg" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplpune.jpg" alt="BAPL Pune" className="tournament-ticker-img logo-no-bg" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplxpresst20puneedition.jpg" alt="BAPL Xpress Pune" className="tournament-ticker-img logo-no-bg" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/baplcorporatepuneedition.jpg" alt="BAPL Corporate Pune" className="tournament-ticker-img logo-no-bg" />
+              </div>
+              <div className="tournament-ticker-frame">
+                <img src="/logos/bapldadst20puneedition.jpg" alt="BAPL Dads Pune" className="tournament-ticker-img logo-no-bg" />
               </div>
             </div>
           </div>

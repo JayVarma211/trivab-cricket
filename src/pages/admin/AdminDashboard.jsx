@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getCollection, setDocument, addDocument } from '../../firebase/firestore';
 import { logoutUser } from '../../firebase/auth';
 import {
-  Users, Trophy, Calendar, Image, ChevronRight, Activity, AlertCircle, Database
+  Users, Trophy, Calendar, Image, ChevronRight, Activity, AlertCircle, Database, ScanLine
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -656,6 +656,11 @@ export default function AdminDashboard() {
             <Image size={40} style={{ color: 'var(--admin-accent)' }} />
             <h3>Upload Images</h3>
             <p>Upload media for tournament</p>
+          </Link>
+          <Link to="/scanner" className="action-card" target="_blank" rel="noreferrer">
+            <ScanLine size={40} style={{ color: 'var(--admin-accent)' }} />
+            <h3>QR Scanner</h3>
+            <p>Scan &amp; verify player ID cards</p>
           </Link>
         </div>
       </div>

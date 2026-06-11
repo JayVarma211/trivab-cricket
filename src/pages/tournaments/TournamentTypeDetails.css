@@ -74,9 +74,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(9, 9, 11, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(9, 9, 11, 0.22);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,10 +179,20 @@
 }
 
 /* Responsive grid breaks */
+/* Edition grid: 3-column for all, collapse to 1 on mobile */
+.edition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+}
+
 @media (max-width: 1024px) {
   .parent-hub-logo-wrapper {
     width: 100px;
     height: 100px;
+  }
+  .edition-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -198,6 +208,10 @@
     margin: 0 auto;
   }
   
+  .edition-grid {
+    grid-template-columns: 1fr;
+  }
+
   .grid-2 {
     grid-template-columns: 1fr;
   }

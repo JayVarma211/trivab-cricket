@@ -23,8 +23,8 @@ import TournamentDetails from './pages/tournaments/TournamentDetails';
 import MatchSchedule from './pages/MatchSchedule';
 import Sponsors from './pages/Sponsors';
 import QRScanner from './pages/QRScanner';
-import Organize from './pages/organize/Organize';
 import TournamentTypeDetails from './pages/tournaments/TournamentTypeDetails';
+import NewsEvents from './pages/NewsEvents';
 
 // Protected pages
 import PlayerDashboard from './pages/player/PlayerDashboard';
@@ -39,7 +39,7 @@ import AdminTeams from './pages/admin/AdminTeams';
 import AdminMatches from './pages/admin/AdminMatches';
 import AdminImages from './pages/admin/AdminImages';
 import AdminTournaments from './pages/admin/AdminTournaments';
-import AdminOrganizeForm from './pages/admin/AdminOrganizeForm';
+import AdminNews from './pages/admin/AdminNews';
 
 export default function App() {
   const { loading } = useAuth();
@@ -68,7 +68,7 @@ export default function App() {
           <Route path="/schedule" element={<MatchSchedule />} />
           <Route path="/sponsors" element={<Sponsors />} />
           <Route path="/scanner" element={<QRScanner />} />
-          <Route path="/organize" element={<Organize />} />
+          <Route path="/news" element={<NewsEvents />} />
 
           {/* Player */}
           <Route path="/player" element={<ProtectedRoute allowedRoles={['player', 'captain', 'admin']} />}>
@@ -129,10 +129,10 @@ export default function App() {
               </AdminLayout>
             </AdminProtectedRoute>
           } />
-          <Route path="/admin/organize-form" element={
+          <Route path="/admin/news" element={
             <AdminProtectedRoute>
               <AdminLayout>
-                <AdminOrganizeForm />
+                <AdminNews />
               </AdminLayout>
             </AdminProtectedRoute>
           } />
@@ -145,4 +145,3 @@ export default function App() {
     </>
   );
 }
-
