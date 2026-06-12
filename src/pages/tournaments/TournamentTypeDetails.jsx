@@ -7,9 +7,27 @@ import './TournamentTypeDetails.css';
 
 const PARENT_TOURNAMENTS = {
   'bapl': {
-    name: 'BAPL League',
-    description: 'The premier BAPL League, featuring top cricket squads in Mumbai competing across editions. Experience professional-grade cricket structure, turf pitches, and certified umpiring.',
+    name: 'BAPL – The Flagship Cricket League',
+    description: `Founded in 2023, BAPL was born from a simple yet revolutionary idea by one of the founder Ankit Shah. He questioned the traditional short-format tournaments where momentum is lost just as teams begin to peak—“Why not create a league that runs through an entire cricketing season?”
+
+This vision led to the creation of BAPL, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
+
+BAPL is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
     logo: '/logos/bapllogo.jpg',
+    highlights: [
+      '20+ competitive teams',
+      '8-month long professional league format',
+      'Fully structured, professional tournament execution',
+      'Select outstation match experiences',
+      '16–18 matches per team per season',
+      'Player kits, goodies, and official deliverables',
+      'On-ground meals and refreshments for players',
+      'Dedicated team managers for each squad',
+      'HD live streaming and match broadcasting',
+      'Multiple awards and recognitions in every match',
+      '12–14 premium quality cricket grounds',
+      'Grand opening ceremony and league night event'
+    ],
     editions: [
       { id: 'bapl-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL League.', location: 'North Mumbai Grounds', comingSoon: false },
       { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.', location: 'South Mumbai', comingSoon: true },
@@ -18,8 +36,25 @@ const PARENT_TOURNAMENTS = {
   },
   'baplxpress': {
     name: 'BAPL XPRESS',
-    description: 'Fast-paced, action-packed T20 matches in the BAPL XPRESS League. Dynamic short formats, aggressive play styles, and electric atmospheres.',
+    description: `BAPL XPRESS is a compact, high-intensity version of our flagship BAPL league—designed to deliver the same professional cricketing experience in a shorter, more flexible format.
+
+Tailored for teams and players who are unable to commit to a full-season tournament due to work or travel constraints, BAPL XPRESS retains the core structure, quality, and competitive spirit of BAPL in a streamlined schedule.
+
+BAPL XPRESS delivers the complete TRIVAB experience—just faster, sharper, and more accessible`,
     logo: '/logos/bapllogo.jpg',
+    highlights: [
+      '8–10 competitive teams',
+      'Fast-paced T20 format',
+      '9 -11 matches per team',
+      '10–12 premium quality cricket grounds',
+      'Multiple awards and recognitions in every match',
+      'Player kits, goodies, and official deliverables',
+      'HD live streaming and match broadcasting',
+      'On-ground meals and refreshments for players',
+      'Grand opening ceremony and league night event',
+      'Professional tournament setup and execution',
+      'Ideal for working professionals and compact team groups'
+    ],
     editions: [
       { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'North Mumbai Turfs', comingSoon: false },
       { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'South Mumbai Turfs', comingSoon: true },
@@ -27,9 +62,23 @@ const PARENT_TOURNAMENTS = {
     ]
   },
   'baplcorporate': {
-    name: 'BAPL Corporate CUP',
-    description: 'The ultimate corporate face-off, blending workplace camaraderie with cricket passion. Weekend leagues designed for corporate clubs and business houses.',
+    name: 'BAPL Corporate Cup',
+    description: `The BAPL Corporate Cup is TRIVAB’s premier corporate-only cricket tournament, designed exclusively for teams representing individual companies. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity competitive sport.
+
+Built on the same professional structure as the BAPL ecosystem, the Corporate Cup delivers a premium matchday experience where corporates engage, compete, and strengthen workplace camaraderie beyond office walls.
+
+BAPL Corporate Cup transforms corporate cricket into a professional sporting experience—where business meets competition on the field.`,
     logo: '/logos/baplcorporate.jpg',
+    highlights: [
+      'Exclusive participation for corporate teams only (company-based entries)',
+      'Professional T20 tournament format',
+      'Matches conducted across 5–6 premium quality cricket grounds',
+      'HD live streaming with YouTube broadcasting of all matches',
+      'Dedicated match officials and certified scorers',
+      'On-ground meals and refreshments for all players',
+      'Dedicated team managers assigned to each corporate team',
+      'Fully structured and professionally managed tournament operations'
+    ],
     editions: [
       { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'North Mumbai Edition of the BAPL Corporate Cup.', location: 'North Mumbai Sports Hubs', comingSoon: false },
       { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.', location: 'South Mumbai Corporate Grounds', comingSoon: true },
@@ -37,9 +86,24 @@ const PARENT_TOURNAMENTS = {
     ]
   },
   'bapldads': {
-    name: 'BAPL 40+ DADS T20',
-    description: 'Celebrating cricket passion for the seasoned veterans in the BAPL 40+ DADS T20 tournament. Relive the glory days in a highly competitive senior division.',
+    name: 'BAPL 40+ Dads Tournament',
+    description: `The BAPL 40+ Dads Tournament is a specially curated cricketing format designed exclusively for players aged 40 and above. Built on the foundation of the BAPL XPRESS structure, this league ensures a fair, competitive, and enjoyable experience tailored for seasoned cricketers.
+
+The tournament is created with a simple vision—to bring fathers and experienced cricket lovers back onto the field, allowing them to relive the joy, passion, and memories of the game they once played every day in their younger years through the TRIVAB platform.
+
+BAPL 40+ Dads Tournament is where experience meets passion—bringing cricket back to those who never stopped loving the game.`,
     logo: '/logos/bapldadst20.jpg',
+    highlights: [
+      'Exclusive age category: 40 years and above only',
+      'Designed for fair and balanced competitive play',
+      'Based on the fast-paced BAPL XPRESS format',
+      'Matches played on lush, premium solo cricket grounds only',
+      'Professional tournament structure and match management',
+      'HD live streaming and YouTube broadcasting of matches',
+      'Certified match officials and scorers',
+      'Dedicated team managers for all participating teams',
+      'On-ground meals and refreshments for players'
+    ],
     editions: [
       { id: 'bapldads-north', name: 'BAPL 40+ DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'North Mumbai Edition of the BAPL 40+ DADS T20 League.', location: 'North Mumbai', comingSoon: false },
       { id: 'bapldads-south', name: 'BAPL 40+ DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL 40+ DADS T20 League.', location: 'South Mumbai Turf Grounds', comingSoon: true },
@@ -127,9 +191,26 @@ export default function TournamentTypeDetails() {
         <div className="parent-hub-info flex-1 min-width-300">
           <span className="badge badge-gold mb-xs">Tournament Category</span>
           <h1 className="display-sm text-gradient-gold">{parentData.name}</h1>
-          <p className="text-secondary mt-xs max-width-700">{parentData.description}</p>
+          <p className="text-secondary mt-xs max-width-700" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>{parentData.description}</p>
         </div>
       </div>
+
+      {/* Highlights checklist grid */}
+      {parentData.highlights && (
+        <div className="card card-gold mb-xl" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)' }}>
+          <h3 className="text-md font-bold mb-md text-gradient-gold flex items-center gap-xs">
+            <Trophy size={18} /> Tournament Key Highlights
+          </h3>
+          <div className="grid grid-2 gap-sm">
+            {parentData.highlights.map((h, idx) => (
+              <div key={idx} className="flex gap-xs items-center text-sm text-secondary">
+                <span className="text-gold">✓</span>
+                <span>{h}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Editions Grid Title */}
       <div className="section-title-wrapper mb-lg">

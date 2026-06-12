@@ -252,7 +252,7 @@ export default function Register() {
             <div className="auth-logo">
               <img src="/logos/trivabsports.webp" alt="TRIVAB SPORTS" />
             </div>
-            <h2 className="display-sm text-gradient-gold">Join the Platform</h2>
+            <h2 className="display-sm text-gradient-gold">Join The Trivab BAPL Ecosystem</h2>
             <p className="text-secondary text-sm">Register your profile for tournaments & matches</p>
           </div>
 

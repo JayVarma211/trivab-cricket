@@ -305,12 +305,23 @@
   gap: var(--space-sm);
 }
 
+.mobile-register-btn {
+  display: none;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 960px) {
   .navbar-links { display: none; }
   .auth-btns    { display: none; }
   .hamburger    { display: flex; }
   .user-info    { display: none; }
+  .mobile-register-btn {
+    display: inline-flex;
+    height: 32px;
+    padding: 0 var(--space-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
 }
 
 @media (max-width: 480px) {

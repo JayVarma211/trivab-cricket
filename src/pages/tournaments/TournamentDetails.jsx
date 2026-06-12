@@ -8,16 +8,227 @@ import uploadImageToCloudinary from '../../services/cloudinary';
 import './Tournaments.css';
 
 const PREDEFINED_TOURNAMENTS = [
-  { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.' },
-  { id: 'bapl-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL League.' },
-  { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.' },
-  { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.' },
-  { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.' },
-  { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'North Mumbai Edition of the BAPL Corporate Cup.' },
-  { id: 'trivab-monsoon', name: 'Trivab Monsoon Championship', logo: '/logos/trivabmonsoon.jpg', description: 'The grand Trivab Monsoon Championship tournament.' },
-  { id: 'bapldads-south', name: 'BAPL DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL DADS T20 League.' },
-  { id: 'bapldads-north', name: 'BAPL DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'North Mumbai Edition of the BAPL DADS T20 League.' },
-  { id: 'baplkids', name: 'BAPL KIDS', logo: '/logos/bapllogo.jpg', description: 'The BAPL KIDS Cricket Championship.' },
+  {
+    id: 'bapl-south',
+    name: 'BAPL - South Mumbai Edition',
+    logo: '/logos/baplt20south.jpg',
+    description: `BAPL – The Flagship Cricket League
+Founded in 2023, BAPL was born from a simple yet revolutionary idea by one of the founder Ankit Shah. He questioned the traditional short-format tournaments where momentum is lost just as teams begin to peak—“Why not create a league that runs through an entire cricketing season?”
+
+This vision led to the creation of BAPL, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
+
+BAPL is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
+    highlights: [
+      '20+ competitive teams',
+      '8-month long professional league format',
+      'Fully structured, professional tournament execution',
+      'Select outstation match experiences',
+      '16–18 matches per team per season',
+      'Player kits, goodies, and official deliverables',
+      'On-ground meals and refreshments for players',
+      'Dedicated team managers for each squad',
+      'HD live streaming and match broadcasting',
+      'Multiple awards and recognitions in every match',
+      '12–14 premium quality cricket grounds',
+      'Grand opening ceremony and league night event'
+    ]
+  },
+  {
+    id: 'bapl-north',
+    name: 'BAPL - North Mumbai Edition',
+    logo: '/logos/baplt20north.jpg',
+    description: `BAPL – The Flagship Cricket League
+Founded in 2023, BAPL was born from a simple yet revolutionary idea by one of the founder Ankit Shah. He questioned the traditional short-format tournaments where momentum is lost just as teams begin to peak—“Why not create a league that runs through an entire cricketing season?”
+
+This vision led to the creation of BAPL, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
+
+BAPL is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
+    highlights: [
+      '20+ competitive teams',
+      '8-month long professional league format',
+      'Fully structured, professional tournament execution',
+      'Select outstation match experiences',
+      '16–18 matches per team per season',
+      'Player kits, goodies, and official deliverables',
+      'On-ground meals and refreshments for players',
+      'Dedicated team managers for each squad',
+      'HD live streaming and match broadcasting',
+      'Multiple awards and recognitions in every match',
+      '12–14 premium quality cricket grounds',
+      'Grand opening ceremony and league night event'
+    ]
+  },
+  {
+    id: 'baplxpress-south',
+    name: 'BAPL XPRESS - South Mumbai Edition',
+    logo: '/logos/baplxpresst20south.jpg',
+    description: `BAPL XPRESS is a compact, high-intensity version of our flagship BAPL league—designed to deliver the same professional cricketing experience in a shorter, more flexible format.
+
+Tailored for teams and players who are unable to commit to a full-season tournament due to work or travel constraints, BAPL XPRESS retains the core structure, quality, and competitive spirit of BAPL in a streamlined schedule.
+
+BAPL XPRESS delivers the complete TRIVAB experience—just faster, sharper, and more accessible`,
+    highlights: [
+      '8–10 competitive teams',
+      'Fast-paced T20 format',
+      '9 -11 matches per team',
+      '10–12 premium quality cricket grounds',
+      'Multiple awards and recognitions in every match',
+      'Player kits, goodies, and official deliverables',
+      'HD live streaming and match broadcasting',
+      'On-ground meals and refreshments for players',
+      'Grand opening ceremony and league night event',
+      'Professional tournament setup and execution',
+      'Ideal for working professionals and compact team groups'
+    ]
+  },
+  {
+    id: 'baplxpress-north',
+    name: 'BAPL XPRESS - North Mumbai Edition',
+    logo: '/logos/baplxpresst20north.jpg',
+    description: `BAPL XPRESS is a compact, high-intensity version of our flagship BAPL league—designed to deliver the same professional cricketing experience in a shorter, more flexible format.
+
+Tailored for teams and players who are unable to commit to a full-season tournament due to work or travel constraints, BAPL XPRESS retains the core structure, quality, and competitive spirit of BAPL in a streamlined schedule.
+
+BAPL XPRESS delivers the complete TRIVAB experience—just faster, sharper, and more accessible`,
+    highlights: [
+      '8–10 competitive teams',
+      'Fast-paced T20 format',
+      '9 -11 matches per team',
+      '10–12 premium quality cricket grounds',
+      'Multiple awards and recognitions in every match',
+      'Player kits, goodies, and official deliverables',
+      'HD live streaming and match broadcasting',
+      'On-ground meals and refreshments for players',
+      'Grand opening ceremony and league night event',
+      'Professional tournament setup and execution',
+      'Ideal for working professionals and compact team groups'
+    ]
+  },
+  {
+    id: 'baplcorporate-south',
+    name: 'BAPL Corporate CUP - South Mumbai Edition',
+    logo: '/logos/baplcorporate.jpg',
+    description: `The BAPL Corporate Cup is TRIVAB’s premier corporate-only cricket tournament, designed exclusively for teams representing individual companies. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity competitive sport.
+
+Built on the same professional structure as the BAPL ecosystem, the Corporate Cup delivers a premium matchday experience where corporates engage, compete, and strengthen workplace camaraderie beyond office walls.
+
+BAPL Corporate Cup transforms corporate cricket into a professional sporting experience—where business meets competition on the field.`,
+    highlights: [
+      'Exclusive participation for corporate teams only (company-based entries)',
+      'Professional T20 tournament format',
+      'Matches conducted across 5–6 premium quality cricket grounds',
+      'HD live streaming with YouTube broadcasting of all matches',
+      'Dedicated match officials and certified scorers',
+      'On-ground meals and refreshments for all players',
+      'Dedicated team managers assigned to each corporate team',
+      'Fully structured and professionally managed tournament operations'
+    ]
+  },
+  {
+    id: 'baplcorporate-north',
+    name: 'BAPL Corporate CUP - North Mumbai Edition',
+    logo: '/logos/baplcorporate.jpg',
+    description: `The BAPL Corporate Cup is TRIVAB’s premier corporate-only cricket tournament, designed exclusively for teams representing individual companies. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity competitive sport.
+
+Built on the same professional structure as the BAPL ecosystem, the Corporate Cup delivers a premium matchday experience where corporates engage, compete, and strengthen workplace camaraderie beyond office walls.
+
+BAPL Corporate Cup transforms corporate cricket into a professional sporting experience—where business meets competition on the field.`,
+    highlights: [
+      'Exclusive participation for corporate teams only (company-based entries)',
+      'Professional T20 tournament format',
+      'Matches conducted across 5–6 premium quality cricket grounds',
+      'HD live streaming with YouTube broadcasting of all matches',
+      'Dedicated match officials and certified scorers',
+      'On-ground meals and refreshments for all players',
+      'Dedicated team managers assigned to each corporate team',
+      'Fully structured and professionally managed tournament operations'
+    ]
+  },
+  {
+    id: 'trivab-monsoon',
+    name: 'Trivab Monsoon Championship',
+    logo: '/logos/trivabmonsoon.jpg',
+    description: `The BAPL Monsoon Test Championship is one of TRIVAB’s most unique and prestigious formats, designed to bring back the traditional essence of red-ball cricket in a competitive league structure.
+
+Played in a single-day Test match format, this championship is conducted with red ball and white clothing, offering players a rare opportunity to experience the intensity, patience, and strategy of Test cricket in an amateur competitive setup. The tournament features a league stage followed by high-stakes finals to determine the champion team.
+
+BAPL Monsoon Test Championship revives the purest format of cricket—where technique, temperament, and strategy define the champions.`,
+    highlights: [
+      'Traditional single-day Test match format',
+      'Red ball cricket with white playing attire',
+      'Breakfast, Full Lunch & Hi-tea will be served sessions wise',
+      'League stage followed by knockout finals',
+      'Professional tournament setup and match operations',
+      'Certified match officials and scorers',
+      'HD live streaming and YouTube broadcasting of matches',
+      'Dedicated Premium cricket ground for all fixtures',
+      'Structured competitive environment inspired by Test cricket standards'
+    ]
+  },
+  {
+    id: 'bapldads-south',
+    name: 'BAPL DADS T20 - South Mumbai Edition',
+    logo: '/logos/bapldadst20.jpg',
+    description: `The BAPL 40+ Dads Tournament is a specially curated cricketing format designed exclusively for players aged 40 and above. Built on the foundation of the BAPL XPRESS structure, this league ensures a fair, competitive, and enjoyable experience tailored for seasoned cricketers.
+
+The tournament is created with a simple vision—to bring fathers and experienced cricket lovers back onto the field, allowing them to relive the joy, passion, and memories of the game they once played every day in their younger years through the TRIVAB platform.
+
+BAPL 40+ Dads Tournament is where experience meets passion—bringing cricket back to those who never stopped loving the game.`,
+    highlights: [
+      'Exclusive age category: 40 years and above only',
+      'Designed for fair and balanced competitive play',
+      'Based on the fast-paced BAPL XPRESS format',
+      'Matches played on lush, premium solo cricket grounds only',
+      'Professional tournament structure and match management',
+      'HD live streaming and YouTube broadcasting of matches',
+      'Certified match officials and scorers',
+      'Dedicated team managers for all participating teams',
+      'On-ground meals and refreshments for players'
+    ]
+  },
+  {
+    id: 'bapldads-north',
+    name: 'BAPL DADS T20 - North Mumbai Edition',
+    logo: '/logos/bapldadst20.jpg',
+    description: `The BAPL 40+ Dads Tournament is a specially curated cricketing format designed exclusively for players aged 40 and above. Built on the foundation of the BAPL XPRESS structure, this league ensures a fair, competitive, and enjoyable experience tailored for seasoned cricketers.
+
+The tournament is created with a simple vision—to bring fathers and experienced cricket lovers back onto the field, allowing them to relive the joy, passion, and memories of the game they once played every day in their younger years through the TRIVAB platform.
+
+BAPL 40+ Dads Tournament is where experience meets passion—bringing cricket back to those who never stopped loving the game.`,
+    highlights: [
+      'Exclusive age category: 40 years and above only',
+      'Designed for fair and balanced competitive play',
+      'Based on the fast-paced BAPL XPRESS format',
+      'Matches played on lush, premium solo cricket grounds only',
+      'Professional tournament structure and match management',
+      'HD live streaming and YouTube broadcasting of matches',
+      'Certified match officials and scorers',
+      'Dedicated team managers for all participating teams',
+      'On-ground meals and refreshments for players'
+    ]
+  },
+  {
+    id: 'baplkids',
+    name: 'BAPL KIDS',
+    logo: '/logos/bapllogo.jpg',
+    description: `The BAPL Kids Tournament is TRIVAB’s dedicated junior cricket platform, designed to provide young cricketers across age groups U-10, U-12, U-14, U-16, and U-19 with a structured, high-quality, and competitive playing experience.
+
+BAPL Kids has quickly become a favourite among young players, who actively follow and aspire to participate in BAPL senior leagues. In the Mumbai circuit, most junior tournaments offer limited match exposure; BAPL Kids addresses this gap by ensuring a longer, more meaningful competitive structure that supports true player development.
+
+Each participating team is guaranteed 8–10 competitive matches, creating a tournament environment that focuses on growth, experience, and performance.
+
+BAPL Kids is more than a tournament—it is a development pathway that nurtures the next generation of cricketers and prepares them for the senior competitive stage`,
+    highlights: [
+      'Age groups: U-10, U-12, U-14, U-16 & U-19',
+      'Red-ball cricket along with 20 & 40-over formats',
+      '8–10 matches per team for extended competitive exposure',
+      'Matches played across premium grounds, maidans, and gymkhanas',
+      'Professional tournament structure and certified match officials',
+      'Scholarships and individual match rewards for standout performers',
+      'Pathway access and recognition linked to BAPL senior tournaments',
+      'HD live coverage and professional match documentation'
+    ]
+  }
 ];
 
 export default function TournamentDetails() {
@@ -75,20 +286,27 @@ export default function TournamentDetails() {
     const fetchDetails = async () => {
       try {
         let tourn = await getDocument('tournaments', id);
+        const fallback = PREDEFINED_TOURNAMENTS.find(p => p.id === id);
         
         if (!tourn) {
-          const fallback = PREDEFINED_TOURNAMENTS.find(p => p.id === id);
           if (fallback) {
             tourn = {
               id: fallback.id,
               name: fallback.name,
               logo: fallback.logo,
               description: fallback.description,
+              highlights: fallback.highlights,
               status: 'Upcoming',
               winner: 'TBD',
               runnerUp: 'TBD'
             };
           }
+        } else if (fallback) {
+          tourn = {
+            ...tourn,
+            description: fallback.description,
+            highlights: fallback.highlights
+          };
         }
         
         setTournament(tourn);
@@ -106,6 +324,7 @@ export default function TournamentDetails() {
           name: fallback.name,
           logo: fallback.logo,
           description: fallback.description,
+          highlights: fallback.highlights,
           status: 'Upcoming',
           winner: 'TBD',
           runnerUp: 'TBD'
@@ -349,7 +568,7 @@ export default function TournamentDetails() {
           <div>
             <span className="badge badge-red mb-xs">{tournament.status}</span>
             <h1 className="display-md text-gradient-gold">{tournament.name}</h1>
-            <p className="text-secondary max-width-600 mt-xs">{tournament.description}</p>
+            <p className="text-secondary max-width-600 mt-xs" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>{tournament.description}</p>
             
             {user ? (
               role === 'admin' ? (
@@ -385,6 +604,23 @@ export default function TournamentDetails() {
           </div>
         </div>
       </div>
+
+      {/* Highlights checklist grid */}
+      {tournament.highlights && (
+        <div className="card card-gold mb-xl" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)' }}>
+          <h3 className="text-md font-bold mb-md text-gradient-gold flex items-center gap-xs">
+            <Trophy size={18} /> Tournament Key Highlights
+          </h3>
+          <div className="grid grid-2 gap-sm">
+            {tournament.highlights.map((h, idx) => (
+              <div key={idx} className="flex gap-xs items-center text-sm text-secondary">
+                <span className="text-gold">✓</span>
+                <span>{h}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="tournament-details-grid">
         {/* Left col: Match Fixtures */}
