@@ -955,13 +955,13 @@ ul, ol {
 }
 
 .logo-black-bg {
-  mix-blend-mode: screen;
+  filter: url(#remove-black);
   background: transparent;
 }
 
 [data-theme="light"] .logo-black-bg {
-  filter: invert(1);
-  mix-blend-mode: screen;
+  filter: url(#remove-black);
+  background: transparent;
 }
 
 /* ============================================================

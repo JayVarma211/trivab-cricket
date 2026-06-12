@@ -552,78 +552,31 @@ export default function AdminDashboard() {
       {/* Stats Grid */}
       <div className="stats-grid mb-xl">
         <div className="stat-card">
-          <div className="stat-icon">
-            <Users size={28} />
-          </div>
+          <div className="stat-icon"><Users size={24} /></div>
           <div className="stat-content">
             <div className="stat-label">Total Players</div>
             <div className="stat-value">{stats.totalPlayers}</div>
           </div>
         </div>
-
         <div className="stat-card">
-          <div className="stat-icon">
-            <Trophy size={28} />
-          </div>
+          <div className="stat-icon"><Trophy size={24} /></div>
           <div className="stat-content">
             <div className="stat-label">Total Teams</div>
             <div className="stat-value">{stats.totalTeams}</div>
           </div>
         </div>
-
         <div className="stat-card">
-          <div className="stat-icon">
-            <Calendar size={28} />
-          </div>
+          <div className="stat-icon"><Calendar size={24} /></div>
           <div className="stat-content">
             <div className="stat-label">Total Matches</div>
             <div className="stat-value">{stats.totalMatches}</div>
           </div>
         </div>
-
         <div className="stat-card">
-          <div className="stat-icon">
-            <Trophy size={28} />
-          </div>
+          <div className="stat-icon"><Activity size={24} /></div>
           <div className="stat-content">
-            <div className="stat-label">Total Tournaments</div>
+            <div className="stat-label">Tournaments</div>
             <div className="stat-value">{stats.totalTournaments}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Charts & Analytics */}
-      <div className="admin-section mb-xl">
-        <h3 className="admin-section-title">Squad Statistics &amp; Analytics</h3>
-        <div className="grid grid-2 gap-lg">
-          <div className="admin-chart-panel">
-            <h4 className="text-md font-bold mb-md text-primary">Player Roles Distribution</h4>
-            <div style={{ width: '100%', height: 260 }}>
-              <ResponsiveContainer width="100%" height="100%" minHeight={260}>
-                <BarChart data={roleChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
-                  <XAxis dataKey="name" stroke="var(--admin-text)" fontSize={12} />
-                  <YAxis stroke="var(--admin-text)" fontSize={12} />
-                  <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)' }} />
-                  <Bar dataKey="count" fill="var(--admin-accent)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="admin-chart-panel">
-            <h4 className="text-md font-bold mb-md text-primary">Match Status Distribution</h4>
-            <div style={{ width: '100%', height: 260 }}>
-              <ResponsiveContainer width="100%" height="100%" minHeight={260}>
-                <BarChart data={matchChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
-                  <XAxis dataKey="name" stroke="var(--admin-text)" fontSize={12} />
-                  <YAxis stroke="var(--admin-text)" fontSize={12} />
-                  <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)' }} />
-                  <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
           </div>
         </div>
       </div>
@@ -633,195 +586,192 @@ export default function AdminDashboard() {
         <h3 className="admin-section-title">Quick Actions</h3>
         <div className="action-cards-grid">
           <Link to="/admin/tournaments" className="action-card-new">
-            <div className="action-card-icon"><Trophy size={28} /></div>
+            <div className="action-card-icon"><Trophy size={22} /></div>
             <div className="action-card-info">
-              <h4>Manage Tournaments</h4>
+              <h4>Tournaments</h4>
               <p>Create and schedule tournaments</p>
             </div>
           </Link>
           <Link to="/admin/players" className="action-card-new">
-            <div className="action-card-icon"><Users size={28} /></div>
+            <div className="action-card-icon"><Users size={22} /></div>
             <div className="action-card-info">
-              <h4>Manage Players</h4>
-              <p>Add, edit, or remove players</p>
+              <h4>Players</h4>
+              <p>Manage player registrations</p>
             </div>
           </Link>
           <Link to="/admin/teams" className="action-card-new">
-            <div className="action-card-icon"><Shield size={28} /></div>
+            <div className="action-card-icon"><Shield size={22} /></div>
             <div className="action-card-info">
-              <h4>Manage Teams</h4>
-              <p>Create and manage teams</p>
+              <h4>Teams</h4>
+              <p>Create and manage squads</p>
             </div>
           </Link>
           <Link to="/admin/matches" className="action-card-new">
-            <div className="action-card-icon"><Calendar size={28} /></div>
+            <div className="action-card-icon"><Calendar size={22} /></div>
             <div className="action-card-info">
-              <h4>Schedule Matches</h4>
-              <p>Plan tournament fixtures</p>
+              <h4>Matches</h4>
+              <p>Schedule fixtures & manage</p>
             </div>
           </Link>
           <Link to="/admin/images" className="action-card-new">
-            <div className="action-card-icon"><Image size={28} /></div>
+            <div className="action-card-icon"><Image size={22} /></div>
             <div className="action-card-info">
-              <h4>Upload Images</h4>
-              <p>Upload media for tournaments</p>
+              <h4>Gallery</h4>
+              <p>Upload tournament media</p>
             </div>
           </Link>
           <Link to="/admin/news" className="action-card-new">
-            <div className="action-card-icon"><Newspaper size={28} /></div>
+            <div className="action-card-icon"><Newspaper size={22} /></div>
             <div className="action-card-info">
               <h4>News &amp; Events</h4>
-              <p>Publish news &amp; announcements</p>
+              <p>Publish announcements</p>
             </div>
           </Link>
           <Link to="/scanner" className="action-card-new action-card-scanner" target="_blank" rel="noreferrer">
-            <div className="action-card-icon scanner-icon"><Camera size={28} /></div>
+            <div className="action-card-icon scanner-icon"><Camera size={22} /></div>
             <div className="action-card-info">
               <h4>QR Scanner</h4>
-              <p>Scan &amp; verify player ID cards</p>
+              <p>Verify player ID cards</p>
             </div>
           </Link>
         </div>
       </div>
 
-      {/* Database Initialization Panel */}
+      {/* Charts & Analytics */}
       <div className="admin-section mb-xl">
-        <h3 className="section-title">System & Database Initialization</h3>
-        <div className="admin-seeding-panel">
-          <div className="flex flex-col gap-md">
-            <div className="flex items-center gap-md">
-              <Database size={32} style={{ color: 'var(--admin-accent)' }} />
-              <div>
-                <h4 className="text-md font-bold text-gradient-gold">Setup Demo Environment</h4>
-                <p className="text-secondary text-sm">
-                  If your database is brand new and empty, you won't be able to schedule matches or teams. Click below to automatically seed the database with tournaments, teams, and sample match data.
-                </p>
-              </div>
+        <h3 className="admin-section-title">Analytics</h3>
+        <div className="grid grid-2 gap-lg">
+          <div className="admin-chart-panel">
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--admin-text)', margin: '0 0 16px' }}>Player Roles</h4>
+            <div style={{ width: '100%', height: 240 }}>
+              <ResponsiveContainer width="100%" height="100%" minHeight={240}>
+                <BarChart data={roleChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
+                  <XAxis dataKey="name" stroke="var(--admin-muted)" fontSize={11} />
+                  <YAxis stroke="var(--admin-muted)" fontSize={11} />
+                  <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)', borderRadius: '8px', fontSize: '0.8rem' }} />
+                  <Bar dataKey="count" fill="var(--admin-accent)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            {seedingSuccess && (
-              <div className={`alert ${seedingSuccess.startsWith('Error') ? 'alert-error' : 'alert-success'} mt-md`}>
-                <AlertCircle size={18} />
-                <span>{seedingSuccess}</span>
-              </div>
-            )}
-            <div className="flex gap-md mt-md">
-              <button
-                type="button"
-                onClick={handleInitializeDatabase}
-                disabled={seeding}
-                className="btn btn-gold flex-1"
-                style={{ opacity: seeding ? 0.7 : 1 }}
-              >
-                {seeding ? 'Seeding Database...' : 'Initialize Professional Demo Data'}
-              </button>
+          </div>
+          <div className="admin-chart-panel">
+            <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--admin-text)', margin: '0 0 16px' }}>Match Status</h4>
+            <div style={{ width: '100%', height: 240 }}>
+              <ResponsiveContainer width="100%" height="100%" minHeight={240}>
+                <BarChart data={matchChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
+                  <XAxis dataKey="name" stroke="var(--admin-muted)" fontSize={11} />
+                  <YAxis stroke="var(--admin-muted)" fontSize={11} />
+                  <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)', borderRadius: '8px', fontSize: '0.8rem' }} />
+                  <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Roster Enrollments Feed (Admin Notifications) */}
-      <div className="admin-section mb-xl">
-        <h3 className="section-title">Roster Enrollments Feed</h3>
-        <div style={{
-          borderBottom: '1px solid var(--admin-border)',
-          overflow: 'hidden',
-        }}>
-          {enrollNotifications.length > 0 ? (
-            <div>
-              {enrollNotifications.map((notif, idx) => (
-                <div
-                  key={notif.id || idx}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: 'var(--space-md) var(--space-lg)',
-                    borderBottom: idx < enrollNotifications.length - 1 ? '1px solid var(--admin-border)' : 'none',
-                    background: notif.type === 'captain_joined' ? 'rgba(212, 175, 55, 0.03)' : 'transparent'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                    <div style={{ 
-                      width: '8px', 
-                      height: '8px', 
-                      borderRadius: '50%', 
-                      background: notif.type === 'captain_joined' ? 'var(--gold)' : '#22c55e' 
-                    }} />
-                    <div>
-                      <p style={{ margin: 0, color: 'var(--admin-text)' }}>
-                        <strong>{notif.title}</strong>: {notif.message}
-                      </p>
-                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--admin-text)', opacity: 0.6 }}>
-                        {notif.createdAt ? new Date(notif.createdAt).toLocaleString() : 'Just now'}
-                      </p>
-                    </div>
+      {/* Two columns: Enrollment Feed + Activity */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '28px' }}>
+        {/* Roster Enrollments Feed */}
+        <div>
+          <h3 className="admin-section-title">Enrollment Feed</h3>
+          <div style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 'var(--admin-radius)', overflow: 'hidden' }}>
+            {enrollNotifications.length > 0 ? (
+              enrollNotifications.slice(0, 5).map((notif, idx) => (
+                <div key={notif.id || idx} style={{
+                  display: 'flex', alignItems: 'flex-start', gap: '12px',
+                  padding: '12px 16px',
+                  borderBottom: idx < Math.min(enrollNotifications.length, 5) - 1 ? '1px solid var(--admin-border)' : 'none',
+                }}>
+                  <div style={{ width: '7px', height: '7px', borderRadius: '50%', marginTop: '6px', flexShrink: 0,
+                    background: notif.type === 'captain_joined' ? 'var(--admin-gold)' : '#22c55e' }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ margin: 0, color: 'var(--admin-text)', fontSize: '0.825rem', fontWeight: 600 }}>{notif.title}</p>
+                    <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: 'var(--admin-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{notif.message}</p>
+                    <p style={{ margin: '2px 0 0', fontSize: '0.68rem', color: 'var(--admin-muted)', opacity: 0.7 }}>
+                      {notif.createdAt ? new Date(notif.createdAt).toLocaleString() : 'Just now'}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{
-              padding: 'var(--space-xl)',
-              textAlign: 'center',
-              color: 'var(--admin-text)',
-              opacity: 0.5,
-            }}>
-              <AlertCircle size={32} style={{ marginBottom: 'var(--space-md)' }} />
-              <p>No new roster enrollment notifications yet</p>
-            </div>
-          )}
+              ))
+            ) : (
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--admin-muted)' }}>
+                <AlertCircle size={28} style={{ marginBottom: '8px', opacity: 0.35 }} />
+                <p style={{ margin: 0, fontSize: '0.8rem' }}>No enrollment notifications yet</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Recent Activity */}
-      <div className="admin-section">
-        <h3 className="section-title">Recent Activity</h3>
-        <div style={{
-          borderBottom: '1px solid var(--admin-border)',
-          overflow: 'hidden',
-        }}>
-          {recentActivity.length > 0 ? (
-            <div>
-              {recentActivity.map((activity, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: 'var(--space-md) var(--space-lg)',
-                    borderBottom: idx < recentActivity.length - 1 ? '1px solid var(--admin-border)' : 'none',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
-                    <Activity size={18} style={{ color: 'var(--admin-accent)' }} />
+        {/* Recent Activity */}
+        <div>
+          <h3 className="admin-section-title">Recent Activity</h3>
+          <div style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: 'var(--admin-radius)', overflow: 'hidden' }}>
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity, idx) => (
+                <div key={idx} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '12px 16px',
+                  borderBottom: idx < recentActivity.length - 1 ? '1px solid var(--admin-border)' : 'none',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Activity size={14} style={{ color: 'var(--admin-gold)', flexShrink: 0 }} />
                     <div>
-                      <p style={{ margin: 0, color: 'var(--admin-text)' }}>
-                        {activity.type === 'player' && '🎮 New player added: '}
-                        {activity.type === 'team' && '🏏 New team created: '}
-                        {activity.type === 'match' && '⏰ New match scheduled: '}
+                      <p style={{ margin: 0, color: 'var(--admin-text)', fontSize: '0.825rem' }}>
+                        {activity.type === 'player' && '🎮 '}
+                        {activity.type === 'team' && '🏏 '}
+                        {activity.type === 'match' && '⏰ '}
                         <strong>{activity.name}</strong>
                       </p>
-                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--admin-text)', opacity: 0.6 }}>
+                      <p style={{ margin: '2px 0 0', fontSize: '0.68rem', color: 'var(--admin-muted)' }}>
                         {activity.time ? new Date(activity.time).toLocaleDateString() : 'Recently'}
                       </p>
                     </div>
                   </div>
-                  <ChevronRight size={18} style={{ color: 'var(--admin-text)', opacity: 0.5 }} />
+                  <ChevronRight size={14} style={{ color: 'var(--admin-muted)', opacity: 0.4 }} />
                 </div>
-              ))}
+              ))
+            ) : (
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--admin-muted)' }}>
+                <AlertCircle size={28} style={{ marginBottom: '8px', opacity: 0.35 }} />
+                <p style={{ margin: 0, fontSize: '0.8rem' }}>No recent activity</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Database Initialization Panel */}
+      <div className="admin-section">
+        <h3 className="admin-section-title">System Initialization</h3>
+        <div className="admin-seeding-panel">
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+            <Database size={28} style={{ color: 'var(--admin-gold)', flexShrink: 0, marginTop: '2px' }} />
+            <div style={{ flex: 1 }}>
+              <h4 style={{ color: 'var(--admin-gold)', margin: '0 0 6px', fontSize: '0.95rem', fontWeight: 700 }}>Setup Demo Environment</h4>
+              <p style={{ color: 'var(--admin-muted)', margin: '0 0 16px', fontSize: '0.82rem', lineHeight: 1.6 }}>
+                If your database is brand new and empty, click below to automatically seed the database with tournaments, teams, and sample match data.
+              </p>
+              {seedingSuccess && (
+                <div className={`alert ${seedingSuccess.startsWith('Error') ? 'alert-error' : 'alert-success'}`} style={{ marginBottom: '16px' }}>
+                  <AlertCircle size={16} />
+                  <span style={{ fontSize: '0.82rem' }}>{seedingSuccess}</span>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={handleInitializeDatabase}
+                disabled={seeding}
+                className="btn btn-outline"
+                style={{ opacity: seeding ? 0.7 : 1, fontSize: '0.85rem' }}
+              >
+                <Database size={16} />
+                {seeding ? 'Seeding Database...' : 'Initialize Professional Demo Data'}
+              </button>
             </div>
-          ) : (
-            <div style={{
-              padding: 'var(--space-xl)',
-              textAlign: 'center',
-              color: 'var(--admin-text)',
-              opacity: 0.5,
-            }}>
-              <AlertCircle size={32} style={{ marginBottom: 'var(--space-md)' }} />
-              <p>No recent activity</p>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

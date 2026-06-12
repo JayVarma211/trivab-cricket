@@ -317,61 +317,95 @@ export default function AdminTournaments() {
         />
       </div>
 
-      <div className="grid grid-3 gap-lg">
-        {filteredTournaments.map(t => (
-          <div key={t.id} className="card card-gold p-lg flex flex-col justify-between">
-            <div>
-              <div className="flex justify-between items-start mb-md">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  {t.logo && <img src={t.logo} alt="logo" className="avatar-sm" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' }} />}
-                  <div>
-                    <h3 className="text-md font-bold text-gradient-gold">{t.name}</h3>
-                    <p className="text-secondary text-xs">{t.date}</p>
-                  </div>
+      <div className="admin-tournament-list">
+        {filteredTournaments.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--admin-muted)' }}>
+            <Trophy size={36} style={{ opacity: 0.25, marginBottom: '12px' }} />
+            <p style={{ margin: 0, fontSize: '0.875rem' }}>No tournaments yet. Click "Schedule Tournament" to create one.</p>
+          </div>
+        ) : (
+          filteredTournaments.map((t, idx) => (
+            <div key={t.id} className="admin-tournament-item" style={{
+              borderBottom: idx < filteredTournaments.length - 1 ? '1px solid var(--admin-border)' : 'none'
+            }}>
+              {/* Logo — transparent, no background */}
+              {t.logo && (
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  background: 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <img
+                    src={t.logo}
+                    alt=""
+                    className={t.logo.toLowerCase().includes('xpress') || t.logo.toLowerCase().includes('dads') ? 'logo-black-bg' : 'logo-white-bg'}
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      objectFit: 'contain',
+                    }}
+                  />
                 </div>
-                <span className={`badge ${getStatusClass(t.status)}`}>{t.status}</span>
-              </div>
+              )}
 
-              <p className="text-sm text-secondary mb-md" style={{ opacity: 0.8, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '60px' }}>
-                {t.description}
-              </p>
-
-              <div className="team-stats mb-md" style={{ background: 'rgba(255, 107, 0, 0.05)', borderRadius: '6px', padding: '10px' }}>
-                <div className="stat-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span className="label opacity-70">Total Teams:</span>
-                  <span className="value font-semi text-gold">{t.teamCount || 12} Teams</span>
+              {/* Info */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                  <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--admin-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {t.name}
+                  </h3>
+                  <span className={`badge ${getStatusClass(t.status)}`}>{t.status}</span>
                 </div>
-                {t.status === 'Completed' && (
-                  <>
-                    <div className="stat-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', borderTop: '1px solid var(--admin-border)', paddingTop: '4px', marginTop: '4px' }}>
-                      <span className="label opacity-70">Winner:</span>
-                      <span className="value font-semi text-green">{t.winner || 'TBD'}</span>
-                    </div>
-                    <div className="stat-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                      <span className="label opacity-70">Runner-Up:</span>
-                      <span className="value font-semi text-secondary">{t.runnerUp || 'TBD'}</span>
-                    </div>
-                  </>
+                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)' }}>
+                    <Calendar size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                    {t.date || 'TBD'}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)' }}>
+                    <Users size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+                    {t.teamCount || 12} Teams
+                  </span>
+                  {t.status === 'Completed' && t.winner && t.winner !== 'TBD' && (
+                    <span style={{ fontSize: '0.75rem', color: 'var(--admin-green)' }}>
+                      🏆 {t.winner}
+                    </span>
+                  )}
+                </div>
+                {t.description && (
+                  <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: 'var(--admin-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '500px' }}>
+                    {t.description}
+                  </p>
                 )}
               </div>
-            </div>
 
-            <div className="flex gap-md mt-md">
-              <button
-                onClick={() => handleEdit(t)}
-                className="btn btn-outline flex-1 btn-sm"
-              >
-                <Edit2 size={14} /> Edit
-              </button>
-              <button
-                onClick={() => handleDelete(t.id)}
-                className="btn btn-outline text-red flex-1 btn-sm"
-              >
-                <Trash2 size={14} /> Delete
-              </button>
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                <button
+                  onClick={() => handleEdit(t)}
+                  className="btn-table-action"
+                  title="Edit"
+                  style={{ color: 'var(--admin-gold)' }}
+                >
+                  <Edit2 size={15} />
+                </button>
+                <button
+                  onClick={() => handleDelete(t.id)}
+                  className="btn-table-action"
+                  title="Delete"
+                  style={{ color: 'var(--admin-red)' }}
+                >
+                  <Trash2 size={15} />
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

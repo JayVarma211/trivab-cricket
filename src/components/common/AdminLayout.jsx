@@ -23,7 +23,7 @@ export default function AdminLayout({ children }) {
     { label: 'Dashboard', icon: <BarChart3 size={20} />, to: '/admin/dashboard', section: 'main' },
     { label: 'Tournaments', icon: <Trophy size={20} />, to: '/admin/tournaments', section: 'main' },
     { label: 'Players', icon: <Users size={20} />, to: '/admin/players', section: 'main' },
-    { label: 'Teams', icon: <Trophy size={20} />, to: '/admin/teams', section: 'main' },
+    { label: 'Teams', icon: <Shield size={20} />, to: '/admin/teams', section: 'main' },
     { label: 'Matches', icon: <Calendar size={20} />, to: '/admin/matches', section: 'main' },
     { label: 'Images', icon: <Image size={20} />, to: '/admin/images', section: 'main' },
     { label: 'News & Events', icon: <Newspaper size={20} />, to: '/admin/news', section: 'content' },
@@ -39,8 +39,9 @@ export default function AdminLayout({ children }) {
       <aside className={`admin-sidebar-new ${sidebarOpen ? 'sidebar-open' : ''}`}>
         {/* Sidebar Header */}
         <div className="sidebar-brand">
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flex: 1 }}>
-            <img src="/logos/trivabsports.webp" style={{ height: '100px', objectFit: 'contain' }} alt="TRIVAB" />
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flex: 1, gap: '10px' }}>
+            <img src="/logos/trivabsports.webp" style={{ height: '36px', objectFit: 'contain' }} alt="TRIVAB" />
+            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--admin-gold)', letterSpacing: '0.04em' }}>TRIVAB</span>
           </Link>
           <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
             <X size={20} />

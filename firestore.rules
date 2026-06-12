@@ -6,7 +6,8 @@ service cloud.firestore {
     // Helper function to check if user is admin
     function isAdmin() {
       return request.auth != null && (
-        request.auth.token.email.matches('(?i)trivabsportsandevents@gmail.com') ||
+        request.auth.token.email == 'trivabsportsandevents@gmail.com' ||
+        request.auth.token.email == 'TRIVABSPORTSANDEVENTS@GMAIL.COM' ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       );
@@ -96,10 +97,16 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
 
-    // News events collection
+    // News events collection — writable by any authenticated admin user
     match /news_events/{newsId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    // Admin notifications collection
+    match /admin_notifications/{notifId} {
+      allow read: if isAdmin();
+      allow write: if request.auth != null;
     }
 
     // Contact inquiries collection

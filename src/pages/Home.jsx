@@ -298,18 +298,6 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* SVG Filter to remove white backgrounds from tournament logos */}
-      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none', width: 0, height: 0 }}>
-        <defs>
-          <filter id="remove-white">
-            <feColorMatrix type="luminanceToAlpha" result="lum" />
-            <feComponentTransfer in="lum" result="mask">
-              <feFuncA type="table" tableValues="1 1 1 1 1 1 1 1 1 1 1 1 1 0.8 0" />
-            </feComponentTransfer>
-            <feComposite operator="in" in="SourceGraphic" in2="mask" />
-          </filter>
-        </defs>
-      </svg>
     </div>
   );
 }
