@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getCollection, setDocument, deleteDocument } from '../../firebase/firestore';
-import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, Calendar, Users } from 'lucide-react';
+import { getCollection, setDocument, deleteDocument, where, addDocument } from '../../firebase/firestore';
+import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, Calendar, Users, Eye, ArrowLeft, Loader2 } from 'lucide-react';
 import './Admin.css';
 
 const PREDEFINED_TOURNAMENTS = [
@@ -22,11 +22,29 @@ export default function AdminTournaments() {
   const { role } = useAuth();
   const navigate = useNavigate();
   const [tournaments, setTournaments] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
+
+  // Tournament Details & Squad states
+  const [selectedTournamentForModal, setSelectedTournamentForModal] = useState(null);
+  const [viewingTeamSquad, setViewingTeamSquad] = useState(null);
+  const [teamPlayers, setTeamPlayers] = useState([]);
+  const [loadingTeamPlayers, setLoadingTeamPlayers] = useState(false);
+  const [showMatchForm, setShowMatchForm] = useState(false);
+  const [matchFormData, setMatchFormData] = useState({
+    teamA: '',
+    teamB: '',
+    venue: '',
+    format: 'T20',
+    date: '',
+    time: '',
+    status: 'Upcoming'
+  });
 
   const [formData, setFormData] = useState({
     typeId: '',
@@ -46,12 +64,76 @@ export default function AdminTournaments() {
   const fetchData = async () => {
     try {
       const tournData = await getCollection('tournaments', []);
+      const teamsData = await getCollection('teams', []);
+      const matchesData = await getCollection('matches', []);
       setTournaments(tournData);
+      setTeams(teamsData || []);
+      setMatches(matchesData || []);
     } catch (err) {
       console.error('Error fetching tournaments:', err);
       setError('Failed to load tournaments');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTournamentClick = (tourn) => {
+    setSelectedTournamentForModal(tourn);
+    setViewingTeamSquad(null);
+    setShowMatchForm(false);
+  };
+
+  const handleTeamClick = async (team) => {
+    setViewingTeamSquad(team);
+    setLoadingTeamPlayers(true);
+    setTeamPlayers([]);
+    try {
+      const players = await getCollection('players', [where('teamId', '==', team.id)]);
+      setTeamPlayers(players || []);
+    } catch (err) {
+      console.error("Error loading team roster:", err);
+    } finally {
+      setLoadingTeamPlayers(false);
+    }
+  };
+
+  const handleMatchSubmit = async (e) => {
+    e.preventDefault();
+    if (!matchFormData.teamA || !matchFormData.teamB) {
+      alert('Please select both Team A and Team B');
+      return;
+    }
+    if (matchFormData.teamA === matchFormData.teamB) {
+      alert('Team A and Team B cannot be the same');
+      return;
+    }
+    try {
+      const matchData = {
+        ...matchFormData,
+        tournamentId: selectedTournamentForModal.id,
+        tossWinner: '',
+        tossDecision: '',
+        teamAScore: '',
+        teamBScore: '',
+        result: ''
+      };
+      await addDocument('matches', matchData);
+      const matchesData = await getCollection('matches', []);
+      setMatches(matchesData || []);
+      setShowMatchForm(false);
+      setMatchFormData({
+        teamA: '',
+        teamB: '',
+        venue: '',
+        format: 'T20',
+        date: '',
+        time: '',
+        status: 'Upcoming'
+      });
+      alert('Match scheduled successfully!');
+    } catch (err) {
+      console.error("Error scheduling match:", err);
+      alert('Failed to schedule match');
     }
   };
 
@@ -325,9 +407,14 @@ export default function AdminTournaments() {
           </div>
         ) : (
           filteredTournaments.map((t, idx) => (
-            <div key={t.id} className="admin-tournament-item" style={{
-              borderBottom: idx < filteredTournaments.length - 1 ? '1px solid var(--admin-border)' : 'none'
-            }}>
+            <div 
+              key={t.id} 
+              className="admin-tournament-item" 
+              onClick={() => handleTournamentClick(t)}
+              style={{
+                borderBottom: idx < filteredTournaments.length - 1 ? '1px solid var(--admin-border)' : 'none'
+              }}
+            >
               {/* Logo — transparent, no background */}
               {t.logo && (
                 <div style={{
@@ -387,7 +474,15 @@ export default function AdminTournaments() {
               {/* Actions */}
               <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                 <button
-                  onClick={() => handleEdit(t)}
+                  onClick={(e) => { e.stopPropagation(); handleTournamentClick(t); }}
+                  className="btn-table-action"
+                  title="View Details"
+                  style={{ color: '#3b82f6' }}
+                >
+                  <Eye size={15} />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleEdit(t); }}
                   className="btn-table-action"
                   title="Edit"
                   style={{ color: 'var(--admin-gold)' }}
@@ -395,7 +490,7 @@ export default function AdminTournaments() {
                   <Edit2 size={15} />
                 </button>
                 <button
-                  onClick={() => handleDelete(t.id)}
+                  onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
                   className="btn-table-action"
                   title="Delete"
                   style={{ color: 'var(--admin-red)' }}
@@ -407,6 +502,310 @@ export default function AdminTournaments() {
           ))
         )}
       </div>
+
+      {/* Tournament Details & Squad Modal */}
+      {selectedTournamentForModal && (
+        <div className="modal-overlay" onClick={() => setSelectedTournamentForModal(null)} style={{ display: 'flex', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '850px', width: '95%', maxHeight: '90vh', overflowY: 'auto', position: 'relative', color: 'var(--admin-text)' }}>
+            <button className="modal-close" onClick={() => setSelectedTournamentForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--admin-muted)', cursor: 'pointer' }}>✕</button>
+
+            {/* Back Button for Squad View */}
+            {viewingTeamSquad && (
+              <button 
+                onClick={() => setViewingTeamSquad(null)} 
+                className="btn btn-outline btn-sm mb-md" 
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', fontSize: '0.8rem', height: 'auto', border: '1px solid var(--admin-border)' }}
+              >
+                <ArrowLeft size={14} /> Back to Tournament
+              </button>
+            )}
+
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '16px' }}>
+              {selectedTournamentForModal.logo && (
+                <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img
+                    src={selectedTournamentForModal.logo}
+                    alt=""
+                    className={selectedTournamentForModal.logo.toLowerCase().includes('xpress') || selectedTournamentForModal.logo.toLowerCase().includes('dads') ? 'logo-black-bg' : 'logo-white-bg'}
+                    style={{ width: '48px', height: '48px', objectFit: 'contain' }}
+                  />
+                </div>
+              )}
+              <div style={{ textAlign: 'left' }}>
+                <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: 0 }}>
+                  {viewingTeamSquad ? `${viewingTeamSquad.teamName} Squad` : selectedTournamentForModal.name}
+                </h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--admin-muted)' }}>
+                  {viewingTeamSquad 
+                    ? `Representing ${selectedTournamentForModal.name}` 
+                    : `Duration: ${selectedTournamentForModal.date || 'TBD'} | Status: ${selectedTournamentForModal.status}`
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Conditional Views */}
+            {viewingTeamSquad ? (
+              /* Squad / Players List Roster View */
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Squad Roster ({teamPlayers.length} Players)
+                  </h4>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--admin-gold)', fontWeight: 600 }}>
+                    Captain: {viewingTeamSquad.captainName || 'Not Assigned'}
+                  </span>
+                </div>
+
+                {loadingTeamPlayers ? (
+                  <div style={{ textAlign: 'center', padding: '30px', color: 'var(--admin-muted)' }}>
+                    <Loader2 size={28} className="spin text-gold" style={{ margin: '0 auto 8px' }} />
+                    <p style={{ margin: 0, fontSize: '0.8rem' }}>Loading player squad...</p>
+                  </div>
+                ) : teamPlayers.length === 0 ? (
+                  <div style={{ padding: '30px', textAlign: 'center', color: 'var(--admin-muted)', background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--admin-border)', borderRadius: '8px' }}>
+                    <p style={{ margin: 0, fontSize: '0.85rem' }}>No players registered under this team squad yet.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '350px', overflowY: 'auto', paddingRight: '4px' }}>
+                    {teamPlayers.map((p, idx) => (
+                      <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 14px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--admin-border)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)', fontWeight: 700, minWidth: '16px' }}>{idx + 1}.</span>
+                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', overflow: 'hidden', background: 'var(--admin-card-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            {p.photoURL ? (
+                              <img src={p.photoURL} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <Users size={14} style={{ color: 'var(--admin-gold)' }} />
+                            )}
+                          </div>
+                          <div style={{ textAlign: 'left' }}>
+                            <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--admin-text)', display: 'block' }}>{p.fullName}</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--admin-muted)', display: 'block' }}>{p.playingStyle || 'Player'}</span>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <span className="badge badge-gold" style={{ fontSize: '0.65rem' }}>
+                            Matches: {p.joinedTournaments?.find(jt => (typeof jt === 'string' ? jt : jt.id) === selectedTournamentForModal.id)?.matchesPlayed || 0}
+                          </span>
+                          <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>
+                            #{p.jerseyNumber || '—'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Main Details View: Teams (Left) & Matches (Right) */
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', textAlign: 'left' }}>
+                
+                {/* Left Column: Teams */}
+                <div>
+                  <h4 style={{ margin: '0 0 12px 0', fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Teams Registered ({teams.filter(team => team.tournamentId === selectedTournamentForModal.id).length})
+                  </h4>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '380px', overflowY: 'auto', paddingRight: '4px' }}>
+                    {teams.filter(team => team.tournamentId === selectedTournamentForModal.id).length === 0 ? (
+                      <div style={{ padding: '30px', textAlign: 'center', color: 'var(--admin-muted)', background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--admin-border)', borderRadius: '8px' }}>
+                        <p style={{ margin: 0, fontSize: '0.8rem' }}>No teams registered for this league yet.</p>
+                      </div>
+                    ) : (
+                      teams.filter(team => team.tournamentId === selectedTournamentForModal.id).map(team => (
+                        <div 
+                          key={team.id} 
+                          onClick={() => handleTeamClick(team)}
+                          style={{ 
+                            display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', 
+                            background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--admin-border)', 
+                            cursor: 'pointer', transition: 'all 0.2s' 
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.borderColor = 'var(--admin-gold)';
+                            e.currentTarget.style.background = 'rgba(212,175,55,0.03)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.borderColor = 'var(--admin-border)';
+                            e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                          }}
+                        >
+                          {/* Team Logo */}
+                          <div style={{ width: '38px', height: '38px', borderRadius: '6px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--admin-border)', flexShrink: 0 }}>
+                            {team.logoURL ? (
+                              <img src={team.logoURL} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            ) : (
+                              <span style={{ fontSize: '1rem', fontWeight: 800, color: '#000' }}>{team.teamName[0]}</span>
+                            )}
+                          </div>
+
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <strong style={{ fontSize: '0.85rem', color: 'var(--admin-text)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {team.teamName}
+                            </strong>
+                            <span style={{ fontSize: '0.72rem', color: 'var(--admin-muted)', display: 'block' }}>
+                              Capt: {team.captainName || 'Not Assigned'}
+                            </span>
+                          </div>
+                          <ChevronRight size={16} style={{ color: 'var(--admin-muted)' }} />
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Column: Match Fixtures */}
+                <div style={{ borderLeft: '1px solid var(--admin-border)', paddingLeft: '24px' }}>
+                  <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Match Fixtures ({matches.filter(m => m.tournamentId === selectedTournamentForModal.id).length})
+                    </h4>
+                    <button 
+                      onClick={() => setShowMatchForm(!showMatchForm)} 
+                      className="btn btn-gold btn-xs" 
+                      style={{ padding: '4px 10px', fontSize: '0.75rem', height: 'auto' }}
+                    >
+                      {showMatchForm ? 'Cancel' : '+ Schedule'}
+                    </button>
+                  </div>
+
+                  {/* Inline Match Scheduler Form */}
+                  {showMatchForm && (
+                    <form onSubmit={handleMatchSubmit} style={{ background: 'rgba(212,175,55,0.03)', border: '1px solid rgba(212,175,55,0.2)', padding: '12px', borderRadius: '8px', marginBottom: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <strong style={{ fontSize: '0.75rem', color: 'var(--admin-gold)', display: 'block' }}>New Match Scheduler</strong>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Team A</label>
+                          <select 
+                            required 
+                            className="form-select" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
+                            value={matchFormData.teamA} 
+                            onChange={e => setMatchFormData(p => ({ ...p, teamA: e.target.value }))}
+                          >
+                            <option value="">Select Team A</option>
+                            {teams.filter(t => t.tournamentId === selectedTournamentForModal.id).map(t => (
+                              <option key={t.id} value={t.teamName}>{t.teamName}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Team B</label>
+                          <select 
+                            required 
+                            className="form-select" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
+                            value={matchFormData.teamB} 
+                            onChange={e => setMatchFormData(p => ({ ...p, teamB: e.target.value }))}
+                          >
+                            <option value="">Select Team B</option>
+                            {teams.filter(t => t.tournamentId === selectedTournamentForModal.id).map(t => (
+                              <option key={t.id} value={t.teamName}>{t.teamName}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Date</label>
+                          <input 
+                            type="date" 
+                            required 
+                            className="form-input" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
+                            value={matchFormData.date} 
+                            onChange={e => setMatchFormData(p => ({ ...p, date: e.target.value }))}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Time</label>
+                          <input 
+                            type="time" 
+                            required 
+                            className="form-input" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
+                            value={matchFormData.time} 
+                            onChange={e => setMatchFormData(p => ({ ...p, time: e.target.value }))}
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '8px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Venue</label>
+                          <input 
+                            type="text" 
+                            required 
+                            placeholder="Venue name"
+                            className="form-input" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
+                            value={matchFormData.venue} 
+                            onChange={e => setMatchFormData(p => ({ ...p, venue: e.target.value }))}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Format</label>
+                          <select 
+                            className="form-select" 
+                            style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
+                            value={matchFormData.format} 
+                            onChange={e => setMatchFormData(p => ({ ...p, format: e.target.value }))}
+                          >
+                            <option value="T20">T20</option>
+                            <option value="ODI">ODI</option>
+                            <option value="Test">Test</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <button type="submit" className="btn btn-gold btn-sm w-full" style={{ padding: '6px', fontSize: '0.8rem', height: 'auto', marginTop: '4px' }}>
+                        Save Match Fixture
+                      </button>
+                    </form>
+                  )}
+
+                  {/* Matches List */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: showMatchForm ? '160px' : '380px', overflowY: 'auto', paddingRight: '4px' }}>
+                    {matches.filter(m => m.tournamentId === selectedTournamentForModal.id).length === 0 ? (
+                      <div style={{ padding: '30px', textAlign: 'center', color: 'var(--admin-muted)', background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--admin-border)', borderRadius: '8px' }}>
+                        <p style={{ margin: 0, fontSize: '0.8rem' }}>No matches scheduled yet.</p>
+                      </div>
+                    ) : (
+                      matches.filter(m => m.tournamentId === selectedTournamentForModal.id).map(m => (
+                        <div key={m.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.01)', borderRadius: '8px', border: '1px solid var(--admin-border)', fontSize: '0.8rem' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                            <span className={`badge ${m.status === 'Live' ? 'badge-red' : m.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`} style={{ fontSize: '0.6rem', padding: '1px 6px' }}>
+                              {m.status}
+                            </span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--admin-muted)' }}>{m.date} · {m.time}</span>
+                          </div>
+                          
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 600 }}>
+                            <span style={{ color: 'var(--admin-text)' }}>{m.teamA}</span>
+                            <span style={{ color: 'var(--admin-gold)' }}>
+                              {(m.status === 'Completed' || m.status === 'Live') ? `${m.teamAScore || '—'} : ${m.teamBScore || '—'}` : 'vs'}
+                            </span>
+                            <span style={{ color: 'var(--admin-text)' }}>{m.teamB}</span>
+                          </div>
+                          
+                          <div style={{ fontSize: '0.7rem', color: 'var(--admin-muted)', marginTop: '4px', textAlign: 'center', borderTop: '1px dashed rgba(255,255,255,0.03)', paddingTop: '4px' }}>
+                            📍 {m.venue} {m.result && `| Winner: ${m.result}`}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

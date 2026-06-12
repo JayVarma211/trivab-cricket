@@ -38,10 +38,32 @@ export default function AdminLayout({ children }) {
       {/* Sidebar */}
       <aside className={`admin-sidebar-new ${sidebarOpen ? 'sidebar-open' : ''}`}>
         {/* Sidebar Header */}
-        <div className="sidebar-brand">
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', flex: 1, gap: '10px' }}>
-            <img src="/logos/trivabsports.webp" style={{ height: '36px', objectFit: 'contain' }} alt="TRIVAB" />
-            <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--admin-gold)', letterSpacing: '0.04em' }}>TRIVAB</span>
+        <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 20px 16px' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
+            <div style={{
+              width: '90px',
+              height: '90px',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              background: 'transparent',
+              border: 'none',
+              borderRadius: '8px'
+            }}>
+              <img 
+                src="/logos/trivabsports.webp" 
+                style={{ 
+                  height: '110px', 
+                  width: 'auto', 
+                  objectFit: 'contain',
+                  maxWidth: 'none',
+                  marginLeft: '-5px',
+                  filter: 'url(#remove-white)'
+                }} 
+                alt="TRIVAB SPORTS" 
+              />
+            </div>
           </Link>
           <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
             <X size={20} />

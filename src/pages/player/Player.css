@@ -63,6 +63,7 @@
 .id-card-element {
   width: 380px;
   height: 240px;
+  flex-shrink: 0;
   background: linear-gradient(135deg, #0a0f1a 0%, #0d1830 40%, #07101f 100%);
   border: 2px solid rgba(212,175,55,0.6);
   border-radius: 16px;
@@ -330,6 +331,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  width: 58px;
+  height: 58px;
+}
+
+.id-qr-box svg {
+  width: 52px !important;
+  height: 52px !important;
+  display: block;
 }
 
 /* ============================================================

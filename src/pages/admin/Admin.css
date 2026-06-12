@@ -874,6 +874,7 @@
   padding: 16px 20px;
   background: var(--admin-card-bg);
   transition: background 0.15s;
+  cursor: pointer;
 }
 
 .admin-tournament-item:hover {
@@ -1059,7 +1060,7 @@
    ============================================================ */
 .player-details-grid {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: auto 1fr;
   gap: 24px;
   margin-top: 14px;
 }

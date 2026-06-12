@@ -1115,63 +1115,101 @@ export default function AdminPlayers() {
             <div className="player-details-grid">
               
               {/* Left Column: ID Card Render & Main Actions */}
-              <div className="flex flex-col items-center gap-md">
+              <div className="flex flex-col items-center gap-md" style={{ width: '100%' }}>
                 
-                {/* ID Card Wrapper */}
-                <div className="card-render-wrapper" style={{ transform: 'scale(0.9)', transformOrigin: 'top center', marginBottom: '-20px' }}>
+                <div className="card-render-wrapper">
                   <div className="id-card-element" id="admin-player-card-render" style={{ margin: '0 auto' }}>
                     <div className="id-card-gold-accent" />
                     <div className="id-card-inner">
-                      <div className="id-card-header">
-                        <div className="id-card-logo">
-                          <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
-                        </div>
-                        <div className="id-card-badge">VERIFIED PASS</div>
-                      </div>
-
-                      <div className="id-card-body">
+                      {/* LEFT: Photo */}
+                      <div className="id-card-left">
                         <div className="id-player-photo">
                           {selectedPlayerForDetails.photoURL ? (
                             <img src={selectedPlayerForDetails.photoURL} alt={selectedPlayerForDetails.fullName} />
                           ) : (
-                            <User size={48} />
+                            <User size={36} />
                           )}
                         </div>
-
-                        <div className="id-player-details">
-                          <h3 className="id-player-name">{selectedPlayerForDetails.fullName}</h3>
-                          <span className="id-player-style">{selectedPlayerForDetails.playingStyle}</span>
-                          
-                          <div className="id-player-stats-row">
-                            {selectedPlayerForDetails.teamName && selectedPlayerForDetails.teamName !== 'Free Agent' && selectedPlayerForDetails.teamName !== 'free-agent' && (
-                              <div>
-                                <span className="id-stat-lbl">TEAM</span>
-                                <span className="id-stat-val text-gradient-gold">{selectedPlayerForDetails.teamName}</span>
-                              </div>
-                            )}
-                            <div>
-                              <span className="id-stat-lbl">JERSEY</span>
-                              <span className="id-stat-val text-gradient-gold">#{selectedPlayerForDetails.jerseyNumber || 'N/A'}</span>
-                            </div>
-                            <div>
-                              <span className="id-stat-lbl">MATCHES</span>
-                              <span className="id-stat-val text-gradient-gold">
-                                {selectedPlayerForDetails.joinedTournaments
-                                  ? selectedPlayerForDetails.joinedTournaments.reduce((acc, t) => acc + (t.matchesPlayed || 0), 0)
-                                  : 0}
-                              </span>
+                        {/* Jersey number badge */}
+                        {selectedPlayerForDetails.jerseyNumber && (
+                          <div style={{
+                            background: 'rgba(212,175,55,0.15)',
+                            border: '1px solid rgba(212,175,55,0.3)',
+                            borderRadius: '6px',
+                            padding: '2px 10px',
+                            textAlign: 'center',
+                            width: '100%',
+                            boxSizing: 'border-box'
+                          }}>
+                            <div style={{ fontSize: '0.45rem', color: 'rgba(212,175,55,0.7)', letterSpacing: '0.1em', fontWeight: 700 }}>JERSEY</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#d4af37', lineHeight: 1.1 }}>
+                              #{selectedPlayerForDetails.jerseyNumber}
                             </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
-                      <div className="id-card-footer">
-                        <div className="id-code-group">
-                          <span className="id-stat-lbl">PLAYER ID</span>
-                          <span className="id-code-text">{selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</span>
+                      {/* DIVIDER */}
+                      <div className="id-card-divider" />
+
+                      {/* RIGHT: Info */}
+                      <div className="id-card-right">
+                        {/* Header */}
+                        <div className="id-card-header">
+                          <div className="id-card-logo">
+                            <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
+                          </div>
+                          <div className="id-card-badge">VERIFIED PASS</div>
                         </div>
-                        <div className="id-qr-box">
-                          <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={64} bgColor="#ffffff" fgColor="#000000" level="H" />
+
+                        {/* Name & Style */}
+                        <div>
+                          <h3 className="id-player-name">{selectedPlayerForDetails.fullName}</h3>
+                          <span className="id-player-style">{selectedPlayerForDetails.playingStyle}</span>
+                        </div>
+
+                        {/* Stats row */}
+                        <div className="id-player-stats-row">
+                          {selectedPlayerForDetails.teamName && selectedPlayerForDetails.teamName !== 'Free Agent' && selectedPlayerForDetails.teamName !== 'free-agent' && (
+                            <div style={{ maxWidth: '120px' }}>
+                              <span className="id-stat-lbl">Team</span>
+                              <span className="id-stat-val" style={{ 
+                                fontSize: '0.72rem', color: '#fff', display: 'block',
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                              }} title={selectedPlayerForDetails.teamName}>
+                                {selectedPlayerForDetails.teamName}
+                              </span>
+                            </div>
+                          )}
+                          <div>
+                            <span className="id-stat-lbl">Matches</span>
+                            <span className="id-stat-val">
+                              {selectedPlayerForDetails.joinedTournaments
+                                ? selectedPlayerForDetails.joinedTournaments.reduce((acc, t) => acc + (t.matchesPlayed || 0), 0)
+                                : 0}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Tournaments */}
+                        <div className="id-player-tournaments-row">
+                          <span className="id-stat-lbl">Tournaments</span>
+                          <span className="id-tournaments-val" style={{ color: '#d4af37', fontWeight: 600, fontSize: '0.58rem' }}>
+                            {selectedPlayerForDetails.joinedTournaments && selectedPlayerForDetails.joinedTournaments.length > 0
+                              ? selectedPlayerForDetails.joinedTournaments.map(t => typeof t === 'string' ? t : (t.name || 'Trivab Tournament')).join(', ')
+                              : 'No Tournaments Joined'}
+                          </span>
+                        </div>
+
+                        {/* Footer: ID & QR */}
+                        <div className="id-card-footer">
+                          <div className="id-code-group">
+                            <span className="id-stat-lbl">Player ID</span>
+                            <span className="id-code-text">{selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</span>
+                          </div>
+                          <div className="id-qr-box">
+                            <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={52} bgColor="#ffffff" fgColor="#000000" level="H" />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1417,52 +1455,91 @@ export default function AdminPlayers() {
               <div className="flex flex-col items-center gap-md">
                 
                 {/* ID Card Wrapper */}
-                <div className="card-render-wrapper" style={{ transform: 'scale(0.9)', transformOrigin: 'top center', marginBottom: '-20px' }}>
+                <div className="card-render-wrapper">
                   <div className="id-card-element" id="admin-captain-card-render" style={{ margin: '0 auto' }}>
                     <div className="id-card-gold-accent" />
                     <div className="id-card-inner">
-                      <div className="id-card-header">
-                        <div className="id-card-logo">
-                          <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
-                        </div>
-                        <div className="id-card-badge">VERIFIED PASS</div>
-                      </div>
-
-                      <div className="id-card-body">
+                      {/* LEFT: Photo */}
+                      <div className="id-card-left">
                         <div className="id-player-photo">
                           {selectedCaptainForDetails.photoURL ? (
                             <img src={selectedCaptainForDetails.photoURL} alt={selectedCaptainForDetails.fullName} />
                           ) : (
-                            <User size={48} />
+                            <User size={36} />
                           )}
                         </div>
-
-                        <div className="id-player-details">
-                          <h3 className="id-player-name">{selectedCaptainForDetails.fullName}</h3>
-                          <span className="id-player-style">Team Captain</span>
-                          
-                          <div className="id-player-stats-row">
-                            {selectedCaptainForDetails.teamName && (
-                              <div>
-                                <span className="id-stat-lbl">TEAM</span>
-                                <span className="id-stat-val text-gradient-gold">{selectedCaptainForDetails.teamName}</span>
-                              </div>
-                            )}
-                            <div>
-                              <span className="id-stat-lbl">ROLE</span>
-                              <span className="id-stat-val text-gradient-gold">CAPTAIN</span>
-                            </div>
+                        {/* Jersey number badge */}
+                        <div style={{
+                          background: 'rgba(212,175,55,0.15)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          borderRadius: '6px',
+                          padding: '2px 10px',
+                          textAlign: 'center',
+                          width: '100%',
+                          boxSizing: 'border-box'
+                        }}>
+                          <div style={{ fontSize: '0.45rem', color: 'rgba(212,175,55,0.7)', letterSpacing: '0.1em', fontWeight: 700 }}>ROLE</div>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#d4af37', lineHeight: 1.1 }}>
+                            CAPT
                           </div>
                         </div>
                       </div>
 
-                      <div className="id-card-footer">
-                        <div className="id-code-group">
-                          <span className="id-stat-lbl">CAPTAIN ID</span>
-                          <span className="id-code-text">{selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}</span>
+                      {/* DIVIDER */}
+                      <div className="id-card-divider" />
+
+                      {/* RIGHT: Info */}
+                      <div className="id-card-right">
+                        {/* Header */}
+                        <div className="id-card-header">
+                          <div className="id-card-logo">
+                            <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
+                          </div>
+                          <div className="id-card-badge">VERIFIED PASS</div>
                         </div>
-                        <div className="id-qr-box">
-                          <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={64} bgColor="#ffffff" fgColor="#000000" level="H" />
+
+                        {/* Name & Style */}
+                        <div>
+                          <h3 className="id-player-name">{selectedCaptainForDetails.fullName}</h3>
+                          <span className="id-player-style">Team Captain</span>
+                        </div>
+
+                        {/* Stats row */}
+                        <div className="id-player-stats-row">
+                          {selectedCaptainForDetails.teamName && (
+                            <div style={{ maxWidth: '120px' }}>
+                              <span className="id-stat-lbl">Team</span>
+                              <span className="id-stat-val" style={{ 
+                                fontSize: '0.72rem', color: '#fff', display: 'block',
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                              }} title={selectedCaptainForDetails.teamName}>
+                                {selectedCaptainForDetails.teamName}
+                              </span>
+                            </div>
+                          )}
+                          <div>
+                            <span className="id-stat-lbl">Role</span>
+                            <span className="id-stat-val">Captain</span>
+                          </div>
+                        </div>
+
+                        {/* Tournaments */}
+                        <div className="id-player-tournaments-row">
+                          <span className="id-stat-lbl">Access Level</span>
+                          <span className="id-tournaments-val" style={{ color: '#d4af37', fontWeight: 600, fontSize: '0.58rem' }}>
+                            Full Team Management
+                          </span>
+                        </div>
+
+                        {/* Footer: ID & QR */}
+                        <div className="id-card-footer">
+                          <div className="id-code-group">
+                            <span className="id-stat-lbl">Captain ID</span>
+                            <span className="id-code-text">{selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}</span>
+                          </div>
+                          <div className="id-qr-box">
+                            <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={52} bgColor="#ffffff" fgColor="#000000" level="H" />
+                          </div>
                         </div>
                       </div>
                     </div>

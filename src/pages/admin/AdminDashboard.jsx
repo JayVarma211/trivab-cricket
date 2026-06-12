@@ -36,13 +36,17 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [players, teams, matches, tournaments, notifications] = await Promise.all([
-          getCollection('players'),
-          getCollection('teams'),
-          getCollection('matches'),
-          getCollection('tournaments'),
-          getCollection('admin_notifications')
-        ]);
+        let players = [];
+        let teams = [];
+        let matches = [];
+        let tournaments = [];
+        let notifications = [];
+
+        try { players = await getCollection('players') || []; } catch (e) { console.warn("Failed to fetch players:", e); }
+        try { teams = await getCollection('teams') || []; } catch (e) { console.warn("Failed to fetch teams:", e); }
+        try { matches = await getCollection('matches') || []; } catch (e) { console.warn("Failed to fetch matches:", e); }
+        try { tournaments = await getCollection('tournaments') || []; } catch (e) { console.warn("Failed to fetch tournaments:", e); }
+        try { notifications = await getCollection('admin_notifications') || []; } catch (e) { console.warn("Failed to fetch admin_notifications:", e); }
 
         setStats({
           totalPlayers: players.length,
@@ -644,29 +648,45 @@ export default function AdminDashboard() {
           <div className="admin-chart-panel">
             <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--admin-text)', margin: '0 0 16px' }}>Player Roles</h4>
             <div style={{ width: '100%', height: 240 }}>
-              <ResponsiveContainer width="100%" height="100%" minHeight={240}>
-                <BarChart data={roleChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
-                  <XAxis dataKey="name" stroke="var(--admin-muted)" fontSize={11} />
-                  <YAxis stroke="var(--admin-muted)" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)', borderRadius: '8px', fontSize: '0.8rem' }} />
-                  <Bar dataKey="count" fill="var(--admin-accent)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {stats.totalPlayers > 0 ? (
+                <ResponsiveContainer width="100%" height="100%" minHeight={240}>
+                  <BarChart data={roleChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
+                    <XAxis dataKey="name" stroke="var(--admin-muted)" fontSize={11} />
+                    <YAxis stroke="var(--admin-muted)" fontSize={11} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)', borderRadius: '8px', fontSize: '0.8rem' }} />
+                    <Bar dataKey="count" fill="var(--admin-accent)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--admin-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.01)', color: 'var(--admin-muted)', padding: '20px' }}>
+                  <Users size={24} style={{ marginBottom: '8px', opacity: 0.5, color: 'var(--admin-gold)' }} />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>No player data available</span>
+                  <span style={{ fontSize: '0.7rem', opacity: 0.7, marginTop: '2px', textAlign: 'center' }}>Seed data or register players to view analytics</span>
+                </div>
+              )}
             </div>
           </div>
           <div className="admin-chart-panel">
             <h4 style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--admin-text)', margin: '0 0 16px' }}>Match Status</h4>
             <div style={{ width: '100%', height: 240 }}>
-              <ResponsiveContainer width="100%" height="100%" minHeight={240}>
-                <BarChart data={matchChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
-                  <XAxis dataKey="name" stroke="var(--admin-muted)" fontSize={11} />
-                  <YAxis stroke="var(--admin-muted)" fontSize={11} />
-                  <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)', borderRadius: '8px', fontSize: '0.8rem' }} />
-                  <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {stats.totalMatches > 0 ? (
+                <ResponsiveContainer width="100%" height="100%" minHeight={240}>
+                  <BarChart data={matchChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
+                    <XAxis dataKey="name" stroke="var(--admin-muted)" fontSize={11} />
+                    <YAxis stroke="var(--admin-muted)" fontSize={11} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--admin-card-bg)', borderColor: 'var(--admin-border)', borderRadius: '8px', fontSize: '0.8rem' }} />
+                    <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--admin-border)', borderRadius: '8px', background: 'rgba(255,255,255,0.01)', color: 'var(--admin-muted)', padding: '20px' }}>
+                  <Activity size={24} style={{ marginBottom: '8px', opacity: 0.5, color: 'var(--admin-gold)' }} />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 500 }}>No match data available</span>
+                  <span style={{ fontSize: '0.7rem', opacity: 0.7, marginTop: '2px', textAlign: 'center' }}>Seed data or schedule matches to view analytics</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
