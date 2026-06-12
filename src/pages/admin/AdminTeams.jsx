@@ -23,7 +23,7 @@ export default function AdminTeams() {
     captainName: '',
     wins: 0,
     losses: 0,
-    maxPlayers: 35,
+    maxPlayers: 40,
     tournamentId: '',
     tournamentName: '',
   });
@@ -97,7 +97,7 @@ export default function AdminTeams() {
         wins: formData.wins || 0,
         losses: formData.losses || 0,
         playerCount: formData.playerCount || 0,
-        maxPlayers: formData.maxPlayers || 35,
+        maxPlayers: formData.maxPlayers || 40,
         tournamentId: formData.tournamentId || '',
         tournamentName: formData.tournamentName || '',
       };
@@ -136,7 +136,7 @@ export default function AdminTeams() {
       captainName: team.captainName || '',
       wins: team.wins || 0,
       losses: team.losses || 0,
-      maxPlayers: team.maxPlayers || 35,
+      maxPlayers: team.maxPlayers || 40,
       tournamentId: team.tournamentId || '',
       tournamentName: team.tournamentName || '',
     });
@@ -152,7 +152,7 @@ export default function AdminTeams() {
       captainName: '',
       wins: 0,
       losses: 0,
-      maxPlayers: 35,
+      maxPlayers: 40,
       tournamentId: '',
       tournamentName: '',
     });

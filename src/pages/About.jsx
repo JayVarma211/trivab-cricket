@@ -50,14 +50,14 @@ const WHY_CHOOSE_ITEMS = [
 ];
 
 const TOURNAMENT_LOGOS = [
-  { name: 'BAPL League', img: '/logos/bapllogo.jpg' },
-  { name: 'BAPL T20 South', img: '/logos/baplt20south.jpg' },
-  { name: 'BAPL T20 North', img: '/logos/baplt20north.jpg' },
-  { name: 'BAPL XPRESS South', img: '/logos/baplxpresst20south.jpg' },
-  { name: 'BAPL XPRESS North', img: '/logos/baplxpresst20north.jpg' },
-  { name: 'BAPL Corporate Cup', img: '/logos/baplcorporate.jpg' },
-  { name: 'Monsoon Championship', img: '/logos/trivabmonsoon.jpg' },
-  { name: 'BAPL DADS T20', img: '/logos/bapldadst20.jpg' }
+  { name: 'BAPL League', img: '/logos/baplt20north.jpg', bgClass: 'logo-white-bg' },
+  { name: 'BAPL T20 South', img: '/logos/baplt20south.jpg', bgClass: 'logo-white-bg' },
+  { name: 'BAPL T20 North', img: '/logos/baplt20north.jpg', bgClass: 'logo-white-bg' },
+  { name: 'BAPL XPRESS South', img: '/logos/baplxpresst20south.jpg', bgClass: 'logo-black-bg' },
+  { name: 'BAPL XPRESS North', img: '/logos/baplxpresst20north.jpg', bgClass: 'logo-black-bg' },
+  { name: 'BAPL Corporate Cup', img: '/logos/baplcorporate.jpg', bgClass: 'logo-white-bg' },
+  { name: 'Monsoon Championship', img: '/logos/trivabmonsoon.jpg', bgClass: 'logo-white-bg' },
+  { name: 'BAPL DADS T20', img: '/logos/bapldadst20.jpg', bgClass: 'logo-black-bg' }
 ];
 
 export default function About() {
@@ -179,8 +179,8 @@ export default function About() {
 
               <div className="grid grid-4 gap-lg">
                 {TOURNAMENT_LOGOS.map((logo, idx) => (
-                  <div key={idx} className="logo-badge-card">
-                    <img src={logo.img} alt={logo.name} />
+                  <div key={idx} className="logo-badge-card" style={{ background: 'transparent', border: 'none', boxShadow: 'none', padding: '10px' }}>
+                    <img src={logo.img} alt={logo.name} className={logo.bgClass} style={{ width: '130px', height: '130px', objectFit: 'contain' }} />
                   </div>
                 ))}
               </div>
@@ -219,18 +219,16 @@ export default function About() {
               {/* Founders Cards */}
               <div className="founders-cards-stack">
                 
-                {/* ANKIT SHAH */}
+                 {/* ANKIT SHAH */}
                 <div className="founder-card-layout">
                   <div className="founder-card-photo-col">
-                    <div className="founder-card-photo-box">
-                      <Users size={64} className="founder-silhouette" />
+                    <div className="founder-photo-container">
+                      <img src="/logos/ankitshah.jpeg" alt="Ankit Shah" className="founder-photo-img" />
                     </div>
-                    <div className="founder-card-title-box">
-                      <h4 className="text-md font-bold text-gradient-gold">Ankit Shah</h4>
-                      <p className="text-xs text-muted flex items-center justify-center gap-xxs">
-                        <GraduationCap size={14} className="text-gold" /> University of Mumbai
-                      </p>
-                    </div>
+                    <div className="founder-photo-name">Ankit Shah</div>
+                    <p className="text-xs text-muted flex items-center justify-center gap-xxs" style={{ marginTop: '8px' }}>
+                      <GraduationCap size={14} className="text-gold" /> University of Mumbai
+                    </p>
                   </div>
                   <div className="founder-card-bio-col">
                     <h5 className="text-sm font-bold text-gold uppercase tracking-wider mb-xs">Chemical Engineering Postgraduate &amp; Entrepreneur</h5>
@@ -243,15 +241,13 @@ export default function About() {
                 {/* VIRAL SHAH */}
                 <div className="founder-card-layout">
                   <div className="founder-card-photo-col">
-                    <div className="founder-card-photo-box">
-                      <Users size={64} className="founder-silhouette" />
+                    <div className="founder-photo-container">
+                      <img src="/logos/viralshah.jpeg" alt="Viral Shah" className="founder-photo-img" />
                     </div>
-                    <div className="founder-card-title-box">
-                      <h4 className="text-md font-bold text-gradient-gold">Viral Shah</h4>
-                      <p className="text-xs text-muted flex items-center justify-center gap-xxs">
-                        <GraduationCap size={14} className="text-gold" /> MBA in Finance
-                      </p>
-                    </div>
+                    <div className="founder-photo-name">Viral Shah</div>
+                    <p className="text-xs text-muted flex items-center justify-center gap-xxs" style={{ marginTop: '8px' }}>
+                      <GraduationCap size={14} className="text-gold" /> MBA in Finance
+                    </p>
                   </div>
                   <div className="founder-card-bio-col">
                     <h5 className="text-sm font-bold text-gold uppercase tracking-wider mb-xs">Former Maharashtra Ranji Trophy Cricketer</h5>
@@ -264,15 +260,13 @@ export default function About() {
                 {/* BHAVESH SHAH */}
                 <div className="founder-card-layout">
                   <div className="founder-card-photo-col">
-                    <div className="founder-card-photo-box">
-                      <Users size={64} className="founder-silhouette" />
+                    <div className="founder-photo-container">
+                      <img src="/logos/ravishah.jpg" alt="Bhavesh Shah" className="founder-photo-img" />
                     </div>
-                    <div className="founder-card-title-box">
-                      <h4 className="text-md font-bold text-gradient-gold">Bhavesh Shah</h4>
-                      <p className="text-xs text-muted flex items-center justify-center gap-xxs">
-                        <GraduationCap size={14} className="text-gold" /> MBA in Finance
-                      </p>
-                    </div>
+                    <div className="founder-photo-name">Bhavesh Shah</div>
+                    <p className="text-xs text-muted flex items-center justify-center gap-xxs" style={{ marginTop: '8px' }}>
+                      <GraduationCap size={14} className="text-gold" /> MBA in Finance
+                    </p>
                   </div>
                   <div className="founder-card-bio-col">
                     <h5 className="text-sm font-bold text-gold uppercase tracking-wider mb-xs">Kanga League Player &amp; Chemical Sector Entrepreneur</h5>
@@ -359,9 +353,9 @@ export default function About() {
                   </p>
                 </div>
                 <div className="mt-md">
-                  <a href="mailto:trivabsportsandevents@gmail.com?subject=Application for Tournament Operations Role" className="btn btn-outline btn-sm w-full text-center">
+                  <Link to="/contact?subject=Careers" className="btn btn-outline btn-sm w-full text-center">
                     Apply Now
-                  </a>
+                  </Link>
                 </div>
               </div>
 
@@ -375,9 +369,9 @@ export default function About() {
                   </p>
                 </div>
                 <div className="mt-md">
-                  <a href="mailto:trivabsportsandevents@gmail.com?subject=Application for Frontend Developer Role" className="btn btn-outline btn-sm w-full text-center">
+                  <Link to="/contact?subject=Careers" className="btn btn-outline btn-sm w-full text-center">
                     Apply Now
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

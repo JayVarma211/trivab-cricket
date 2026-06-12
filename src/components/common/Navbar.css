@@ -379,13 +379,10 @@
 .nav-menu-logo {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
-  object-fit: cover;
+  border-radius: 0;
+  object-fit: contain;
   flex-shrink: 0;
-  background: #fff;
-  padding: 2px;
-  border: 1px solid var(--border-card);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  background: transparent;
 }/* ---- Services Nav Dropdown ---- */
 .services-nav-dropdown {
   position: absolute;

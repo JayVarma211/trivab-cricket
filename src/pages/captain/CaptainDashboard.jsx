@@ -169,7 +169,7 @@ export default function CaptainDashboard() {
         captainId: user.uid,
         captainName: captain.fullName,
         playerCount: 1, // Captain is the first player
-        maxPlayers: 35,
+        maxPlayers: 40,
         wins: 0,
         losses: 0,
         tournamentId: regTournamentSelection,
@@ -352,7 +352,7 @@ export default function CaptainDashboard() {
     );
   }
 
-  const limitReached = players.length >= 35;
+  const limitReached = players.length >= 40;
 
   return (
     <div className="captain-dashboard page-enter container section-padding">
@@ -421,7 +421,7 @@ export default function CaptainDashboard() {
         <div className="alert alert-warning flex gap-sm items-center mb-xl">
           <Bell size={20} className="animate-bounce" />
           <div>
-            <strong className="block text-sm">ROSTER CAP REACHED (35/35 Players)</strong>
+            <strong className="block text-sm">ROSTER CAP REACHED (40/40 Players)</strong>
             <span className="text-xs">Your squad contains the maximum permitted number of participants. New players will not be able to join your team.</span>
           </div>
         </div>
@@ -429,7 +429,7 @@ export default function CaptainDashboard() {
         <div className="alert alert-info flex gap-sm items-center mb-xl">
           <CheckCircle size={20} />
           <div>
-            <span className="text-sm">Roster Status: <strong>{players.length} / 35 Players Registered</strong>. You can register {35 - players.length} more players.</span>
+            <span className="text-sm">Roster Status: <strong>{players.length} / 40 Players Registered</strong>. You can register {40 - players.length} more players.</span>
           </div>
         </div>
       )}
@@ -572,7 +572,7 @@ export default function CaptainDashboard() {
                 <div className="p-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
                   <h4 className="text-sm font-bold text-gradient-gold">{team.teamName}</h4>
                   <p className="text-xs text-muted mt-xs">Tournament: <strong>{team.tournamentName || 'N/A'}</strong></p>
-                  <p className="text-xs text-muted mt-xs">Roster Size: <strong>{players.length} / 35 Players</strong></p>
+                  <p className="text-xs text-muted mt-xs">Roster Size: <strong>{players.length} / 40 Players</strong></p>
                 </div>
               )}
             </div>

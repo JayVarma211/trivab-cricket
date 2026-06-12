@@ -1,12 +1,16 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Instagram, Youtube, Facebook, MessageCircle } from 'lucide-react';
 import { sendContactEmail } from '../services/email';
 import { addDocument } from '../firebase/firestore';
 
 export default function Contact() {
+  const [searchParams] = useSearchParams();
+  const initialSubject = searchParams.get('subject') || 'General Inquiry';
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [subject, setSubject] = useState('General Inquiry');
+  const [subject, setSubject] = useState(initialSubject);
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -76,7 +80,7 @@ export default function Contact() {
                 <div className="stat-icon" style={{ marginBottom: 0 }}><Mail size={20} /></div>
                 <div>
                   <span className="text-xs text-muted block">Email Support</span>
-                  <a href="mailto:trivabsports@gmail.com" className="text-sm font-semi text-gold">trivabsports@gmail.com</a>
+                  <a href="mailto:trivabsportsandevents@gmail.com" className="text-sm font-semi text-gold">trivabsportsandevents@gmail.com</a>
                 </div>
               </li>
               <li className="flex gap-md items-center">
@@ -195,8 +199,10 @@ export default function Contact() {
                   disabled={loading}
                 >
                   <option value="General Inquiry">General Inquiry</option>
+                  <option value="Bharat Army Membership">Bharat Army Membership</option>
                   <option value="Organize Cricket Tournament">Organize Cricket Tournament</option>
                   <option value="Sponsorship">Sponsorship Opportunity</option>
+                  <option value="Careers">Careers / Job Application</option>
                   <option value="Bug / Tech Support">Bug Report / Technical Support</option>
                 </select>
               </div>

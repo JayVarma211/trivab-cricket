@@ -12,8 +12,8 @@ import {
 import './Navbar.css';
 
 const TOURNAMENTS_MENU = [
-  { label: 'BAPL', to: '/tournaments/type/bapl', logo: '/logos/bapllogo.jpg' },
-  { label: 'BAPL XPRESS', to: '/tournaments/type/baplxpress', logo: '/logos/bapllogo.jpg' },
+  { label: 'BAPL', to: '/tournaments/type/bapl', logo: '/logos/baplt20north.jpg' },
+  { label: 'BAPL XPRESS', to: '/tournaments/type/baplxpress', logo: '/logos/baplxpresst20north.jpg' },
   { label: 'BAPL Corporate CUP', to: '/tournaments/type/baplcorporate', logo: '/logos/baplcorporate.jpg' },
   { label: 'Trivab Monsoon Championship', to: '/tournaments/trivab-monsoon', logo: '/logos/trivabmonsoon.jpg' },
   { label: 'BAPL 40+ DADS T20', to: '/tournaments/type/bapldads', logo: '/logos/bapldadst20.jpg' },
@@ -57,6 +57,13 @@ const ABOUT_MENU = [
   { label: 'Bharat Armyy Cricket Club', to: '/about?tab=bharat-army' },
   { label: 'Careers', to: '/about?tab=careers' }
 ];
+
+const getLogoClass = (logoUrl) => {
+  if (!logoUrl) return '';
+  const url = logoUrl.toLowerCase();
+  if (url.includes('xpress') || url.includes('dads')) return 'logo-black-bg';
+  return 'logo-white-bg';
+};
 
 export default function Navbar() {
   const { user, role } = useAuth();
@@ -179,16 +186,13 @@ export default function Navbar() {
                     className="tournaments-nav-item"
                     onClick={() => setTournamentsDropOpen(false)}
                   >
-                    <img src={item.logo} className="nav-menu-logo" alt={item.label} />
+                    <img src={item.logo} className={`nav-menu-logo ${getLogoClass(item.logo)}`} alt={item.label} />
                     <span>{item.label}</span>
                   </Link>
                 ))}
               </div>
             )}
           </div>
-
-           <NavLink to="/schedule" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Schedule</NavLink>
-          <NavLink to="/gallery" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Gallery</NavLink>
 
           {/* Our Services Dropdown */}
           <div className="nav-dropdown-wrapper" ref={servicesDropRef}>
@@ -214,6 +218,9 @@ export default function Navbar() {
               </div>
             )}
           </div>
+
+          <NavLink to="/schedule" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Matches</NavLink>
+          <NavLink to="/gallery" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Gallery</NavLink>
 
           {/* News & Events */}
           <NavLink to="/news" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
@@ -349,20 +356,13 @@ export default function Navbar() {
                       style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
                       onClick={() => setMenuOpen(false)}
                     >
-                      <img src={item.logo} style={{ width: '22px', height: '22px', borderRadius: '4px', objectFit: 'cover', background: '#fff', padding: '1px' }} alt={item.label} />
+                      <img src={item.logo} className={getLogoClass(item.logo)} style={{ width: '22px', height: '22px', objectFit: 'contain' }} alt={item.label} />
                       <span>{item.label}</span>
                     </Link>
                   ))}
                 </div>
               )}
             </div>
-
-            <NavLink to="/schedule" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
-              <Calendar size={18} /> Schedule
-            </NavLink>
-            <NavLink to="/gallery" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
-              <Image size={18} /> Gallery
-            </NavLink>
 
             {/* Mobile Our Services */}
             <div className="mobile-dropdown-wrapper" style={{ width: '100%' }}>
@@ -394,6 +394,13 @@ export default function Navbar() {
               )}
             </div>
 
+            <NavLink to="/schedule" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
+              <Calendar size={18} /> Matches
+            </NavLink>
+            <NavLink to="/gallery" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
+              <Image size={18} /> Gallery
+            </NavLink>
+
             {/* News & Events */}
             <NavLink to="/news" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
               <Newspaper size={18} /> News &amp; Events
@@ -416,7 +423,6 @@ export default function Navbar() {
             ) : (
               <>
                 <Link to="/login" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>Login</Link>
-                <Link to="/register" className="btn btn-gold" style={{ width: '100%', justifyContent: 'center' }}>Register</Link>
               </>
             )}
           </div>

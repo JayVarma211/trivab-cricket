@@ -13,7 +13,7 @@ const PARENT_TOURNAMENTS = {
 This vision led to the creation of BAPL, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
 
 BAPL is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
-    logo: '/logos/bapllogo.jpg',
+    logo: '/logos/baplt20north.jpg',
     highlights: [
       '20+ competitive teams',
       '8-month long professional league format',
@@ -41,7 +41,7 @@ BAPL is not just a tournament—it is a full-season cricketing experience built 
 Tailored for teams and players who are unable to commit to a full-season tournament due to work or travel constraints, BAPL XPRESS retains the core structure, quality, and competitive spirit of BAPL in a streamlined schedule.
 
 BAPL XPRESS delivers the complete TRIVAB experience—just faster, sharper, and more accessible`,
-    logo: '/logos/bapllogo.jpg',
+    logo: '/logos/baplxpresst20north.jpg',
     highlights: [
       '8–10 competitive teams',
       'Fast-paced T20 format',
@@ -110,6 +110,13 @@ BAPL 40+ Dads Tournament is where experience meets passion—bringing cricket ba
       { id: 'bapldads-pune', name: 'BAPL 40+ DADS T20 - Pune Edition', logo: '/logos/bapldadst20puneedition.jpg', description: 'Pune Edition of the BAPL 40+ DADS T20 League.', location: 'Pune', comingSoon: true },
     ]
   }
+};
+
+const getLogoClass = (logoUrl) => {
+  if (!logoUrl) return '';
+  const url = logoUrl.toLowerCase();
+  if (url.includes('xpress') || url.includes('dads')) return 'logo-black-bg';
+  return 'logo-white-bg';
 };
 
 export default function TournamentTypeDetails() {
@@ -185,7 +192,7 @@ export default function TournamentTypeDetails() {
       <div className="parent-hub-header flex gap-xl items-center mb-xl flex-wrap">
         {parentData.logo && (
           <div className="parent-hub-logo-wrapper">
-            <img src={parentData.logo} alt={parentData.name} className="parent-hub-logo animate-scale-in" style={{ mixBlendMode: 'multiply' }} />
+            <img src={parentData.logo} alt={parentData.name} className={`parent-hub-logo animate-scale-in ${getLogoClass(parentData.logo)}`} />
           </div>
         )}
         <div className="parent-hub-info flex-1 min-width-300">
@@ -235,7 +242,7 @@ export default function TournamentTypeDetails() {
               <div className="edition-card-visual flex items-center justify-between p-lg">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {edition.logo && (
-                    <img src={edition.logo} alt={edition.name} className="edition-card-logo" style={{ mixBlendMode: 'multiply' }} />
+                    <img src={edition.logo} alt={edition.name} className={`edition-card-logo ${getLogoClass(edition.logo)}`} />
                   )}
                   <div>
                     <span className={`badge ${stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : 'badge-gold'} mb-xs`}>

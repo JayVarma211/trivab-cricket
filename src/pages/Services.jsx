@@ -24,8 +24,8 @@ export default function Services() {
       title: 'International Cricket Tour',
       subtitle: 'Experience cricket on global stages with world-class facilities.',
       icon: <Globe size={48} className="text-gold" />,
-      tagline: 'Play abroad like a professional player',
-      description: 'Our International Cricket Tour package offers amateur, corporate, and academy squads the chance to travel overseas, experience playing on legendary international pitches, and compete against foreign clubs. We coordinate all logistics from flights to turf stadiums.',
+      tagline: 'Experience cricket on legendary international turf wickets',
+      description: 'Our International Cricket Tour package offers amateur, corporate, and academy squads the chance to travel overseas, experience playing on historical international pitches, and compete against foreign cricket clubs. We coordinate all logistics from flights to turf stadiums.',
       highlights: [
         'Matches in cricket hubs like UK, UAE, Sri Lanka, and Australia',
         'Customized tour clothing & professional training sessions',
@@ -42,7 +42,7 @@ export default function Services() {
       subtitle: 'State-of-the-art turf tournaments across the major cities of India.',
       icon: <Trophy size={48} className="text-gold" />,
       tagline: 'Compete in India\'s finest cricket circuits',
-      description: 'The Domestic Cricket Tour brings professional-grade tournament structures to cities like Mumbai, Pune, Goa, and Bangalore. Players get access to elite turf grounds, live digital ball-by-ball scoring, trained umpires, and high-quality tournament jerseys.',
+      description: 'Our Domestic Cricket Tour packages bring professional-grade tournament structures to top cricketing cities like Mumbai, Pune, Goa, and Bangalore. Players compete on elite turf grounds with live ball-by-ball scoring, BCCI-certified umpires, custom colored apparel, and HD match broadcasting.',
       highlights: [
         'Access to standard turf grounds and stadium lights',
         'Live scoring updates on CricHeroes & video recordings',
@@ -59,7 +59,7 @@ export default function Services() {
       subtitle: 'Premium team building through executive cricket championships.',
       icon: <Building2 size={48} className="text-gold" />,
       tagline: 'Boost team spirit with professional league fixtures',
-      description: 'We orchestrate end-to-end corporate cricket tournaments tailored for blue-chip companies, startups, and business consortiums. Improve employee engagement, promote wellness, and build brand visibility with a premium sports platform.',
+      description: 'We orchestrate end-to-end corporate cricket tournaments tailored for blue-chip companies, startups, and business consortiums. Improve employee engagement, promote wellness, and build brand visibility with a premium, fully-managed sports platform.',
       highlights: [
         'Fully managed tournaments with flexible match schedules',
         'Company-branded uniforms, banners, and digital marketing materials',
@@ -76,7 +76,7 @@ export default function Services() {
       subtitle: 'Fostering local cricket talent and active neighborhoods.',
       icon: <Users size={48} className="text-gold" />,
       tagline: 'Connecting neighborhoods through the spirit of the game',
-      description: 'We organize youth academies, local community tournaments, and friendly club matches that encourage participation, discover local talent, and bring families together around sports. We believe cricket belongs to everyone.',
+      description: 'We organize youth coaching clinics, community tournaments, and friendly club matches that encourage participation, discover local talent, and bring families together around sports. We believe cricket belongs to everyone.',
       highlights: [
         'Neighborhood/society leagues and friendly weekend fixtures',
         'Discovering grassroots talent with academy sponsorships',
@@ -200,8 +200,8 @@ export default function Services() {
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-                <h4 className="text-sm font-bold uppercase tracking-wider text-muted mb-xs">Key Deliverables:</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
+                <h4 className="text-sm font-bold uppercase tracking-wider text-gold mb-xs">Key Deliverables:</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px 16px' }}>
                   {currentService.highlights.map((highlight, idx) => (
                     <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <CheckCircle2 size={16} className="text-gold" style={{ flexShrink: 0 }} />
@@ -211,11 +211,11 @@ export default function Services() {
                 </div>
               </div>
 
-              <div style={{ marginTop: 'var(--space-lg)', display: 'flex', gap: 'var(--space-md)' }}>
-                <Link to="/contact" className="btn btn-gold" style={{ width: '100%', justifyContent: 'center' }}>
+              <div style={{ marginTop: 'var(--space-lg)', display: 'flex', gap: 'var(--space-md)', flexWrap: 'wrap' }}>
+                <Link to="/contact" className="btn btn-gold" style={{ flex: '1 1 200px', justifyContent: 'center' }}>
                   {currentService.ctaText} <ArrowRight size={18} />
                 </Link>
-                <Link to="/register" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>
+                <Link to="/register" className="btn btn-outline" style={{ flex: '1 1 200px', justifyContent: 'center' }}>
                   Join as Player
                 </Link>
               </div>

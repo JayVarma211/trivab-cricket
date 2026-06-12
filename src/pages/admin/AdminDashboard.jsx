@@ -187,7 +187,7 @@ export default function AdminDashboard() {
           wins: 3,
           losses: 1,
           playerCount: 15,
-          maxPlayers: 35,
+          maxPlayers: 40,
           tournamentId: 'bapl-south',
           tournamentName: 'BAPL - South Mumbai Edition'
         },
@@ -198,7 +198,7 @@ export default function AdminDashboard() {
           wins: 2,
           losses: 2,
           playerCount: 14,
-          maxPlayers: 35,
+          maxPlayers: 40,
           tournamentId: 'bapl-south',
           tournamentName: 'BAPL - South Mumbai Edition'
         },
@@ -209,7 +209,7 @@ export default function AdminDashboard() {
           wins: 4,
           losses: 0,
           playerCount: 16,
-          maxPlayers: 35,
+          maxPlayers: 40,
           tournamentId: 'bapl-south',
           tournamentName: 'BAPL - South Mumbai Edition'
         },
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
           wins: 0,
           losses: 0,
           playerCount: 12,
-          maxPlayers: 35,
+          maxPlayers: 40,
           tournamentId: 'bapl-north',
           tournamentName: 'BAPL - North Mumbai Edition'
         },
@@ -231,7 +231,7 @@ export default function AdminDashboard() {
           wins: 5,
           losses: 1,
           playerCount: 18,
-          maxPlayers: 35,
+          maxPlayers: 40,
           tournamentId: 'baplcorporate-south',
           tournamentName: 'BAPL Corporate CUP - South Mumbai Edition'
         },
@@ -242,7 +242,7 @@ export default function AdminDashboard() {
           wins: 4,
           losses: 2,
           playerCount: 17,
-          maxPlayers: 35,
+          maxPlayers: 40,
           tournamentId: 'baplcorporate-south',
           tournamentName: 'BAPL Corporate CUP - South Mumbai Edition'
         }

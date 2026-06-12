@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Trophy, Calendar, MapPin, Users, Award, Shield, Upload } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import uploadImageToCloudinary from '../../services/cloudinary';
+import { sendCaptainRosterNotification } from '../../services/email';
 import './Tournaments.css';
 
 const PREDEFINED_TOURNAMENTS = [
@@ -231,6 +232,13 @@ BAPL Kids is more than a tournament—it is a development pathway that nurtures 
   }
 ];
 
+const getLogoClass = (logoUrl) => {
+  if (!logoUrl) return '';
+  const url = logoUrl.toLowerCase();
+  if (url.includes('xpress') || url.includes('dads')) return 'logo-black-bg';
+  return 'logo-white-bg';
+};
+
 export default function TournamentDetails() {
   const { id } = useParams();
   const [tournament, setTournament] = useState(null);
@@ -412,7 +420,7 @@ export default function TournamentDetails() {
           captainId: user.uid,
           captainName: playerProfile.fullName,
           playerCount: 1, // Captain is counted as 1st player
-          maxPlayers: 35,
+          maxPlayers: 40,
           wins: 0,
           losses: 0,
           tournamentId: tournament.id || id,
@@ -463,17 +471,35 @@ export default function TournamentDetails() {
         }
 
         // Check roster limit
-        if ((teamObj.playerCount || 0) >= 35) {
-          throw new Error(`The team ${teamObj.teamName} has reached its limit of 35 players.`);
+        if ((teamObj.playerCount || 0) >= 40) {
+          throw new Error(`The team ${teamObj.teamName} has reached its limit of 40 players.`);
         }
 
         teamId = selectedTeamId;
         teamName = teamObj.teamName;
 
         // 1. Update team headcount
+        const newCount = (teamObj.playerCount || 0) + 1;
         await updateDocument('teams', selectedTeamId, {
-          playerCount: (teamObj.playerCount || 0) + 1
+          playerCount: newCount
         });
+
+        // Send email to captain for every 10 players registration
+        if (newCount % 10 === 0) {
+          try {
+            const captainDoc = await getDocument('captains', teamObj.captainId);
+            if (captainDoc && captainDoc.email) {
+              await sendCaptainRosterNotification(
+                captainDoc.email,
+                captainDoc.fullName || 'Captain',
+                teamName,
+                newCount
+              );
+            }
+          } catch (mailErr) {
+            console.error("Failed to send captain notification email:", mailErr);
+          }
+        }
 
         // 2. Send Admin Notification
         await addDocument('admin_notifications', {
@@ -562,6 +588,7 @@ export default function TournamentDetails() {
             <img 
               src={tournament.logo} 
               alt={tournament.name} 
+              className={getLogoClass(tournament.logo)}
               style={{ width: 80, height: 80, borderRadius: '12px', objectFit: 'cover', border: '1px solid var(--border)' }} 
             />
           )}
@@ -770,7 +797,7 @@ export default function TournamentDetails() {
                   >
                     <option value="">-- Choose Team --</option>
                     {teams.map(t => (
-                      <option key={t.id} value={t.id}>{t.teamName} ({t.playerCount || 0}/35 players)</option>
+                      <option key={t.id} value={t.id}>{t.teamName} ({t.playerCount || 0}/40 players)</option>
                     ))}
                   </select>
                 </div>
@@ -823,7 +850,7 @@ export default function TournamentDetails() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', background: 'var(--bg-secondary)', padding: '12px 6px', borderRadius: '8px', border: '1px solid var(--border-card)' }}>
                   <div style={{ textAlign: 'center' }}>
                     <span className="text-xs text-muted" style={{ display: 'block', fontSize: '0.65rem', letterSpacing: '0.5px' }}>SQUAD SIZE</span>
-                    <span className="text-sm font-bold text-primary" style={{ display: 'block', marginTop: '4px' }}>{teamModalPlayers.length} / 35</span>
+                    <span className="text-sm font-bold text-primary" style={{ display: 'block', marginTop: '4px' }}>{teamModalPlayers.length} / 40</span>
                   </div>
                   <div style={{ textAlign: 'center', borderLeft: '1px solid var(--border-card)', borderRight: '1px solid var(--border-card)' }}>
                     <span className="text-xs text-muted" style={{ display: 'block', fontSize: '0.65rem', letterSpacing: '0.5px' }}>MATCHES HERE</span>

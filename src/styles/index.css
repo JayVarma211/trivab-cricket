@@ -945,3 +945,22 @@ ul, ol {
     font-size: 1.8rem !important;
   }
 }
+
+/* ============================================================
+   21. LOGO BG REMOVAL UTILITIES
+   ============================================================ */
+.logo-white-bg {
+  mix-blend-mode: multiply;
+  background: transparent;
+}
+
+.logo-black-bg {
+  mix-blend-mode: screen;
+  background: transparent;
+}
+
+[data-theme="light"] .logo-black-bg {
+  filter: invert(1);
+  mix-blend-mode: screen;
+}
+
