@@ -254,25 +254,18 @@
   transform: translateY(-4px) scale(1.08);
 }
 
-/* The actual logo image — transparent background via screen blend */
+/* The actual logo image — transparent background via utilities */
 .tournament-ticker-img {
   width: 100px;
   height: 100px;
   object-fit: contain;
   transition: filter 0.3s ease;
-  /* screen blend = dark backgrounds of JPG logos become transparent on dark page */
-  mix-blend-mode: screen;
   border-radius: 0;
   background: transparent;
 }
 
 .tournament-ticker-frame:hover .tournament-ticker-img {
   filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.6));
-}
-
-/* In light mode: multiply removes white backgrounds */
-[data-theme="light"] .tournament-ticker-img {
-  mix-blend-mode: multiply;
 }
 
 [data-theme="light"] .tournament-ticker-frame:hover .tournament-ticker-img {

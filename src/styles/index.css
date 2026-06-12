@@ -950,7 +950,7 @@ ul, ol {
    21. LOGO BG REMOVAL UTILITIES
    ============================================================ */
 .logo-white-bg {
-  mix-blend-mode: multiply;
+  filter: url(#remove-white);
   background: transparent;
 }
 
@@ -962,5 +962,40 @@ ul, ol {
 [data-theme="light"] .logo-black-bg {
   filter: invert(1);
   mix-blend-mode: screen;
+}
+
+/* ============================================================
+   22. SERVICES PAGE RESPONSIVE LAYOUT
+   ============================================================ */
+.services-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3xl);
+  align-items: center;
+}
+
+.services-image-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  position: relative;
+  width: 100%;
+  height: 400px;
+}
+
+@media (max-width: 992px) {
+  .services-content-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-2xl) !important;
+  }
+  .services-image-card {
+    height: 300px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .services-image-card {
+    height: 240px !important;
+  }
 }
 

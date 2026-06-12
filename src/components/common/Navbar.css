@@ -306,7 +306,7 @@
 }
 
 .mobile-register-btn {
-  display: none;
+  display: none !important;
 }
 
 /* ---- Responsive ---- */
@@ -316,7 +316,7 @@
   .hamburger    { display: flex; }
   .user-info    { display: none; }
   .mobile-register-btn {
-    display: inline-flex;
+    display: inline-flex !important;
     height: 32px;
     padding: 0 var(--space-sm);
     font-size: 0.8rem;

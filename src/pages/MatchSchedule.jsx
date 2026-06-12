@@ -6,6 +6,8 @@ import './tournaments/Tournaments.css';
 
 export default function MatchSchedule() {
   const [matches, setMatches] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All'); // All | Live | Upcoming | Completed
   const [selectedMatchForModal, setSelectedMatchForModal] = useState(null);
@@ -13,8 +15,14 @@ export default function MatchSchedule() {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const list = await getCollection('matches', [orderBy('date')]);
+        const [list, teamsList, tournamentsList] = await Promise.all([
+          getCollection('matches', [orderBy('date')]),
+          getCollection('teams'),
+          getCollection('tournaments')
+        ]);
         setMatches(list);
+        setTeams(teamsList || []);
+        setTournaments(tournamentsList || []);
       } catch (err) {
         console.error('Error fetching matches:', err);
         setMatches([]);
@@ -29,6 +37,12 @@ export default function MatchSchedule() {
     if (filter === 'All') return true;
     return m.status === filter;
   });
+
+  const modalTournament = selectedMatchForModal ? tournaments.find(t => t.id === selectedMatchForModal.tournamentId) : null;
+  const modalTeamAObj = selectedMatchForModal ? teams.find(t => t.teamName === selectedMatchForModal.teamA) : null;
+  const modalTeamBObj = selectedMatchForModal ? teams.find(t => t.teamName === selectedMatchForModal.teamB) : null;
+  const modalTeamALogo = modalTeamAObj?.logoURL;
+  const modalTeamBLogo = modalTeamBObj?.logoURL;
 
   return (
     <div className="matches-page page-enter container section-padding">
@@ -56,123 +70,155 @@ export default function MatchSchedule() {
         <Loader />
       ) : (
         <div className="grid grid-2 gap-xl">
-          {filteredMatches.map((m) => (
-            <div 
-              className={`card match-card-main ${m.status === 'Live' ? 'border-red-live' : ''}`} 
-              key={m.id}
-              onClick={() => setSelectedMatchForModal(m)}
-              style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.5)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <div className="flex justify-between items-center mb-md">
-                <span className={`badge ${m.status === 'Live' ? 'badge-red' : m.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
-                  {m.status}
-                </span>
-                <span className="text-xs text-muted font-semi flex items-center gap-xs">
-                  <Calendar size={14} /> {m.date} - {m.time} IST
-                </span>
-              </div>
+          {filteredMatches.map((m) => {
+            const tournament = tournaments.find(t => t.id === m.tournamentId);
+            const teamAObj = teams.find(t => t.teamName === m.teamA);
+            const teamBObj = teams.find(t => t.teamName === m.teamB);
+            const teamALogo = teamAObj?.logoURL;
+            const teamBLogo = teamBObj?.logoURL;
 
-              <div className="match-scores-grid flex justify-between items-center py-md">
-                <div className="score-team flex flex-col items-center">
-                  <div className="avatar avatar-md bg-secondary text-gold font-bold mb-xs">
-                    {m.teamA[0]}
+            return (
+              <div 
+                className={`card match-card-main ${m.status === 'Live' ? 'border-red-live' : ''}`} 
+                key={m.id}
+                onClick={() => setSelectedMatchForModal(m)}
+                style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.5)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <div className="flex justify-between items-center mb-md flex-wrap gap-xs">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className={`badge ${m.status === 'Live' ? 'badge-red' : m.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
+                      {m.status}
+                    </span>
+                    <span className="text-xs font-bold text-gold uppercase tracking-wider" style={{ fontSize: '0.75rem' }}>
+                      {tournament ? tournament.name : 'Trivab Match'}
+                    </span>
                   </div>
-                  <span className="font-semi text-sm text-primary">{m.teamA}</span>
-                  {(m.status === 'Completed' || m.status === 'Live') && (
-                    <span className="text-lg font-bold text-gradient-gold mt-xs">{m.teamAScore || '—'}</span>
-                  )}
+                  <span className="text-xs text-muted font-semi flex items-center gap-xs">
+                    <Calendar size={14} /> {m.date} - {m.time} IST
+                  </span>
                 </div>
 
-                <div className="score-vs text-center">
-                  <span className="text-xs font-bold text-muted block">VS</span>
-                  {m.status === 'Live' && <span className="live-dot text-xs text-red font-bold animate-pulse">LIVE MATCH</span>}
-                </div>
-
-                <div className="score-team flex flex-col items-center">
-                  <div className="avatar avatar-md bg-secondary text-gold font-bold mb-xs">
-                    {m.teamB[0]}
+                <div className="match-scores-grid flex justify-between items-center py-md">
+                  <div className="score-team flex flex-col items-center">
+                    <div className="avatar avatar-md bg-secondary text-gold font-bold mb-xs" style={{ overflow: 'hidden', border: '1px solid var(--border)' }}>
+                      {teamALogo ? (
+                        <img src={teamALogo} alt={m.teamA} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        m.teamA[0]
+                      )}
+                    </div>
+                    <span className="font-semi text-sm text-primary">{m.teamA}</span>
+                    {(m.status === 'Completed' || m.status === 'Live') && (
+                      <span className="text-lg font-bold text-gradient-gold mt-xs">{m.teamAScore || '—'}</span>
+                    )}
                   </div>
-                  <span className="font-semi text-sm text-primary">{m.teamB}</span>
-                  {(m.status === 'Completed' || m.status === 'Live') && (
-                    <span className="text-lg font-bold text-gradient-gold mt-xs">{m.teamBScore || '—'}</span>
-                  )}
+
+                  <div className="score-vs text-center">
+                    <span className="text-xs font-bold text-muted block">VS</span>
+                    {m.status === 'Live' && <span className="live-dot text-xs text-red font-bold animate-pulse">LIVE MATCH</span>}
+                  </div>
+
+                  <div className="score-team flex flex-col items-center">
+                    <div className="avatar avatar-md bg-secondary text-gold font-bold mb-xs" style={{ overflow: 'hidden', border: '1px solid var(--border)' }}>
+                      {teamBLogo ? (
+                        <img src={teamBLogo} alt={m.teamB} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        m.teamB[0]
+                      )}
+                    </div>
+                    <span className="font-semi text-sm text-primary">{m.teamB}</span>
+                    {(m.status === 'Completed' || m.status === 'Live') && (
+                      <span className="text-lg font-bold text-gradient-gold mt-xs">{m.teamBScore || '—'}</span>
+                    )}
+                  </div>
+                </div>
+
+                {m.result && (
+                  <div className="match-result text-center mb-md py-xxs px-sm rounded text-xs font-semi text-gold" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}>
+                    🏆 {m.result}
+                  </div>
+                )}
+
+                <div className="divider mb-md" />
+
+                <div className="flex justify-between items-center text-xs text-muted">
+                  <span className="flex items-center gap-xs"><MapPin size={12} /> {m.venue}</span>
+                  <span className="text-gold font-semi" style={{ textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px' }}>Click to view Squads</span>
                 </div>
               </div>
-
-              {m.result && (
-                <div className="match-result text-center mb-md py-xxs px-sm rounded text-xs font-semi text-gold" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}>
-                  🏆 {m.result}
-                </div>
-              )}
-
-              <div className="divider mb-md" />
-
-              <div className="flex justify-between items-center text-xs text-muted">
-                <span className="flex items-center gap-xs"><MapPin size={12} /> {m.venue}</span>
-                <span className="text-gold font-semi" style={{ textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px' }}>Click to view Squads</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
       {/* Match Details & squads Modal */}
       {selectedMatchForModal && (
         <div className="modal-overlay" onClick={() => setSelectedMatchForModal(null)} style={{ display: 'flex', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
-            <button className="modal-close" onClick={() => setSelectedMatchForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
+            <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
+              <button className="modal-close" onClick={() => setSelectedMatchForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
 
-            {/* Header info */}
-            <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-card)', paddingBottom: '16px' }}>
-              <span className={`badge ${selectedMatchForModal.status === 'Live' ? 'badge-red' : selectedMatchForModal.status === 'Upcoming' ? 'badge-gold' : 'badge-green'} mb-xs`}>
-                {selectedMatchForModal.status}
-              </span>
-              <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: '4px 0 0 0' }}>
-                {selectedMatchForModal.teamA} vs {selectedMatchForModal.teamB}
-              </h3>
-              <p className="text-secondary text-xs flex justify-center items-center gap-xs mt-xs">
-                <Calendar size={12} /> {selectedMatchForModal.date} @ {selectedMatchForModal.time} IST | <MapPin size={12} /> {selectedMatchForModal.venue}
-              </p>
-            </div>
-
-            {/* Match status details */}
-            <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-card)', marginBottom: '20px', textAlign: 'center' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <span className="text-sm font-bold text-primary block">{selectedMatchForModal.teamA}</span>
-                  {(selectedMatchForModal.status === 'Completed' || selectedMatchForModal.status === 'Live') && (
-                    <span className="text-xl font-bold text-gradient-gold block mt-xs">{selectedMatchForModal.teamAScore || '—'}</span>
-                  )}
+              {/* Header info */}
+              <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '1px solid var(--border-card)', paddingBottom: '16px' }}>
+                <span className={`badge ${selectedMatchForModal.status === 'Live' ? 'badge-red' : selectedMatchForModal.status === 'Upcoming' ? 'badge-gold' : 'badge-green'} mb-xs`}>
+                  {selectedMatchForModal.status}
+                </span>
+                <h4 className="text-xs font-bold text-gold uppercase tracking-wider mt-xxs" style={{ margin: '4px 0' }}>
+                  {modalTournament ? modalTournament.name : 'Trivab Tournament Fixture'}
+                </h4>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '24px', margin: '12px 0' }}>
+                  <div className="avatar avatar-md bg-secondary text-gold font-bold" style={{ width: '48px', height: '48px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                    {modalTeamALogo ? <img src={modalTeamALogo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : selectedMatchForModal.teamA[0]}
+                  </div>
+                  <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: 0 }}>
+                    {selectedMatchForModal.teamA} vs {selectedMatchForModal.teamB}
+                  </h3>
+                  <div className="avatar avatar-md bg-secondary text-gold font-bold" style={{ width: '48px', height: '48px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                    {modalTeamBLogo ? <img src={modalTeamBLogo} alt="logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : selectedMatchForModal.teamB[0]}
+                  </div>
                 </div>
-                <span className="text-xs text-muted font-bold">VS</span>
-                <div style={{ textAlign: 'center' }}>
-                  <span className="text-sm font-bold text-primary block">{selectedMatchForModal.teamB}</span>
-                  {(selectedMatchForModal.status === 'Completed' || selectedMatchForModal.status === 'Live') && (
-                    <span className="text-xl font-bold text-gradient-gold block mt-xs">{selectedMatchForModal.teamBScore || '—'}</span>
-                  )}
-                </div>
+                <p className="text-secondary text-xs flex justify-center items-center gap-xs mt-xs">
+                  <Calendar size={12} /> {selectedMatchForModal.date} @ {selectedMatchForModal.time} IST | <MapPin size={12} /> {selectedMatchForModal.venue}
+                </p>
               </div>
 
-              {selectedMatchForModal.tossWinner && (
-                <div className="text-xs text-muted mt-md border-top pt-xs" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                  🏏 <strong>Toss:</strong> {selectedMatchForModal.tossWinner} won and chose to {selectedMatchForModal.tossDecision || 'Bat'} first.
+              {/* Match status details */}
+              <div style={{ background: 'var(--bg-secondary)', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-card)', marginBottom: '20px', textAlign: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <span className="text-sm font-bold text-primary block">{selectedMatchForModal.teamA}</span>
+                    {(selectedMatchForModal.status === 'Completed' || selectedMatchForModal.status === 'Live') && (
+                      <span className="text-xl font-bold text-gradient-gold block mt-xs">{selectedMatchForModal.teamAScore || '—'}</span>
+                    )}
+                  </div>
+                  <span className="text-xs text-muted font-bold">VS</span>
+                  <div style={{ textAlign: 'center' }}>
+                    <span className="text-sm font-bold text-primary block">{selectedMatchForModal.teamB}</span>
+                    {(selectedMatchForModal.status === 'Completed' || selectedMatchForModal.status === 'Live') && (
+                      <span className="text-xl font-bold text-gradient-gold block mt-xs">{selectedMatchForModal.teamBScore || '—'}</span>
+                    )}
+                  </div>
                 </div>
-              )}
 
-              {selectedMatchForModal.result && (
-                <div className="text-sm text-gold font-bold mt-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                  <Trophy size={16} /> {selectedMatchForModal.result}
-                </div>
-              )}
-            </div>
+                {selectedMatchForModal.tossWinner && (
+                  <div className="text-xs text-muted mt-md border-top pt-xs" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                    🏏 <strong>Toss:</strong> {selectedMatchForModal.tossWinner} won and chose to {selectedMatchForModal.tossDecision || 'Bat'} first.
+                  </div>
+                )}
+
+                {selectedMatchForModal.result && (
+                  <div className="text-sm text-gold font-bold mt-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    <Trophy size={16} /> {selectedMatchForModal.result}
+                  </div>
+                )}
+              </div>
 
             {/* Squad lists */}
             <div style={{ textAlign: 'left' }}>

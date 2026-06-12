@@ -659,23 +659,55 @@ export default function TournamentDetails() {
             {matches.length === 0 ? (
               <p className="text-sm text-muted">No scheduled matches logged for this tournament.</p>
             ) : (
-              matches.map((m) => (
-                <div className="match-card border-top-gold mb-md" key={m.id}>
-                  <div className="match-card-header flex justify-between text-xs text-muted mb-xs">
-                    <span className="flex items-center gap-xs"><Calendar size={12} /> {m.date} at {m.time}</span>
-                    <span className="badge badge-blue">{m.status}</span>
+              matches.map((m) => {
+                const teamAObj = teams.find(t => t.teamName === m.teamA);
+                const teamBObj = teams.find(t => t.teamName === m.teamB);
+                const teamALogo = teamAObj?.logoURL;
+                const teamBLogo = teamBObj?.logoURL;
+
+                return (
+                  <div className="match-card border-top-gold mb-md" key={m.id}>
+                    <div className="match-card-header flex justify-between text-xs text-muted mb-xs">
+                      <span className="flex items-center gap-xs"><Calendar size={12} /> {m.date} at {m.time}</span>
+                      <span className="badge badge-blue">{m.status}</span>
+                    </div>
+                    <div className="match-teams-row flex justify-between items-center py-sm flex-wrap gap-xs">
+                      <div className="flex items-center gap-xs">
+                        <div className="avatar avatar-sm bg-secondary text-gold font-bold" style={{ width: '24px', height: '24px', overflow: 'hidden', borderRadius: '50%', border: '1px solid var(--border)' }}>
+                          {teamALogo ? <img src={teamALogo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : m.teamA[0]}
+                        </div>
+                        <span className="team-text font-bold" style={{ fontSize: '0.85rem' }}>{m.teamA}</span>
+                        {(m.status === 'Completed' || m.status === 'Live') && (
+                          <span className="text-xs font-bold text-gradient-gold ml-xxs">({m.teamAScore || '—'})</span>
+                        )}
+                      </div>
+                      
+                      <span className="vs-text text-muted text-xs font-bold">VS</span>
+
+                      <div className="flex items-center gap-xs">
+                        {(m.status === 'Completed' || m.status === 'Live') && (
+                          <span className="text-xs font-bold text-gradient-gold mr-xxs">({m.teamBScore || '—'})</span>
+                        )}
+                        <span className="team-text font-bold" style={{ fontSize: '0.85rem' }}>{m.teamB}</span>
+                        <div className="avatar avatar-sm bg-secondary text-gold font-bold" style={{ width: '24px', height: '24px', overflow: 'hidden', borderRadius: '50%', border: '1px solid var(--border)' }}>
+                          {teamBLogo ? <img src={teamBLogo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : m.teamB[0]}
+                        </div>
+                      </div>
+                    </div>
+
+                    {m.result && (
+                      <div className="match-result text-center mb-xs py-xxs px-sm rounded text-xs font-semi text-gold" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)', marginBottom: '8px' }}>
+                        🏆 {m.result}
+                      </div>
+                    )}
+
+                    <div className="match-card-footer flex justify-between items-center text-xs text-muted border-top pt-xs mt-xs">
+                      <span className="flex items-center gap-xs"><MapPin size={12} /> {m.venue}</span>
+                      <span className="text-gold font-semi">{m.format || 'T20'} League Match</span>
+                    </div>
                   </div>
-                  <div className="match-teams-row flex justify-between items-center py-sm">
-                    <span className="team-text font-bold">{m.teamA}</span>
-                    <span className="vs-text text-muted text-xs font-bold">VS</span>
-                    <span className="team-text font-bold">{m.teamB}</span>
-                  </div>
-                  <div className="match-card-footer flex justify-between items-center text-xs text-muted border-top pt-xs mt-xs">
-                    <span className="flex items-center gap-xs"><MapPin size={12} /> {m.venue}</span>
-                    <span className="text-gold font-semi">T20 League Match</span>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

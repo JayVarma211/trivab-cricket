@@ -159,11 +159,10 @@ export default function Services() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="grid grid-2 gap-2xl items-center"
-            style={{ minHeight: '450px' }}
+            className="services-content-grid"
           >
             {/* Left Column: Media & Visuals */}
-            <div className="card-gold" style={{ padding: 0, overflow: 'hidden', height: '400px', borderRadius: '16px' }}>
+            <div className="card-gold services-image-card">
               <img
                 src={currentService.image}
                 alt={currentService.title}

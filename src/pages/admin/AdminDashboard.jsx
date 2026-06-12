@@ -599,7 +599,7 @@ export default function AdminDashboard() {
           <div className="admin-chart-panel">
             <h4 className="text-md font-bold mb-md text-primary">Player Roles Distribution</h4>
             <div style={{ width: '100%', height: 260 }}>
-              <ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%" minHeight={260}>
                 <BarChart data={roleChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
                   <XAxis dataKey="name" stroke="var(--admin-text)" fontSize={12} />
@@ -614,7 +614,7 @@ export default function AdminDashboard() {
           <div className="admin-chart-panel">
             <h4 className="text-md font-bold mb-md text-primary">Match Status Distribution</h4>
             <div style={{ width: '100%', height: 260 }}>
-              <ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%" minHeight={260}>
                 <BarChart data={matchChartData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--admin-border)" />
                   <XAxis dataKey="name" stroke="var(--admin-text)" fontSize={12} />

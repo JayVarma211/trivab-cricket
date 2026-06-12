@@ -461,7 +461,7 @@ export default function AdminMatchDay() {
         </div>
       )}
 
-      <div className="grid grid-3 gap-xl">
+      <div className="matchday-layout-grid">
         {/* LEFT COLUMN: Team A playing squad */}
         <div className="card card-gold col-1">
           <h2 className="text-lg font-bold text-gradient-gold flex justify-between items-center">

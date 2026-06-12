@@ -1609,3 +1609,20 @@
   border-color: var(--admin-accent);
 }
 
+/* ============================================================
+   22. ADMIN MATCH DAY CONSOLE RESPONSIVE GRID
+   ============================================================ */
+.matchday-layout-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+  align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+  .matchday-layout-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-lg) !important;
+  }
+}
+

@@ -152,10 +152,10 @@
 }
 
 .id-player-photo {
-  width: 130px;
-  height: 130px;
-  border-radius: 50%;
-  border: 3px solid var(--gold);
+  width: 96px;
+  height: 112px;
+  border-radius: 8px;
+  border: 2px solid var(--gold);
   overflow: hidden;
   background: var(--bg-secondary);
   display: flex;
@@ -163,7 +163,7 @@
   justify-content: center;
   color: var(--text-muted);
   box-shadow: var(--shadow-md);
-  margin-bottom: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 .id-player-photo img {

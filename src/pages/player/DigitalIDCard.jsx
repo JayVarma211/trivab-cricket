@@ -104,9 +104,11 @@ export default function DigitalIDCard() {
                   
                   <div className="id-player-stats-row">
                     {showTeam && (
-                      <div>
+                      <div style={{ maxWidth: '110px' }}>
                         <span className="id-stat-lbl">TEAM</span>
-                        <span className="id-stat-val text-gradient-gold">{player.teamName}</span>
+                        <span className="id-stat-val text-gradient-gold" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', fontSize: '0.82rem', width: '100%', textAlign: 'center' }} title={player.teamName}>
+                          {player.teamName}
+                        </span>
                       </div>
                     )}
                     <div>
@@ -144,7 +146,7 @@ export default function DigitalIDCard() {
                   <span className="id-code-text">{player.playerId}</span>
                 </div>
                 <div className="id-qr-box">
-                  <QRCodeSVG value={player.playerId} size={64} bgColor="#ffffff" fgColor="#000000" level="H" />
+                  <QRCodeSVG value={player.playerId} size={76} bgColor="#ffffff" fgColor="#000000" level="H" />
                 </div>
               </div>
             </div>
