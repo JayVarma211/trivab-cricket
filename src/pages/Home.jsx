@@ -5,14 +5,28 @@ import { Trophy, Calendar, ShieldCheck, Sparkles, ArrowRight, Star } from 'lucid
 import { motion } from 'framer-motion';
 import './Home.css';
 
+const TICKER_LOGOS = [
+  { src: '/logos/baplt20north.jpg', alt: 'BAPL North', class: 'logo-white-bg', link: '/tournaments/bapl-north' },
+  { src: '/logos/baplt20south.jpg', alt: 'BAPL South', class: 'logo-white-bg', link: '/tournaments/bapl-south' },
+  { src: '/logos/baplxpresst20north.jpg', alt: 'BAPL Xpress North', class: 'logo-black-bg', link: '/tournaments/baplxpress-north' },
+  { src: '/logos/baplxpresst20south.jpg', alt: 'BAPL Xpress South', class: 'logo-black-bg', link: '/tournaments/baplxpress-south' },
+  { src: '/logos/baplcorporate.jpg', alt: 'BAPL Corporate', class: 'logo-white-bg', link: '/tournaments/baplcorporate-south' },
+  { src: '/logos/bapldadst20.jpg', alt: 'BAPL Dads', class: 'logo-black-bg', link: '/tournaments/bapldads-south' },
+  { src: '/logos/trivabmonsoon.jpg', alt: 'Trivab Monsoon', class: 'logo-white-bg', link: '/tournaments/trivab-monsoon' },
+  { src: '/logos/baplpune.jpg', alt: 'BAPL Pune', class: 'logo-white-bg', link: '/tournaments' },
+  { src: '/logos/baplxpresst20puneedition.jpg', alt: 'BAPL Xpress Pune', class: 'logo-black-bg', link: '/tournaments' },
+  { src: '/logos/baplcorporatepuneedition.jpg', alt: 'BAPL Corporate Pune', class: 'logo-white-bg', link: '/tournaments' },
+  { src: '/logos/bapldadst20puneedition.jpg', alt: 'BAPL Dads Pune', class: 'logo-black-bg', link: '/tournaments' }
+];
+
 export default function Home() {
   const [recentTournaments, setRecentTournaments] = useState([]);
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [stats] = useState({
-    players: '1,200+',
-    tournaments: '15+',
-    teams: '32',
-    matches: '480+'
+    players: '2,000+',
+    tournaments: '55+',
+    teams: '73',
+    matches: '3,050+'
   });
 
   useEffect(() => {
@@ -78,16 +92,16 @@ export default function Home() {
             variants={containerVariants}
           >
             <motion.span className="section-label" variants={fadeInUp}>
-              <Sparkles size={14} /> The Elite Cricket Suite
+              <Sparkles size={14} /> TRIVAB Sports &amp; Events
             </motion.span>
             
             <motion.h1 className="display-2xl hero-title" variants={fadeInUp}>
-              Manage Cricket <br />
-              <span className="text-gradient-gold">Tournaments & Teams</span>
+              Your Game, <br />
+              <span className="text-gradient-gold">Our Stage</span>
             </motion.h1>
             
             <motion.p className="hero-subtitle text-secondary" variants={fadeInUp}>
-              TRIVAB is a professional sports-tech management suite built to empower admins, team captains, and players with automatic Digital ID generation, real-time match scheduling, QR code verification, and MVP stats.
+              Providing passionate amateur cricketers with a professional platform to experience the true spirit of competitive leather-ball cricket. Driven by technology, transparency, and top-tier operations, we bring the excitement, intensity, and prestige of elite cricket directly to you.
             </motion.p>
             
             <motion.div className="hero-actions" variants={fadeInUp}>
@@ -183,80 +197,17 @@ export default function Home() {
           </h4>
           <div className="ticker-wrap">
             <div className="ticker-content gap-xl flex items-center animate-marquee">
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20north.jpg" alt="BAPL Logo" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20north.jpg" alt="BAPL North" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20south.jpg" alt="BAPL South" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20north.jpg" alt="BAPL Xpress North" className="tournament-ticker-img logo-black-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20south.jpg" alt="BAPL Xpress South" className="tournament-ticker-img logo-black-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplcorporate.jpg" alt="BAPL Corporate" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/bapldadst20.jpg" alt="BAPL Dads" className="tournament-ticker-img logo-black-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/trivabmonsoon.jpg" alt="Trivab Monsoon" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplpune.jpg" alt="BAPL Pune" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20puneedition.jpg" alt="BAPL Xpress Pune" className="tournament-ticker-img logo-black-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplcorporatepuneedition.jpg" alt="BAPL Corporate Pune" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/bapldadst20puneedition.jpg" alt="BAPL Dads Pune" className="tournament-ticker-img logo-black-bg" />
-              </div>
-
+              {TICKER_LOGOS.map((logo, idx) => (
+                <Link to={logo.link} key={`l1-${idx}`} className="tournament-ticker-frame" style={{ cursor: 'pointer' }}>
+                  <img src={logo.src} alt={logo.alt} className={`tournament-ticker-img ${logo.class}`} />
+                </Link>
+              ))}
               {/* Duplicate for infinite effect */}
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20north.jpg" alt="BAPL Logo" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20north.jpg" alt="BAPL North" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplt20south.jpg" alt="BAPL South" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20north.jpg" alt="BAPL Xpress North" className="tournament-ticker-img logo-black-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20south.jpg" alt="BAPL Xpress South" className="tournament-ticker-img logo-black-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplcorporate.jpg" alt="BAPL Corporate" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/bapldadst20.jpg" alt="BAPL Dads" className="tournament-ticker-img logo-black-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/trivabmonsoon.jpg" alt="Trivab Monsoon" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplpune.jpg" alt="BAPL Pune" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplxpresst20puneedition.jpg" alt="BAPL Xpress Pune" className="tournament-ticker-img logo-black-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/baplcorporatepuneedition.jpg" alt="BAPL Corporate Pune" className="tournament-ticker-img logo-white-bg" />
-              </div>
-              <div className="tournament-ticker-frame">
-                <img src="/logos/bapldadst20puneedition.jpg" alt="BAPL Dads Pune" className="tournament-ticker-img logo-black-bg" />
-              </div>
+              {TICKER_LOGOS.map((logo, idx) => (
+                <Link to={logo.link} key={`l2-${idx}`} className="tournament-ticker-frame" style={{ cursor: 'pointer' }}>
+                  <img src={logo.src} alt={logo.alt} className={`tournament-ticker-img ${logo.class}`} />
+                </Link>
+              ))}
             </div>
           </div>
         </div>
@@ -264,14 +215,10 @@ export default function Home() {
 
       {/* Tournaments Grid Snippet */}
       <section className="recent-tournaments-section container section-padding">
-        <div className="flex justify-between items-end mb-lg">
-          <div>
-            <span className="section-label">Tournaments</span>
-            <h2 className="display-md">Active Tournaments</h2>
-          </div>
-          <Link to="/tournaments" className="btn btn-outline btn-sm">
-            View All Tournaments
-          </Link>
+        <div className="section-header">
+          <span className="section-label">Tournaments</span>
+          <h2 className="section-title">Active Tournaments</h2>
+          <p className="section-subtitle">Stay updated with our ongoing and upcoming tournaments.</p>
         </div>
 
         <motion.div 
@@ -296,6 +243,12 @@ export default function Home() {
             </motion.div>
           ))}
         </motion.div>
+
+        <div className="flex justify-center mt-xl">
+          <Link to="/tournaments" className="btn btn-outline btn-lg" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            View All Tournaments <ArrowRight size={18} />
+          </Link>
+        </div>
       </section>
 
     </div>

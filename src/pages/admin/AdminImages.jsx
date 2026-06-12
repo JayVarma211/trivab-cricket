@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { uploadImageToCloudinary } from '../../services/cloudinary';
 import { Upload, AlertCircle, Loader } from 'lucide-react';
 import { getCollection, addDocument, deleteDocument } from '../../firebase/firestore';
+import { safeParseDate } from '../../utils/dateFormatter';
 import './Admin.css';
 
 export default function AdminImages() {
@@ -20,7 +21,7 @@ export default function AdminImages() {
     const fetchImages = async () => {
       try {
         const data = await getCollection('gallery');
-        const sorted = (data || []).sort((a, b) => new Date(b.uploadedAt || b.createdAt) - new Date(a.uploadedAt || a.createdAt));
+        const sorted = (data || []).sort((a, b) => safeParseDate(b.uploadedAt || b.createdAt) - safeParseDate(a.uploadedAt || a.createdAt));
         setImages(sorted);
       } catch (err) {
         console.error("Failed to load gallery images:", err);

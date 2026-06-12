@@ -14,6 +14,8 @@ export default function Contact() {
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isMockEmail, setIsMockEmail] = useState(false);
+  const [mailtoUrl, setMailtoUrl] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,13 +33,16 @@ export default function Contact() {
 
       const result = await sendContactEmail(name, email, subject, message);
       if (result && result.mock) {
-        // Fall back to mailto if EmailJS is not configured in environment
+        setIsMockEmail(true);
         const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
           `[TRIVAB Inquiry] - ${subject}`
         )}&body=${encodeURIComponent(
           `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
         )}`;
+        setMailtoUrl(mailtoLink);
         window.location.href = mailtoLink;
+      } else {
+        setIsMockEmail(false);
       }
       
       setSubmitted(true);
@@ -46,11 +51,13 @@ export default function Contact() {
       setMessage('');
     } catch (err) {
       console.error("Failed to send email, falling back to mailto:", err);
+      setIsMockEmail(true);
       const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
         `[TRIVAB Inquiry] - ${subject}`
       )}&body=${encodeURIComponent(
         `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
       )}`;
+      setMailtoUrl(mailtoLink);
       window.location.href = mailtoLink;
       setSubmitted(true);
     } finally {
@@ -157,9 +164,17 @@ export default function Contact() {
             <h2 className="text-lg font-bold mb-md text-gradient-gold">Send Message</h2>
 
             {submitted && (
-              <div className="alert alert-success mb-md">
-                <CheckCircle2 size={18} />
-                <span>Thank you! Your inquiry has been sent to our team.</span>
+              <div className="alert alert-success mb-md" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <CheckCircle2 size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <p style={{ margin: 0, fontWeight: 600 }}>Thank you! Your inquiry has been saved in our system.</p>
+                  {isMockEmail && (
+                    <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', lineHeight: 1.4, color: 'var(--text-secondary)' }}>
+                      We saved your details in our Admin Panel. Since direct email keys are not configured yet, you can also send a copy directly via email: 
+                      <a href={mailtoUrl} className="text-gold" style={{ marginLeft: '4px', textDecoration: 'underline', fontWeight: 600 }}>Click here to send email copy</a>.
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 

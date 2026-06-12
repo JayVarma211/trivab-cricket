@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, deleteDocument } from '../../firebase/firestore';
+import { safeParseDate, safeFormatDate } from '../../utils/dateFormatter';
 import { Mail, Trash2, Calendar, User, Search, MessageSquare, AlertCircle } from 'lucide-react';
 import './Admin.css';
 
@@ -26,7 +27,7 @@ export default function AdminInquiries() {
     try {
       const data = await getCollection('contact_inquiries');
       // Sort newest first
-      const sorted = (data || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const sorted = (data || []).sort((a, b) => safeParseDate(b.createdAt) - safeParseDate(a.createdAt));
       setInquiries(sorted);
     } catch (err) {
       console.error('Error fetching inquiries:', err);
@@ -109,7 +110,7 @@ export default function AdminInquiries() {
                   </div>
                   <span className="text-xs text-muted flex items-center gap-xxs" style={{ whiteSpace: 'nowrap' }}>
                     <Calendar size={12} />
-                    {inq.createdAt ? new Date(inq.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                    {safeFormatDate(inq.createdAt, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
 

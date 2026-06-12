@@ -10,7 +10,7 @@ export default function AdminProtectedRoute({ children }) {
   if (loading) return <Loader />;
 
   // Allow access if admin mode is active or if user has admin role and email matches
-  const isAdminAuthed = adminMode || (userProfile?.role === 'admin' && user?.email === ADMIN_EMAIL);
+  const isAdminAuthed = adminMode || (userProfile?.role === 'admin' && user?.email?.toLowerCase() === ADMIN_EMAIL?.toLowerCase());
 
   if (!isAdminAuthed) {
     return <Navigate to="/admin/login" replace />;

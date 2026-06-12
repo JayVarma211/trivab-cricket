@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { getCollection, addDocument, setDocument, deleteDocument } from '../../firebase/firestore';
 import { Plus, Edit2, Trash2, X, CheckCircle2, AlertCircle, Newspaper, Calendar, Tag } from 'lucide-react';
 import './Admin.css';
@@ -6,6 +8,9 @@ import './Admin.css';
 const TAG_OPTIONS = ['Announcement', 'Tournament', 'Match Result', 'Sponsorship', 'General'];
 
 export default function AdminNews() {
+  const navigate = useNavigate();
+  const { role } = useAuth();
+
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -13,6 +18,10 @@ export default function AdminNews() {
   const [formData, setFormData] = useState({ title: '', content: '', date: '', tag: 'Announcement', imageURL: '' });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  useEffect(() => {
+    if (role !== 'admin') navigate('/admin/login');
+  }, [role, navigate]);
 
   const fetchArticles = async () => {
     try {
@@ -58,6 +67,8 @@ export default function AdminNews() {
       }
       await fetchArticles();
       setShowForm(false);
+      // Send the user to the admin dashboard
+      navigate('/admin/dashboard');
     } catch (err) {
       setMessage({ type: 'error', text: 'Failed to save article: ' + err.message });
     } finally {

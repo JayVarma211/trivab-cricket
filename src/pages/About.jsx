@@ -87,7 +87,7 @@ export default function About() {
           const labels = {
             'trivab': 'TRIVAB Sports & Events',
             'leadership': 'Leadership Team',
-            'bharat-army': 'Bharat Armyy Cricket Club',
+            'bharat-army': 'Bharat Army Cricket Club',
             'careers': 'Careers'
           };
           return (
@@ -285,48 +285,146 @@ export default function About() {
           </div>
         )}
 
-        {/* 3) BHARAT ARMYY CRICKET CLUB */}
+        {/* 3) BHARAT ARMY CRICKET CLUB */}
         {activeTab === 'bharat-army' && (
           <div className="animate-fade-in-up">
-            <div className="grid grid-2 gap-xl items-center mb-2xl">
+            <div className="grid grid-2 gap-xl items-start mb-2xl">
               <div>
-                <h2 className="display-xs text-gradient-gold mb-md">Bharat Armyy Cricket Club</h2>
+                <h2 className="display-xs text-gradient-gold mb-md">Bharat Army Cricket Club</h2>
                 <p className="text-secondary mb-md" style={{ lineHeight: 1.8 }}>
-                  Bharat Armyy Cricket Club is the official cricket playing arm of the legendary Bharat Army, the global supporters' group for Indian cricket. Established to bring the spirit of the stands onto the pitch, the club provides cricket enthusiasts with the opportunity to represent the club in competitive leather-ball leagues and international tours.
+                  Bharat Army Cricket Club is a passionate community of amateur cricketers based in Mumbai. Founded in 2019 by Mr. Ankit, Mr. Viral, and Mr. Bhavesh, the club was established with a vision to create a platform where cricket enthusiasts could come together and continue playing competitive leather-ball cricket, regardless of their professional commitments.
                 </p>
+
+                <div style={{ 
+                  borderLeft: '4px solid var(--gold)', 
+                  padding: '16px 20px', 
+                  background: 'rgba(212, 175, 55, 0.05)', 
+                  borderRadius: '0 8px 8px 0', 
+                  margin: '24px 0',
+                  fontStyle: 'italic'
+                }}>
+                  <p style={{ margin: 0, fontWeight: 500, color: 'var(--text-primary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
+                    "I have the skill, I have the passion, but where do I go to play? I don't have a team."
+                  </p>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: 'block', marginTop: '6px' }}>
+                    — A shared thought among aspiring cricketers in 2018–2019
+                  </span>
+                </div>
+
+                <p className="text-secondary mb-md" style={{ lineHeight: 1.8 }}>
+                  Recognizing this gap, the founders took the initiative to build a cricketing community for individuals who had once dreamed of pursuing the sport professionally but were unable to do so because of work, career, or personal responsibilities.
+                </p>
+                
+                <p className="text-secondary mb-md" style={{ lineHeight: 1.8 }}>
+                  What started with just 10 players in 2019 has now grown into a thriving cricketing family of more than 105 active members. Today, Bharat Army Cricket Club stands strong as one of Mumbai's most dedicated amateur cricket communities, offering members regular leather-ball matches, organized tournaments, professional management, and a host of exclusive club benefits.
+                </p>
+
                 <p className="text-secondary mb-lg" style={{ lineHeight: 1.8 }}>
-                  Driven by the same passion, energy, and dedication that defines Indian cricket fans worldwide, Bharat Armyy Cricket Club is a community built on camaraderie, sporting spirit, and a love for the game.
+                  Our club is driven by a robust management team and a well-structured platform that welcomes players of all skill levels who share a love for the game. Whether you are looking to reignite your passion for cricket, stay active, build friendships, or simply enjoy competitive cricket on weekends, Bharat Army Cricket Club is the place for you.
                 </p>
-                <Link to="/contact" className="btn btn-gold">
-                  Inquire For Membership <ArrowRight size={16} />
-                </Link>
+
+                <div className="card card-gold" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--gold-alpha)', padding: '24px' }}>
+                  <h3 className="text-sm font-bold mb-xs text-gradient-gold">Join the Bharat Army Family</h3>
+                  <p className="text-xs text-secondary mb-md" style={{ lineHeight: 1.5 }}>
+                    Become a member today and bring the thrill of cricket back into your life. Register now by clicking below, and our team will get in touch with you to complete the registration process.
+                  </p>
+                  <Link to="/register" className="btn btn-gold btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    Register for Membership <ArrowRight size={16} />
+                  </Link>
+                </div>
               </div>
 
-              <div className="card card-gold">
-                <h3 className="text-md font-bold mb-md text-gradient-gold">Club Pillars</h3>
-                <ul className="flex flex-col gap-md">
-                  <li className="flex gap-sm items-start">
-                    <div className="text-gold" style={{ marginTop: '2px' }}><Award size={18} /></div>
-                    <div>
-                      <strong className="text-sm text-primary">Global Supporters Network</strong>
-                      <p className="text-xs text-secondary">Connect with players and fans across continents who share the same heartbeat for Indian cricket.</p>
-                    </div>
-                  </li>
-                  <li className="flex gap-sm items-start">
-                    <div className="text-gold" style={{ marginTop: '2px' }}><Trophy size={18} /></div>
-                    <div>
-                      <strong className="text-sm text-primary">International Match Fixtures</strong>
-                      <p className="text-xs text-secondary">Opportunities to play in bilateral tournaments, exchange tours, and league matches worldwide.</p>
-                    </div>
-                  </li>
-                  <li className="flex gap-sm items-start">
-                    <div className="text-gold" style={{ marginTop: '2px' }}><Users size={18} /></div>
-                    <div>
-                      <strong className="text-sm text-primary">Fan-to-Player Ecosystem</strong>
-                      <p className="text-xs text-secondary">Take your support to the next level by wearing the colors and competing on the leather-ball pitch.</p>
-                    </div>
-                  </li>
-                </ul>
+              <div>
+                <h3 className="text-md font-bold mb-lg text-gradient-gold flex items-center gap-xs">
+                  <Trophy size={20} className="text-gold" /> Membership Benefits
+                </h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      🏏 Yearly Membership Model
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Pay a one-time annual membership fee and enjoy cricket throughout the year with no match-wise charges.
+                    </p>
+                  </div>
+
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      🎯 Indoor &amp; Outdoor Net Sessions
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Regular practice sessions during the off-season and monsoon to keep players match-ready.
+                    </p>
+                  </div>
+
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      🏆 BAPL Tournament Access
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Exclusive opportunities to participate in the TRIVAB BAPL Tournaments.
+                    </p>
+                  </div>
+
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      👕 Customized Merchandise &amp; Goodies
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Receive personalized club merchandise and essential player goodies every season.
+                    </p>
+                  </div>
+
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      💪 Online Fitness Sessions
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Access professional fitness and conditioning sessions during the off-season.
+                    </p>
+                  </div>
+
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      🤝 Bi-Lateral Series Participation
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Represent the club in exciting 3-match, 5-match, and 7-match bilateral series against other teams.
+                    </p>
+                  </div>
+
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      ✈️ Outstation Cricket Tours
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Travel to destinations like Gujarat, Lonavala, and other locations for competitive cricket and memorable experiences.
+                    </p>
+                  </div>
+
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      🎁 Exclusive Sponsor Discounts
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Enjoy special member-only discounts on cricket gear, equipment, and partner-brand offerings.
+                    </p>
+                  </div>
+
+                  <div className="card card-gold" style={{ padding: '16px', background: 'var(--bg-secondary)' }}>
+                    <h4 className="text-sm font-bold text-primary flex items-center gap-xs" style={{ margin: '0 0 6px 0' }}>
+                      🆔 Official Membership ID Card
+                    </h4>
+                    <p className="text-xs text-secondary" style={{ margin: 0, lineHeight: 1.5 }}>
+                      Get a customized Bharat Army Cricket Club Membership ID Card for the season.
+                    </p>
+                  </div>
+                </div>
+
+                <p style={{ marginTop: '24px', fontWeight: 600, fontSize: '0.9rem', color: 'var(--gold)', textAlign: 'center' }}>
+                  Join Bharat Army Cricket Club and experience cricket beyond just matches! 🏏🇮🇳
+                </p>
               </div>
             </div>
           </div>

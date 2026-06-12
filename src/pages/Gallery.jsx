@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getCollection } from '../firebase/firestore';
+import { safeFormatDate } from '../utils/dateFormatter';
 import { Image, X, ZoomIn, Calendar, Sparkles, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -147,7 +148,7 @@ export default function Gallery() {
                   <h4 style={{ margin: '0 0 4px 0', fontSize: '0.9rem', color: '#fff', fontWeight: 700 }} className="truncate">{img.name}</h4>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Calendar size={10} /> {new Date(img.uploadedAt || img.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                      <Calendar size={10} /> {safeFormatDate(img.uploadedAt || img.createdAt, { day: 'numeric', month: 'short' })}
                     </span>
                     <ZoomIn size={14} className="text-gold" />
                   </div>
@@ -241,7 +242,7 @@ export default function Gallery() {
                 <div>
                   <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#d4af37' }}>{activeImage.name}</h3>
                   <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>
-                    Uploaded on {new Date(activeImage.uploadedAt || activeImage.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })} • Size: {activeImage.size} MB
+                    Uploaded on {safeFormatDate(activeImage.uploadedAt || activeImage.createdAt, { day: 'numeric', month: 'long', year: 'numeric' })} • Size: {activeImage.size} MB
                   </p>
                 </div>
                 <a

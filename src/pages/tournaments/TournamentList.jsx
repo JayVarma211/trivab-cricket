@@ -5,6 +5,64 @@ import { Trophy, Calendar, Users, Star, ArrowRight } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import './Tournaments.css';
 
+const getLogoClass = (logoUrl) => {
+  if (!logoUrl) return '';
+  const url = logoUrl.toLowerCase();
+  if (url.includes('xpress') || url.includes('dads')) return 'logo-black-bg';
+  return 'logo-white-bg';
+};
+
+const TRIVAB_TOURNAMENT_CATEGORIES = [
+  {
+    id: 'bapl',
+    name: 'BAPL (BAPL T20)',
+    logo: '/logos/baplt20north.jpg',
+    description: 'BAPL is the flagship season-long cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.',
+    to: '/tournaments/type/bapl',
+    badge: 'Flagship League'
+  },
+  {
+    id: 'baplxpress',
+    name: 'BAPL XPRESS',
+    logo: '/logos/baplxpresst20north.jpg',
+    description: 'A compact, high-intensity version of our flagship BAPL league—designed to deliver the same professional playing experience in a shorter, more flexible format.',
+    to: '/tournaments/type/baplxpress',
+    badge: 'Compact T20'
+  },
+  {
+    id: 'baplcorporate',
+    name: 'BAPL Corporate CUP',
+    logo: '/logos/baplcorporate.jpg',
+    description: 'TRIVAB’s premier corporate-only cricket tournament. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity sport.',
+    to: '/tournaments/type/baplcorporate',
+    badge: 'Corporate Only'
+  },
+  {
+    id: 'trivab-monsoon',
+    name: 'Trivab Monsoon Championship',
+    logo: '/logos/trivabmonsoon.jpg',
+    description: 'One of TRIVAB’s most unique formats, played in a single-day Test match format with red leather balls and white playing attire, reviving the purest form of cricket.',
+    to: '/tournaments/trivab-monsoon',
+    badge: 'Red-Ball Test'
+  },
+  {
+    id: 'bapldads',
+    name: 'BAPL 40+ DADS T20',
+    logo: '/logos/bapldadst20.jpg',
+    description: 'A specially curated cricketing format designed exclusively for players aged 40 and above, bringing fathers and seasoned cricket lovers back onto the field.',
+    to: '/tournaments/type/bapldads',
+    badge: 'Aged 40+'
+  },
+  {
+    id: 'baplkids',
+    name: 'BAPL KIDS',
+    logo: '/logos/bapllogo.jpg',
+    description: 'TRIVAB’s junior cricket platform, designed to provide young cricketers across age groups U-10 to U-19 with a structured, high-quality, and competitive developmental pathway.',
+    to: '/tournaments/baplkids',
+    badge: 'Junior Pathway'
+  }
+];
+
 export default function TournamentList() {
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,14 +71,10 @@ export default function TournamentList() {
     const fetchTournaments = async () => {
       try {
         const list = await getCollection('tournaments', [orderBy('createdAt', 'desc')]);
-        setTournaments(list);
+        setTournaments(list || []);
       } catch (err) {
-        console.log('Using default mock tournaments list');
-        setTournaments([
-          { id: 't1', name: 'Champions Cup 2026', status: 'Live', description: 'Elite T20 faceoff featuring premier regional clubs.', date: 'May - June 2026', teamCount: 16 },
-          { id: 't2', name: 'Under-25 Premier League', status: 'Upcoming', description: 'Showcasing next-generation rising stars and state prospects.', date: 'July 2026', teamCount: 12 },
-          { id: 't3', name: 'Corporate Shield Trophy', status: 'Completed', description: 'Corporate cricket showdown for corporate division teams.', date: 'March 2026', teamCount: 8 }
-        ]);
+        console.log('Using database fallback for active tournaments');
+        setTournaments([]);
       } finally {
         setLoading(false);
       }
@@ -36,38 +90,82 @@ export default function TournamentList() {
         <p className="section-subtitle">Browse through active, completed, or scheduled premier cricket tournaments.</p>
       </div>
 
-      {loading ? (
-        <Loader />
-      ) : (
+      {/* 1. Category Grid */}
+      <div className="mb-2xl">
+        <h2 className="display-sm text-gradient-gold mb-xl text-center">Our Tournament Series</h2>
         <div className="grid grid-3 gap-xl">
-          {tournaments.map((t) => (
-            <div className="card tournament-card-main border-top-gold" key={t.id}>
-              <div className="flex justify-between items-center mb-sm">
-                <span className={`badge ${t.status === 'Live' ? 'badge-red' : t.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
-                  {t.status}
-                </span>
-                <span className="text-xs text-muted font-bold flex items-center gap-xs">
-                  <Calendar size={12} /> {t.date || 'TBD'}
-                </span>
+          {TRIVAB_TOURNAMENT_CATEGORIES.map((item) => (
+            <div className="card tournament-card-main border-top-gold" key={item.id}>
+              <div className="flex justify-between items-start mb-md">
+                <span className="badge badge-gold">{item.badge}</span>
+                <div style={{ 
+                  width: '45px', 
+                  height: '45px', 
+                  borderRadius: '8px', 
+                  overflow: 'hidden', 
+                  background: '#fff', 
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '4px'
+                }}>
+                  <img 
+                    src={item.logo} 
+                    alt={item.name} 
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
+                    className={getLogoClass(item.logo)}
+                  />
+                </div>
               </div>
 
-              <h3 className="display-sm text-gradient-gold mb-sm">{t.name}</h3>
-              <p className="text-secondary text-sm mb-lg line-clamp-3">{t.description}</p>
+              <h3 className="display-xs text-gradient-gold mb-sm">{item.name}</h3>
+              <p className="text-secondary text-sm mb-lg" style={{ minHeight: '80px', lineHeight: 1.6 }}>{item.description}</p>
 
-              <div className="flex justify-between items-center mb-lg bg-secondary py-xs px-sm rounded">
-                <span className="text-xs text-muted font-semi flex items-center gap-xs">
-                  <Users size={14} /> {t.teamCount || 10} Teams
-                </span>
-                <span className="text-xs text-gold font-bold">T20 Format</span>
-              </div>
-
-              <Link to={`/tournaments/${t.id}`} className="btn btn-gold w-full text-center" style={{ display: 'flex' }}>
-                View Roster & Schedule <ArrowRight size={16} />
+              <Link to={item.to} className="btn btn-gold w-full text-center" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                Explore Tournament <ArrowRight size={16} />
               </Link>
             </div>
           ))}
         </div>
-      )}
+      </div>
+
+      {/* 2. Active Seasons List */}
+      {loading ? (
+        <Loader />
+      ) : tournaments.length > 0 ? (
+        <div style={{ marginTop: 'var(--space-2xl)' }}>
+          <h2 className="display-sm text-gradient-gold mb-xl text-center">Active Schedules &amp; Standings</h2>
+          <div className="grid grid-3 gap-xl">
+            {tournaments.map((t) => (
+              <div className="card tournament-card-main border-top-gold" key={t.id} style={{ background: 'var(--bg-secondary)' }}>
+                <div className="flex justify-between items-center mb-sm">
+                  <span className={`badge ${t.status === 'Live' ? 'badge-red' : t.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
+                    {t.status}
+                  </span>
+                  <span className="text-xs text-muted font-bold flex items-center gap-xs">
+                    <Calendar size={12} /> {t.date || 'TBD'}
+                  </span>
+                </div>
+
+                <h3 className="display-sm text-gradient-gold mb-sm">{t.name}</h3>
+                <p className="text-secondary text-sm mb-lg line-clamp-3">{t.description}</p>
+
+                <div className="flex justify-between items-center mb-lg bg-primary py-xs px-sm rounded">
+                  <span className="text-xs text-muted font-semi flex items-center gap-xs">
+                    <Users size={14} /> {t.teamCount || 10} Teams
+                  </span>
+                  <span className="text-xs text-gold font-bold">T20 Format</span>
+                </div>
+
+                <Link to={`/tournaments/${t.id}`} className="btn btn-outline w-full text-center" style={{ display: 'flex' }}>
+                  View Roster &amp; Schedule <ArrowRight size={16} />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

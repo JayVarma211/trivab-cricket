@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, setDocument, addDocument } from '../../firebase/firestore';
+import { safeParseDate, safeFormatDateTime } from '../../utils/dateFormatter';
 import { logoutUser } from '../../firebase/auth';
 import {
   Users, Trophy, Calendar, Image, ChevronRight, Activity, AlertCircle, Database, Camera, Shield, Newspaper
@@ -56,7 +57,7 @@ export default function AdminDashboard() {
         });
 
         const sortedNotifications = (notifications || [])
-          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .sort((a, b) => safeParseDate(b.createdAt) - safeParseDate(a.createdAt))
           .slice(0, 10);
         setEnrollNotifications(sortedNotifications);
 
@@ -711,7 +712,7 @@ export default function AdminDashboard() {
                     <p style={{ margin: 0, color: 'var(--admin-text)', fontSize: '0.825rem', fontWeight: 600 }}>{notif.title}</p>
                     <p style={{ margin: '2px 0 0', fontSize: '0.75rem', color: 'var(--admin-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{notif.message}</p>
                     <p style={{ margin: '2px 0 0', fontSize: '0.68rem', color: 'var(--admin-muted)', opacity: 0.7 }}>
-                      {notif.createdAt ? new Date(notif.createdAt).toLocaleString() : 'Just now'}
+                      {safeFormatDateTime(notif.createdAt)}
                     </p>
                   </div>
                 </div>
