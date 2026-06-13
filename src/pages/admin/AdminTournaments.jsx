@@ -559,34 +559,18 @@ export default function AdminTournaments() {
             >
               {/* Logo — transparent, no background */}
               {displayTourn.logo && (
-                <div className="admin-tournament-logo-container" style={{
-                  width: '48px',
-                  height: '48px',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '2px'
-                }}>
-                  <img
-                    src={displayTourn.logo}
-                    alt=""
-                    className={(() => {
-                      const url = displayTourn.logo.toLowerCase();
-                      if (url.includes('xpress')) return 'logo-black-bg';
-                      if (url.includes('dads')) return 'logo-white-bg';
-                      if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
-                      return 'logo-white-bg';
-                    })()}
-                    style={{
-                      width: '48px',
-                      height: '48px',
-                      objectFit: 'contain',
-                    }}
-                  />
-                </div>
+                <img
+                  src={displayTourn.logo}
+                  alt=""
+                  className={(() => {
+                    const url = displayTourn.logo.toLowerCase();
+                    if (url.includes('xpress')) return 'logo-black-bg';
+                    if (url.includes('dads')) return 'logo-white-bg';
+                    if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
+                    return 'logo-white-bg';
+                  })()}
+                  style={{ width: '52px', height: '52px', objectFit: 'contain', flexShrink: 0 }}
+                />
               )}
 
               {/* Info */}
@@ -686,20 +670,18 @@ export default function AdminTournaments() {
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '16px' }}>
               {selectedTournamentForModal.logo && (
-                <div style={{ width: '48px', height: '48px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <img
-                    src={selectedTournamentForModal.logo}
-                    alt=""
-                    className={(() => {
-                      const url = selectedTournamentForModal.logo.toLowerCase();
-                      if (url.includes('xpress')) return 'logo-black-bg';
-                      if (url.includes('dads')) return 'logo-white-bg';
-                      if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
-                      return 'logo-white-bg';
-                    })()}
-                    style={{ width: '48px', height: '48px', objectFit: 'contain' }}
-                  />
-                </div>
+                <img
+                  src={selectedTournamentForModal.logo}
+                  alt=""
+                  className={(() => {
+                    const url = selectedTournamentForModal.logo.toLowerCase();
+                    if (url.includes('xpress')) return 'logo-black-bg';
+                    if (url.includes('dads')) return 'logo-white-bg';
+                    if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
+                    return 'logo-white-bg';
+                  })()}
+                  style={{ width: '56px', height: '56px', objectFit: 'contain', flexShrink: 0 }}
+                />
               )}
               <div style={{ textAlign: 'left' }}>
                 <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: 0 }}>

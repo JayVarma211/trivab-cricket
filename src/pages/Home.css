@@ -238,46 +238,16 @@
   background: var(--bg-primary);
 }
 
-/* Ticker frame — NO background, NO border, NO radius */
-.tournament-ticker-frame {
-  display: inline-flex;
+/* Ticker wrap overflow mask */
+.ticker-wrap {
+  overflow: hidden;
+  width: 100%;
+}
+
+/* The scrolling strip */
+.ticker-content {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  height: 110px;
-  width: 110px;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  background: transparent;
-}
-
-.tournament-ticker-frame:hover {
-  transform: translateY(-4px) scale(1.08);
-}
-
-/* The actual logo image — transparent background via utilities */
-.tournament-ticker-img {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  transition: filter 0.3s ease;
-  border-radius: 0;
-  background: transparent;
-}
-
-.tournament-ticker-frame:hover .tournament-ticker-img {
-  filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.6));
-}
-
-[data-theme="light"] .tournament-ticker-frame:hover .tournament-ticker-img {
-  filter: drop-shadow(0 0 10px rgba(128, 0, 0, 0.4));
-}
-
-/* Remove white background from logos using blend mode */
-.logo-no-bg {
-  mix-blend-mode: screen;
-  background: transparent;
-}
-
-[data-theme="light"] .logo-no-bg {
-  mix-blend-mode: multiply;
+  gap: 32px;
+  width: max-content;
 }

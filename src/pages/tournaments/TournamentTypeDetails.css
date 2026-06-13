@@ -31,12 +31,12 @@
 
 /* Hero Section */
 .parent-hub-logo-wrapper {
-  width: 120px;
-  height: 120px;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
+  width: 130px;
+  height: 130px;
   background: transparent;
+  border: none;
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .parent-hub-logo {
@@ -44,6 +44,12 @@
   height: 100%;
   object-fit: contain;
   background: transparent;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.parent-hub-logo:hover {
+  transform: scale(1.06);
+  filter: drop-shadow(0 6px 16px rgba(128, 0, 0, 0.4));
 }
 
 .parent-hub-info h1 {
@@ -98,12 +104,17 @@
 }
 
 .edition-card-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 0;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
   background: transparent;
+  border: none;
   flex-shrink: 0;
+  transition: filter 0.3s ease;
+}
+
+.edition-hub-card:hover .edition-card-logo {
+  filter: drop-shadow(0 4px 12px rgba(128, 0, 0, 0.35));
 }
 
 /* Stats Box */
@@ -188,8 +199,8 @@
 
 @media (max-width: 1024px) {
   .parent-hub-logo-wrapper {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
   }
   .edition-grid {
     grid-template-columns: repeat(2, 1fr);

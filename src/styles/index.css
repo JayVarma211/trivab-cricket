@@ -953,46 +953,34 @@ ul, ol {
 }
 
 /* ============================================================
-   21. LOGO BG REMOVAL UTILITIES
-   Logos come in two types:
-   - logo-silver-bg: metallic/silver background (BAPL T20 North/South/Pune stickers)
-   - logo-white-bg: white/light background (Corporate, Monsoon, Dads)
-   - logo-black-bg: dark/black background (Xpress, Dads T20 Pune edition)
-   Strategy: use mix-blend-mode to visually 'erase' backgrounds
+   21. STICKER-STYLE LOGO BLEND MODES
+   Goal: logos appear as floating stickers with NO background
+   - multiply removes white/silver/light backgrounds against any bg
+   - screen removes black/dark backgrounds against any bg
    ============================================================ */
 
-/* Silver/metallic background logos (BAPL T20 stickers) */
+/* Silver/metallic bg logos (BAPL T20 North/South/Pune) — sticker look via multiply */
 .logo-silver-bg {
-  mix-blend-mode: screen;   /* dark mode: silver fades into dark bg */
+  mix-blend-mode: multiply;
   background: transparent;
-  border-radius: 50%;
 }
 
-/* White background logos (Corporate, Monsoon, Dads) */
+/* White bg logos (Corporate, Monsoon, Dads, Trivab) — same multiply trick */
 .logo-white-bg {
-  mix-blend-mode: screen;   /* dark mode: white areas become transparent */
+  mix-blend-mode: multiply;
   background: transparent;
 }
 
-/* Black background logos (Xpress series) */
+/* Black bg logos (Xpress series) — screen removes black, logo pops */
 .logo-black-bg {
-  mix-blend-mode: normal;   /* black bg looks great on dark containers */
+  mix-blend-mode: screen;
   background: transparent;
 }
 
-/* ----- LIGHT MODE OVERRIDES ----- */
-[data-theme="light"] .logo-silver-bg {
-  mix-blend-mode: multiply; /* silver fades into white bg */
-}
+/* Dark mode: multiply still works great on dark bg (light areas go transparent) */
+/* No overrides needed — multiply is universally correct for light-bg logos */
+/* For Xpress (screen): black bg becomes transparent in both modes */
 
-[data-theme="light"] .logo-white-bg {
-  mix-blend-mode: multiply; /* white areas merge with white container */
-}
-
-/* Black-bg logos need a dark container in light mode — handled via .logo-dark-container */
-[data-theme="light"] .logo-black-bg {
-  mix-blend-mode: normal;
-}
 
 /* ============================================================
    22. SERVICES PAGE RESPONSIVE LAYOUT
@@ -1064,131 +1052,87 @@ ul, ol {
 }
 
 /* ============================================================
-   23. TOURNAMENT LOGO CONTAINER SYSTEM
+   23. TOURNAMENT LOGO CONTAINERS — Cards & Detail Pages
+   No background, no box — logos appear as stickers
    ============================================================ */
 
-/* Base container - dark mode uses a near-black surface */
 .tournament-logo-container,
 .tournament-details-logo,
 .admin-tournament-logo-container {
-  background: #111111 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 12px;
-  padding: 6px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  overflow: visible;
 }
 
-.tournament-logo-container:hover,
-.admin-tournament-logo-container:hover {
-  border-color: rgba(128, 0, 0, 0.4) !important;
-  box-shadow: 0 0 16px rgba(128, 0, 0, 0.2);
-}
-
-/* Light mode: white container for white/silver-bg logos */
-[data-theme="light"] .tournament-logo-container,
-[data-theme="light"] .tournament-details-logo,
-[data-theme="light"] .admin-tournament-logo-container {
-  background: #f8f8f8 !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-[data-theme="light"] .tournament-logo-container:hover,
-[data-theme="light"] .admin-tournament-logo-container:hover {
-  border-color: rgba(128, 0, 0, 0.35) !important;
-  box-shadow: 0 4px 16px rgba(128, 0, 0, 0.12);
-}
-
-/* Dark container — used for black-bg logos in light mode */
-.logo-dark-container {
-  background: #111111 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 12px;
-  padding: 6px;
-}
-
-[data-theme="light"] .logo-dark-container {
-  background: #1a1a1a !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
+/* Removed: logo-dark-container (no longer needed — sticker look handles all) */
 
 /* ============================================================
-   24. TICKER LOGO CONTAINERS — Home page infinite strip
+   24. HOME PAGE TICKER — Pure sticker logos, zero frame
    ============================================================ */
 
-/* Frame for each logo in the ticker */
+/* The ticker link wrapper — no background, no border */
 .tournament-ticker-logo-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 110px;
-  height: 110px;
-  border-radius: 16px;
-  padding: 8px;
+  width: 120px;
+  height: 120px;
   flex-shrink: 0;
-  background: #111;
-  border: 1px solid rgba(255,255,255,0.07);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  overflow: hidden;
+  background: transparent;
+  border: none;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  overflow: visible;
 }
 
 .tournament-ticker-logo-wrap:hover {
-  transform: translateY(-4px) scale(1.06);
-  border-color: rgba(128, 0, 0, 0.5);
-  box-shadow: 0 8px 24px rgba(128, 0, 0, 0.25);
+  transform: translateY(-6px) scale(1.12);
+  filter: drop-shadow(0 8px 20px rgba(128, 0, 0, 0.45));
 }
 
-/* Light mode ticker frames */
+/* No difference between light/dark for the wrapper — blend modes handle it */
 [data-theme="light"] .tournament-ticker-logo-wrap {
-  background: #f0f0f0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: transparent;
+  border: none;
 }
 
 [data-theme="light"] .tournament-ticker-logo-wrap:hover {
-  border-color: rgba(128, 0, 0, 0.4);
-  box-shadow: 0 8px 24px rgba(128, 0, 0, 0.15);
+  filter: drop-shadow(0 8px 20px rgba(128, 0, 0, 0.35));
 }
 
-/* Dark-frame for black-bg logos in ticker (always dark) */
+/* dark-frame modifier no longer needed */
 .tournament-ticker-logo-wrap.dark-frame {
-  background: #0d0d0d !important;
-  border-color: rgba(255,255,255,0.05) !important;
+  background: transparent !important;
+  border: none !important;
 }
 
-[data-theme="light"] .tournament-ticker-logo-wrap.dark-frame {
-  background: #0d0d0d !important;
-  border-color: rgba(255,255,255,0.08) !important;
-}
-
-/* The actual logo image inside ticker */
+/* Logo images in the ticker */
 .ticker-logo-img-inner {
-  width: 90px;
-  height: 90px;
+  width: 110px;
+  height: 110px;
   object-fit: contain;
   display: block;
-  border-radius: 0;
   background: transparent;
 }
 
-/* Silver-bg logos in dark mode: use screen blend for metallic bg to disappear */
+/* Silver/white logos: multiply removes light background — sticker look */
 .ticker-logo-silver {
-  mix-blend-mode: screen;
+  mix-blend-mode: multiply;
 }
 
-/* White-bg logos */
 .ticker-logo-white {
+  mix-blend-mode: multiply;
+}
+
+/* Black-bg logos: screen removes black — logo graphic floats free */
+.ticker-logo-black {
   mix-blend-mode: screen;
 }
 
-/* Black-bg logos */
-.ticker-logo-black {
-  mix-blend-mode: normal;
-}
-
+/* Light mode: same multiply still works perfectly */
 [data-theme="light"] .ticker-logo-silver {
   mix-blend-mode: multiply;
 }
@@ -1198,5 +1142,5 @@ ul, ol {
 }
 
 [data-theme="light"] .ticker-logo-black {
-  mix-blend-mode: normal;
+  mix-blend-mode: screen;
 }

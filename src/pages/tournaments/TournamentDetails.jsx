@@ -626,19 +626,19 @@ export default function TournamentDetails() {
         keywords={`${tournament.name}, TRIVAB Sports tournament, cricket matches, tournament details, player registration, team caps`}
         schema={detailsSchema}
       />
-      <div className="flex justify-between items-start mb-xl gap-lg flex-wrap">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+      <div className="flex justify-between items-start mb-xl gap-lg flex-wrap tournament-header-row">
+        <div className="tournament-header-left" style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
           {tournament.logo && (
             <img 
               src={tournament.logo} 
               alt={tournament.name} 
-              className={`tournament-details-logo ${getLogoClass(tournament.logo)}`}
-              style={{ width: 80, height: 80, borderRadius: '12px', objectFit: 'contain', padding: '4px' }} 
+              className={`tournament-details-logo-img ${getLogoClass(tournament.logo)}`}
+              style={{ width: 110, height: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} 
             />
           )}
-          <div>
+          <div style={{ minWidth: 0 }}>
             <span className="badge badge-red mb-xs">{tournament.status}</span>
-            <h1 className="display-md text-gradient-gold">{tournament.name}</h1>
+            <h1 className="display-md text-gradient-gold tournament-page-title" style={{ wordBreak: 'break-word' }}>{tournament.name}</h1>
             <p className="text-secondary max-width-600 mt-xs" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>{tournament.description}</p>
             
             {tournament && tournament.isActivated === false ? (
@@ -653,11 +653,11 @@ export default function TournamentDetails() {
               ) : (
                 <div className="mt-md" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
                   {hasJoined ? (
-                    <button className="btn btn-gold btn-sm" disabled style={{ opacity: 0.8, cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button className="btn btn-gold btn-sm join-btn-mobile" disabled style={{ opacity: 0.8, cursor: 'not-allowed', display: 'flex', alignItems: 'center', gap: '6px' }}>
                       ✓ Joined Tournament
                     </button>
                   ) : (
-                    <button className="btn btn-gold btn-sm" onClick={() => { setModalError(''); setJoinRole(''); setNewTeamName(''); setSelectedTeamId(''); setShowJoinModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <button className="btn btn-gold btn-sm join-btn-mobile" onClick={() => { setModalError(''); setJoinRole(''); setNewTeamName(''); setSelectedTeamId(''); setShowJoinModal(true); }} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       Join this Tournament
                     </button>
                   )}
@@ -666,14 +666,14 @@ export default function TournamentDetails() {
               )
             ) : (
               <div className="mt-md">
-                <Link to="/login" className="btn btn-gold btn-sm">
+                <Link to="/login" className="btn btn-gold btn-sm join-btn-mobile">
                   Login to Join Tournament
                 </Link>
               </div>
             )}
           </div>
         </div>
-        <div className="card winner-details-box flex gap-md items-center">
+        <div className="card winner-details-box flex gap-md items-center" style={{ flexShrink: 0 }}>
           <Trophy size={36} className="text-gold" />
           <div>
             <span className="text-xs text-muted block uppercase font-bold">Champions Trophy</span>

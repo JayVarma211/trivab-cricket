@@ -232,9 +232,6 @@ export default function Services() {
                 <Link to="/contact" className="btn btn-gold" style={{ flex: '1 1 200px', justifyContent: 'center' }}>
                   {currentService.ctaText} <ArrowRight size={18} />
                 </Link>
-                <Link to="/register" className="btn btn-outline" style={{ flex: '1 1 200px', justifyContent: 'center' }}>
-                  Join as Player
-                </Link>
               </div>
             </div>
           </motion.div>

@@ -148,7 +148,7 @@ export default function Home() {
             
             <motion.div className="hero-actions" variants={fadeInUp}>
               <Link to="/register" className="btn btn-gold btn-lg">
-                Join As Player <ArrowRight size={18} />
+                Join Now <ArrowRight size={18} />
               </Link>
               <Link to="/tournaments" className="btn btn-outline btn-lg">
                 Browse Tournaments

@@ -224,9 +224,7 @@ export default function TournamentTypeDetails() {
       {/* Hero Intro Header */}
       <div className="parent-hub-header flex gap-xl items-center mb-xl flex-wrap">
         {parentData.logo && (
-          <div className="parent-hub-logo-wrapper">
-            <img src={parentData.logo} alt={parentData.name} className={`parent-hub-logo animate-scale-in ${getLogoClass(parentData.logo)}`} />
-          </div>
+          <img src={parentData.logo} alt={parentData.name} className={`parent-hub-logo animate-scale-in ${getLogoClass(parentData.logo)}`} style={{ width: '130px', height: '130px', objectFit: 'contain', flexShrink: 0 }} />
         )}
         <div className="parent-hub-info flex-1 min-width-300">
           <span className="badge badge-gold mb-xs">Tournament Category</span>

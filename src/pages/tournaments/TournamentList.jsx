@@ -162,18 +162,12 @@ export default function TournamentList() {
             <div className="card tournament-card-main border-top-gold" key={item.id}>
               <div className="flex justify-between items-start mb-md">
                 <span className="badge badge-gold">{item.badge}</span>
-                <div className={`tournament-logo-container${needsDarkContainer(item.logo) ? ' logo-dark-container' : ''}`} style={{
-                  width: '90px',
-                  height: '90px',
-                  padding: '6px'
-                }}>
-                  <img 
-                    src={item.logo} 
-                    alt={item.name} 
-                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
-                    className={getLogoClass(item.logo)}
-                  />
-                </div>
+                <img 
+                  src={item.logo} 
+                  alt={item.name} 
+                  style={{ width: '90px', height: '90px', objectFit: 'contain', display: 'block' }} 
+                  className={getLogoClass(item.logo)}
+                />
               </div>
 
               <h3 className="display-xs text-gradient-gold mb-sm">{item.name}</h3>
