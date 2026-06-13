@@ -7,17 +7,17 @@ import SEO from '../components/common/SEO';
 import './Home.css';
 
 const TICKER_LOGOS = [
-  { src: '/logos/baplt20north.jpg', alt: 'BAPL North', class: 'logo-white-bg', link: '/tournaments/bapl-north' },
-  { src: '/logos/baplt20south.jpg', alt: 'BAPL South', class: 'logo-white-bg', link: '/tournaments/bapl-south' },
-  { src: '/logos/baplxpresst20north.jpg', alt: 'BAPL Xpress North', class: 'logo-black-bg', link: '/tournaments/baplxpress-north' },
-  { src: '/logos/baplxpresst20south.jpg', alt: 'BAPL Xpress South', class: 'logo-black-bg', link: '/tournaments/baplxpress-south' },
-  { src: '/logos/baplcorporate.jpg', alt: 'BAPL Corporate', class: 'logo-white-bg', link: '/tournaments/baplcorporate-south' },
-  { src: '/logos/bapldadst20.jpg', alt: 'BAPL Dads', class: 'logo-black-bg', link: '/tournaments/bapldads-south' },
-  { src: '/logos/trivabmonsoon.jpg', alt: 'Trivab Monsoon', class: 'logo-white-bg', link: '/tournaments/trivab-monsoon' },
-  { src: '/logos/baplpune.jpg', alt: 'BAPL Pune', class: 'logo-white-bg', link: '/tournaments' },
-  { src: '/logos/baplxpresst20puneedition.jpg', alt: 'BAPL Xpress Pune', class: 'logo-black-bg', link: '/tournaments' },
-  { src: '/logos/baplcorporatepuneedition.jpg', alt: 'BAPL Corporate Pune', class: 'logo-white-bg', link: '/tournaments' },
-  { src: '/logos/bapldadst20puneedition.jpg', alt: 'BAPL Dads Pune', class: 'logo-black-bg', link: '/tournaments' }
+  { src: '/logos/baplt20north.jpg', alt: 'BAPL T20 North', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-north' },
+  { src: '/logos/baplxpresst20south.jpg', alt: 'BAPL Xpress South', imgClass: 'ticker-logo-black', dark: true, link: '/tournaments/baplxpress-south' },
+  { src: '/logos/baplcorporate.jpg', alt: 'BAPL Corporate Cup', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments/baplcorporate-south' },
+  { src: '/logos/baplt20south.jpg', alt: 'BAPL T20 South', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-south' },
+  { src: '/logos/baplxpresst20north.jpg', alt: 'BAPL Xpress North', imgClass: 'ticker-logo-black', dark: true, link: '/tournaments/baplxpress-north' },
+  { src: '/logos/bapldadst20.jpg', alt: 'BAPL Dads T20', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments/bapldads-south' },
+  { src: '/logos/baplpune.jpg', alt: 'BAPL T20 Pune', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments' },
+  { src: '/logos/trivabmonsoon.jpg', alt: 'Trivab Monsoon', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments/trivab-monsoon' },
+  { src: '/logos/baplxpresst20puneedition.jpg', alt: 'BAPL Xpress Pune', imgClass: 'ticker-logo-black', dark: true, link: '/tournaments' },
+  { src: '/logos/baplcorporatepuneedition.jpg', alt: 'BAPL Corporate Pune', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments' },
+  { src: '/logos/bapldadst20puneedition.jpg', alt: 'BAPL Dads Pune', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments' }
 ];
 
 export default function Home() {
@@ -33,8 +33,9 @@ export default function Home() {
   useEffect(() => {
     const fetchHomeData = async () => {
       try {
-        const tourn = await getCollection('tournaments', [limit(3)]);
-        setRecentTournaments(tourn);
+        const tourn = await getCollection('tournaments');
+        const activeTourns = (tourn || []).filter(t => t.isActivated !== false);
+        setRecentTournaments(diversifyTournaments(activeTourns).slice(0, 3));
         const matches = await getCollection('matches', [limit(3)]);
         setUpcomingMatches(matches);
       } catch (e) {
@@ -239,14 +240,18 @@ export default function Home() {
           <div className="ticker-wrap">
             <div className="ticker-content gap-xl flex items-center animate-marquee">
               {TICKER_LOGOS.map((logo, idx) => (
-                <Link to={logo.link} key={`l1-${idx}`} className="tournament-ticker-frame" style={{ cursor: 'pointer' }}>
-                  <img src={logo.src} alt={logo.alt} className={`tournament-ticker-img ${logo.class}`} />
+                <Link to={logo.link} key={`l1-${idx}`} style={{ cursor: 'pointer', display: 'inline-flex', textDecoration: 'none' }}>
+                  <span className={`tournament-ticker-logo-wrap${logo.dark ? ' dark-frame' : ''}`}>
+                    <img src={logo.src} alt={logo.alt} className={`ticker-logo-img-inner ${logo.imgClass}`} />
+                  </span>
                 </Link>
               ))}
               {/* Duplicate for infinite effect */}
               {TICKER_LOGOS.map((logo, idx) => (
-                <Link to={logo.link} key={`l2-${idx}`} className="tournament-ticker-frame" style={{ cursor: 'pointer' }}>
-                  <img src={logo.src} alt={logo.alt} className={`tournament-ticker-img ${logo.class}`} />
+                <Link to={logo.link} key={`l2-${idx}`} style={{ cursor: 'pointer', display: 'inline-flex', textDecoration: 'none' }}>
+                  <span className={`tournament-ticker-logo-wrap${logo.dark ? ' dark-frame' : ''}`}>
+                    <img src={logo.src} alt={logo.alt} className={`ticker-logo-img-inner ${logo.imgClass}`} />
+                  </span>
                 </Link>
               ))}
             </div>
@@ -327,4 +332,50 @@ function TeamIcon() {
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   );
+}
+
+function diversifyTournaments(list) {
+  if (!list || list.length <= 1) return list;
+  
+  const groups = {
+    bapl: [],
+    corporate: [],
+    xpress: [],
+    kids: [],
+    other: []
+  };
+  
+  list.forEach(t => {
+    const id = t.id.toLowerCase();
+    if (id.includes('corporate')) {
+      groups.corporate.push(t);
+    } else if (id.includes('xpress')) {
+      groups.xpress.push(t);
+    } else if (id.includes('kids') || id.includes('dads')) {
+      groups.kids.push(t);
+    } else if (id.startsWith('bapl')) {
+      groups.bapl.push(t);
+    } else {
+      groups.other.push(t);
+    }
+  });
+  
+  const result = [];
+  const maxLen = Math.max(
+    groups.bapl.length,
+    groups.corporate.length,
+    groups.xpress.length,
+    groups.kids.length,
+    groups.other.length
+  );
+  
+  for (let i = 0; i < maxLen; i++) {
+    if (groups.bapl[i]) result.push(groups.bapl[i]);
+    if (groups.corporate[i]) result.push(groups.corporate[i]);
+    if (groups.xpress[i]) result.push(groups.xpress[i]);
+    if (groups.kids[i]) result.push(groups.kids[i]);
+    if (groups.other[i]) result.push(groups.other[i]);
+  }
+  
+  return result;
 }

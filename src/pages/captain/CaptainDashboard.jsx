@@ -46,9 +46,8 @@ export default function CaptainDashboard() {
         const captData = await getDocument('captains', user.uid);
         setCaptain(captData);
 
-        // Fetch all tournaments
         const tournamentsList = await getCollection('tournaments', [orderBy('createdAt', 'desc')]);
-        setAllTournaments(tournamentsList);
+        setAllTournaments((tournamentsList || []).filter(t => t.isActivated !== false));
 
         // Fetch all teams managed by this captain
         let captainTeams = await getCollection('teams', [

@@ -9,8 +9,18 @@ import './Tournaments.css';
 const getLogoClass = (logoUrl) => {
   if (!logoUrl) return '';
   const url = logoUrl.toLowerCase();
-  if (url.includes('xpress') || url.includes('dads')) return 'logo-black-bg';
+  if (url.includes('xpress')) return 'logo-black-bg';
+  if (url.includes('dads') && url.includes('pune')) return 'logo-white-bg';
+  if (url.includes('dads')) return 'logo-white-bg';
+  if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
+  if (url.includes('corporate') || url.includes('monsoon')) return 'logo-white-bg';
   return 'logo-white-bg';
+};
+
+const needsDarkContainer = (logoUrl) => {
+  if (!logoUrl) return false;
+  const url = logoUrl.toLowerCase();
+  return url.includes('xpress');
 };
 
 const TRIVAB_TOURNAMENT_CATEGORIES = [
@@ -72,7 +82,7 @@ export default function TournamentList() {
     const fetchTournaments = async () => {
       try {
         const list = await getCollection('tournaments', [orderBy('createdAt', 'desc')]);
-        setTournaments(list || []);
+        setTournaments((list || []).filter(t => t.isActivated !== false));
       } catch (err) {
         console.log('Using database fallback for active tournaments');
         setTournaments([]);
@@ -152,17 +162,10 @@ export default function TournamentList() {
             <div className="card tournament-card-main border-top-gold" key={item.id}>
               <div className="flex justify-between items-start mb-md">
                 <span className="badge badge-gold">{item.badge}</span>
-                <div style={{ 
-                  width: '45px', 
-                  height: '45px', 
-                  borderRadius: '8px', 
-                  overflow: 'hidden', 
-                  background: '#fff', 
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '4px'
+                <div className={`tournament-logo-container${needsDarkContainer(item.logo) ? ' logo-dark-container' : ''}`} style={{
+                  width: '90px',
+                  height: '90px',
+                  padding: '6px'
                 }}>
                   <img 
                     src={item.logo} 

@@ -51,14 +51,14 @@ const WHY_CHOOSE_ITEMS = [
 ];
 
 const TOURNAMENT_LOGOS = [
-  { name: 'BAPL League', img: '/logos/baplt20north.jpg', bgClass: 'logo-white-bg' },
-  { name: 'BAPL T20 South', img: '/logos/baplt20south.jpg', bgClass: 'logo-white-bg' },
-  { name: 'BAPL T20 North', img: '/logos/baplt20north.jpg', bgClass: 'logo-white-bg' },
-  { name: 'BAPL XPRESS South', img: '/logos/baplxpresst20south.jpg', bgClass: 'logo-black-bg' },
-  { name: 'BAPL XPRESS North', img: '/logos/baplxpresst20north.jpg', bgClass: 'logo-black-bg' },
-  { name: 'BAPL Corporate Cup', img: '/logos/baplcorporate.jpg', bgClass: 'logo-white-bg' },
-  { name: 'Monsoon Championship', img: '/logos/trivabmonsoon.jpg', bgClass: 'logo-white-bg' },
-  { name: 'BAPL DADS T20', img: '/logos/bapldadst20.jpg', bgClass: 'logo-black-bg' }
+  { name: 'BAPL T20 North', img: '/logos/baplt20north.jpg', bgClass: 'logo-silver-bg', dark: false },
+  { name: 'BAPL XPRESS South', img: '/logos/baplxpresst20south.jpg', bgClass: 'logo-black-bg', dark: true },
+  { name: 'BAPL T20 South', img: '/logos/baplt20south.jpg', bgClass: 'logo-silver-bg', dark: false },
+  { name: 'BAPL XPRESS North', img: '/logos/baplxpresst20north.jpg', bgClass: 'logo-black-bg', dark: true },
+  { name: 'BAPL Corporate Cup', img: '/logos/baplcorporate.jpg', bgClass: 'logo-white-bg', dark: false },
+  { name: 'BAPL DADS T20', img: '/logos/bapldadst20.jpg', bgClass: 'logo-white-bg', dark: false },
+  { name: 'Monsoon Championship', img: '/logos/trivabmonsoon.jpg', bgClass: 'logo-white-bg', dark: false },
+  { name: 'BAPL T20 Pune', img: '/logos/baplpune.jpg', bgClass: 'logo-silver-bg', dark: false }
 ];
 
 export default function About() {
@@ -197,10 +197,13 @@ export default function About() {
                 We proudly host and manage a series of elite league brands and cricket tournaments under the TRIVAB banner.
               </p>
 
-              <div className="grid grid-4 gap-lg">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', marginTop: 'var(--space-xl)' }}>
                 {TOURNAMENT_LOGOS.map((logo, idx) => (
-                  <div key={idx} className="logo-badge-card" style={{ background: 'transparent', border: 'none', boxShadow: 'none', padding: '10px' }}>
-                    <img src={logo.img} alt={logo.name} className={logo.bgClass} style={{ width: '130px', height: '130px', objectFit: 'contain' }} />
+                  <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <span className={`tournament-ticker-logo-wrap${logo.dark ? ' dark-frame' : ''}`} style={{ width: '120px', height: '120px' }}>
+                      <img src={logo.img} alt={logo.name} className={`ticker-logo-img-inner ${logo.bgClass}`} style={{ width: '100px', height: '100px' }} />
+                    </span>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textAlign: 'center', maxWidth: '110px', lineHeight: 1.3 }}>{logo.name}</span>
                   </div>
                 ))}
               </div>

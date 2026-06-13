@@ -23,7 +23,7 @@ export default function MatchSchedule() {
         ]);
         setMatches(list);
         setTeams(teamsList || []);
-        setTournaments(tournamentsList || []);
+        setTournaments((tournamentsList || []).filter(t => t.isActivated !== false));
       } catch (err) {
         console.error('Error fetching matches:', err);
         setMatches([]);

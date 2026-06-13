@@ -236,8 +236,16 @@ BAPL Kids is more than a tournament—it is a development pathway that nurtures 
 const getLogoClass = (logoUrl) => {
   if (!logoUrl) return '';
   const url = logoUrl.toLowerCase();
-  if (url.includes('xpress') || url.includes('dads')) return 'logo-black-bg';
+  if (url.includes('xpress')) return 'logo-black-bg';
+  if (url.includes('dads')) return 'logo-white-bg';
+  if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
+  if (url.includes('corporate') || url.includes('monsoon')) return 'logo-white-bg';
   return 'logo-white-bg';
+};
+
+const needsDarkContainer = (logoUrl) => {
+  if (!logoUrl) return false;
+  return logoUrl.toLowerCase().includes('xpress');
 };
 
 export default function TournamentDetails() {
@@ -624,8 +632,8 @@ export default function TournamentDetails() {
             <img 
               src={tournament.logo} 
               alt={tournament.name} 
-              className={getLogoClass(tournament.logo)}
-              style={{ width: 80, height: 80, borderRadius: '12px', objectFit: 'cover', border: '1px solid var(--border)' }} 
+              className={`tournament-details-logo ${getLogoClass(tournament.logo)}`}
+              style={{ width: 80, height: 80, borderRadius: '12px', objectFit: 'contain', padding: '4px' }} 
             />
           )}
           <div>

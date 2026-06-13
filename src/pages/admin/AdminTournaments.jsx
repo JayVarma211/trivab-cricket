@@ -55,22 +55,27 @@ export default function AdminTournaments() {
     winner: 'TBD',
     runnerUp: 'TBD',
   });
-
   const handleActivate = async (pred) => {
     setError('');
     try {
-      const tournamentData = {
-        name: pred.name,
-        logo: pred.logo,
-        status: 'Upcoming',
-        date: 'TBD',
-        teamCount: 12,
-        description: pred.description,
-        winner: 'TBD',
-        runnerUp: 'TBD',
-        createdAt: new Date().toISOString()
-      };
-      await setDocument('tournaments', pred.id, tournamentData);
+      const dbTourn = tournaments.find(t => t.id === pred.id);
+      if (dbTourn) {
+        await updateDocument('tournaments', pred.id, { isActivated: true });
+      } else {
+        const tournamentData = {
+          name: pred.name,
+          logo: pred.logo,
+          status: 'Upcoming',
+          date: 'TBD',
+          teamCount: 12,
+          description: pred.description,
+          winner: 'TBD',
+          runnerUp: 'TBD',
+          isActivated: true,
+          createdAt: new Date().toISOString()
+        };
+        await setDocument('tournaments', pred.id, tournamentData);
+      }
       fetchData();
       alert(`Tournament "${pred.name}" activated successfully!`);
     } catch (err) {
@@ -80,10 +85,10 @@ export default function AdminTournaments() {
   };
 
   const handleDeactivate = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to deactivate "${name}"? This will delete the tournament configuration from the database.`)) return;
+    if (!window.confirm(`Are you sure you want to deactivate "${name}"? This will stop people from joining and registering.`)) return;
     setError('');
     try {
-      await deleteDocument('tournaments', id);
+      await updateDocument('tournaments', id, { isActivated: false });
       fetchData();
       alert(`Tournament "${name}" deactivated successfully.`);
     } catch (err) {
@@ -91,7 +96,6 @@ export default function AdminTournaments() {
       setError('Failed to deactivate tournament');
     }
   };
-
   const exportToCSV = (data, headers, filename) => {
     const csvRows = [];
     csvRows.push(headers.join(','));
@@ -520,7 +524,7 @@ export default function AdminTournaments() {
           pred.name.toLowerCase().includes(searchTerm.toLowerCase())
         ).map((pred, idx, arr) => {
           const dbTourn = tournaments.find(t => t.id === pred.id);
-          const isActive = !!dbTourn;
+          const isActive = dbTourn && dbTourn.isActivated !== false;
           const displayTourn = dbTourn || {
             id: pred.id,
             name: pred.name,
@@ -555,21 +559,27 @@ export default function AdminTournaments() {
             >
               {/* Logo — transparent, no background */}
               {displayTourn.logo && (
-                <div style={{
+                <div className="admin-tournament-logo-container" style={{
                   width: '48px',
                   height: '48px',
                   borderRadius: '8px',
                   overflow: 'hidden',
                   flexShrink: 0,
-                  background: 'transparent',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  padding: '2px'
                 }}>
                   <img
                     src={displayTourn.logo}
                     alt=""
-                    className={displayTourn.logo.toLowerCase().includes('xpress') || displayTourn.logo.toLowerCase().includes('dads') ? 'logo-black-bg' : 'logo-white-bg'}
+                    className={(() => {
+                      const url = displayTourn.logo.toLowerCase();
+                      if (url.includes('xpress')) return 'logo-black-bg';
+                      if (url.includes('dads')) return 'logo-white-bg';
+                      if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
+                      return 'logo-white-bg';
+                    })()}
                     style={{
                       width: '48px',
                       height: '48px',
@@ -680,7 +690,13 @@ export default function AdminTournaments() {
                   <img
                     src={selectedTournamentForModal.logo}
                     alt=""
-                    className={selectedTournamentForModal.logo.toLowerCase().includes('xpress') || selectedTournamentForModal.logo.toLowerCase().includes('dads') ? 'logo-black-bg' : 'logo-white-bg'}
+                    className={(() => {
+                      const url = selectedTournamentForModal.logo.toLowerCase();
+                      if (url.includes('xpress')) return 'logo-black-bg';
+                      if (url.includes('dads')) return 'logo-white-bg';
+                      if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
+                      return 'logo-white-bg';
+                    })()}
                     style={{ width: '48px', height: '48px', objectFit: 'contain' }}
                   />
                 </div>

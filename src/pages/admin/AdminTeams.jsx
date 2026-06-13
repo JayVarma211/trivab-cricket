@@ -50,7 +50,7 @@ export default function AdminTeams() {
       const tournamentsData = await getCollection('tournaments', []);
       const playersData = await getCollection('players', []);
       setTeams(teamsData);
-      setTournaments(tournamentsData);
+      setTournaments((tournamentsData || []).filter(t => t.isActivated !== false));
       setPlayers(playersData);
     } catch (err) {
       console.error('Error fetching data:', err);
