@@ -6,6 +6,7 @@ import { Trophy, Calendar, MapPin, Users, Award, Shield, Upload } from 'lucide-r
 import Loader from '../../components/common/Loader';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import { sendCaptainRosterNotification } from '../../services/email';
+import SEO from '../../components/common/SEO';
 import './Tournaments.css';
 
 const PREDEFINED_TOURNAMENTS = [
@@ -580,8 +581,32 @@ export default function TournamentDetails() {
     );
   }
 
+  const detailsSchema = tournament ? {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    "name": `${tournament.name} | TRIVAB Sports`,
+    "description": tournament.description?.substring(0, 150) || "Cricket tournament organized by TRIVAB Sports",
+    "sport": "Cricket",
+    "eventStatus": tournament.status === "Live" 
+      ? "https://schema.org/EventScheduled" 
+      : tournament.status === "Completed" 
+        ? "https://schema.org/EventPostponed" 
+        : "https://schema.org/EventScheduled",
+    "organizer": {
+      "@type": "SportsOrganization",
+      "name": "TRIVAB Sports",
+      "url": "https://trivabsports.com"
+    }
+  } : null;
+
   return (
     <div className="tournament-details-page page-enter container section-padding">
+      <SEO 
+        title={tournament.name}
+        description={tournament.description?.substring(0, 155) || `Join the ${tournament.name} league hosted by TRIVAB Sports. Roster slots, schedules, standings, and team registration details.`}
+        keywords={`${tournament.name}, TRIVAB Sports tournament, cricket matches, tournament details, player registration, team caps`}
+        schema={detailsSchema}
+      />
       <div className="flex justify-between items-start mb-xl gap-lg flex-wrap">
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
           {tournament.logo && (

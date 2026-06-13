@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Prevent indexing of administrative and private user routes
+Disallow: /admin/
+Disallow: /player/
+Disallow: /captain/
+Disallow: /scanner
+
+# Sitemap Link
+Sitemap: https://trivabsports.com/sitemap.xml

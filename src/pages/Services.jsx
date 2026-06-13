@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Globe, Trophy, Building2, Users, ArrowRight, CheckCircle2, Star, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SEO from '../components/common/SEO';
 
 export default function Services() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,8 +93,22 @@ export default function Services() {
 
   const currentService = servicesData[activeTab];
 
+  const servicesSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "TRIVAB Sports Cricket Services",
+    "description": "Premium services offered by TRIVAB Sports, including international tours, domestic tournaments, corporate event hosting, and community clinics.",
+    "url": "https://trivabsports.com/services"
+  };
+
   return (
     <div className="services-page page-enter" style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      <SEO 
+        title="Services & Events"
+        description="Explore premium cricket services by TRIVAB Sports: International and Domestic Cricket Tours, Corporate Sports Tournaments, and neighborhood Community Events."
+        keywords="TRIVAB Sports services, international cricket tour, domestic cricket tour, corporate cricket tournament, youth coaching clinic"
+        schema={servicesSchema}
+      />
       {/* Hero Banner */}
       <section style={{
         background: 'var(--gradient-hero)',
@@ -107,7 +122,7 @@ export default function Services() {
         <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center' }}>
           <span className="section-label">Our Offerings</span>
           <h1 className="display-2xl" style={{ marginTop: 'var(--space-md)' }}>
-            Services &amp; <span className="text-gradient-gold">Events</span>
+            <span className="text-gradient-gold">TRIVAB Sports</span> Services &amp; Events
           </h1>
           <p className="text-secondary" style={{ maxWidth: '600px', margin: 'var(--space-md) auto 0' }}>
             From international tours to local grassroots championships, TRIVAB designs and executes world-class cricket experiences.

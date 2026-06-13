@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getCollection, orderBy } from '../firebase/firestore';
 import { Calendar, MapPin, Search, ShieldCheck, Trophy, Users, X } from 'lucide-react';
 import Loader from '../components/common/Loader';
+import SEO from '../components/common/SEO';
 import './tournaments/Tournaments.css';
 
 export default function MatchSchedule() {
@@ -44,11 +45,25 @@ export default function MatchSchedule() {
   const modalTeamALogo = modalTeamAObj?.logoURL;
   const modalTeamBLogo = modalTeamBObj?.logoURL;
 
+  const scheduleSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "TRIVAB Sports Live Match Schedules & Fixtures",
+    "description": "View live, upcoming, and completed cricket match schedules, fixtures, and venues in the TRIVAB Sports leagues.",
+    "url": "https://trivabsports.com/schedule"
+  };
+
   return (
     <div className="matches-page page-enter container section-padding">
+      <SEO 
+        title="Live Match Schedules & Fixtures"
+        description="Track live, upcoming, and completed cricket matches in TRIVAB Sports leagues. View match dates, times, venues, and status details."
+        keywords="TRIVAB Sports schedule, cricket fixtures, live cricket matches, cricket tournament schedule, Mumbai cricket grounds"
+        schema={scheduleSchema}
+      />
       <div className="section-header">
         <span className="section-label">Fixtures</span>
-        <h1 className="section-title">League <span className="text-gradient-gold">Match Schedules</span></h1>
+        <h1 className="section-title">TRIVAB Sports <span className="text-gradient-gold">Match Schedules</span></h1>
         <p className="section-subtitle">Real-time status updates on past, current live matches, and upcoming games.</p>
       </div>
 

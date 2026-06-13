@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getCollection, limit } from '../firebase/firestore';
 import { Trophy, Calendar, ShieldCheck, Sparkles, ArrowRight, Star } from 'lucide-react';
 import { motion } from 'framer-motion';
+import SEO from '../components/common/SEO';
 import './Home.css';
 
 const TICKER_LOGOS = [
@@ -70,8 +71,48 @@ export default function Home() {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } }
   };
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SportsOrganization",
+        "@id": "https://trivabsports.com/#organization",
+        "name": "TRIVAB Sports",
+        "alternateName": "TRIVAB Sports & Events",
+        "url": "https://trivabsports.com",
+        "logo": "https://trivabsports.com/logos/trivabsports.webp",
+        "sameAs": [
+          "https://www.instagram.com/baplcricket",
+          "https://www.youtube.com/@baplcricket"
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "trivabsportsandevents@gmail.com",
+          "contactType": "customer service",
+          "areaServed": "IN",
+          "availableLanguage": ["en", "hi"]
+        }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://trivabsports.com/#website",
+        "url": "https://trivabsports.com",
+        "name": "TRIVAB Sports",
+        "publisher": {
+          "@id": "https://trivabsports.com/#organization"
+        }
+      }
+    ]
+  };
+
   return (
     <div className="home-page page-enter">
+      <SEO 
+        title=""
+        description="TRIVAB Sports is the ultimate leather-ball cricket tournament and match management platform. Explore match schedules, register player profiles, track stats, and experience elite cricket."
+        keywords="TRIVAB Sports, cricket tournament, tournament management, team management, player registration, sports platform, leather-ball cricket, local cricket league"
+        schema={homeSchema}
+      />
       {/* Hero Section */}
       <section className="hero-section bg-gradient-animated">
         {/* Animated Background Effects */}
@@ -96,8 +137,8 @@ export default function Home() {
             </motion.span>
             
             <motion.h1 className="display-2xl hero-title" variants={fadeInUp}>
-              Your Game, <br />
-              <span className="text-gradient-gold">Our Stage</span>
+              TRIVAB Sports <br />
+              <span className="text-gradient-gold">Your Game, Our Stage</span>
             </motion.h1>
             
             <motion.p className="hero-subtitle text-secondary" variants={fadeInUp}>

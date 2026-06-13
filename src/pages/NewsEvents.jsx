@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Newspaper, Calendar, Tag, ArrowRight, Search, Sparkles } from 'lucide-react';
 import { getCollection } from '../firebase/firestore';
 import { motion } from 'framer-motion';
+import SEO from '../components/common/SEO';
 
 const containerVariants = {
   hidden: {},
@@ -72,8 +73,22 @@ export default function NewsEvents() {
     return matchSearch && matchTag;
   });
 
+  const newsSchema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "TRIVAB Sports Cricket News & Announcements",
+    "description": "Latest tournament updates, press releases, match day announcements, and league news from TRIVAB Sports.",
+    "url": "https://trivabsports.com/news"
+  };
+
   return (
     <div className="page-enter" style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      <SEO 
+        title="News & Events"
+        description="Stay updated with the latest cricket announcements, match highlights, tournament schedules, and press reports from TRIVAB Sports."
+        keywords="TRIVAB Sports news, cricket announcements, BAPL match reports, tournament updates, leather-ball league news"
+        schema={newsSchema}
+      />
       {/* Hero Banner */}
       <section style={{
         background: 'var(--gradient-hero)',
@@ -100,7 +115,7 @@ export default function NewsEvents() {
             transition={{ duration: 0.7, delay: 0.1 }}
             style={{ marginTop: 'var(--space-md)' }}
           >
-            News &amp; <span className="text-gradient-gold">Events</span>
+            <span className="text-gradient-gold">TRIVAB Sports</span> News &amp; Events
           </motion.h1>
           <motion.p
             className="text-secondary"

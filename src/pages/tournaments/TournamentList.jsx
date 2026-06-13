@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { getCollection, orderBy } from '../../firebase/firestore';
 import { Trophy, Calendar, Users, Star, ArrowRight } from 'lucide-react';
 import Loader from '../../components/common/Loader';
+import SEO from '../../components/common/SEO';
 import './Tournaments.css';
 
 const getLogoClass = (logoUrl) => {
@@ -82,11 +83,64 @@ export default function TournamentList() {
     fetchTournaments();
   }, []);
 
+  const tournamentsListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "TRIVAB Sports Cricket Tournaments",
+    "description": "Explore the range of professional leather-ball cricket tournaments and leagues organized by TRIVAB Sports.",
+    "url": "https://trivabsports.com/tournaments",
+    "numberOfItems": 6,
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "BAPL (BAPL T20)",
+        "description": "BAPL is the flagship season-long cricket league designed to deliver a true season-long competitive experience."
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "BAPL XPRESS",
+        "description": "A compact, high-intensity version of our flagship BAPL league—designed to deliver the same professional playing experience in a shorter format."
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "BAPL Corporate CUP",
+        "description": "TRIVAB's premier corporate-only cricket tournament."
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "Trivab Monsoon Championship",
+        "description": "Red-ball cricket in a single-day Test match format, reviving the purest form of cricket."
+      },
+      {
+        "@type": "ListItem",
+        "position": 5,
+        "name": "BAPL 40+ DADS T20",
+        "description": "A specially curated cricketing format designed exclusively for players aged 40 and above."
+      },
+      {
+        "@type": "ListItem",
+        "position": 6,
+        "name": "BAPL KIDS",
+        "description": "TRIVAB's junior cricket platform for age groups U-10 to U-19."
+      }
+    ]
+  };
+
   return (
     <div className="tournaments-page page-enter container section-padding">
+      <SEO 
+        title="Cricket Tournaments"
+        description="Browse TRIVAB Sports cricket tournaments, including BAPL T20, BAPL Xpress, Corporate Cups, Monsoon Championships, and Dads 40+ leagues."
+        keywords="TRIVAB Sports Tournaments, BAPL T20 Mumbai, corporate cricket cups, monsoon cricket championship, junior pathway cricket"
+        schema={tournamentsListSchema}
+      />
       <div className="section-header">
         <span className="section-label">Leagues</span>
-        <h1 className="section-title">TRIVAB <span className="text-gradient-gold">Tournaments</span></h1>
+        <h1 className="section-title">TRIVAB Sports <span className="text-gradient-gold">Tournaments</span></h1>
         <p className="section-subtitle">Browse through active, completed, or scheduled premier cricket tournaments.</p>
       </div>
 

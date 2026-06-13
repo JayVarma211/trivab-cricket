@@ -4,6 +4,7 @@ import {
   Trophy, ShieldCheck, Mail, Users, ArrowRight, 
   Target, Eye, Award, Briefcase, GraduationCap, Building2, MapPin
 } from 'lucide-react';
+import SEO from '../components/common/SEO';
 import './About.css';
 
 const WHY_CHOOSE_ITEMS = [
@@ -72,12 +73,31 @@ export default function About() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeTab]);
 
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "About TRIVAB Sports",
+    "description": "Learn about TRIVAB Sports & Events, our founders, our mission, careers, and our partnership with the Bharat Army Cricket Club.",
+    "url": "https://trivabsports.com/about",
+    "mainEntity": {
+      "@type": "SportsOrganization",
+      "name": "TRIVAB Sports",
+      "description": "TRIVAB Sports & Events coordinates premium, professionally managed leather-ball cricket leagues and tournaments across India."
+    }
+  };
+
   return (
     <div className="about-page container section-padding page-enter">
+      <SEO 
+        title="About Us"
+        description="Learn about TRIVAB Sports & Events, our founders Viral, Ankit, and Bhavesh, our career opportunities, and our mission to provide amateur cricketers with a professional leather-ball platform."
+        keywords="About TRIVAB Sports, cricket founders, cricket career, leather ball cricket history, Bharat Army Cricket Club"
+        schema={aboutSchema}
+      />
       {/* Header */}
       <div className="section-header">
         <span className="section-label">Our Story</span>
-        <h1 className="section-title">About <span className="text-gradient-gold">TRIVAB</span></h1>
+        <h1 className="section-title">About <span className="text-gradient-gold">TRIVAB Sports</span></h1>
         <p className="section-subtitle">Fostering professional standards in leather-ball cricket</p>
       </div>
 

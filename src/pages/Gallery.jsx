@@ -3,6 +3,7 @@ import { getCollection } from '../firebase/firestore';
 import { safeFormatDate } from '../utils/dateFormatter';
 import { Image, X, ZoomIn, Calendar, Sparkles, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import SEO from '../components/common/SEO';
 
 const SAMPLE_IMAGES = [
   {
@@ -60,8 +61,22 @@ export default function Gallery() {
     fetchImages();
   }, []);
 
+  const gallerySchema = {
+    "@context": "https://schema.org",
+    "@type": "ImageGallery",
+    "name": "TRIVAB Sports Cricket Photo Gallery",
+    "description": "Visual highlights, match moments, team lineups, and award distributions from TRIVAB Sports leagues and events.",
+    "url": "https://trivabsports.com/gallery"
+  };
+
   return (
     <div className="gallery-page page-enter" style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+      <SEO 
+        title="Photo Gallery"
+        description="See match day action, tournament ceremonies, team captures, and high-energy cricket moments from TRIVAB Sports leagues."
+        keywords="TRIVAB Sports photos, cricket gallery, tournament images, leather-ball match photos, BAPL gallery"
+        schema={gallerySchema}
+      />
       {/* Hero Banner */}
       <section style={{
         background: 'var(--gradient-hero)',
@@ -75,7 +90,7 @@ export default function Gallery() {
         <div className="container" style={{ position: 'relative', zIndex: 10, textAlign: 'center' }}>
           <span className="section-label"><Sparkles size={14} /> Trivab Moments</span>
           <h1 className="display-2xl" style={{ marginTop: 'var(--space-md)' }}>
-            Photo <span className="text-gradient-gold">Gallery</span>
+            <span className="text-gradient-gold">TRIVAB Sports</span> Photo Gallery
           </h1>
           <p className="text-secondary" style={{ maxWidth: '600px', margin: 'var(--space-md) auto 0' }}>
             Visual highlights from our leagues, corporate championships, international tours, and matches.

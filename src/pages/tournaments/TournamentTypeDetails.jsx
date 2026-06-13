@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getCollection } from '../../firebase/firestore';
 import { Trophy, Calendar, Users, MapPin, ArrowRight, ChevronRight } from 'lucide-react';
 import Loader from '../../components/common/Loader';
+import SEO from '../../components/common/SEO';
 import './TournamentTypeDetails.css';
 
 const PARENT_TOURNAMENTS = {
@@ -177,8 +178,27 @@ export default function TournamentTypeDetails() {
   if (loading) return <Loader />;
   if (!parentData) return null;
 
+  const typeSchema = parentData ? {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    "name": `${parentData.name} | TRIVAB Sports`,
+    "description": parentData.description?.substring(0, 150) || "Cricket league organized by TRIVAB Sports",
+    "sport": "Cricket",
+    "organizer": {
+      "@type": "SportsOrganization",
+      "name": "TRIVAB Sports",
+      "url": "https://trivabsports.com"
+    }
+  } : null;
+
   return (
     <div className="parent-hub-page page-enter container section-padding">
+      <SEO 
+        title={parentData.name}
+        description={parentData.description?.substring(0, 155) || `Explore editions, rules, highlights, and team details for the ${parentData.name} hosted by TRIVAB Sports.`}
+        keywords={`${parentData.name}, TRIVAB Sports, BAPL cricket, tournament editions, cricket details`}
+        schema={typeSchema}
+      />
       {/* Breadcrumbs */}
       <div className="breadcrumbs mb-md text-xs text-muted">
         <Link to="/" className="hover-gold">Home</Link>

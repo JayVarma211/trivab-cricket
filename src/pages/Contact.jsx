@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Instagram, Youtube, Facebook, MessageCircle } from 'lucide-react';
 import { sendContactEmail } from '../services/email';
 import { addDocument } from '../firebase/firestore';
+import SEO from '../components/common/SEO';
 
 export default function Contact() {
   const [searchParams] = useSearchParams();
@@ -65,8 +66,35 @@ export default function Contact() {
     }
   };
 
+  const contactSchema = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    "name": "Contact TRIVAB Sports",
+    "description": "Get in touch with TRIVAB Sports & Events for cricket tournament registrations, corporate inquiries, sponsorships, or support.",
+    "url": "https://trivabsports.com/contact",
+    "mainEntity": {
+      "@type": "SportsOrganization",
+      "name": "TRIVAB Sports",
+      "email": "trivabsportsandevents@gmail.com",
+      "telephone": "+91-9930344130",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "trivabsportsandevents@gmail.com",
+        "telephone": "+91-9930344130",
+        "contactType": "customer service",
+        "areaServed": "IN"
+      }
+    }
+  };
+
   return (
     <div className="contact-page page-enter container section-padding">
+      <SEO 
+        title="Contact Us"
+        description="Contact TRIVAB Sports & Events for tournament participation, corporate cups, sponsorships, and technical support. We are here to help."
+        keywords="Contact TRIVAB Sports, cricket registration support, corporate league contact, TRIVAB email, TRIVAB contact number"
+        schema={contactSchema}
+      />
       <div className="section-header">
         <span className="section-label">Get in Touch</span>
         <h1 className="section-title">Contact <span className="text-gradient-gold">TRIVAB Sports</span></h1>
