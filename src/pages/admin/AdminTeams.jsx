@@ -10,6 +10,7 @@ export default function AdminTeams() {
   const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
   const [tournaments, setTournaments] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -38,26 +39,19 @@ export default function AdminTeams() {
     fetchData();
   }, [role, navigate]);
 
-  const handleTeamClick = async (team) => {
+  const handleTeamClick = (team) => {
     setSelectedTeamForModal(team);
-    setLoadingTeamModal(true);
-    setTeamModalPlayers([]);
-    try {
-      const players = await getCollection('players', [where('teamId', '==', team.id)]);
-      setTeamModalPlayers(players || []);
-    } catch (err) {
-      console.error("Error loading team roster:", err);
-    } finally {
-      setLoadingTeamModal(false);
-    }
+    setTeamModalPlayers(players.filter(p => p.teamId === team.id));
   };
 
   const fetchData = async () => {
     try {
       const teamsData = await getCollection('teams', []);
       const tournamentsData = await getCollection('tournaments', []);
+      const playersData = await getCollection('players', []);
       setTeams(teamsData);
       setTournaments(tournamentsData);
+      setPlayers(playersData);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load teams');
@@ -121,7 +115,30 @@ export default function AdminTeams() {
     if (!window.confirm('Are you sure you want to delete this team?')) return;
     
     try {
+      const teamToDelete = teams.find(t => t.id === id);
       await deleteDocument('teams', id);
+      
+      // Update players belonging to this team to be Free Agents
+      const teamPlayers = players.filter(p => p.teamId === id);
+      for (const p of teamPlayers) {
+        await updateDocument('players', p.id, {
+          teamId: '',
+          teamName: 'Free Agent'
+        });
+      }
+
+      // Update captain associated with this team if they exist
+      if (teamToDelete && teamToDelete.captainId) {
+        try {
+          await updateDocument('captains', teamToDelete.captainId, {
+            teamId: '',
+            teamName: ''
+          });
+        } catch (captErr) {
+          console.warn("Failed to update captain team fields:", captErr);
+        }
+      }
+      
       fetchData();
     } catch (err) {
       setError('Failed to delete team');
@@ -200,7 +217,7 @@ export default function AdminTeams() {
           <AlertCircle size={24} />
           <div>
             <strong style={{ display: 'block', fontSize: '1rem', marginBottom: '4px' }}>No Active Tournaments Found</strong>
-            <span>You must create at least one tournament in the <strong>Tournaments</strong> tab (or click "Initialize Professional Demo Data" on the Dashboard) before you can add and register teams.</span>
+            <span>You must create at least one tournament in the <strong>Tournaments</strong> tab before you can add and register teams.</span>
           </div>
         </div>
       ) : null}
@@ -390,7 +407,7 @@ export default function AdminTeams() {
               </div>
               <div className="stat-row">
                 <span className="label">Players:</span>
-                <span className="value">{team.playerCount || 0}/{team.maxPlayers}</span>
+                <span className="value">{players.filter(p => p.teamId === team.id).length}/{team.maxPlayers}</span>
               </div>
               {team.tournamentName && (
                 <div className="stat-row">

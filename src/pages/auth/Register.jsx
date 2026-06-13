@@ -23,6 +23,7 @@ export default function Register() {
   const [jerseyNumber, setJerseyNumber] = useState('');
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [playerInitials, setPlayerInitials] = useState('');
 
   // New Fields Form State
   const [cricHeroesRegNo, setCricHeroesRegNo] = useState('');
@@ -77,8 +78,24 @@ export default function Register() {
     setError('');
 
     // 1. Validations
-    if (!cricHeroesRegNo) {
-      setError('Please enter your Contact No. (CricHeroes Registered No.).');
+    if (!fullName.trim()) {
+      setError('Please enter your full name.');
+      return;
+    }
+    if (!playerInitials.trim()) {
+      setError('Please enter your player initials.');
+      return;
+    }
+    if (!email.trim()) {
+      setError('Please enter your email.');
+      return;
+    }
+    if (!password) {
+      setError('Please enter a password.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
       return;
     }
     if (!dob) {
@@ -89,28 +106,32 @@ export default function Register() {
       setError('Please select your Blood Group.');
       return;
     }
+    if (!instagramId.trim()) {
+      setError('Please enter your Instagram ID.');
+      return;
+    }
+    if (!photo) {
+      setError('Please upload your profile photo.');
+      return;
+    }
+    if (!cricHeroesRegNo) {
+      setError('Please enter your Contact No. (CricHeroes Registered No.).');
+      return;
+    }
     if (!emergencyContactName || !emergencyContactMobile) {
       setError('Please enter Emergency Contact Name and Number.');
       return;
     }
-    if (!trackPantSize) {
-      setError('Please select your track pant size.');
+    if (!playingStyle) {
+      setError('Please select your playing style.');
       return;
     }
-    if (trackPantSize === 'Other' && !customTrackPantSize.trim()) {
-      setError('Please type your custom track pant size.');
+    if (!jerseyNumber) {
+      setError('Please enter your jersey number.');
       return;
     }
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-    if (mcaPlayer === 'yes' && !mcaIdNumber.trim()) {
-      setError('Please provide your MCA ID Number.');
-      return;
-    }
-    if (mcaPlayer === 'yes' && !mcaCardPhoto) {
-      setError('Please upload your MCA card photo.');
+    if (!sleeveType) {
+      setError('Please select your sleeve type.');
       return;
     }
     if (!tshirtSize) {
@@ -121,8 +142,20 @@ export default function Register() {
       setError('Please type your custom t-shirt size.');
       return;
     }
-    if (!sleeveType) {
-      setError('Please select your sleeve type.');
+    if (!trackPantSize) {
+      setError('Please select your track pant size.');
+      return;
+    }
+    if (trackPantSize === 'Other' && !customTrackPantSize.trim()) {
+      setError('Please type your custom track pant size.');
+      return;
+    }
+    if (mcaPlayer === 'yes' && !mcaIdNumber.trim()) {
+      setError('Please provide your MCA ID Number.');
+      return;
+    }
+    if (mcaPlayer === 'yes' && !mcaCardPhoto) {
+      setError('Please upload your MCA card photo.');
       return;
     }
 
@@ -174,6 +207,7 @@ export default function Register() {
         playerId: generatedId,
         uid: firebaseUser.uid,
         fullName,
+        playerInitials: playerInitials.trim().toUpperCase(),
         mobile: cricHeroesRegNo, // CricHeroes Regis No. mapped to primary mobile field
         cricHeroesRegNo,
         emergencyContactName,
@@ -246,7 +280,7 @@ export default function Register() {
             {/* Column 1: Identity & Credentials */}
             <div className="form-column">
               <div className="form-group">
-                <label className="form-label">Full Name</label>
+                <label className="form-label">Full Name <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <User className="input-icon-left" size={18} />
                   <input
@@ -263,7 +297,24 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Email Address</label>
+                <label className="form-label">Player Initials <span style={{ color: '#ef4444' }}>*</span></label>
+                <div className="input-wrapper">
+                  <User className="input-icon-left" size={18} />
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Ex. AS-77"
+                    required
+                    value={playerInitials}
+                    onChange={(e) => setPlayerInitials(e.target.value.toUpperCase())}
+                    disabled={loading}
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Email Address <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <Mail className="input-icon-left" size={18} />
                   <input
@@ -280,7 +331,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Password</label>
+                <label className="form-label">Password <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <Lock className="input-icon-left" size={18} />
                   <input
@@ -305,7 +356,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Confirm Password</label>
+                <label className="form-label">Confirm Password <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <Lock className="input-icon-left" size={18} />
                   <input
@@ -330,7 +381,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Date of Birth</label>
+                <label className="form-label">Date of Birth <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <input
                     type="date"
@@ -344,7 +395,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Blood Group</label>
+                <label className="form-label">Blood Group <span style={{ color: '#ef4444' }}>*</span></label>
                 <select
                   className="form-select"
                   value={bloodGroup}
@@ -365,13 +416,14 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Instagram ID</label>
+                <label className="form-label">Instagram ID <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <span className="input-icon-left text-muted font-semi" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>@</span>
                   <input
                     type="text"
                     className="form-input"
                     placeholder="username"
+                    required
                     value={instagramId}
                     onChange={(e) => setInstagramId(e.target.value)}
                     disabled={loading}
@@ -381,7 +433,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Profile Photo</label>
+                <label className="form-label">Profile Photo <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="file-upload-container">
                   {photoPreview ? (
                     <div className="photo-preview-wrap">
@@ -417,7 +469,7 @@ export default function Register() {
             {/* Column 2: Player Details & Contact */}
             <div className="form-column">
               <div className="form-group">
-                <label className="form-label">Contact No. (CricHeroes Registered No.)</label>
+                <label className="form-label">Contact No. (CricHeroes Registered No.) <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <Phone className="input-icon-left" size={18} />
                   <input
@@ -434,7 +486,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Emergency Contact Person Name</label>
+                <label className="form-label">Emergency Contact Person Name <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <User className="input-icon-left" size={18} />
                   <input
@@ -451,7 +503,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Emergency Contact Number</label>
+                <label className="form-label">Emergency Contact Number <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <Phone className="input-icon-left" size={18} />
                   <input
@@ -468,11 +520,12 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Playing Style</label>
+                <label className="form-label">Playing Style <span style={{ color: '#ef4444' }}>*</span></label>
                 <select
                   className="form-select"
                   value={playingStyle}
                   onChange={(e) => setPlayingStyle(e.target.value)}
+                  required
                   disabled={loading}
                 >
                   <option value="Batsman">Batsman</option>
@@ -483,7 +536,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Jersey Number</label>
+                <label className="form-label">Jersey Number <span style={{ color: '#ef4444' }}>*</span></label>
                 <div className="input-wrapper">
                   <Shirt className="input-icon-left" size={18} />
                   <input
@@ -499,7 +552,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Sleeve Type</label>
+                <label className="form-label">Sleeve Type <span style={{ color: '#ef4444' }}>*</span></label>
                 <select
                   className="form-select"
                   value={sleeveType}
@@ -514,7 +567,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">T-Shirt Size</label>
+                <label className="form-label">T-Shirt Size <span style={{ color: '#ef4444' }}>*</span></label>
                 <select
                   className="form-select"
                   value={tshirtSize}
@@ -545,7 +598,7 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Track Pant Size</label>
+                <label className="form-label">Track Pant Size <span style={{ color: '#ef4444' }}>*</span></label>
                 <select
                   className="form-select"
                   value={trackPantSize}
@@ -576,11 +629,12 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">MCA Registered Player?</label>
+                <label className="form-label">MCA Registered Player? <span style={{ color: '#ef4444' }}>*</span></label>
                 <select
                   className="form-select"
                   value={mcaPlayer}
                   onChange={(e) => setMcaPlayer(e.target.value)}
+                  required
                   disabled={loading}
                 >
                   <option value="no">No</option>
@@ -591,7 +645,7 @@ export default function Register() {
               {mcaPlayer === 'yes' && (
                 <>
                   <div className="form-group">
-                    <label className="form-label">MCA ID Number</label>
+                    <label className="form-label">MCA ID Number <span style={{ color: '#ef4444' }}>*</span></label>
                     <input
                       type="text"
                       className="form-input"
@@ -603,7 +657,7 @@ export default function Register() {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">MCA Card Photo</label>
+                    <label className="form-label">MCA Card Photo <span style={{ color: '#ef4444' }}>*</span></label>
                     <div className="file-upload-container">
                       {mcaCardPhotoPreview ? (
                         <div className="photo-preview-wrap">

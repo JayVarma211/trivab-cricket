@@ -17,13 +17,19 @@ export default function Contact() {
   const [loading, setLoading] = useState(false);
   const [isMockEmail, setIsMockEmail] = useState(false);
   const [mailtoUrl, setMailtoUrl] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+    setError('');
+    setSubmitted(false);
+    setMailtoUrl('');
+
+    let dbSuccess = false;
+
+    // 1. Try to save to Firestore
     try {
-      // Always log the inquiry to Firestore for the admin console backup
       await addDocument('contact_inquiries', {
         name,
         email,
@@ -31,7 +37,14 @@ export default function Contact() {
         message,
         createdAt: new Date().toISOString()
       });
+      dbSuccess = true;
+    } catch (dbErr) {
+      console.error("Failed to save contact inquiry to database:", dbErr);
+      setError("Failed to save your inquiry to the system database. Please ensure Firestore is initialized and rules allow writes.");
+    }
 
+    // 2. Try to send email
+    try {
       const result = await sendContactEmail(name, email, subject, message);
       if (result && result.mock) {
         setIsMockEmail(true);
@@ -45,13 +58,15 @@ export default function Contact() {
       } else {
         setIsMockEmail(false);
       }
-      
-      setSubmitted(true);
-      setName('');
-      setEmail('');
-      setMessage('');
+
+      if (dbSuccess || (result && !result.mock)) {
+        setSubmitted(true);
+        setName('');
+        setEmail('');
+        setMessage('');
+      }
     } catch (err) {
-      console.error("Failed to send email, falling back to mailto:", err);
+      console.error("Failed to send email:", err);
       setIsMockEmail(true);
       const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
         `[TRIVAB Inquiry] - ${subject}`
@@ -60,7 +75,15 @@ export default function Contact() {
       )}`;
       setMailtoUrl(mailtoLink);
       window.location.href = mailtoLink;
-      setSubmitted(true);
+
+      if (dbSuccess) {
+        setSubmitted(true);
+        setName('');
+        setEmail('');
+        setMessage('');
+      } else {
+        setError("Both database log and email sending failed. Please check your internet connection or click 'Send via Email Client' below.");
+      }
     } finally {
       setLoading(false);
     }
@@ -76,11 +99,11 @@ export default function Contact() {
       "@type": "SportsOrganization",
       "name": "TRIVAB Sports",
       "email": "trivabsportsandevents@gmail.com",
-      "telephone": "+91-9930344130",
+      "telephone": ["+91-9930344130", "+91-9867423131", "+91-8779187691"],
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "trivabsportsandevents@gmail.com",
-        "telephone": "+91-9930344130",
+        "telephone": ["+91-9930344130", "+91-9867423131", "+91-8779187691"],
         "contactType": "customer service",
         "areaServed": "IN"
       }
@@ -118,11 +141,13 @@ export default function Contact() {
                   <a href="mailto:trivabsportsandevents@gmail.com" className="text-sm font-semi text-gold">trivabsportsandevents@gmail.com</a>
                 </div>
               </li>
-              <li className="flex gap-md items-center">
-                <div className="stat-icon" style={{ marginBottom: 0 }}><Phone size={20} /></div>
-                <div>
+              <li className="flex gap-md items-center" style={{ alignItems: 'flex-start' }}>
+                <div className="stat-icon" style={{ marginBottom: 0, marginTop: '3px' }}><Phone size={20} /></div>
+                <div className="flex flex-col gap-xs">
                   <span className="text-xs text-muted block">Phone Enquiries</span>
                   <a href="tel:+919930344130" className="text-sm font-semi text-gold">+91 99303 44130</a>
+                  <a href="tel:+919867423131" className="text-sm font-semi text-gold">+91 98674 23131</a>
+                  <a href="tel:+918779187691" className="text-sm font-semi text-gold">+91 87791 87691</a>
                 </div>
               </li>
               <li className="flex gap-md items-center">
@@ -199,6 +224,21 @@ export default function Contact() {
                   {isMockEmail && (
                     <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', lineHeight: 1.4, color: 'var(--text-secondary)' }}>
                       We saved your details in our Admin Panel. Since direct email keys are not configured yet, you can also send a copy directly via email: 
+                      <a href={mailtoUrl} className="text-gold" style={{ marginLeft: '4px', textDecoration: 'underline', fontWeight: 600 }}>Click here to send email copy</a>.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {error && (
+              <div className="alert alert-error mb-md" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '2px', color: '#ef4444' }} />
+                <div>
+                  <p style={{ margin: 0, fontWeight: 600, color: '#ef4444' }}>{error}</p>
+                  {mailtoUrl && (
+                    <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', lineHeight: 1.4, color: 'var(--text-secondary)' }}>
+                      You can still send your inquiry directly via your email client: 
                       <a href={mailtoUrl} className="text-gold" style={{ marginLeft: '4px', textDecoration: 'underline', fontWeight: 600 }}>Click here to send email copy</a>.
                     </p>
                   )}

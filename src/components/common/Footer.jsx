@@ -56,9 +56,13 @@ export default function Footer() {
               <Mail size={16} />
               <a href="mailto:trivabsportsandevents@gmail.com" className="footer-link">trivabsportsandevents@gmail.com</a>
             </li>
-            <li>
-              <Phone size={16} />
-              <a href="tel:+919930344130" className="footer-link">+91 99303 44130</a>
+            <li style={{ alignItems: 'flex-start' }}>
+              <Phone size={16} style={{ marginTop: '3px' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <a href="tel:+919930344130" className="footer-link">+91 99303 44130</a>
+                <a href="tel:+919867423131" className="footer-link">+91 98674 23131</a>
+                <a href="tel:+918779187691" className="footer-link">+91 87791 87691</a>
+              </div>
             </li>
             <li>
               <MapPin size={16} />

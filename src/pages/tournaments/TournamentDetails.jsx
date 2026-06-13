@@ -12,14 +12,14 @@ import './Tournaments.css';
 const PREDEFINED_TOURNAMENTS = [
   {
     id: 'bapl-south',
-    name: 'BAPL - South Mumbai Edition',
+    name: 'BAPL 3.0 - South Mumbai Edition',
     logo: '/logos/baplt20south.jpg',
-    description: `BAPL – The Flagship Cricket League
-Founded in 2023, BAPL was born from a simple yet revolutionary idea by one of the founder Ankit Shah. He questioned the traditional short-format tournaments where momentum is lost just as teams begin to peak—“Why not create a league that runs through an entire cricketing season?”
+    description: `BAPL 3.0 – The Flagship Cricket League
+Founded in 2023, BAPL 3.0 was born from a simple yet revolutionary idea by one of the founder Ankit Shah. He questioned the traditional short-format tournaments where momentum is lost just as teams begin to peak—“Why not create a league that runs through an entire cricketing season?”
 
-This vision led to the creation of BAPL, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
+This vision led to the creation of BAPL 3.0, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
 
-BAPL is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
+BAPL 3.0 is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
     highlights: [
       '20+ competitive teams',
       '8-month long professional league format',
@@ -37,14 +37,14 @@ BAPL is not just a tournament—it is a full-season cricketing experience built 
   },
   {
     id: 'bapl-north',
-    name: 'BAPL - North Mumbai Edition',
+    name: 'BAPL 3.0 - North Mumbai Edition',
     logo: '/logos/baplt20north.jpg',
-    description: `BAPL – The Flagship Cricket League
-Founded in 2023, BAPL was born from a simple yet revolutionary idea by one of the founder Ankit Shah. He questioned the traditional short-format tournaments where momentum is lost just as teams begin to peak—“Why not create a league that runs through an entire cricketing season?”
+    description: `BAPL 3.0 – The Flagship Cricket League
+Founded in 2023, BAPL 3.0 was born from a simple yet revolutionary idea by one of the founder Ankit Shah. He questioned the traditional short-format tournaments where momentum is lost just as teams begin to peak—“Why not create a league that runs through an entire cricketing season?”
 
-This vision led to the creation of BAPL, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
+This vision led to the creation of BAPL 3.0, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
 
-BAPL is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
+BAPL 3.0 is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
     highlights: [
       '20+ competitive teams',
       '8-month long professional league format',
@@ -296,8 +296,10 @@ export default function TournamentDetails() {
       try {
         let tourn = await getDocument('tournaments', id);
         const fallback = PREDEFINED_TOURNAMENTS.find(p => p.id === id);
+        let isActivated = true;
         
         if (!tourn) {
+          isActivated = false;
           if (fallback) {
             tourn = {
               id: fallback.id,
@@ -305,7 +307,7 @@ export default function TournamentDetails() {
               logo: fallback.logo,
               description: fallback.description,
               highlights: fallback.highlights,
-              status: 'Upcoming',
+              status: 'Inactive',
               winner: 'TBD',
               runnerUp: 'TBD'
             };
@@ -316,6 +318,10 @@ export default function TournamentDetails() {
             description: fallback.description,
             highlights: fallback.highlights
           };
+        }
+        
+        if (tourn) {
+          tourn.isActivated = isActivated;
         }
         
         setTournament(tourn);
@@ -334,9 +340,10 @@ export default function TournamentDetails() {
           logo: fallback.logo,
           description: fallback.description,
           highlights: fallback.highlights,
-          status: 'Upcoming',
+          status: 'Inactive',
           winner: 'TBD',
-          runnerUp: 'TBD'
+          runnerUp: 'TBD',
+          isActivated: false
         } : null);
         setMatches([]);
         setTeams([]);
@@ -376,6 +383,10 @@ export default function TournamentDetails() {
 
   const handleJoinTournament = async (e) => {
     if (e) e.preventDefault();
+    if (tournament && tournament.isActivated === false) {
+      alert('This tournament is currently deactivated/inactive and cannot be joined.');
+      return;
+    }
     if (!user) {
       alert('Please log in to join this tournament!');
       return;
@@ -622,7 +633,13 @@ export default function TournamentDetails() {
             <h1 className="display-md text-gradient-gold">{tournament.name}</h1>
             <p className="text-secondary max-width-600 mt-xs" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>{tournament.description}</p>
             
-            {user ? (
+            {tournament && tournament.isActivated === false ? (
+              <div className="mt-md">
+                <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-red)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                  Tournament Inactive
+                </span>
+              </div>
+            ) : user ? (
               role === 'admin' ? (
                 <div className="mt-md" style={{ display: 'inline-block' }}><span className="badge badge-gold">Admin View</span></div>
               ) : (

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, addDocument, updateDocument, deleteDocument } from '../../firebase/firestore';
-import { Calendar, Trash2, Plus, AlertCircle, Edit2, Search, Activity } from 'lucide-react';
+import { Calendar, Trash2, Plus, AlertCircle, Edit2, Search, Activity, Download } from 'lucide-react';
 import './Admin.css';
 
 export default function AdminMatches() {
@@ -143,6 +143,72 @@ export default function AdminMatches() {
     m.venue?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const escapeCSV = (val) => {
+    if (val === undefined || val === null) return '';
+    let str = String(val);
+    str = str.replace(/"/g, '""');
+    if (str.includes(',') || str.includes('\n') || str.includes('\r') || str.includes('"')) {
+      return `"${str}"`;
+    }
+    return str;
+  };
+
+  const exportMatchesToCSV = () => {
+    const headers = [
+      'Match ID',
+      'Tournament ID',
+      'Tournament Name',
+      'Team A',
+      'Team B',
+      'Venue',
+      'Format',
+      'Date',
+      'Time',
+      'Status',
+      'Toss Winner',
+      'Toss Decision',
+      'Team A Score',
+      'Team B Score',
+      'Result'
+    ];
+
+    const rows = matches.map(m => {
+      const tournament = tournaments.find(t => t.id === m.tournamentId);
+      return [
+        m.id || '',
+        m.tournamentId || '',
+        tournament ? tournament.name : 'N/A',
+        m.teamA || '',
+        m.teamB || '',
+        m.venue || '',
+        m.format || 'T20',
+        m.date || '',
+        m.time || '',
+        m.status || '',
+        m.tossWinner || '',
+        m.tossDecision || '',
+        m.teamAScore || '',
+        m.teamBScore || '',
+        m.result || ''
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(escapeCSV).join(','))
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `trivab_matches_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getStatusBadgeClass = (status) => {
     if (status === 'Live') return 'badge-red';
     if (status === 'Completed') return 'badge-green';
@@ -188,7 +254,7 @@ export default function AdminMatches() {
           <AlertCircle size={24} />
           <div>
             <strong style={{ display: 'block', fontSize: '1rem', marginBottom: '4px' }}>No Active Tournaments Found</strong>
-            <span>You must create at least one tournament in the <strong>Tournaments</strong> tab (or click "Initialize Professional Demo Data" on the Dashboard) before scheduling matches.</span>
+            <span>You must create at least one tournament in the <strong>Tournaments</strong> tab before scheduling matches.</span>
           </div>
         </div>
       ) : teams.length < 2 ? (
@@ -347,15 +413,25 @@ export default function AdminMatches() {
         </div>
       )}
 
-      <div className="search-box mb-lg">
-        <Search size={18} />
-        <input
-          type="text"
-          placeholder="Search by team or venue..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-input"
-        />
+      <div className="flex gap-md items-center mb-lg flex-wrap sm:flex-nowrap">
+        <div className="search-box flex-1 mb-0" style={{ marginBottom: 0 }}>
+          <Search size={18} />
+          <input
+            type="text"
+            placeholder="Search by team or venue..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="form-input"
+          />
+        </div>
+        <button
+          onClick={exportMatchesToCSV}
+          className="btn btn-outline"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--admin-accent)', color: 'var(--admin-text)', padding: '10px 16px' }}
+          title="Download all scheduled matches as Excel/CSV"
+        >
+          <Download size={18} /> Export Excel
+        </button>
       </div>
 
       <div className="table-responsive card">

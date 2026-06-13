@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, getDocument, setDocument, addDocument, getPlayerByUIDOrEmail, where, orderBy, updateDocument } from '../../firebase/firestore';
-import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield } from 'lucide-react';
+import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload } from 'lucide-react';
 import Loader from '../../components/common/Loader';
+import uploadImageToCloudinary from '../../services/cloudinary';
 import './Captain.css';
 
 export default function CaptainDashboard() {
@@ -17,6 +18,7 @@ export default function CaptainDashboard() {
   const [teamName, setTeamName] = useState('');
   const [logoURL, setLogoURL] = useState('');
   const [saving, setSaving] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   // Multi-team states
   const [managedTeams, setManagedTeams] = useState([]);
@@ -435,7 +437,43 @@ export default function CaptainDashboard() {
       )}
 
       <div className="captain-grid">
-        {/* Team Configuration / Edit Mode */}
+        {/* FIRST: Active Managed Team Selection */}
+        <div className="card">
+          <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
+            <Shield size={20} /> Active Managed Team
+          </h3>
+          <div style={{ maxWidth: '600px' }}>
+            <h4 className="text-sm font-bold mb-sm opacity-80">Select Active Managed Team</h4>
+            <div className="form-group mb-md">
+              <select
+                className="form-select"
+                value={activeTeamId}
+                onChange={(e) => handleSwitchActiveTeam(e.target.value)}
+                style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+              >
+                {managedTeams.length === 0 ? (
+                  <option value="">-- No teams registered --</option>
+                ) : (
+                  managedTeams.map(t => (
+                    <option key={t.id} value={t.id}>
+                      {t.teamName} [{t.tournamentName || 'Tournament'}]
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+
+            {team && (
+              <div className="p-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
+                <h4 className="text-sm font-bold text-gradient-gold">{team.teamName}</h4>
+                <p className="text-xs text-muted mt-xs">Tournament: <strong>{team.tournamentName || 'N/A'}</strong></p>
+                <p className="text-xs text-muted mt-xs">Roster Size: <strong>{players.length} / 40 Players</strong></p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* SECOND: Squad Distribution or Edit Mode Form */}
         {editMode ? (
           <div className="card card-gold edit-team-form">
             <h3 className="text-lg font-bold mb-md text-gradient-gold">Edit Team Profile</h3>
@@ -452,17 +490,50 @@ export default function CaptainDashboard() {
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">Team Logo Image URL</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="https://example.com/logo.png"
-                  value={logoURL}
-                  onChange={(e) => setLogoURL(e.target.value)}
-                  disabled={saving}
-                />
+                <label className="form-label">Team Logo</label>
+                {logoURL ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-secondary)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-card)' }}>
+                    <img src={logoURL} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-xs"
+                      onClick={() => setLogoURL('')}
+                    >
+                      Remove Logo
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        setUploadingLogo(true);
+                        try {
+                          const url = await uploadImageToCloudinary(file);
+                          setLogoURL(url);
+                          alert('Logo uploaded successfully!');
+                        } catch (err) {
+                          console.error(err);
+                          alert('Failed to upload logo.');
+                        } finally {
+                          setUploadingLogo(false);
+                        }
+                      }}
+                      disabled={uploadingLogo || saving}
+                      style={{ display: 'none' }}
+                      id="captain-team-logo-upload"
+                    />
+                    <label htmlFor="captain-team-logo-upload" className="btn btn-outline btn-sm" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Upload size={16} />
+                      {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                    </label>
+                  </div>
+                )}
               </div>
-              <button type="submit" className="btn btn-gold" disabled={saving}>
+              <button type="submit" className="btn btn-gold" disabled={saving || uploadingLogo}>
                 <Save size={18} /> {saving ? 'Saving...' : 'Save Settings'}
               </button>
             </form>
@@ -491,7 +562,7 @@ export default function CaptainDashboard() {
           </div>
         )}
 
-        {/* Players List */}
+        {/* THIRD: Players List */}
         <div className="card players-table-card">
           <h3 className="text-lg font-bold mb-sm text-gradient-gold flex items-center gap-sm">
             <Users size={20} /> Squad Players List ({players.length})
@@ -536,95 +607,6 @@ export default function CaptainDashboard() {
                 )}
               </tbody>
             </table>
-          </div>
-        </div>
-
-        {/* Roster & New Team Enrollment Section */}
-        <div className="card mt-xl" style={{ gridColumn: 'span 2' }}>
-          <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
-            <Shield size={20} /> Managed Teams & Tournament Registration
-          </h3>
-
-          <div className="grid grid-2 gap-xl">
-            {/* Roster active team selection */}
-            <div>
-              <h4 className="text-sm font-bold mb-sm opacity-80">Select Active Managed Team</h4>
-              <div className="form-group mb-md">
-                <select
-                  className="form-select"
-                  value={activeTeamId}
-                  onChange={(e) => handleSwitchActiveTeam(e.target.value)}
-                  style={{ padding: '8px 12px', fontSize: '0.85rem' }}
-                >
-                  {managedTeams.length === 0 ? (
-                    <option value="">-- No teams registered --</option>
-                  ) : (
-                    managedTeams.map(t => (
-                      <option key={t.id} value={t.id}>
-                        {t.teamName} [{t.tournamentName || 'Tournament'}]
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
-
-              {team && (
-                <div className="p-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
-                  <h4 className="text-sm font-bold text-gradient-gold">{team.teamName}</h4>
-                  <p className="text-xs text-muted mt-xs">Tournament: <strong>{team.tournamentName || 'N/A'}</strong></p>
-                  <p className="text-xs text-muted mt-xs">Roster Size: <strong>{players.length} / 40 Players</strong></p>
-                </div>
-              )}
-            </div>
-
-            {/* Register a team for another tournament */}
-            <div style={{ borderLeft: '1px solid var(--border-card)', paddingLeft: '24px' }}>
-              <h4 className="text-sm font-bold mb-sm opacity-80">Register Team in another Tournament</h4>
-              <form onSubmit={handleRegisterNewTeam} className="flex flex-col gap-sm">
-                <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.8rem' }}>New Team Name</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Enter new team name"
-                    value={newTeamName}
-                    onChange={(e) => setNewTeamName(e.target.value)}
-                    required
-                    style={{ padding: '8px 12px', fontSize: '0.85rem' }}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label" style={{ fontSize: '0.8rem' }}>Select Tournament</label>
-                  <select
-                    className="form-select"
-                    value={regTournamentSelection}
-                    onChange={(e) => setRegTournamentSelection(e.target.value)}
-                    required
-                    style={{ padding: '8px 12px', fontSize: '0.85rem' }}
-                  >
-                    <option value="">-- Choose Tournament --</option>
-                    {availableTournamentsToRegister.length === 0 ? (
-                      <option value="" disabled>-- All tournaments registered --</option>
-                    ) : (
-                      availableTournamentsToRegister.map(t => (
-                        <option key={t.id} value={t.id}>{t.name}</option>
-                      ))
-                    )}
-                  </select>
-                </div>
-
-                <button
-                  type="submit"
-                  className="btn btn-gold btn-sm mt-xs w-full"
-                  disabled={creatingTeam || !newTeamName.trim() || !regTournamentSelection}
-                >
-                  {creatingTeam ? 'Registering...' : 'Register Team'}
-                </button>
-                {regMessage && <p className="text-xs text-green font-bold mt-xs" style={{ color: '#22c55e' }}>{regMessage}</p>}
-                {regError && <p className="text-xs text-red font-bold mt-xs" style={{ color: '#ef4444' }}>{regError}</p>}
-              </form>
-            </div>
           </div>
         </div>
       </div>

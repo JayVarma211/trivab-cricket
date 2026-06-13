@@ -346,10 +346,10 @@ export default function About() {
                 <div className="card card-gold" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--gold-alpha)', padding: '24px' }}>
                   <h3 className="text-sm font-bold mb-xs text-gradient-gold">Join the Bharat Army Family</h3>
                   <p className="text-xs text-secondary mb-md" style={{ lineHeight: 1.5 }}>
-                    Become a member today and bring the thrill of cricket back into your life. Register now by clicking below, and our team will get in touch with you to complete the registration process.
+                    Become a member today and bring the thrill of cricket back into your life. Enquire now by clicking below, and our team will get in touch with you to complete the registration process.
                   </p>
-                  <Link to="/register" className="btn btn-gold btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-                    Register for Membership <ArrowRight size={16} />
+                  <Link to="/contact?subject=Bharat Army Membership" className="btn btn-gold btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                    Enquire for Membership <ArrowRight size={16} />
                   </Link>
                 </div>
               </div>

@@ -161,6 +161,10 @@
     gap: var(--space-xl);
   }
 
+  .footer-logo-img {
+    height: 100px;
+  }
+
   .footer-bottom-inner {
     flex-direction: column;
     text-align: center;

@@ -6,8 +6,8 @@ import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, Calendar, Users, Eye,
 import './Admin.css';
 
 const PREDEFINED_TOURNAMENTS = [
-  { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.' },
-  { id: 'bapl-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL League.' },
+  { id: 'bapl-south', name: 'BAPL 3.0 - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL 3.0 League.' },
+  { id: 'bapl-north', name: 'BAPL 3.0 - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL 3.0 League.' },
   { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.' },
   { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.' },
   { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.' },
@@ -55,6 +55,122 @@ export default function AdminTournaments() {
     winner: 'TBD',
     runnerUp: 'TBD',
   });
+
+  const handleActivate = async (pred) => {
+    setError('');
+    try {
+      const tournamentData = {
+        name: pred.name,
+        logo: pred.logo,
+        status: 'Upcoming',
+        date: 'TBD',
+        teamCount: 12,
+        description: pred.description,
+        winner: 'TBD',
+        runnerUp: 'TBD',
+        createdAt: new Date().toISOString()
+      };
+      await setDocument('tournaments', pred.id, tournamentData);
+      fetchData();
+      alert(`Tournament "${pred.name}" activated successfully!`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to activate tournament: ' + err.message);
+    }
+  };
+
+  const handleDeactivate = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to deactivate "${name}"? This will delete the tournament configuration from the database.`)) return;
+    setError('');
+    try {
+      await deleteDocument('tournaments', id);
+      fetchData();
+      alert(`Tournament "${name}" deactivated successfully.`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to deactivate tournament');
+    }
+  };
+
+  const exportToCSV = (data, headers, filename) => {
+    const csvRows = [];
+    csvRows.push(headers.join(','));
+    for (const row of data) {
+      const values = row.map(val => {
+        const escaped = ('' + val).replace(/"/g, '""');
+        return `"${escaped}"`;
+      });
+      csvRows.push(values.join(','));
+    }
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const downloadTeamsExcel = () => {
+    if (!selectedTournamentForModal) return;
+    const tournamentTeams = teams.filter(t => t.tournamentId === selectedTournamentForModal.id);
+    const headers = ['Team Name', 'City', 'Captain Name', 'Matches Scheduled', 'Wins', 'Losses', 'Max Roster Limit'];
+    const data = tournamentTeams.map(t => {
+      const teamMatchesCount = matches.filter(m => 
+        m.tournamentId === selectedTournamentForModal.id && 
+        (m.teamA === t.teamName || m.teamB === t.teamName)
+      ).length;
+      return [
+        t.teamName,
+        t.city || 'TBD',
+        t.captainName || 'Not Assigned',
+        teamMatchesCount,
+        t.wins || 0,
+        t.losses || 0,
+        t.maxPlayers || 40
+      ];
+    });
+    exportToCSV(data, headers, `${selectedTournamentForModal.name.replace(/\s+/g, '_')}_Teams.csv`);
+  };
+
+  const downloadMatchesExcel = () => {
+    if (!selectedTournamentForModal) return;
+    const tournamentMatches = matches.filter(m => m.tournamentId === selectedTournamentForModal.id);
+    const headers = ['Team A', 'Team B', 'Date', 'Time', 'Venue', 'Format', 'Status', 'Result'];
+    const data = tournamentMatches.map(m => [
+      m.teamA,
+      m.teamB,
+      m.date,
+      m.time,
+      m.venue,
+      m.format,
+      m.status,
+      m.result || 'TBD'
+    ]);
+    exportToCSV(data, headers, `${selectedTournamentForModal.name.replace(/\s+/g, '_')}_Matches.csv`);
+  };
+
+  const downloadSquadExcel = () => {
+    if (!selectedTournamentForModal || !viewingTeamSquad) return;
+    const headers = ['Player Name', 'Player ID', 'Jersey Number', 'Playing Style', 'Mobile', 'Matches in Tournament', 'MCA Status', 'MCA Card ID'];
+    const data = teamPlayers.map(p => {
+      const tournObj = p.joinedTournaments?.find(jt => (typeof jt === 'string' ? jt : jt.id) === selectedTournamentForModal.id);
+      const tournMatches = tournObj?.matchesPlayed !== undefined ? tournObj.matchesPlayed : 0;
+      return [
+        p.fullName,
+        p.playerId,
+        p.jerseyNumber || '—',
+        p.playingStyle || 'Player',
+        p.mobile || '',
+        tournMatches,
+        p.mcaPlayer ? 'Yes' : 'No',
+        p.mcaIdNumber || ''
+      ];
+    });
+    exportToCSV(data, headers, `${viewingTeamSquad.teamName.replace(/\s+/g, '_')}_Squad.csv`);
+  };
 
   useEffect(() => {
     if (role !== 'admin') navigate('/admin/login');
@@ -400,23 +516,45 @@ export default function AdminTournaments() {
       </div>
 
       <div className="admin-tournament-list">
-        {filteredTournaments.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--admin-muted)' }}>
-            <Trophy size={36} style={{ opacity: 0.25, marginBottom: '12px' }} />
-            <p style={{ margin: 0, fontSize: '0.875rem' }}>No tournaments yet. Click "Schedule Tournament" to create one.</p>
-          </div>
-        ) : (
-          filteredTournaments.map((t, idx) => (
+        {PREDEFINED_TOURNAMENTS.filter(pred => 
+          pred.name.toLowerCase().includes(searchTerm.toLowerCase())
+        ).map((pred, idx, arr) => {
+          const dbTourn = tournaments.find(t => t.id === pred.id);
+          const isActive = !!dbTourn;
+          const displayTourn = dbTourn || {
+            id: pred.id,
+            name: pred.name,
+            logo: pred.logo,
+            status: 'Inactive',
+            date: 'TBD',
+            teamCount: 12,
+            description: pred.description
+          };
+
+          const badgeInactiveStyle = {
+            background: 'rgba(255, 255, 255, 0.05)',
+            color: 'rgba(255, 255, 255, 0.4)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            fontSize: '0.65rem',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            fontWeight: 'bold',
+            display: 'inline-block'
+          };
+
+          return (
             <div 
-              key={t.id} 
-              className="admin-tournament-item" 
-              onClick={() => handleTournamentClick(t)}
+              key={pred.id} 
+              className={`admin-tournament-item ${!isActive ? 'inactive-item' : ''}`} 
+              onClick={() => isActive && handleTournamentClick(dbTourn)}
               style={{
-                borderBottom: idx < filteredTournaments.length - 1 ? '1px solid var(--admin-border)' : 'none'
+                borderBottom: idx < arr.length - 1 ? '1px solid var(--admin-border)' : 'none',
+                cursor: isActive ? 'pointer' : 'default',
+                opacity: isActive ? 1 : 0.65
               }}
             >
               {/* Logo — transparent, no background */}
-              {t.logo && (
+              {displayTourn.logo && (
                 <div style={{
                   width: '48px',
                   height: '48px',
@@ -429,9 +567,9 @@ export default function AdminTournaments() {
                   justifyContent: 'center',
                 }}>
                   <img
-                    src={t.logo}
+                    src={displayTourn.logo}
                     alt=""
-                    className={t.logo.toLowerCase().includes('xpress') || t.logo.toLowerCase().includes('dads') ? 'logo-black-bg' : 'logo-white-bg'}
+                    className={displayTourn.logo.toLowerCase().includes('xpress') || displayTourn.logo.toLowerCase().includes('dads') ? 'logo-black-bg' : 'logo-white-bg'}
                     style={{
                       width: '48px',
                       height: '48px',
@@ -445,62 +583,77 @@ export default function AdminTournaments() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                   <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--admin-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {t.name}
+                    {displayTourn.name}
                   </h3>
-                  <span className={`badge ${getStatusClass(t.status)}`}>{t.status}</span>
+                  {isActive ? (
+                    <span className={`badge ${getStatusClass(displayTourn.status)}`}>{displayTourn.status}</span>
+                  ) : (
+                    <span style={badgeInactiveStyle}>Inactive</span>
+                  )}
                 </div>
                 <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)' }}>
                     <Calendar size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                    {t.date || 'TBD'}
+                    {displayTourn.date || 'TBD'}
                   </span>
                   <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)' }}>
                     <Users size={11} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                    {t.teamCount || 12} Teams
+                    {displayTourn.teamCount || 12} Teams
                   </span>
-                  {t.status === 'Completed' && t.winner && t.winner !== 'TBD' && (
+                  {isActive && displayTourn.status === 'Completed' && displayTourn.winner && displayTourn.winner !== 'TBD' && (
                     <span style={{ fontSize: '0.75rem', color: 'var(--admin-green)' }}>
-                      🏆 {t.winner}
+                      🏆 {displayTourn.winner}
                     </span>
                   )}
                 </div>
-                {t.description && (
+                {displayTourn.description && (
                   <p style={{ margin: '4px 0 0', fontSize: '0.75rem', color: 'var(--admin-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '500px' }}>
-                    {t.description}
+                    {displayTourn.description}
                   </p>
                 )}
               </div>
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleTournamentClick(t); }}
-                  className="btn-table-action"
-                  title="View Details"
-                  style={{ color: '#3b82f6' }}
-                >
-                  <Eye size={15} />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleEdit(t); }}
-                  className="btn-table-action"
-                  title="Edit"
-                  style={{ color: 'var(--admin-gold)' }}
-                >
-                  <Edit2 size={15} />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleDelete(t.id); }}
-                  className="btn-table-action"
-                  title="Delete"
-                  style={{ color: 'var(--admin-red)' }}
-                >
-                  <Trash2 size={15} />
-                </button>
+              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                {isActive ? (
+                  <>
+                    <button
+                      onClick={() => handleTournamentClick(dbTourn)}
+                      className="btn-table-action"
+                      title="View Details"
+                      style={{ color: '#3b82f6' }}
+                    >
+                      <Eye size={15} />
+                    </button>
+                    <button
+                      onClick={() => handleEdit(dbTourn)}
+                      className="btn-table-action"
+                      title="Edit Settings"
+                      style={{ color: 'var(--admin-gold)' }}
+                    >
+                      <Edit2 size={15} />
+                    </button>
+                    <button
+                      onClick={() => handleDeactivate(pred.id, pred.name)}
+                      className="btn btn-outline text-red btn-xs"
+                      style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
+                    >
+                      Deactivate
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => handleActivate(pred)}
+                    className="btn btn-gold btn-xs"
+                    style={{ padding: '4px 12px', fontSize: '0.75rem', height: 'auto' }}
+                  >
+                    Activate
+                  </button>
+                )}
               </div>
             </div>
-          ))
-        )}
+          );
+        })}
       </div>
 
       {/* Tournament Details & Squad Modal */}
@@ -550,9 +703,18 @@ export default function AdminTournaments() {
               /* Squad / Players List Roster View */
               <div style={{ textAlign: 'left' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Squad Roster ({teamPlayers.length} Players)
-                  </h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Squad Roster ({teamPlayers.length} Players)
+                    </h4>
+                    <button 
+                      onClick={downloadSquadExcel} 
+                      className="btn btn-outline btn-xs" 
+                      style={{ padding: '2px 8px', fontSize: '0.7rem', height: 'auto', border: '1px solid var(--admin-border)' }}
+                    >
+                      Download Excel
+                    </button>
+                  </div>
                   <span style={{ fontSize: '0.8rem', color: 'var(--admin-gold)', fontWeight: 600 }}>
                     Captain: {viewingTeamSquad.captainName || 'Not Assigned'}
                   </span>
@@ -604,9 +766,20 @@ export default function AdminTournaments() {
                 
                 {/* Left Column: Teams */}
                 <div>
-                  <h4 style={{ margin: '0 0 12px 0', fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Teams Registered ({teams.filter(team => team.tournamentId === selectedTournamentForModal.id).length})
-                  </h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                    <h4 style={{ margin: '0', fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Teams Registered ({teams.filter(team => team.tournamentId === selectedTournamentForModal.id).length})
+                    </h4>
+                    {teams.filter(team => team.tournamentId === selectedTournamentForModal.id).length > 0 && (
+                      <button 
+                        onClick={downloadTeamsExcel} 
+                        className="btn btn-outline btn-xs" 
+                        style={{ padding: '2px 8px', fontSize: '0.7rem', height: 'auto', border: '1px solid var(--admin-border)' }}
+                      >
+                        Download Excel
+                      </button>
+                    )}
+                  </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '380px', overflowY: 'auto', paddingRight: '4px' }}>
                     {teams.filter(team => team.tournamentId === selectedTournamentForModal.id).length === 0 ? (
@@ -614,44 +787,56 @@ export default function AdminTournaments() {
                         <p style={{ margin: 0, fontSize: '0.8rem' }}>No teams registered for this league yet.</p>
                       </div>
                     ) : (
-                      teams.filter(team => team.tournamentId === selectedTournamentForModal.id).map(team => (
-                        <div 
-                          key={team.id} 
-                          onClick={() => handleTeamClick(team)}
-                          style={{ 
-                            display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', 
-                            background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--admin-border)', 
-                            cursor: 'pointer', transition: 'all 0.2s' 
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.borderColor = 'var(--admin-gold)';
-                            e.currentTarget.style.background = 'rgba(212,175,55,0.03)';
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.borderColor = 'var(--admin-border)';
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                          }}
-                        >
-                          {/* Team Logo */}
-                          <div style={{ width: '38px', height: '38px', borderRadius: '6px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--admin-border)', flexShrink: 0 }}>
-                            {team.logoURL ? (
-                              <img src={team.logoURL} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            ) : (
-                              <span style={{ fontSize: '1rem', fontWeight: 800, color: '#000' }}>{team.teamName[0]}</span>
-                            )}
-                          </div>
+                      teams.filter(team => team.tournamentId === selectedTournamentForModal.id).map(team => {
+                        const teamMatchesCount = matches.filter(m => 
+                          m.tournamentId === selectedTournamentForModal.id && 
+                          (m.teamA === team.teamName || m.teamB === team.teamName)
+                        ).length;
 
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <strong style={{ fontSize: '0.85rem', color: 'var(--admin-text)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {team.teamName}
-                            </strong>
-                            <span style={{ fontSize: '0.72rem', color: 'var(--admin-muted)', display: 'block' }}>
-                              Capt: {team.captainName || 'Not Assigned'}
-                            </span>
+                        return (
+                          <div 
+                            key={team.id} 
+                            onClick={() => handleTeamClick(team)}
+                            style={{ 
+                              display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 14px', 
+                              background: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid var(--admin-border)', 
+                              cursor: 'pointer', transition: 'all 0.2s' 
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.borderColor = 'var(--admin-gold)';
+                              e.currentTarget.style.background = 'rgba(212,175,55,0.03)';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.borderColor = 'var(--admin-border)';
+                              e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                            }}
+                          >
+                            {/* Team Logo */}
+                            <div style={{ width: '38px', height: '38px', borderRadius: '6px', overflow: 'hidden', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--admin-border)', flexShrink: 0 }}>
+                              {team.logoURL ? (
+                                <img src={team.logoURL} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <span style={{ fontSize: '1rem', fontWeight: 800, color: '#000' }}>{team.teamName[0]}</span>
+                              )}
+                            </div>
+
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <strong style={{ fontSize: '0.85rem', color: 'var(--admin-text)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {team.teamName}
+                              </strong>
+                              <span style={{ fontSize: '0.72rem', color: 'var(--admin-muted)', display: 'block' }}>
+                                Capt: {team.captainName || 'Not Assigned'}
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '8px' }}>
+                              <span className="badge badge-gold" style={{ fontSize: '0.65rem' }}>
+                                Matches: {teamMatchesCount}
+                              </span>
+                            </div>
+                            <ChevronRight size={16} style={{ color: 'var(--admin-muted)' }} />
                           </div>
-                          <ChevronRight size={16} style={{ color: 'var(--admin-muted)' }} />
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -659,9 +844,20 @@ export default function AdminTournaments() {
                 {/* Right Column: Match Fixtures */}
                 <div style={{ borderLeft: '1px solid var(--admin-border)', paddingLeft: '24px' }}>
                   <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                    <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      Match Fixtures ({matches.filter(m => m.tournamentId === selectedTournamentForModal.id).length})
-                    </h4>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Match Fixtures ({matches.filter(m => m.tournamentId === selectedTournamentForModal.id).length})
+                      </h4>
+                      {matches.filter(m => m.tournamentId === selectedTournamentForModal.id).length > 0 && (
+                        <button 
+                          onClick={downloadMatchesExcel} 
+                          className="btn btn-outline btn-xs" 
+                          style={{ padding: '2px 8px', fontSize: '0.7rem', height: 'auto', border: '1px solid var(--admin-border)' }}
+                        >
+                          Download Excel
+                        </button>
+                      )}
+                    </div>
                     <button 
                       onClick={() => setShowMatchForm(!showMatchForm)} 
                       className="btn btn-gold btn-xs" 

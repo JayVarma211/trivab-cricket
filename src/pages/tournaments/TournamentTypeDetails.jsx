@@ -8,7 +8,7 @@ import './TournamentTypeDetails.css';
 
 const PARENT_TOURNAMENTS = {
   'bapl': {
-    name: 'BAPL – The Flagship Cricket League',
+    name: 'BAPL 3.0 – The Flagship Cricket League',
     description: `Founded in 2023, BAPL was born from a simple yet revolutionary idea by one of the founder Ankit Shah. He questioned the traditional short-format tournaments where momentum is lost just as teams begin to peak—“Why not create a league that runs through an entire cricketing season?”
 
 This vision led to the creation of BAPL, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
@@ -30,9 +30,9 @@ BAPL is not just a tournament—it is a full-season cricketing experience built 
       'Grand opening ceremony and league night event'
     ],
     editions: [
-      { id: 'bapl-north', name: 'BAPL - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL League.', location: 'North Mumbai Grounds', comingSoon: false },
-      { id: 'bapl-south', name: 'BAPL - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL League.', location: 'South Mumbai', comingSoon: true },
-      { id: 'bapl-pune', name: 'BAPL - Pune Edition', logo: '/logos/baplpune.jpg', description: 'Pune Edition of the premier BAPL League.', location: 'Pune', comingSoon: true },
+      { id: 'bapl-north', name: 'BAPL 3.0 - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL 3.0 League.', location: 'North Mumbai Grounds', comingSoon: false },
+      { id: 'bapl-south', name: 'BAPL 3.0 - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL 3.0 League.', location: 'South Mumbai', comingSoon: true },
+      { id: 'bapl-pune', name: 'BAPL 3.0 - Pune Edition', logo: '/logos/baplpune.jpg', description: 'Pune Edition of the premier BAPL 3.0 League.', location: 'Pune', comingSoon: true },
     ]
   },
   'baplxpress': {
@@ -141,10 +141,13 @@ export default function TournamentTypeDetails() {
     try {
       const editionIds = currentParent.editions.map(e => e.id);
       
-      const [allTeams, allMatches] = await Promise.all([
+      const [allTeams, allMatches, dbTournaments] = await Promise.all([
         getCollection('teams'),
-        getCollection('matches')
+        getCollection('matches'),
+        getCollection('tournaments')
       ]);
+
+      const activeTournIds = new Set(dbTournaments.map(t => t.id));
 
       const statsMap = {};
       editionIds.forEach(id => {
@@ -152,7 +155,9 @@ export default function TournamentTypeDetails() {
         const matches = allMatches.filter(m => m.tournamentId === id);
         
         let status = 'Upcoming';
-        if (matches.some(m => m.status === 'Live')) {
+        if (!activeTournIds.has(id)) {
+          status = 'Inactive';
+        } else if (matches.some(m => m.status === 'Live')) {
           status = 'Live';
         } else if (matches.some(m => m.status === 'Completed')) {
           status = 'Completed';
@@ -265,7 +270,7 @@ export default function TournamentTypeDetails() {
                     <img src={edition.logo} alt={edition.name} className={`edition-card-logo ${getLogoClass(edition.logo)}`} />
                   )}
                   <div>
-                    <span className={`badge ${stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : 'badge-gold'} mb-xs`}>
+                    <span className={`badge ${stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : stats.status === 'Inactive' ? 'badge-grey' : 'badge-gold'} mb-xs`}>
                       {isComingSoon ? 'Coming Soon' : stats.status}
                     </span>
                     <h3 className="text-md font-bold text-gradient-gold">{edition.name}</h3>

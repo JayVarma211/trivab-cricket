@@ -359,21 +359,21 @@
 }
 
 @media (max-width: 480px) {
-  .id-card-element {
+  .id-card-element:not(.pdf-clone) {
     width: 320px;
     height: 202px;
   }
 
-  .id-player-photo {
+  .id-card-element:not(.pdf-clone) .id-player-photo {
     width: 68px;
     height: 80px;
   }
 
-  .id-player-name {
+  .id-card-element:not(.pdf-clone) .id-player-name {
     font-size: 0.9rem;
   }
 
-  .id-stat-val {
+  .id-card-element:not(.pdf-clone) .id-stat-val {
     font-size: 0.72rem;
   }
 }

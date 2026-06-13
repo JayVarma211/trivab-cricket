@@ -357,6 +357,10 @@ export default function AdminPlayers() {
       const playerToDelete = players.find(p => p.id === id);
       await deleteDocument('players', id);
       
+      if (playerToDelete && playerToDelete.uid) {
+        await deleteDocument('users', playerToDelete.uid);
+      }
+      
       if (playerToDelete && playerToDelete.teamId) {
         const teamObj = teams.find(t => t.id === playerToDelete.teamId);
         if (teamObj) {
@@ -376,6 +380,11 @@ export default function AdminPlayers() {
     try {
       const captainToDelete = captains.find(c => c.id === id);
       await deleteDocument('captains', id);
+      
+      if (captainToDelete && captainToDelete.uid) {
+        await deleteDocument('users', captainToDelete.uid);
+      }
+      
       if (captainToDelete && captainToDelete.teamId) {
         await updateDocument('teams', captainToDelete.teamId, {
           captainName: '',
@@ -942,15 +951,25 @@ export default function AdminPlayers() {
         </div>
       )}
 
-      <div className="search-box mb-lg">
-        <Search size={18} />
-        <input
-          type="text"
-          placeholder={activeTab === 'players' ? "Search players by name, email, or team..." : "Search captains by name, email, or team..."}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-input"
-        />
+      <div className="flex gap-md items-center mb-lg flex-wrap sm:flex-nowrap">
+        <div className="search-box flex-1 mb-0" style={{ marginBottom: 0 }}>
+          <Search size={18} />
+          <input
+            type="text"
+            placeholder={activeTab === 'players' ? "Search players by name, email, or team..." : "Search captains by name, email, or team..."}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="form-input"
+          />
+        </div>
+        <button
+          onClick={activeTab === 'players' ? exportPlayersToCSV : exportCaptainsToCSV}
+          className="btn btn-outline"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--admin-accent)', color: 'var(--admin-text)', padding: '10px 16px' }}
+          title={activeTab === 'players' ? "Download all player details as Excel/CSV" : "Download all captain details as Excel/CSV"}
+        >
+          <Download size={18} /> Export Excel
+        </button>
       </div>
 
       {activeTab === 'players' ? (

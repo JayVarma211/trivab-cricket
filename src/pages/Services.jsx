@@ -36,7 +36,7 @@ export default function Services() {
         'Visa coordination, ground transport, and flight booking assistance'
       ],
       ctaText: 'Inquire About International Tour',
-      image: 'https://images.unsplash.com/photo-1540747737956-3787257478be?auto=format&fit=crop&q=80&w=1200'
+      images: ['/logos/INTERNATIONALTOUR.jpeg']
     },
     domestic: {
       title: 'Domestic Cricket Tour',
@@ -53,7 +53,7 @@ export default function Services() {
         'Local transport and catering during match days'
       ],
       ctaText: 'Enroll in Domestic Tour',
-      image: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&q=80&w=1200'
+      images: ['/logos/DOMESTICTOUR.jpeg', '/logos/DOMESTICTOUR1.jpeg']
     },
     corporate: {
       title: 'Corporate Sports Events',
@@ -70,7 +70,13 @@ export default function Services() {
         'Safe, fully insured sports facilities with first-aid support'
       ],
       ctaText: 'Plan a Corporate Tournament',
-      image: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=1200'
+      images: [
+        '/logos/CORPORATE1.jpeg',
+        '/logos/CORPORATE2.jpeg',
+        '/logos/CORPORATE3.jpeg',
+        '/logos/CORPORATE4.jpeg',
+        '/logos/CORPORATE5.jpeg'
+      ]
     },
     community: {
       title: 'Community Sport Events',
@@ -87,7 +93,7 @@ export default function Services() {
         'Inclusive tournaments welcoming players of all skill levels'
       ],
       ctaText: 'Get Involved in Community Sports',
-      image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&q=80&w=1200'
+      images: ['/logos/trivabmonsoon.jpg']
     }
   };
 
@@ -177,12 +183,8 @@ export default function Services() {
             className="services-content-grid"
           >
             {/* Left Column: Media & Visuals */}
-            <div className="card-gold services-image-card">
-              <img
-                src={currentService.image}
-                alt={currentService.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+            <div className="card-gold services-image-card" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
+              <ServiceImageSlider images={currentService.images} title={currentService.title} />
               <div style={{
                 position: 'absolute',
                 inset: 0,
@@ -190,7 +192,8 @@ export default function Services() {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'flex-end',
-                padding: 'var(--space-xl)'
+                padding: 'var(--space-xl)',
+                pointerEvents: 'none'
               }}>
                 <span className="badge badge-gold" style={{ alignSelf: 'flex-start', marginBottom: '8px' }}>Verified Service</span>
                 <h3 className="display-sm text-gradient-gold" style={{ margin: 0 }}>{currentService.tagline}</h3>
@@ -236,6 +239,48 @@ export default function Services() {
             </div>
           </motion.div>
         </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+function ServiceImageSlider({ images, title }) {
+  if (!images || images.length === 0) return null;
+
+  if (images.length === 1) {
+    return (
+      <img
+        src={images[0]}
+        alt={title}
+        className="single-animated-image"
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+    );
+  }
+
+  const K = images.length;
+  const trackWidth = `${2 * K * 100}%`;
+  const imageWidth = `${100 / (2 * K)}%`;
+
+  return (
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <div className="marquee-track" style={{ width: trackWidth }}>
+        {images.map((img, i) => (
+          <img
+            key={i}
+            src={img}
+            alt={`${title} - ${i + 1}`}
+            style={{ width: imageWidth, height: '100%', objectFit: 'cover', flexShrink: 0 }}
+          />
+        ))}
+        {images.map((img, i) => (
+          <img
+            key={`dup-${i}`}
+            src={img}
+            alt={`${title} - ${i + 1} duplicate`}
+            style={{ width: imageWidth, height: '100%', objectFit: 'cover', flexShrink: 0 }}
+          />
+        ))}
       </div>
     </div>
   );

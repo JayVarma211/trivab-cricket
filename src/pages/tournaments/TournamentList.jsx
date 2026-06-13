@@ -16,7 +16,7 @@ const getLogoClass = (logoUrl) => {
 const TRIVAB_TOURNAMENT_CATEGORIES = [
   {
     id: 'bapl',
-    name: 'BAPL (BAPL T20)',
+    name: 'BAPL 3.0 (BAPL T20)',
     logo: '/logos/baplt20north.jpg',
     description: 'BAPL is the flagship season-long cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.',
     to: '/tournaments/type/bapl',
@@ -94,7 +94,7 @@ export default function TournamentList() {
       {
         "@type": "ListItem",
         "position": 1,
-        "name": "BAPL (BAPL T20)",
+        "name": "BAPL 3.0 (BAPL T20)",
         "description": "BAPL is the flagship season-long cricket league designed to deliver a true season-long competitive experience."
       },
       {

@@ -267,6 +267,8 @@
   gap: var(--space-lg);
   box-shadow: var(--shadow-lg);
   z-index: 850;
+  max-height: calc(100vh - var(--navbar-height));
+  overflow-y: auto;
 }
 
 .mobile-nav-links {
@@ -322,10 +324,16 @@
     font-size: 0.8rem;
     font-weight: 600;
   }
+  .logo-image {
+    height: 70px;
+  }
 }
 
 @media (max-width: 480px) {
   .logo-text    { font-size: 1.2rem; }
+  .logo-image {
+    height: 55px;
+  }
 }
 
 /* ---- Tournaments Nav Dropdown ---- */

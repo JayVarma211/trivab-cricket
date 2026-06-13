@@ -41,25 +41,23 @@ export default function AdminLayout({ children }) {
         <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 20px 16px' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
             <div style={{
-              width: '90px',
-              height: '90px',
-              overflow: 'hidden',
+              width: '160px',
+              height: '50px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'flex-start',
-              background: 'transparent',
-              border: 'none',
-              borderRadius: '8px'
+              justifyContent: 'center',
+              background: '#ffffff',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              boxSizing: 'border-box',
+              border: '1px solid rgba(212,175,55,0.3)'
             }}>
               <img 
                 src="/logos/trivabsports.webp" 
                 style={{ 
-                  height: '110px', 
-                  width: 'auto', 
-                  objectFit: 'contain',
-                  maxWidth: 'none',
-                  marginLeft: '-5px',
-                  filter: 'url(#remove-white)'
+                  height: '100%', 
+                  width: '100%', 
+                  objectFit: 'contain'
                 }} 
                 alt="TRIVAB SPORTS" 
               />

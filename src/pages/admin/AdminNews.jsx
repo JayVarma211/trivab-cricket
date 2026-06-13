@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, addDocument, setDocument, deleteDocument } from '../../firebase/firestore';
-import { Plus, Edit2, Trash2, X, CheckCircle2, AlertCircle, Newspaper, Calendar, Tag } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, CheckCircle2, AlertCircle, Newspaper, Calendar, Tag, Upload } from 'lucide-react';
+import uploadImageToCloudinary from '../../services/cloudinary';
 import './Admin.css';
 
 const TAG_OPTIONS = ['Announcement', 'Tournament', 'Match Result', 'Sponsorship', 'General'];
@@ -17,6 +18,7 @@ export default function AdminNews() {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ title: '', content: '', date: '', tag: 'Announcement', imageURL: '' });
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
@@ -84,6 +86,22 @@ export default function AdminNews() {
       setMessage({ type: 'success', text: 'Article deleted.' });
     } catch (err) {
       setMessage({ type: 'error', text: 'Error deleting article.' });
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const url = await uploadImageToCloudinary(file);
+      setFormData(prev => ({ ...prev, imageURL: url }));
+      alert('Image uploaded successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -186,14 +204,35 @@ export default function AdminNews() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Image URL <span style={{ color: 'var(--admin-muted)', fontWeight: 400 }}>(optional)</span></label>
-                <input
-                  className="form-input"
-                  type="url"
-                  placeholder="https://example.com/image.jpg"
-                  value={formData.imageURL}
-                  onChange={e => setFormData(p => ({ ...p, imageURL: e.target.value }))}
-                />
+                <label className="form-label">Image <span style={{ color: 'var(--admin-muted)', fontWeight: 400 }}>(optional)</span></label>
+                {formData.imageURL ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.02)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--admin-border)' }}>
+                    <img src={formData.imageURL} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-xs"
+                      style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
+                      onClick={() => setFormData(prev => ({ ...prev, imageURL: '' }))}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage || saving}
+                      style={{ display: 'none' }}
+                      id="news-image-upload"
+                    />
+                    <label htmlFor="news-image-upload" className="btn btn-outline btn-sm" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Upload size={16} />
+                      {uploadingImage ? 'Uploading...' : 'Upload Image'}
+                    </label>
+                  </div>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'flex-end' }}>
