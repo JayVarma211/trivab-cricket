@@ -49,7 +49,7 @@ export default function Contact() {
       const result = await sendContactEmail(name, email, subject, message);
       if (result && result.mock) {
         setIsMockEmail(true);
-        const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
+        const mailtoLink = `mailto:trivabsports@gmail.com?subject=${encodeURIComponent(
           `[TRIVAB Inquiry] - ${subject}`
         )}&body=${encodeURIComponent(
           `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
@@ -69,7 +69,7 @@ export default function Contact() {
     } catch (err) {
       console.error("Failed to send email:", err);
       setIsMockEmail(true);
-      const mailtoLink = `mailto:trivabsportsandevents@gmail.com?subject=${encodeURIComponent(
+      const mailtoLink = `mailto:trivabsports@gmail.com?subject=${encodeURIComponent(
         `[TRIVAB Inquiry] - ${subject}`
       )}&body=${encodeURIComponent(
         `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
@@ -99,11 +99,11 @@ export default function Contact() {
     "mainEntity": {
       "@type": "SportsOrganization",
       "name": "TRIVAB Sports",
-      "email": "trivabsportsandevents@gmail.com",
+      "email": "trivabsports@gmail.com",
       "telephone": ["+91-9930344130", "+91-9867423131", "+91-8779187691"],
       "contactPoint": {
         "@type": "ContactPoint",
-        "email": "trivabsportsandevents@gmail.com",
+        "email": "trivabsports@gmail.com",
         "telephone": ["+91-9930344130", "+91-9867423131", "+91-8779187691"],
         "contactType": "customer service",
         "areaServed": "IN"
@@ -139,7 +139,7 @@ export default function Contact() {
                 <div className="stat-icon" style={{ marginBottom: 0 }}><Mail size={20} /></div>
                 <div>
                   <span className="text-xs text-muted block">Email Support</span>
-                  <a href="mailto:trivabsportsandevents@gmail.com" className="text-sm font-semi text-gold">trivabsportsandevents@gmail.com</a>
+                  <a href="mailto:trivabsports@gmail.com" className="text-sm font-semi text-gold">trivabsports@gmail.com</a>
                 </div>
               </li>
               <li className="flex gap-md items-center" style={{ alignItems: 'flex-start' }}>

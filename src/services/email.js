@@ -38,7 +38,7 @@ export const sendContactEmail = async (name, email, subject, message) => {
     from_email: email,
     subject: `[TRIVAB Inquiry] - ${subject}`,
     message: `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`,
-    to_email: 'trivabsportsandevents@gmail.com'
+    to_email: 'trivabsports@gmail.com'
   };
 
   return emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
@@ -59,7 +59,7 @@ export const sendCaptainRosterNotification = async (captainEmail, captainName, t
     subject: `[TRIVAB Roster Update] Team ${teamName} reached ${playerCount} Players!`,
     message: `Hello ${captainName},\n\nCongratulations! Your team "${teamName}" has successfully registered ${playerCount} players on the TRIVAB platform.\n\nYou can view your squad roster by logging into your Captain Dashboard.\n\nBest regards,\nTRIVAB Sports Team`,
     from_name: 'TRIVAB Sports',
-    from_email: 'trivabsportsandevents@gmail.com'
+    from_email: 'trivabsports@gmail.com'
   };
 
   return emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);

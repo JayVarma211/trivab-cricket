@@ -54,7 +54,7 @@ export default function Footer() {
           <ul className="contact-list">
             <li>
               <Mail size={16} />
-              <a href="mailto:trivabsportsandevents@gmail.com" className="footer-link">trivabsportsandevents@gmail.com</a>
+              <a href="mailto:trivabsports@gmail.com" className="footer-link">trivabsports@gmail.com</a>
             </li>
             <li style={{ alignItems: 'flex-start' }}>
               <Phone size={16} style={{ marginTop: '3px' }} />

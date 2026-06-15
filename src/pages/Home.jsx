@@ -88,7 +88,7 @@ export default function Home() {
         ],
         "contactPoint": {
           "@type": "ContactPoint",
-          "email": "trivabsportsandevents@gmail.com",
+          "email": "trivabsports@gmail.com",
           "contactType": "customer service",
           "areaServed": "IN",
           "availableLanguage": ["en", "hi"]
