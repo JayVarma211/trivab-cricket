@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, addDocument, updateDocument, deleteDocument, where } from '../../firebase/firestore';
-import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, X, Users, Loader2 } from 'lucide-react';
+import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, X, Users, Loader2, Download } from 'lucide-react';
 import './Admin.css';
 
 export default function AdminTeams() {
@@ -91,6 +91,66 @@ export default function AdminTeams() {
     }
     
     setTeamModalPlayers(combined);
+  };
+
+  const escapeCSV = (val) => {
+    if (val === undefined || val === null) return '';
+    let str = String(val);
+    str = str.replace(/"/g, '""');
+    if (str.includes(',') || str.includes('\n') || str.includes('\r') || str.includes('"')) {
+      return `"${str}"`;
+    }
+    return str;
+  };
+
+  const exportTeamPlayersToCSV = () => {
+    if (!selectedTeamForModal || teamModalPlayers.length === 0) return;
+
+    const headers = [
+      'Player ID',
+      'Full Name',
+      'Email',
+      'Mobile',
+      'Playing Style',
+      'Jersey Number',
+      'Joined Tournaments & Matches'
+    ];
+
+    const rows = teamModalPlayers.map(p => {
+      const tournamentsJoinedStr = p.joinedTournaments && p.joinedTournaments.length > 0
+        ? p.joinedTournaments.map(t => {
+            const name = typeof t === 'string' ? t : t.name || t.id;
+            const matches = t.matchesPlayed !== undefined ? t.matchesPlayed : 0;
+            return `${name} (${matches} matches)`;
+          }).join('; ')
+        : 'None';
+
+      return [
+        p.playerId || p.id || '',
+        p.fullName || '',
+        p.email || '',
+        p.mobile || '',
+        p.playingStyle || '',
+        p.jerseyNumber || '',
+        tournamentsJoinedStr
+      ];
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(escapeCSV).join(','))
+    ].join('\r\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    const safeTeamName = selectedTeamForModal.teamName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    link.setAttribute('download', `${safeTeamName}_players_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const getTeamPlayersCount = (team) => {
@@ -535,12 +595,20 @@ export default function AdminTeams() {
               <div className="avatar avatar-md bg-secondary text-gold font-bold" style={{ width: '48px', height: '48px', fontSize: '1.25rem', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)' }}>
                 {selectedTeamForModal.teamName[0]}
               </div>
-              <div style={{ textAlign: 'left' }}>
+              <div style={{ textAlign: 'left', flex: 1 }}>
                 <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: 0 }}>{selectedTeamForModal.teamName}</h3>
                 <p className="text-secondary text-xs" style={{ margin: '4px 0 0 0', opacity: 0.8 }}>
                   Captain: <strong>{selectedTeamForModal.captainName || 'N/A'}</strong> | League: <strong>{selectedTeamForModal.tournamentName || 'Trivab Tournament'}</strong>
                 </p>
               </div>
+              <button 
+                onClick={exportTeamPlayersToCSV} 
+                className="btn btn-outline" 
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--admin-accent)', color: 'var(--admin-text)', padding: '6px 12px', fontSize: '0.8rem' }}
+                title="Download this team's roster as CSV"
+              >
+                <Download size={14} /> Download Excel
+              </button>
             </div>
 
             {loadingTeamModal ? (

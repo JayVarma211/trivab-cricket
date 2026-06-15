@@ -84,3 +84,24 @@ export const sendCaptainRosterNotification = async (captainEmail, captainName, t
   return emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
 };
 
+/**
+ * Send notification to admin when player registrations count reaches multiples of 10.
+ */
+export const sendAdminRosterNotification = async (teamName, playerCount) => {
+  if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+    console.log(`%c[EmailJS Mock Mode] Admin Notification: Team "${teamName}" now has ${playerCount} registered players!`, "color: #3b82f6; font-weight: bold; font-size: 1.1rem;");
+    return { mock: true };
+  }
+
+  const templateParams = {
+    to_email: 'trivabsports@gmail.com',
+    user_name: 'Admin',
+    subject: `[TRIVAB Admin Update] Team ${teamName} reached ${playerCount} Players!`,
+    message: `Hello Admin,\n\nThe team "${teamName}" has successfully registered ${playerCount} players on the TRIVAB platform.\n\nBest regards,\nTRIVAB Sports System`,
+    from_name: 'TRIVAB System',
+    from_email: 'noreply@trivabsports.com'
+  };
+
+  return emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+};
+

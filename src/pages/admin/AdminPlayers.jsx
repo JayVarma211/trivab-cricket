@@ -477,7 +477,6 @@ export default function AdminPlayers() {
       'MCA Player',
       'MCA ID Number',
       'MCA Card URL',
-      'Team Name',
       'Status',
       'Joined Tournaments & Matches',
       'Created At'
@@ -511,7 +510,6 @@ export default function AdminPlayers() {
         p.mcaPlayer ? 'Yes' : 'No',
         p.mcaIdNumber || '',
         p.mcaCardURL || '',
-        p.teamName || 'Free Agent',
         p.status || '',
         tournamentsJoinedStr,
         p.createdAt || ''
@@ -978,14 +976,6 @@ export default function AdminPlayers() {
             className="form-input"
           />
         </div>
-        <button
-          onClick={activeTab === 'players' ? exportPlayersToCSV : exportCaptainsToCSV}
-          className="btn btn-outline"
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--admin-accent)', color: 'var(--admin-text)', padding: '10px 16px' }}
-          title={activeTab === 'players' ? "Download all player details as Excel/CSV" : "Download all captain details as Excel/CSV"}
-        >
-          <Download size={18} /> Export Excel
-        </button>
       </div>
 
       {activeTab === 'players' ? (

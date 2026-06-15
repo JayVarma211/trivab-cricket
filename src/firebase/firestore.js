@@ -15,7 +15,7 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from './config';
-import { sendCaptainRosterNotification } from '../services/email';
+import { sendCaptainRosterNotification, sendAdminRosterNotification } from '../services/email';
 
 // ── Generic helpers ──────────────────────────────────────────
 export const getDocument = async (col, id) => {
@@ -193,6 +193,9 @@ export const syncTeamRosterCountAndNotify = async (teamId) => {
       } else {
         console.warn(`Could not find captain email for team ${teamObj.teamName} (${teamId}) to send notification.`);
       }
+
+      // Always send to admin
+      await sendAdminRosterNotification(teamObj.teamName, actualCount);
     }
   } catch (err) {
     console.error("Failed to sync team roster count and notify:", err);
