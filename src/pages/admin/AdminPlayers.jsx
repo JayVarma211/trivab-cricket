@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getCollection, setDocument, updateDocument, deleteDocument } from '../../firebase/firestore';
+import { getCollection, setDocument, updateDocument, deleteDocument, syncTeamRosterCountAndNotify } from '../../firebase/firestore';
 import { uploadImageToCloudinary } from '../../services/cloudinary';
 import { Users, Trash2, Plus, AlertCircle, Search, Edit2, Upload, Eye, Download, User } from 'lucide-react';
 import { generatePlayerID } from '../../utils/generatePlayerID';
@@ -202,21 +202,13 @@ export default function AdminPlayers() {
         // Adjust headcount counts
         if (previousPlayer && previousPlayer.teamId !== formData.teamId) {
           if (previousPlayer.teamId) {
-            const prevTeam = teams.find(t => t.id === previousPlayer.teamId);
-            if (prevTeam) {
-              await updateDocument('teams', previousPlayer.teamId, {
-                playerCount: Math.max(0, (prevTeam.playerCount || 0) - 1)
-              });
-            }
+            await syncTeamRosterCountAndNotify(previousPlayer.teamId);
           }
           if (formData.teamId) {
-            const newTeam = teams.find(t => t.id === formData.teamId);
-            if (newTeam) {
-              await updateDocument('teams', formData.teamId, {
-                playerCount: (newTeam.playerCount || 0) + 1
-              });
-            }
+            await syncTeamRosterCountAndNotify(formData.teamId);
           }
+        } else if (formData.teamId) {
+          await syncTeamRosterCountAndNotify(formData.teamId);
         }
       } else {
         const generatedId = generatePlayerID(formData.teamName || 'GEN');
@@ -291,14 +283,9 @@ export default function AdminPlayers() {
         };
         await setDocument('players', generatedId, playerData);
 
-        // Increment team player count
+        // Sync team roster count and notify captain
         if (formData.teamId) {
-          const newTeam = teams.find(t => t.id === formData.teamId);
-          if (newTeam) {
-            await updateDocument('teams', formData.teamId, {
-              playerCount: (newTeam.playerCount || 0) + 1
-            });
-          }
+          await syncTeamRosterCountAndNotify(formData.teamId);
         }
       }
 

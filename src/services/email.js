@@ -27,18 +27,37 @@ export const sendOTPEmail = async (email, fullName, otpCode) => {
 /**
  * Send contact form submission to the admin email.
  */
-export const sendContactEmail = async (name, email, subject, message) => {
+export const sendContactEmail = async (name, email, contactNumber, subject, message) => {
   if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
-    console.log(`%c[EmailJS Mock Mode] Contact form submitted by ${name} (${email}): Subject: ${subject}, Message: ${message}`, "color: #d4af37; font-weight: bold;");
+    console.log(`%c[EmailJS Mock Mode] Contact form submitted by ${name} (${email}, Phone: ${contactNumber}): Subject: ${subject}, Message: ${message}`, "color: #d4af37; font-weight: bold;");
     return { mock: true };
   }
 
   const templateParams = {
-    from_name: name,
-    from_email: email,
+    // Verified sender address (prevents DMARC/spam filter rejections)
+    from_email: 'trivabsports@gmail.com',
+    from_name: name || 'TRIVAB Contact Form',
+    
+    // Reply-To header allows admin to reply to the sender directly
+    reply_to: email,
+    
+    // Recipient address
+    to_email: 'trivabsports@gmail.com',
+    
+    // Subject line
     subject: `[TRIVAB Inquiry] - ${subject}`,
-    message: `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`,
-    to_email: 'trivabsports@gmail.com'
+    
+    // Message details
+    message: `Sender Name: ${name}\nSender Email: ${email}\nSender Phone: ${contactNumber}\n\nMessage Details:\n${message}`,
+    
+    // Mapping variations to match template variable configurations in EmailJS dashboard
+    user_name: name || 'TRIVAB Contact Form',
+    user_email: email,
+    sender_email: email,
+    contact_number: contactNumber,
+    phone: contactNumber,
+    mobile: contactNumber,
+    message_html: `Sender Name: ${name}<br>Sender Email: ${email}<br>Sender Phone: ${contactNumber}<br><br>Message Details:<br>${message.replace(/\n/g, '<br>')}`
   };
 
   return emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);

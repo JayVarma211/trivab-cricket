@@ -64,7 +64,8 @@ export default function AdminInquiries() {
     i.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     i.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     i.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    i.message?.toLowerCase().includes(searchTerm.toLowerCase())
+    i.message?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    i.contactNumber?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) return <div className="container section-padding"><p>Loading inquiries...</p></div>;
@@ -117,6 +118,9 @@ export default function AdminInquiries() {
                       <User size={16} className="text-gold" /> {inq.name}
                     </h3>
                     <a href={`mailto:${inq.email}`} className="text-xs text-gold font-semi block mt-xxs">{inq.email}</a>
+                    {inq.contactNumber && (
+                      <span className="text-xs text-secondary font-semi block mt-xxs" style={{ display: 'block', marginTop: '4px' }}>Phone: {inq.contactNumber}</span>
+                    )}
                   </div>
                   <span className="text-xs text-muted flex items-center gap-xxs" style={{ whiteSpace: 'nowrap' }}>
                     <Calendar size={12} />

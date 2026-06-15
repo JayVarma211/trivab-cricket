@@ -15,6 +15,7 @@ import {
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from './config';
+import { sendCaptainRosterNotification } from '../services/email';
 
 // ── Generic helpers ──────────────────────────────────────────
 export const getDocument = async (col, id) => {
@@ -131,5 +132,71 @@ export const getAllSponsors = () =>
 
 // ── QR Scan Logs ─────────────────────────────────────────────
 export const logQRScan = (data) => addDocument('qr_scan_logs', data);
+
+export const syncTeamRosterCountAndNotify = async (teamId) => {
+  if (!teamId) return;
+  try {
+    const teamObj = await getDocument('teams', teamId);
+    if (!teamObj) return;
+
+    const teamRegs = await getCollection('registrations', [where('teamId', '==', teamId)]);
+    const hasCaptainInRegs = teamRegs.some(r => r.role === 'captain');
+
+    let actualCount = teamRegs.length;
+    if (!hasCaptainInRegs && teamObj.captainId) {
+      actualCount += 1;
+    }
+
+    await updateDocument('teams', teamId, {
+      playerCount: actualCount
+    });
+
+    if (actualCount > 0 && actualCount % 10 === 0) {
+      let captainEmail = '';
+      let captainName = '';
+
+      if (teamObj.captainId) {
+        const captainDoc = await getDocument('captains', teamObj.captainId);
+        if (captainDoc) {
+          captainEmail = captainDoc.email;
+          captainName = captainDoc.fullName;
+        }
+      }
+
+      if (!captainEmail) {
+        const captainReg = teamRegs.find(r => r.role === 'captain');
+        if (captainReg) {
+          captainEmail = captainReg.playerEmail;
+          captainName = captainReg.playerName;
+        }
+      }
+
+      if (!captainEmail) {
+        const captainsWithTeam = await getCollection('captains', [where('teamId', '==', teamId)]);
+        if (captainsWithTeam && captainsWithTeam.length > 0) {
+          captainEmail = captainsWithTeam[0].email;
+          captainName = captainsWithTeam[0].fullName;
+        }
+      }
+
+      if (!captainName && teamObj.captainName) {
+        captainName = teamObj.captainName;
+      }
+
+      if (captainEmail) {
+        await sendCaptainRosterNotification(
+          captainEmail,
+          captainName || 'Captain',
+          teamObj.teamName,
+          actualCount
+        );
+      } else {
+        console.warn(`Could not find captain email for team ${teamObj.teamName} (${teamId}) to send notification.`);
+      }
+    }
+  } catch (err) {
+    console.error("Failed to sync team roster count and notify:", err);
+  }
+};
 
 export { serverTimestamp, where, orderBy, limit };

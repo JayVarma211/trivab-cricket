@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getDocument, getCollection, where, updateDocument, setDocument, addDocument, getPlayerByUIDOrEmail } from '../../firebase/firestore';
+import { getDocument, getCollection, where, updateDocument, setDocument, addDocument, getPlayerByUIDOrEmail, syncTeamRosterCountAndNotify } from '../../firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
 import { Trophy, Calendar, MapPin, Users, Award, Shield, Upload } from 'lucide-react';
 import Loader from '../../components/common/Loader';
@@ -566,38 +566,22 @@ export default function TournamentDetails() {
           throw new Error('Selected team not found.');
         }
 
-        // Check roster limit
-        if ((teamObj.playerCount || 0) >= 40) {
+        // Check roster limit dynamically from database registrations
+        const teamRegs = await getCollection('registrations', [where('teamId', '==', selectedTeamId)]);
+        const hasCaptainInRegs = teamRegs.some(r => r.role === 'captain');
+        let currentCount = teamRegs.length;
+        if (!hasCaptainInRegs && teamObj.captainId) {
+          currentCount += 1;
+        }
+
+        if (currentCount >= 40) {
           throw new Error(`The team ${teamObj.teamName} has reached its limit of 40 players.`);
         }
 
         teamId = selectedTeamId;
         teamName = teamObj.teamName;
 
-        // 1. Update team headcount
-        const newCount = (teamObj.playerCount || 0) + 1;
-        await updateDocument('teams', selectedTeamId, {
-          playerCount: newCount
-        });
-
-        // Send email to captain for every 10 players registration
-        if (newCount % 10 === 0) {
-          try {
-            const captainDoc = await getDocument('captains', teamObj.captainId);
-            if (captainDoc && captainDoc.email) {
-              await sendCaptainRosterNotification(
-                captainDoc.email,
-                captainDoc.fullName || 'Captain',
-                teamName,
-                newCount
-              );
-            }
-          } catch (mailErr) {
-            console.error("Failed to send captain notification email:", mailErr);
-          }
-        }
-
-        // 2. Send Admin Notification
+        // Send Admin Notification
         await addDocument('admin_notifications', {
           type: 'player_joined',
           title: 'New Roster Enrollment',
@@ -626,6 +610,9 @@ export default function TournamentDetails() {
         matchesPlayed: 0,
         joinedAt: new Date().toISOString()
       });
+
+      // Sync team roster count and trigger captain email notification if count is a multiple of 10
+      await syncTeamRosterCountAndNotify(teamId);
 
       // Update Player Profile joinedTournaments list locally and in DB
       const newRegistration = {

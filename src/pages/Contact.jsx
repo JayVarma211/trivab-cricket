@@ -11,6 +11,7 @@ export default function Contact() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
   const [subject, setSubject] = useState(initialSubject);
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -33,6 +34,7 @@ export default function Contact() {
       await addDocument('contact_inquiries', {
         name,
         email,
+        contactNumber,
         subject,
         message,
         read: false,
@@ -46,13 +48,13 @@ export default function Contact() {
 
     // 2. Try to send email
     try {
-      const result = await sendContactEmail(name, email, subject, message);
+      const result = await sendContactEmail(name, email, contactNumber, subject, message);
       if (result && result.mock) {
         setIsMockEmail(true);
         const mailtoLink = `mailto:trivabsports@gmail.com?subject=${encodeURIComponent(
           `[TRIVAB Inquiry] - ${subject}`
         )}&body=${encodeURIComponent(
-          `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
+          `Sender Name: ${name}\nSender Email: ${email}\nSender Phone: ${contactNumber}\n\nMessage Details:\n${message}`
         )}`;
         setMailtoUrl(mailtoLink);
         window.location.href = mailtoLink;
@@ -64,6 +66,7 @@ export default function Contact() {
         setSubmitted(true);
         setName('');
         setEmail('');
+        setContactNumber('');
         setMessage('');
       }
     } catch (err) {
@@ -72,7 +75,7 @@ export default function Contact() {
       const mailtoLink = `mailto:trivabsports@gmail.com?subject=${encodeURIComponent(
         `[TRIVAB Inquiry] - ${subject}`
       )}&body=${encodeURIComponent(
-        `Sender Name: ${name}\nSender Email: ${email}\n\nMessage Details:\n${message}`
+        `Sender Name: ${name}\nSender Email: ${email}\nSender Phone: ${contactNumber}\n\nMessage Details:\n${message}`
       )}`;
       setMailtoUrl(mailtoLink);
       window.location.href = mailtoLink;
@@ -81,6 +84,7 @@ export default function Contact() {
         setSubmitted(true);
         setName('');
         setEmail('');
+        setContactNumber('');
         setMessage('');
       } else {
         setError("Both database log and email sending failed. Please check your internet connection or click 'Send via Email Client' below.");
@@ -270,6 +274,19 @@ export default function Contact() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Contact Number</label>
+                <input
+                  type="tel"
+                  className="form-input"
+                  placeholder="+91 98765 43210"
+                  required
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value)}
                   disabled={loading}
                 />
               </div>
