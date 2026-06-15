@@ -582,11 +582,17 @@ export default function AdminPlayers() {
     document.body.removeChild(link);
   };
 
-  const filteredPlayers = players.filter(p =>
-    p.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.teamName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPlayers = players
+    .filter(p =>
+      p.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.teamName?.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
+    });
 
   const filteredCaptains = captains.filter(c =>
     c.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||

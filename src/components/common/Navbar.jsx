@@ -61,11 +61,12 @@ const ABOUT_MENU = [
 const getLogoClass = (logoUrl) => {
   if (!logoUrl) return '';
   const url = logoUrl.toLowerCase();
+  if (url.includes('cloudinary') || url.includes('http')) return '';
   if (url.includes('xpress')) return 'logo-black-bg';
   if (url.includes('dads')) return 'logo-white-bg';
   if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
   if (url.includes('corporate') || url.includes('monsoon')) return 'logo-white-bg';
-  return 'logo-white-bg';
+  return '';
 };
 
 export default function Navbar() {

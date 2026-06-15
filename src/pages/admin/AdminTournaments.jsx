@@ -564,12 +564,13 @@ export default function AdminTournaments() {
                   alt=""
                   className={(() => {
                     const url = displayTourn.logo.toLowerCase();
+                    if (url.includes('cloudinary') || url.includes('http')) return '';
                     if (url.includes('xpress')) return 'logo-black-bg';
                     if (url.includes('dads')) return 'logo-white-bg';
                     if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
-                    return 'logo-white-bg';
+                    return '';
                   })()}
-                  style={{ width: '52px', height: '52px', objectFit: 'contain', flexShrink: 0 }}
+                  style={{ width: '70px', height: '70px', objectFit: 'contain', flexShrink: 0 }}
                 />
               )}
 
@@ -675,12 +676,13 @@ export default function AdminTournaments() {
                   alt=""
                   className={(() => {
                     const url = selectedTournamentForModal.logo.toLowerCase();
+                    if (url.includes('cloudinary') || url.includes('http')) return '';
                     if (url.includes('xpress')) return 'logo-black-bg';
                     if (url.includes('dads')) return 'logo-white-bg';
                     if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
-                    return 'logo-white-bg';
+                    return '';
                   })()}
-                  style={{ width: '56px', height: '56px', objectFit: 'contain', flexShrink: 0 }}
+                  style={{ width: '100px', height: '100px', objectFit: 'contain', flexShrink: 0 }}
                 />
               )}
               <div style={{ textAlign: 'left' }}>
