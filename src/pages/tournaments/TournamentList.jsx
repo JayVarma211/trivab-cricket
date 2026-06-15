@@ -6,6 +6,18 @@ import Loader from '../../components/common/Loader';
 import SEO from '../../components/common/SEO';
 import './Tournaments.css';
 
+const getCleanLogoUrl = (url) => {
+  if (!url) return '';
+  const u = url.toLowerCase();
+  if (u.startsWith('/logos/') && (u.endsWith('.jpg') || u.endsWith('.jpeg'))) {
+    if (u.includes('trivabmonsoon') || u.includes('bapllogo') || u.includes('trivabsports')) {
+      return url;
+    }
+    return url.replace(/\.(jpg|jpeg)$/i, '.png');
+  }
+  return url;
+};
+
 const getLogoClass = (logoUrl) => {
   if (!logoUrl) return '';
   const url = logoUrl.toLowerCase();
@@ -28,7 +40,7 @@ const TRIVAB_TOURNAMENT_CATEGORIES = [
   {
     id: 'bapl',
     name: 'BAPL 3.0 (BAPL T20)',
-    logo: '/logos/baplt20north.jpg',
+    logo: '/logos/baplt20north.png',
     description: 'BAPL is the flagship season-long cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.',
     to: '/tournaments/type/bapl',
     badge: 'Flagship League'
@@ -36,7 +48,7 @@ const TRIVAB_TOURNAMENT_CATEGORIES = [
   {
     id: 'baplxpress',
     name: 'BAPL XPRESS',
-    logo: '/logos/baplxpresst20north.jpg',
+    logo: '/logos/baplxpresst20north.png',
     description: 'A compact, high-intensity version of our flagship BAPL league—designed to deliver the same professional playing experience in a shorter, more flexible format.',
     to: '/tournaments/type/baplxpress',
     badge: 'Compact T20'
@@ -44,7 +56,7 @@ const TRIVAB_TOURNAMENT_CATEGORIES = [
   {
     id: 'baplcorporate',
     name: 'BAPL Corporate CUP',
-    logo: '/logos/baplcorporate.jpg',
+    logo: '/logos/baplcorporate.png',
     description: 'TRIVAB’s premier corporate-only cricket tournament. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity sport.',
     to: '/tournaments/type/baplcorporate',
     badge: 'Corporate Only'
@@ -60,7 +72,7 @@ const TRIVAB_TOURNAMENT_CATEGORIES = [
   {
     id: 'bapldads',
     name: 'BAPL 40+ DADS T20',
-    logo: '/logos/bapldadst20.jpg',
+    logo: '/logos/bapldadst20.png',
     description: 'A specially curated cricketing format designed exclusively for players aged 40 and above, bringing fathers and seasoned cricket lovers back onto the field.',
     to: '/tournaments/type/bapldads',
     badge: 'Aged 40+'
@@ -164,10 +176,10 @@ export default function TournamentList() {
               <div className="flex justify-between items-start mb-md">
                 <span className="badge badge-gold">{item.badge}</span>
                 <img 
-                  src={item.logo} 
+                  src={getCleanLogoUrl(item.logo)} 
                   alt={item.name} 
                   style={{ width: '105px', height: '105px', objectFit: 'contain', display: 'block' }} 
-                  className={getLogoClass(item.logo)}
+                  className={getLogoClass(getCleanLogoUrl(item.logo))}
                 />
               </div>
 

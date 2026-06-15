@@ -1103,13 +1103,13 @@ html, body {
 /* White bg logos (Corporate, Monsoon, Dads) */
 .logo-white-bg {
   background: transparent;
-  filter: url(#remove-white) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
 /* Black bg logos (Xpress series) */
 .logo-black-bg {
   background: transparent;
-  filter: url(#remove-black) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
 /* Light theme overrides — keep same, just shadow lighter */
@@ -1118,11 +1118,11 @@ html, body {
 }
 
 [data-theme="light"] .logo-white-bg {
-  filter: url(#remove-white) drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
 }
 
 [data-theme="light"] .logo-black-bg {
-  filter: url(#remove-black) drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
 }
 
 
@@ -1274,14 +1274,14 @@ html, body {
 }
 .ticker-logo-white {
   background: transparent;
-  filter: url(#remove-white) drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
 }
 
 /* Black-bg logos (Xpress) */
 .ticker-logo-black {
   border-radius: 6px;
   background: transparent;
-  filter: url(#remove-black) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
 /* Light mode overrides */
@@ -1289,9 +1289,9 @@ html, body {
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
 }
 [data-theme="light"] .ticker-logo-white {
-  filter: url(#remove-white) drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
 }
 [data-theme="light"] .ticker-logo-black {
   background: transparent;
-  filter: url(#remove-black) drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
 }

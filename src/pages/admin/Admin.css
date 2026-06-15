@@ -900,11 +900,9 @@
   object-fit: contain;
   background: transparent;
   flex-shrink: 0;
-  filter: url(#remove-white);
 }
 
 [data-theme="light"] .admin-logo-clean {
-  filter: url(#remove-white);
   background: transparent;
 }
 
@@ -916,7 +914,6 @@
   object-fit: contain;
   background: transparent;
   flex-shrink: 0;
-  filter: url(#remove-black);
 }
 
 /* ============================================================

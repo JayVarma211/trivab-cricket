@@ -14,7 +14,7 @@ const PARENT_TOURNAMENTS = {
 This vision led to the creation of BAPL, an extended-format cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.
 
 BAPL is not just a tournament—it is a full-season cricketing experience built for serious amateur cricketers.`,
-    logo: '/logos/baplt20north.jpg',
+    logo: '/logos/baplt20north.png',
     highlights: [
       '20+ competitive teams',
       '8-month long professional league format',
@@ -30,9 +30,9 @@ BAPL is not just a tournament—it is a full-season cricketing experience built 
       'Grand opening ceremony and league night event'
     ],
     editions: [
-      { id: 'bapl-north', name: 'BAPL 3.0 - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL 3.0 League.', location: 'North Mumbai Grounds', comingSoon: false },
-      { id: 'bapl-south', name: 'BAPL 3.0 - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL 3.0 League.', location: 'South Mumbai', comingSoon: true },
-      { id: 'bapl-pune', name: 'BAPL 3.0 - Pune Edition', logo: '/logos/baplpune.jpg', description: 'Pune Edition of the premier BAPL 3.0 League.', location: 'Pune', comingSoon: true },
+      { id: 'bapl-north', name: 'BAPL 3.0 - North Mumbai Edition', logo: '/logos/baplt20north.png', description: 'North Mumbai Edition of the premier BAPL 3.0 League.', location: 'North Mumbai Grounds', comingSoon: false },
+      { id: 'bapl-south', name: 'BAPL 3.0 - South Mumbai Edition', logo: '/logos/baplt20south.png', description: 'South Mumbai Edition of the premier BAPL 3.0 League.', location: 'South Mumbai', comingSoon: true },
+      { id: 'bapl-pune', name: 'BAPL 3.0 - Pune Edition', logo: '/logos/baplpune.png', description: 'Pune Edition of the premier BAPL 3.0 League.', location: 'Pune', comingSoon: true },
     ]
   },
   'baplxpress': {
@@ -42,7 +42,7 @@ BAPL is not just a tournament—it is a full-season cricketing experience built 
 Tailored for teams and players who are unable to commit to a full-season tournament due to work or travel constraints, BAPL XPRESS retains the core structure, quality, and competitive spirit of BAPL in a streamlined schedule.
 
 BAPL XPRESS delivers the complete TRIVAB experience—just faster, sharper, and more accessible`,
-    logo: '/logos/baplxpresst20north.jpg',
+    logo: '/logos/baplxpresst20north.png',
     highlights: [
       '8–10 competitive teams',
       'Fast-paced T20 format',
@@ -57,9 +57,9 @@ BAPL XPRESS delivers the complete TRIVAB experience—just faster, sharper, and 
       'Ideal for working professionals and compact team groups'
     ],
     editions: [
-      { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'North Mumbai Turfs', comingSoon: false },
-      { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'South Mumbai Turfs', comingSoon: true },
-      { id: 'baplxpress-pune', name: 'BAPL XPRESS - Pune Edition', logo: '/logos/baplxpresst20puneedition.jpg', description: 'Pune Edition of the fast-paced BAPL XPRESS League.', location: 'Pune', comingSoon: true },
+      { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.png', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'North Mumbai Turfs', comingSoon: false },
+      { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.png', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.', location: 'South Mumbai Turfs', comingSoon: true },
+      { id: 'baplxpress-pune', name: 'BAPL XPRESS - Pune Edition', logo: '/logos/baplxpresst20puneedition.png', description: 'Pune Edition of the fast-paced BAPL XPRESS League.', location: 'Pune', comingSoon: true },
     ]
   },
   'baplcorporate': {
@@ -69,7 +69,7 @@ BAPL XPRESS delivers the complete TRIVAB experience—just faster, sharper, and 
 Built on the same professional structure as the BAPL ecosystem, the Corporate Cup delivers a premium matchday experience where corporates engage, compete, and strengthen workplace camaraderie beyond office walls.
 
 BAPL Corporate Cup transforms corporate cricket into a professional sporting experience—where business meets competition on the field.`,
-    logo: '/logos/baplcorporate.jpg',
+    logo: '/logos/baplcorporate.png',
     highlights: [
       'Exclusive participation for corporate teams only (company-based entries)',
       'Professional T20 tournament format',
@@ -81,9 +81,9 @@ BAPL Corporate Cup transforms corporate cricket into a professional sporting exp
       'Fully structured and professionally managed tournament operations'
     ],
     editions: [
-      { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'North Mumbai Edition of the BAPL Corporate Cup.', location: 'North Mumbai Sports Hubs', comingSoon: false },
-      { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.', location: 'South Mumbai Corporate Grounds', comingSoon: true },
-      { id: 'baplcorporate-pune', name: 'BAPL Corporate CUP - Pune Edition', logo: '/logos/baplcorporatepuneedition.jpg', description: 'Pune Edition of the BAPL Corporate Cup.', location: 'Pune', comingSoon: true },
+      { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.png', description: 'North Mumbai Edition of the BAPL Corporate Cup.', location: 'North Mumbai Sports Hubs', comingSoon: false },
+      { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.png', description: 'South Mumbai Edition of the BAPL Corporate Cup.', location: 'South Mumbai Corporate Grounds', comingSoon: true },
+      { id: 'baplcorporate-pune', name: 'BAPL Corporate CUP - Pune Edition', logo: '/logos/baplcorporatepuneedition.png', description: 'Pune Edition of the BAPL Corporate Cup.', location: 'Pune', comingSoon: true },
     ]
   },
   'bapldads': {
@@ -93,7 +93,7 @@ BAPL Corporate Cup transforms corporate cricket into a professional sporting exp
 The tournament is created with a simple vision—to bring fathers and experienced cricket lovers back onto the field, allowing them to relive the joy, passion, and memories of the game they once played every day in their younger years through the TRIVAB platform.
 
 BAPL 40+ Dads Tournament is where experience meets passion—bringing cricket back to those who never stopped loving the game.`,
-    logo: '/logos/bapldadst20.jpg',
+    logo: '/logos/bapldadst20.png',
     highlights: [
       'Exclusive age category: 40 years and above only',
       'Designed for fair and balanced competitive play',
@@ -106,11 +106,23 @@ BAPL 40+ Dads Tournament is where experience meets passion—bringing cricket ba
       'On-ground meals and refreshments for players'
     ],
     editions: [
-      { id: 'bapldads-north', name: 'BAPL 40+ DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'North Mumbai Edition of the BAPL 40+ DADS T20 League.', location: 'North Mumbai', comingSoon: false },
-      { id: 'bapldads-south', name: 'BAPL 40+ DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL 40+ DADS T20 League.', location: 'South Mumbai Turf Grounds', comingSoon: true },
-      { id: 'bapldads-pune', name: 'BAPL 40+ DADS T20 - Pune Edition', logo: '/logos/bapldadst20puneedition.jpg', description: 'Pune Edition of the BAPL 40+ DADS T20 League.', location: 'Pune', comingSoon: true },
+      { id: 'bapldads-north', name: 'BAPL 40+ DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.png', description: 'North Mumbai Edition of the BAPL 40+ DADS T20 League.', location: 'North Mumbai', comingSoon: false },
+      { id: 'bapldads-south', name: 'BAPL 40+ DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.png', description: 'South Mumbai Edition of the BAPL 40+ DADS T20 League.', location: 'South Mumbai Turf Grounds', comingSoon: true },
+      { id: 'bapldads-pune', name: 'BAPL 40+ DADS T20 - Pune Edition', logo: '/logos/bapldadst20puneedition.png', description: 'Pune Edition of the BAPL 40+ DADS T20 League.', location: 'Pune', comingSoon: true },
     ]
   }
+};
+
+const getCleanLogoUrl = (url) => {
+  if (!url) return '';
+  const u = url.toLowerCase();
+  if (u.startsWith('/logos/') && (u.endsWith('.jpg') || u.endsWith('.jpeg'))) {
+    if (u.includes('trivabmonsoon') || u.includes('bapllogo') || u.includes('trivabsports')) {
+      return url;
+    }
+    return url.replace(/\.(jpg|jpeg)$/i, '.png');
+  }
+  return url;
 };
 
 const getLogoClass = (logoUrl) => {
@@ -225,7 +237,7 @@ export default function TournamentTypeDetails() {
       {/* Hero Intro Header */}
       <div className="parent-hub-header flex gap-xl items-center mb-xl flex-wrap">
         {parentData.logo && (
-          <img src={parentData.logo} alt={parentData.name} className={`parent-hub-logo animate-scale-in ${getLogoClass(parentData.logo)}`} style={{ width: '130px', height: '130px', objectFit: 'contain', flexShrink: 0 }} />
+          <img src={getCleanLogoUrl(parentData.logo)} alt={parentData.name} className={`parent-hub-logo animate-scale-in ${getLogoClass(getCleanLogoUrl(parentData.logo))}`} style={{ width: '130px', height: '130px', objectFit: 'contain', flexShrink: 0 }} />
         )}
         <div className="parent-hub-info flex-1 min-width-300">
           <span className="badge badge-gold mb-xs">Tournament Category</span>
@@ -274,7 +286,7 @@ export default function TournamentTypeDetails() {
               <div className="edition-card-visual flex items-center justify-between p-lg">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {edition.logo && (
-                    <img src={edition.logo} alt={edition.name} className={`edition-card-logo ${getLogoClass(edition.logo)}`} />
+                    <img src={getCleanLogoUrl(edition.logo)} alt={edition.name} className={`edition-card-logo ${getLogoClass(getCleanLogoUrl(edition.logo))}`} />
                   )}
                   <div>
                     <span className={`badge ${stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : stats.status === 'Inactive' ? 'badge-grey' : 'badge-gold'} mb-xs`}>

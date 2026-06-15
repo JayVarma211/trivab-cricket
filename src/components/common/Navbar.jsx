@@ -12,11 +12,11 @@ import {
 import './Navbar.css';
 
 const TOURNAMENTS_MENU = [
-  { label: 'BAPL', to: '/tournaments/type/bapl', logo: '/logos/baplt20north.jpg' },
-  { label: 'BAPL XPRESS', to: '/tournaments/type/baplxpress', logo: '/logos/baplxpresst20north.jpg' },
-  { label: 'BAPL Corporate CUP', to: '/tournaments/type/baplcorporate', logo: '/logos/baplcorporate.jpg' },
+  { label: 'BAPL', to: '/tournaments/type/bapl', logo: '/logos/baplt20north.png' },
+  { label: 'BAPL XPRESS', to: '/tournaments/type/baplxpress', logo: '/logos/baplxpresst20north.png' },
+  { label: 'BAPL Corporate CUP', to: '/tournaments/type/baplcorporate', logo: '/logos/baplcorporate.png' },
   { label: 'Trivab Monsoon Championship', to: '/tournaments/trivab-monsoon', logo: '/logos/trivabmonsoon.jpg' },
-  { label: 'BAPL 40+ DADS T20', to: '/tournaments/type/bapldads', logo: '/logos/bapldadst20.jpg' },
+  { label: 'BAPL 40+ DADS T20', to: '/tournaments/type/bapldads', logo: '/logos/bapldadst20.png' },
   { label: 'BAPL KIDS', to: '/tournaments/baplkids', logo: '/logos/bapllogo.jpg' }
 ];
 

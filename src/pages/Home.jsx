@@ -7,17 +7,17 @@ import SEO from '../components/common/SEO';
 import './Home.css';
 
 const TICKER_LOGOS = [
-  { src: '/logos/baplt20north.jpg', alt: 'BAPL T20 North', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-north' },
-  { src: '/logos/baplxpresst20south.jpg', alt: 'BAPL Xpress South', imgClass: 'ticker-logo-black', dark: true, link: '/tournaments/baplxpress-south' },
-  { src: '/logos/baplcorporate.jpg', alt: 'BAPL Corporate Cup', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments/baplcorporate-south' },
-  { src: '/logos/baplt20south.jpg', alt: 'BAPL T20 South', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-south' },
-  { src: '/logos/baplxpresst20north.jpg', alt: 'BAPL Xpress North', imgClass: 'ticker-logo-black', dark: true, link: '/tournaments/baplxpress-north' },
-  { src: '/logos/bapldadst20.jpg', alt: 'BAPL Dads T20', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments/bapldads-south' },
-  { src: '/logos/baplpune.jpg', alt: 'BAPL T20 Pune', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments' },
+  { src: '/logos/baplt20north.png', alt: 'BAPL T20 North', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-north' },
+  { src: '/logos/baplxpresst20south.png', alt: 'BAPL Xpress South', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/baplxpress-south' },
+  { src: '/logos/baplcorporate.png', alt: 'BAPL Corporate Cup', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/baplcorporate-south' },
+  { src: '/logos/baplt20south.png', alt: 'BAPL T20 South', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-south' },
+  { src: '/logos/baplxpresst20north.png', alt: 'BAPL Xpress North', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/baplxpress-north' },
+  { src: '/logos/bapldadst20.png', alt: 'BAPL Dads T20', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapldads-south' },
+  { src: '/logos/baplpune.png', alt: 'BAPL T20 Pune', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments' },
   { src: '/logos/trivabmonsoon.jpg', alt: 'Trivab Monsoon', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments/trivab-monsoon' },
-  { src: '/logos/baplxpresst20puneedition.jpg', alt: 'BAPL Xpress Pune', imgClass: 'ticker-logo-black', dark: true, link: '/tournaments' },
-  { src: '/logos/baplcorporatepuneedition.jpg', alt: 'BAPL Corporate Pune', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments' },
-  { src: '/logos/bapldadst20puneedition.jpg', alt: 'BAPL Dads Pune', imgClass: 'ticker-logo-white', dark: false, link: '/tournaments' }
+  { src: '/logos/baplxpresst20puneedition.png', alt: 'BAPL Xpress Pune', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments' },
+  { src: '/logos/baplcorporatepuneedition.png', alt: 'BAPL Corporate Pune', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments' },
+  { src: '/logos/bapldadst20puneedition.png', alt: 'BAPL Dads Pune', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments' }
 ];
 
 export default function Home() {

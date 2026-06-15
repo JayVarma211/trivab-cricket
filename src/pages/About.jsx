@@ -51,14 +51,14 @@ const WHY_CHOOSE_ITEMS = [
 ];
 
 const TOURNAMENT_LOGOS = [
-  { name: 'BAPL T20 North', img: '/logos/baplt20north.jpg', bgClass: 'logo-silver-bg', dark: false },
-  { name: 'BAPL XPRESS South', img: '/logos/baplxpresst20south.jpg', bgClass: 'logo-black-bg', dark: true },
-  { name: 'BAPL T20 South', img: '/logos/baplt20south.jpg', bgClass: 'logo-silver-bg', dark: false },
-  { name: 'BAPL XPRESS North', img: '/logos/baplxpresst20north.jpg', bgClass: 'logo-black-bg', dark: true },
-  { name: 'BAPL Corporate Cup', img: '/logos/baplcorporate.jpg', bgClass: 'logo-white-bg', dark: false },
-  { name: 'BAPL DADS T20', img: '/logos/bapldadst20.jpg', bgClass: 'logo-white-bg', dark: false },
+  { name: 'BAPL T20 North', img: '/logos/baplt20north.png', bgClass: 'logo-silver-bg', dark: false },
+  { name: 'BAPL XPRESS South', img: '/logos/baplxpresst20south.png', bgClass: 'logo-black-bg', dark: true },
+  { name: 'BAPL T20 South', img: '/logos/baplt20south.png', bgClass: 'logo-silver-bg', dark: false },
+  { name: 'BAPL XPRESS North', img: '/logos/baplxpresst20north.png', bgClass: 'logo-black-bg', dark: true },
+  { name: 'BAPL Corporate Cup', img: '/logos/baplcorporate.png', bgClass: 'logo-white-bg', dark: false },
+  { name: 'BAPL DADS T20', img: '/logos/bapldadst20.png', bgClass: 'logo-white-bg', dark: false },
   { name: 'Monsoon Championship', img: '/logos/trivabmonsoon.jpg', bgClass: 'logo-white-bg', dark: false },
-  { name: 'BAPL T20 Pune', img: '/logos/baplpune.jpg', bgClass: 'logo-silver-bg', dark: false }
+  { name: 'BAPL T20 Pune', img: '/logos/baplpune.png', bgClass: 'logo-silver-bg', dark: false }
 ];
 
 export default function About() {

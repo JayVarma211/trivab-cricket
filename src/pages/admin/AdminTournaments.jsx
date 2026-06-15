@@ -5,16 +5,28 @@ import { getCollection, setDocument, deleteDocument, where, addDocument } from '
 import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, Calendar, Users, Eye, ArrowLeft, Loader2 } from 'lucide-react';
 import './Admin.css';
 
+const getCleanLogoUrl = (url) => {
+  if (!url) return '';
+  const u = url.toLowerCase();
+  if (u.startsWith('/logos/') && (u.endsWith('.jpg') || u.endsWith('.jpeg'))) {
+    if (u.includes('trivabmonsoon') || u.includes('bapllogo') || u.includes('trivabsports')) {
+      return url;
+    }
+    return url.replace(/\.(jpg|jpeg)$/i, '.png');
+  }
+  return url;
+};
+
 const PREDEFINED_TOURNAMENTS = [
-  { id: 'bapl-south', name: 'BAPL 3.0 - South Mumbai Edition', logo: '/logos/baplt20south.jpg', description: 'South Mumbai Edition of the premier BAPL 3.0 League.' },
-  { id: 'bapl-north', name: 'BAPL 3.0 - North Mumbai Edition', logo: '/logos/baplt20north.jpg', description: 'North Mumbai Edition of the premier BAPL 3.0 League.' },
-  { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.jpg', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.' },
-  { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.jpg', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.' },
-  { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'South Mumbai Edition of the BAPL Corporate Cup.' },
-  { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.jpg', description: 'North Mumbai Edition of the BAPL Corporate Cup.' },
+  { id: 'bapl-south', name: 'BAPL 3.0 - South Mumbai Edition', logo: '/logos/baplt20south.png', description: 'South Mumbai Edition of the premier BAPL 3.0 League.' },
+  { id: 'bapl-north', name: 'BAPL 3.0 - North Mumbai Edition', logo: '/logos/baplt20north.png', description: 'North Mumbai Edition of the premier BAPL 3.0 League.' },
+  { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.png', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.' },
+  { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.png', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.' },
+  { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.png', description: 'South Mumbai Edition of the BAPL Corporate Cup.' },
+  { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.png', description: 'North Mumbai Edition of the BAPL Corporate Cup.' },
   { id: 'trivab-monsoon', name: 'Trivab Monsoon Championship', logo: '/logos/trivabmonsoon.jpg', description: 'The grand Trivab Monsoon Championship tournament.' },
-  { id: 'bapldads-south', name: 'BAPL DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'South Mumbai Edition of the BAPL DADS T20 League.' },
-  { id: 'bapldads-north', name: 'BAPL DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.jpg', description: 'North Mumbai Edition of the BAPL DADS T20 League.' },
+  { id: 'bapldads-south', name: 'BAPL DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.png', description: 'South Mumbai Edition of the BAPL DADS T20 League.' },
+  { id: 'bapldads-north', name: 'BAPL DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.png', description: 'North Mumbai Edition of the BAPL DADS T20 League.' },
   { id: 'baplkids', name: 'BAPL KIDS', logo: '/logos/bapllogo.jpg', description: 'The BAPL KIDS Cricket Championship.' },
 ];
 
@@ -560,10 +572,10 @@ export default function AdminTournaments() {
               {/* Logo — transparent, no background */}
               {displayTourn.logo && (
                 <img
-                  src={displayTourn.logo}
+                  src={getCleanLogoUrl(displayTourn.logo)}
                   alt=""
                   className={(() => {
-                    const url = displayTourn.logo.toLowerCase();
+                    const url = getCleanLogoUrl(displayTourn.logo).toLowerCase();
                     if (url.includes('cloudinary') || url.includes('http')) return '';
                     if (url.includes('xpress')) return 'logo-black-bg';
                     if (url.includes('dads')) return 'logo-white-bg';
@@ -672,10 +684,10 @@ export default function AdminTournaments() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '16px' }}>
               {selectedTournamentForModal.logo && (
                 <img
-                  src={selectedTournamentForModal.logo}
+                  src={getCleanLogoUrl(selectedTournamentForModal.logo)}
                   alt=""
                   className={(() => {
-                    const url = selectedTournamentForModal.logo.toLowerCase();
+                    const url = getCleanLogoUrl(selectedTournamentForModal.logo).toLowerCase();
                     if (url.includes('cloudinary') || url.includes('http')) return '';
                     if (url.includes('xpress')) return 'logo-black-bg';
                     if (url.includes('dads')) return 'logo-white-bg';

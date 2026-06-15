@@ -196,7 +196,7 @@ export default function Services() {
                 pointerEvents: 'none'
               }}>
                 <span className="badge badge-gold" style={{ alignSelf: 'flex-start', marginBottom: '8px' }}>Verified Service</span>
-                <h3 className="display-sm text-gradient-gold" style={{ margin: 0 }}>{currentService.tagline}</h3>
+                <h3 className="display-sm" style={{ margin: 0, color: '#ffffff', textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}>{currentService.tagline}</h3>
               </div>
             </div>
 
