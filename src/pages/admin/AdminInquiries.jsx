@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getCollection, deleteDocument } from '../../firebase/firestore';
+import { getCollection, deleteDocument, updateDocument } from '../../firebase/firestore';
 import { safeParseDate, safeFormatDate } from '../../utils/dateFormatter';
 import { Mail, Trash2, Calendar, User, Search, MessageSquare, AlertCircle } from 'lucide-react';
 import './Admin.css';
@@ -29,6 +29,16 @@ export default function AdminInquiries() {
       // Sort newest first
       const sorted = (data || []).sort((a, b) => safeParseDate(b.createdAt) - safeParseDate(a.createdAt));
       setInquiries(sorted);
+
+      // Mark all unread inquiries as read
+      const unread = sorted.filter(inq => inq.read === false);
+      for (const inq of unread) {
+        try {
+          await updateDocument('contact_inquiries', inq.id, { read: true });
+        } catch (e) {
+          console.warn("Failed to mark inquiry as read:", inq.id, e);
+        }
+      }
     } catch (err) {
       console.error('Error fetching inquiries:', err);
       setError('Failed to load inquiries.');

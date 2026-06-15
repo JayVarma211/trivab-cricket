@@ -282,11 +282,74 @@ export default function TournamentDetails() {
     setTeamModalPlayers([]);
     setTeamModalTournaments([]);
     try {
-      // 1. Fetch team players roster
-      const players = await getCollection('players', [where('teamId', '==', team.id)]);
-      setTeamModalPlayers(players);
+      // 1. Fetch team players roster from players collection
+      const globalPlayers = await getCollection('players', [where('teamId', '==', team.id)]);
       
-      // 2. Fetch other tournaments they play in (based on same team name or captain)
+      // 2. Fetch registrations for this team
+      const regs = await getCollection('registrations', [where('teamId', '==', team.id)]);
+      
+      // Find player IDs from registrations that are not in globalPlayers
+      const globalPlayerIds = new Set(globalPlayers.map(p => p.id));
+      const missingPlayerIds = regs
+        .map(r => r.playerId)
+        .filter(pid => pid && !globalPlayerIds.has(pid));
+        
+      // Fetch missing players in parallel
+      const missingPlayers = await Promise.all(
+        missingPlayerIds.map(async (pid) => {
+          try {
+            return await getDocument('players', pid);
+          } catch (e) {
+            console.error("Error fetching player:", pid, e);
+            return null;
+          }
+        })
+      );
+      
+      const allPlayers = [...globalPlayers, ...missingPlayers.filter(Boolean)];
+      
+      // 3. Add the captain to the squad members list if they are not already in it
+      if (team.captainId) {
+        let teamCaptain = null;
+        try {
+          teamCaptain = await getDocument('captains', team.captainId);
+        } catch (captErr) {
+          console.warn("Failed to fetch captain:", captErr);
+        }
+        
+        if (teamCaptain) {
+          const hasCaptain = allPlayers.some(p => p.uid === team.captainId || p.email === teamCaptain.email);
+          if (!hasCaptain) {
+            let capPl = null;
+            try {
+              const plByEmail = await getCollection('players', [where('email', '==', teamCaptain.email)]);
+              if (plByEmail && plByEmail.length > 0) {
+                capPl = plByEmail[0];
+              }
+            } catch (e) {}
+            
+            if (capPl) {
+              allPlayers.unshift(capPl);
+            } else {
+              allPlayers.unshift({
+                id: 'captain-virtual-' + team.captainId,
+                fullName: teamCaptain.fullName || team.captainName || 'Team Captain',
+                email: teamCaptain.email || '',
+                mobile: teamCaptain.mobile || '',
+                photoURL: teamCaptain.photoURL || '',
+                playingStyle: 'All-Rounder',
+                jerseyNumber: 'N/A',
+                role: 'captain',
+                isCaptain: true
+              });
+            }
+          }
+        }
+      }
+      
+      setTeamModalPlayers(allPlayers);
+      
+      // 4. Fetch other tournaments they play in (based on same team name or captain)
       const queryField = team.captainId ? 'captainId' : 'teamName';
       const queryVal = team.captainId || team.teamName;
       const otherTeamDocs = await getCollection('teams', [where(queryField, '==', queryVal)]);

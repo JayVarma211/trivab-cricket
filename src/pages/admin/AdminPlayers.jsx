@@ -40,6 +40,7 @@ export default function AdminPlayers() {
     teamName: '',
     playingStyle: 'Batsman',
     jerseyNumber: '',
+    nameOnJersey: '',
     photo: null,
     instagramId: '',
     tshirtSize: '',
@@ -157,6 +158,7 @@ export default function AdminPlayers() {
               photoURL: photoURL || formData.photoURL || previousPlayer?.photoURL || '',
               playingStyle: formData.playingStyle || 'Batsman',
               jerseyNumber: formData.jerseyNumber || '',
+              nameOnJersey: (formData.nameOnJersey || '').trim().toUpperCase(),
               mobile: formData.mobile || formData.cricHeroesRegNo || '',
               cricHeroesRegNo: formData.cricHeroesRegNo || formData.mobile || '',
               tournamentId: teamObj.tournamentId,
@@ -182,6 +184,7 @@ export default function AdminPlayers() {
           teamName: formData.teamName,
           playingStyle: formData.playingStyle,
           jerseyNumber: formData.jerseyNumber,
+          nameOnJersey: (formData.nameOnJersey || '').trim().toUpperCase(),
           photoURL: photoURL || formData.photoURL || '',
           status: 'Active',
           playerId: previousPlayer?.playerId || editingId,
@@ -246,6 +249,7 @@ export default function AdminPlayers() {
               photoURL: photoURL || '',
               playingStyle: formData.playingStyle || 'Batsman',
               jerseyNumber: formData.jerseyNumber || '',
+              nameOnJersey: (formData.nameOnJersey || '').trim().toUpperCase(),
               mobile: formData.mobile || formData.cricHeroesRegNo || '',
               cricHeroesRegNo: formData.cricHeroesRegNo || formData.mobile || '',
               tournamentId: teamObj.tournamentId,
@@ -272,6 +276,7 @@ export default function AdminPlayers() {
           teamName: formData.teamName,
           playingStyle: formData.playingStyle,
           jerseyNumber: formData.jerseyNumber,
+          nameOnJersey: (formData.nameOnJersey || '').trim().toUpperCase(),
           photoURL: photoURL || '',
           status: 'Active',
           createdAt: new Date().toISOString(),
@@ -411,6 +416,7 @@ export default function AdminPlayers() {
       teamName: player.teamName || '',
       playingStyle: player.playingStyle || 'Batsman',
       jerseyNumber: player.jerseyNumber || '',
+      nameOnJersey: player.nameOnJersey || '',
       photoURL: player.photoURL || '',
       photo: null,
       instagramId: player.instagramId || '',
@@ -440,6 +446,7 @@ export default function AdminPlayers() {
       teamName: '',
       playingStyle: 'Batsman',
       jerseyNumber: '',
+      nameOnJersey: '',
       photoURL: '',
       photo: null,
       instagramId: '',
@@ -475,6 +482,7 @@ export default function AdminPlayers() {
       'Emergency Contact Mobile',
       'Playing Style',
       'Jersey Number',
+      'Name on Jersey',
       'Instagram ID',
       'T-Shirt Size',
       'Track Pant Size',
@@ -508,6 +516,7 @@ export default function AdminPlayers() {
         p.emergencyContactMobile || '',
         p.playingStyle || '',
         p.jerseyNumber !== undefined ? p.jerseyNumber : '',
+        p.nameOnJersey || '',
         p.instagramId || '',
         p.tshirtSize || '',
         p.trackPantSize || '',
@@ -744,7 +753,6 @@ export default function AdminPlayers() {
               />
             </div>
 
-            {/* Playing Details */}
             <div className="form-group">
               <label className="form-label">Team</label>
               <select
@@ -752,7 +760,7 @@ export default function AdminPlayers() {
                 value={formData.teamId}
                 onChange={(e) => handleTeamChange(e.target.value)}
               >
-                <option value="">Select Team (Free Agent)</option>
+                <option value="">Select Team</option>
                 {teams.map(team => (
                   <option key={team.id} value={team.id}>{team.teamName}</option>
                 ))}
@@ -783,6 +791,21 @@ export default function AdminPlayers() {
                 required
                 value={formData.jerseyNumber}
                 onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Name on Jersey</label>
+              <input
+                type="text"
+                name="nameOnJersey"
+                className="form-input"
+                placeholder="Name on jersey (e.g. SHARMA)"
+                value={formData.nameOnJersey}
+                onChange={(e) => {
+                  const upper = e.target.value.toUpperCase();
+                  setFormData(prev => ({ ...prev, nameOnJersey: upper }));
+                }}
               />
             </div>
 
@@ -979,7 +1002,6 @@ export default function AdminPlayers() {
               <tr>
                 <th>Player Name</th>
                 <th>Email</th>
-                <th>Team</th>
                 <th>Position</th>
                 <th>Jersey</th>
                 <th>Joined Tournaments</th>
@@ -990,14 +1012,13 @@ export default function AdminPlayers() {
             <tbody>
               {filteredPlayers.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center text-muted">No players found.</td>
+                  <td colSpan="7" className="text-center text-muted">No players found.</td>
                 </tr>
               ) : (
                 filteredPlayers.map(player => (
                   <tr key={player.id}>
                     <td className="font-semi">{player.fullName}</td>
                     <td>{player.email}</td>
-                    <td className="text-gold font-semi">{player.teamName || 'Free Agent'}</td>
                     <td><span className="badge badge-gold">{player.playingStyle}</span></td>
                     <td>#{player.jerseyNumber || 'N/A'}</td>
                     <td style={{ fontSize: '0.8rem', maxWidth: '200px' }} className="truncate" title={
@@ -1329,6 +1350,17 @@ export default function AdminPlayers() {
                     <div className="p-xs rounded-md text-center" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px' }}>
                       <span className="text-xs text-muted block mb-xxs">Sleeve Type</span>
                       <strong>{selectedPlayerForDetails.sleeveType || 'N/A'}</strong>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-2 gap-sm text-sm" style={{ gridTemplateColumns: '1fr 1fr', marginTop: '10px' }}>
+                    <div className="p-xs rounded-md text-center" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Jersey Number</span>
+                      <strong>#{selectedPlayerForDetails.jerseyNumber || 'N/A'}</strong>
+                    </div>
+                    <div className="p-xs rounded-md text-center" style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--admin-border)', padding: '8px' }}>
+                      <span className="text-xs text-muted block mb-xxs">Name on Jersey</span>
+                      <strong>{selectedPlayerForDetails.nameOnJersey || 'N/A'}</strong>
                     </div>
                   </div>
                 </div>

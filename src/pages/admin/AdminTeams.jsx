@@ -11,6 +11,8 @@ export default function AdminTeams() {
   const [teams, setTeams] = useState([]);
   const [tournaments, setTournaments] = useState([]);
   const [players, setPlayers] = useState([]);
+  const [captains, setCaptains] = useState([]);
+  const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -41,7 +43,91 @@ export default function AdminTeams() {
 
   const handleTeamClick = (team) => {
     setSelectedTeamForModal(team);
-    setTeamModalPlayers(players.filter(p => p.teamId === team.id));
+    
+    // 1. Get unique playerIds in registrations for this team
+    const registeredPlayerIds = registrations
+      .filter(r => r.teamId === team.id)
+      .map(r => r.playerId);
+      
+    const globalPlayers = players.filter(p => p.teamId === team.id);
+    
+    // Find player profiles for the registered IDs
+    const registeredPlayers = players.filter(p => registeredPlayerIds.includes(p.id));
+    
+    // Combine them, making sure they are unique by id
+    const combined = [...globalPlayers];
+    registeredPlayers.forEach(rp => {
+      if (!combined.some(p => p.id === rp.id)) {
+        combined.push(rp);
+      }
+    });
+    
+    // 2. Add the captain to the squad members list if they are not already in it
+    if (team.captainId) {
+      const captainProfile = captains.find(c => c.uid === team.captainId || c.teamId === team.id);
+      if (captainProfile) {
+        const hasCaptain = combined.some(p => p.uid === team.captainId || p.email === captainProfile.email);
+        if (!hasCaptain) {
+          // Try to find the captain's player profile
+          const captainPlayer = players.find(p => p.uid === team.captainId || p.email === captainProfile.email);
+          if (captainPlayer) {
+            combined.unshift(captainPlayer); // Add captain at the top
+          } else {
+            // Create a virtual player object for the captain so they display nicely in the modal
+            combined.unshift({
+              id: 'captain-virtual-' + team.captainId,
+              fullName: captainProfile.fullName || team.captainName || 'Team Captain',
+              email: captainProfile.email || '',
+              mobile: captainProfile.mobile || '',
+              photoURL: captainProfile.photoURL || '',
+              playingStyle: 'All-Rounder',
+              jerseyNumber: 'N/A',
+              role: 'captain',
+              isCaptain: true
+            });
+          }
+        }
+      }
+    }
+    
+    setTeamModalPlayers(combined);
+  };
+
+  const getTeamPlayersCount = (team) => {
+    // 1. Unique playerIds in registrations for this team
+    const registeredPlayerIds = registrations
+      .filter(r => r.teamId === team.id)
+      .map(r => r.playerId);
+    
+    // 2. Players who have this teamId globally set
+    const globalPlayerIds = players
+      .filter(p => p.teamId === team.id)
+      .map(p => p.id);
+      
+    const uniqueIds = new Set([...registeredPlayerIds, ...globalPlayerIds]);
+    
+    // 3. Count the captain if present
+    if (team.captainId) {
+      const captainProfile = captains.find(c => c.uid === team.captainId || c.teamId === team.id);
+      if (captainProfile) {
+        const hasCaptain = Array.from(uniqueIds).some(pid => {
+          const pObj = players.find(p => p.id === pid);
+          return pObj && (pObj.uid === team.captainId || pObj.email === captainProfile.email);
+        });
+        if (!hasCaptain) {
+          const matchPlayer = players.find(p => p.email === captainProfile.email || p.uid === team.captainId);
+          if (matchPlayer) {
+            uniqueIds.add(matchPlayer.id);
+          } else {
+            return uniqueIds.size + 1;
+          }
+        }
+      } else {
+        return uniqueIds.size + 1;
+      }
+    }
+    
+    return uniqueIds.size;
   };
 
   const fetchData = async () => {
@@ -49,9 +135,13 @@ export default function AdminTeams() {
       const teamsData = await getCollection('teams', []);
       const tournamentsData = await getCollection('tournaments', []);
       const playersData = await getCollection('players', []);
+      const captainsData = await getCollection('captains', []);
+      const registrationsData = await getCollection('registrations', []);
       setTeams(teamsData);
       setTournaments((tournamentsData || []).filter(t => t.isActivated !== false));
       setPlayers(playersData);
+      setCaptains(captainsData || []);
+      setRegistrations(registrationsData || []);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load teams');
@@ -407,7 +497,7 @@ export default function AdminTeams() {
               </div>
               <div className="stat-row">
                 <span className="label">Players:</span>
-                <span className="value">{players.filter(p => p.teamId === team.id).length}/{team.maxPlayers}</span>
+                <span className="value">{getTeamPlayersCount(team)}/{team.maxPlayers}</span>
               </div>
               {team.tournamentName && (
                 <div className="stat-row">

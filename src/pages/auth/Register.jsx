@@ -38,6 +38,7 @@ export default function Register() {
   const [trackPantSize, setTrackPantSize] = useState('');
   const [tshirtSize, setTshirtSize] = useState('');
   const [sleeveType, setSleeveType] = useState('');
+  const [nameOnJersey, setNameOnJersey] = useState('');
   const [instagramId, setInstagramId] = useState('');
 
   // UI States
@@ -130,6 +131,10 @@ export default function Register() {
       setError('Please enter your jersey number.');
       return;
     }
+    if (!nameOnJersey.trim()) {
+      setError('Please enter the name to print on your jersey.');
+      return;
+    }
     if (!sleeveType) {
       setError('Please select your sleeve type.');
       return;
@@ -217,6 +222,7 @@ export default function Register() {
         email,
         playingStyle,
         jerseyNumber,
+        nameOnJersey: nameOnJersey.trim().toUpperCase(),
         photoURL,
         qrValue: generatedId,
         qrCodeURL: '',
@@ -547,6 +553,23 @@ export default function Register() {
                     value={jerseyNumber}
                     onChange={(e) => setJerseyNumber(e.target.value)}
                     disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Name on Jersey <span style={{ color: '#ef4444' }}>*</span></label>
+                <div className="input-wrapper">
+                  <Shirt className="input-icon-left" size={18} />
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Name to print on jersey (e.g. SHARMA)"
+                    required
+                    value={nameOnJersey}
+                    onChange={(e) => setNameOnJersey(e.target.value.toUpperCase())}
+                    disabled={loading}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 </div>
               </div>

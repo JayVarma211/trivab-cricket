@@ -69,8 +69,6 @@ export default function AdminNews() {
       }
       await fetchArticles();
       setShowForm(false);
-      // Send the user to the admin dashboard
-      navigate('/admin/dashboard');
     } catch (err) {
       setMessage({ type: 'error', text: 'Failed to save article: ' + err.message });
     } finally {

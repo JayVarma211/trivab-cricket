@@ -5,7 +5,7 @@ import { getCollection, setDocument, addDocument } from '../../firebase/firestor
 import { safeParseDate, safeFormatDateTime } from '../../utils/dateFormatter';
 import { logoutUser } from '../../firebase/auth';
 import {
-  Users, Trophy, Calendar, Image, ChevronRight, Activity, AlertCircle, Camera, Shield, Newspaper
+  Users, Trophy, Calendar, Image, ChevronRight, Activity, AlertCircle, Camera, Shield, Newspaper, MessageSquare
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
@@ -22,6 +22,7 @@ export default function AdminDashboard() {
     totalTeams: 0,
     totalMatches: 0,
     totalTournaments: 0,
+    totalInquiries: 0,
   });
   const [recentActivity, setRecentActivity] = useState([]);
   const [roleChartData, setRoleChartData] = useState([]);
@@ -42,18 +43,21 @@ export default function AdminDashboard() {
         let matches = [];
         let tournaments = [];
         let notifications = [];
+        let inquiries = [];
 
         try { players = await getCollection('players') || []; } catch (e) { console.warn("Failed to fetch players:", e); }
         try { teams = await getCollection('teams') || []; } catch (e) { console.warn("Failed to fetch teams:", e); }
         try { matches = await getCollection('matches') || []; } catch (e) { console.warn("Failed to fetch matches:", e); }
         try { tournaments = await getCollection('tournaments') || []; } catch (e) { console.warn("Failed to fetch tournaments:", e); }
         try { notifications = await getCollection('admin_notifications') || []; } catch (e) { console.warn("Failed to fetch admin_notifications:", e); }
+        try { inquiries = await getCollection('contact_inquiries') || []; } catch (e) { console.warn("Failed to fetch contact_inquiries:", e); }
 
         setStats({
           totalPlayers: players.length,
           totalTeams: teams.length,
           totalMatches: matches.length,
           totalTournaments: tournaments.length,
+          totalInquiries: inquiries.length,
         });
 
         const sortedNotifications = (notifications || [])
@@ -127,7 +131,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Grid */}
-      <div className="stats-grid mb-xl">
+      <div className="stats-grid mb-xl" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
         <div className="stat-card">
           <div className="stat-icon"><Users size={24} /></div>
           <div className="stat-content">
@@ -154,6 +158,13 @@ export default function AdminDashboard() {
           <div className="stat-content">
             <div className="stat-label">Tournaments</div>
             <div className="stat-value">{stats.totalTournaments}</div>
+          </div>
+        </div>
+        <div className="stat-card" onClick={() => navigate('/admin/inquiries')} style={{ cursor: 'pointer' }}>
+          <div className="stat-icon"><MessageSquare size={24} /></div>
+          <div className="stat-content">
+            <div className="stat-label">Contact Inquiries</div>
+            <div className="stat-value">{stats.totalInquiries || 0}</div>
           </div>
         </div>
       </div>

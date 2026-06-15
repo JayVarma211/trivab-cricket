@@ -953,33 +953,177 @@ ul, ol {
 }
 
 /* ============================================================
-   21. STICKER-STYLE LOGO BLEND MODES
-   Goal: logos appear as floating stickers with NO background
-   - multiply removes white/silver/light backgrounds against any bg
-   - screen removes black/dark backgrounds against any bg
+   GLOBAL MOBILE OVERFLOW PREVENTION
+   ============================================================ */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* ============================================================
+   MOBILE UI — Comprehensive fixes @ 768px
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Section headers */
+  .section-title {
+    font-size: 2rem !important;
+    word-break: break-word;
+  }
+
+  .section-subtitle {
+    font-size: 0.95rem !important;
+  }
+
+  /* Display typography */
+  .display-xl { font-size: 2.2rem !important; }
+  .display-lg { font-size: 1.8rem !important; }
+  .display-md { font-size: 1.5rem !important; }
+  .display-sm { font-size: 1.2rem !important; }
+
+  /* Card padding reduction on mobile */
+  .card {
+    padding: var(--space-md);
+  }
+
+  /* Auth card: full width, no side margins */
+  .auth-card,
+  .register-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--radius-md) !important;
+    padding: var(--space-lg) !important;
+  }
+
+  /* Register form: single column on mobile */
+  .register-form-grid {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .form-column {
+    width: 100% !important;
+  }
+
+  /* Auth container: less padding */
+  .auth-container {
+    padding: var(--space-md) !important;
+  }
+
+  /* Feature boxes: compact */
+  .feature-box {
+    padding: var(--space-lg) !important;
+  }
+
+  /* Hero */
+  .hero-title {
+    font-size: clamp(1.8rem, 7vw, 2.8rem) !important;
+  }
+  .hero-subtitle {
+    font-size: 0.95rem !important;
+  }
+
+  /* Ticker logos smaller on mobile */
+  .tournament-ticker-logo-wrap {
+    width: 80px !important;
+    height: 80px !important;
+    padding: 4px !important;
+  }
+  .ticker-logo-img-inner {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  /* Flex utilities */
+  .flex-wrap { flex-wrap: wrap !important; }
+  .mobile-col { flex-direction: column !important; }
+
+  /* Stats grid */
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* General tables / overflowing elements */
+  table { display: block; overflow-x: auto; width: 100%; }
+
+  /* Input labels */
+  .form-label { font-size: 0.85rem !important; }
+}
+
+/* ============================================================
+   MOBILE UI — Small phone fixes @ 480px
+   ============================================================ */
+@media (max-width: 480px) {
+  /* Display typography even smaller */
+  .display-xl { font-size: 1.8rem !important; }
+  .display-lg { font-size: 1.5rem !important; }
+  .display-md { font-size: 1.3rem !important; }
+  .display-sm { font-size: 1.1rem !important; }
+
+  /* Section header */
+  .section-header {
+    text-align: center;
+    padding: 0 var(--space-sm);
+  }
+
+  /* Ticker logos even smaller on phones */
+  .tournament-ticker-logo-wrap {
+    width: 70px !important;
+    height: 70px !important;
+    padding: 3px !important;
+  }
+  .ticker-logo-img-inner {
+    width: 62px !important;
+    height: 62px !important;
+  }
+
+  /* Buttons full width in hero */
+  .hero-actions .btn {
+    min-width: 200px;
+  }
+
+  /* Stat cards: 2 col */
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Forms */
+  .form-input,
+  .form-select { font-size: 0.85rem !important; }
+}
+
+
+/* ============================================================
+   21. LOGO RENDERING — Professional sticker look
+   Silver/white bg logos: shown with subtle drop-shadow on dark bgs
+   Black bg logos (Xpress): inverted to white graphic on dark bg
    ============================================================ */
 
-/* Silver/metallic bg logos (BAPL T20 North/South/Pune) — sticker look via multiply */
+/* Silver/metallic bg logos (BAPL North/South/Pune) */
 .logo-silver-bg {
-  mix-blend-mode: multiply;
   background: transparent;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
-/* White bg logos (Corporate, Monsoon, Dads, Trivab) — same multiply trick */
+/* White bg logos (Corporate, Monsoon, Dads) */
 .logo-white-bg {
-  mix-blend-mode: multiply;
   background: transparent;
+  filter: url(#remove-white) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
-/* Black bg logos (Xpress series) — screen removes black, logo pops */
+/* Black bg logos (Xpress series) */
 .logo-black-bg {
-  mix-blend-mode: screen;
   background: transparent;
+  filter: url(#remove-black) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
-/* Dark mode: multiply still works great on dark bg (light areas go transparent) */
-/* No overrides needed — multiply is universally correct for light-bg logos */
-/* For Xpress (screen): black bg becomes transparent in both modes */
+/* Light theme overrides — keep same, just shadow lighter */
+[data-theme="light"] .logo-silver-bg {
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+}
+
+[data-theme="light"] .logo-white-bg {
+  filter: url(#remove-white) drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+}
+
+[data-theme="light"] .logo-black-bg {
+  filter: url(#remove-black) drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+}
 
 
 /* ============================================================
@@ -1053,7 +1197,7 @@ ul, ol {
 
 /* ============================================================
    23. TOURNAMENT LOGO CONTAINERS — Cards & Detail Pages
-   No background, no box — logos appear as stickers
+   No background box — logos float as clean images
    ============================================================ */
 
 .tournament-logo-container,
@@ -1068,79 +1212,86 @@ ul, ol {
   overflow: visible;
 }
 
-/* Removed: logo-dark-container (no longer needed — sticker look handles all) */
-
 /* ============================================================
-   24. HOME PAGE TICKER — Pure sticker logos, zero frame
+   24. HOME PAGE TICKER — Logo stickers, clean and visible
    ============================================================ */
 
-/* The ticker link wrapper — no background, no border */
+/* The ticker */
 .tournament-ticker-logo-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 120px;
-  height: 120px;
+  width: 110px;
+  height: 110px;
   flex-shrink: 0;
-  background: transparent;
-  border: none;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   transition: transform 0.3s ease, filter 0.3s ease;
   overflow: visible;
+  border-radius: 12px;
+  padding: 6px;
 }
 
 .tournament-ticker-logo-wrap:hover {
-  transform: translateY(-6px) scale(1.12);
-  filter: drop-shadow(0 8px 20px rgba(128, 0, 0, 0.45));
+  transform: translateY(-6px) scale(1.1);
 }
 
-/* No difference between light/dark for the wrapper — blend modes handle it */
+/* Light mode wrapper - transparent, no card */
 [data-theme="light"] .tournament-ticker-logo-wrap {
-  background: transparent;
-  border: none;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
 }
 
 [data-theme="light"] .tournament-ticker-logo-wrap:hover {
-  filter: drop-shadow(0 8px 20px rgba(128, 0, 0, 0.35));
+  background: transparent !important;
 }
 
-/* dark-frame modifier no longer needed */
-.tournament-ticker-logo-wrap.dark-frame {
+/* Dark mode: transparent, no card */
+[data-theme="dark"] .tournament-ticker-logo-wrap,
+:root:not([data-theme="light"]) .tournament-ticker-logo-wrap {
   background: transparent !important;
+  box-shadow: none !important;
   border: none !important;
 }
 
 /* Logo images in the ticker */
 .ticker-logo-img-inner {
-  width: 110px;
-  height: 110px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
+  object-position: center;
   display: block;
   background: transparent;
+  border-radius: 6px;
 }
 
-/* Silver/white logos: multiply removes light background — sticker look */
+/* Silver/white logos */
 .ticker-logo-silver {
-  mix-blend-mode: multiply;
+  background: transparent;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
 }
-
 .ticker-logo-white {
-  mix-blend-mode: multiply;
+  background: transparent;
+  filter: url(#remove-white) drop-shadow(0 2px 8px rgba(0,0,0,0.3));
 }
 
-/* Black-bg logos: screen removes black — logo graphic floats free */
+/* Black-bg logos (Xpress) */
 .ticker-logo-black {
-  mix-blend-mode: screen;
+  border-radius: 6px;
+  background: transparent;
+  filter: url(#remove-black) drop-shadow(0 2px 8px rgba(0,0,0,0.4));
 }
 
-/* Light mode: same multiply still works perfectly */
+/* Light mode overrides */
 [data-theme="light"] .ticker-logo-silver {
-  mix-blend-mode: multiply;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
 }
-
 [data-theme="light"] .ticker-logo-white {
-  mix-blend-mode: multiply;
+  filter: url(#remove-white) drop-shadow(0 2px 6px rgba(0,0,0,0.15));
 }
-
 [data-theme="light"] .ticker-logo-black {
-  mix-blend-mode: screen;
+  background: transparent;
+  filter: url(#remove-black) drop-shadow(0 2px 6px rgba(0,0,0,0.2));
 }

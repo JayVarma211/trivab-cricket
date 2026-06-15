@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { logoutUser } from '../../firebase/auth';
+import { getCollection } from '../../firebase/firestore';
 import {
   Users, Trophy, Calendar, Image, BarChart3, LogOut, Menu, Home,
   Newspaper, X, ChevronRight, Shield, Scan, MessageSquare
@@ -13,6 +14,20 @@ export default function AdminLayout({ children }) {
   const location = useLocation();
   const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const inquiries = await getCollection('contact_inquiries') || [];
+        const unread = inquiries.filter(inq => inq.read === false).length;
+        setUnreadCount(unread);
+      } catch (err) {
+        console.warn("Failed to fetch unread inquiries count:", err);
+      }
+    };
+    fetchUnreadCount();
+  }, [location.pathname]);
 
   const handleLogout = async () => {
     await logoutUser();
@@ -27,7 +42,7 @@ export default function AdminLayout({ children }) {
     { label: 'Matches', icon: <Calendar size={20} />, to: '/admin/matches', section: 'main' },
     { label: 'Images', icon: <Image size={20} />, to: '/admin/images', section: 'main' },
     { label: 'News & Events', icon: <Newspaper size={20} />, to: '/admin/news', section: 'content' },
-    { label: 'Inquiries', icon: <MessageSquare size={20} />, to: '/admin/inquiries', section: 'content' },
+    { label: 'Inquiries', icon: <MessageSquare size={20} />, to: '/admin/inquiries', section: 'content', badge: unreadCount > 0 ? unreadCount : null },
   ];
 
   const mainItems = menuItems.filter(i => i.section === 'main');
@@ -38,30 +53,19 @@ export default function AdminLayout({ children }) {
       {/* Sidebar */}
       <aside className={`admin-sidebar-new ${sidebarOpen ? 'sidebar-open' : ''}`}>
         {/* Sidebar Header */}
-        <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 20px 16px' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
-            <div style={{
-              width: '160px',
-              height: '50px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: '#ffffff',
-              borderRadius: '8px',
-              padding: '6px 12px',
-              boxSizing: 'border-box',
-              border: '1px solid rgba(212,175,55,0.3)'
-            }}>
-              <img 
-                src="/logos/trivabsports.webp" 
-                style={{ 
-                  height: '100%', 
-                  width: '100%', 
-                  objectFit: 'contain'
-                }} 
-                alt="TRIVAB SPORTS" 
-              />
-            </div>
+        <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 20px 16px', width: '100%' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', width: '100%', paddingRight: '20px' }}>
+            <img 
+              src="/logos/trivabsports.webp" 
+              style={{ 
+                height: '75px', 
+                width: 'auto', 
+                maxWidth: '100%',
+                objectFit: 'contain',
+                display: 'block'
+              }} 
+              alt="TRIVAB SPORTS" 
+            />
           </Link>
           <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
             <X size={20} />
@@ -97,7 +101,12 @@ export default function AdminLayout({ children }) {
               >
                 <span className="sidebar-nav-icon">{item.icon}</span>
                 <span className="sidebar-nav-label">{item.label}</span>
-                {isActive && <ChevronRight size={14} className="sidebar-nav-arrow" />}
+                {item.badge && (
+                  <span className="badge-notification" style={{ marginLeft: 'auto', background: 'var(--accent-red)', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                    {item.badge}
+                  </span>
+                )}
+                {isActive && !item.badge && <ChevronRight size={14} className="sidebar-nav-arrow" />}
               </Link>
             );
           })}
@@ -114,7 +123,12 @@ export default function AdminLayout({ children }) {
               >
                 <span className="sidebar-nav-icon">{item.icon}</span>
                 <span className="sidebar-nav-label">{item.label}</span>
-                {isActive && <ChevronRight size={14} className="sidebar-nav-arrow" />}
+                {item.badge && (
+                  <span className="badge-notification" style={{ marginLeft: 'auto', background: 'var(--accent-red)', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                    {item.badge}
+                  </span>
+                )}
+                {isActive && !item.badge && <ChevronRight size={14} className="sidebar-nav-arrow" />}
               </Link>
             );
           })}

@@ -35,6 +35,7 @@ export default function Contact() {
         email,
         subject,
         message,
+        read: false,
         createdAt: new Date().toISOString()
       });
       dbSuccess = true;
