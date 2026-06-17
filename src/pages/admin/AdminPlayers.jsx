@@ -1507,33 +1507,6 @@ export default function AdminPlayers() {
                           <span className="id-player-style">Team Captain</span>
                         </div>
 
-                        {/* Stats row */}
-                        <div className="id-player-stats-row">
-                          {selectedCaptainForDetails.teamName && (
-                            <div style={{ maxWidth: '120px' }}>
-                              <span className="id-stat-lbl">Team</span>
-                              <span className="id-stat-val" style={{ 
-                                fontSize: '0.72rem', color: '#fff', display: 'block',
-                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                              }} title={selectedCaptainForDetails.teamName}>
-                                {selectedCaptainForDetails.teamName}
-                              </span>
-                            </div>
-                          )}
-                          <div>
-                            <span className="id-stat-lbl">Role</span>
-                            <span className="id-stat-val">Captain</span>
-                          </div>
-                        </div>
-
-                        {/* Tournaments */}
-                        <div className="id-player-tournaments-row">
-                          <span className="id-stat-lbl">Access Level</span>
-                          <span className="id-tournaments-val" style={{ color: '#d4af37', fontWeight: 600, fontSize: '0.58rem' }}>
-                            Full Team Management
-                          </span>
-                        </div>
-
                         {/* Footer: ID & QR */}
                         <div className="id-card-footer">
                           <div className="id-code-group">
@@ -1541,7 +1514,7 @@ export default function AdminPlayers() {
                             <span className="id-code-text">{selectedCaptainForDetails.captainId || selectedCaptainForDetails.id}</span>
                           </div>
                           <div className="id-qr-box">
-                            <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={52} bgColor="#ffffff" fgColor="#000000" level="H" />
+                            <QRCodeSVG value={selectedCaptainForDetails.captainId || selectedCaptainForDetails.id} size={68} bgColor="#ffffff" fgColor="#000000" level="H" />
                           </div>
                         </div>
                       </div>
