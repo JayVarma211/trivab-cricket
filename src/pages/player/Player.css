@@ -168,10 +168,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  gap: 4px;
+  justify-content: center;
+  gap: 16px;
   min-width: 0;
-  padding: 4px 0 6px;
+  padding: 8px 0;
 }
 
 .id-card-right > div {
@@ -192,7 +192,7 @@
 }
 
 .id-card-brand-logo {
-  height: 24px;
+  height: 38px;
   object-fit: contain;
   filter: brightness(1.1);
 }
@@ -300,9 +300,8 @@
 
 /* Footer inside card */
 .id-card-footer {
-  margin-top: auto;
   border-top: 1px solid rgba(212,175,55,0.1);
-  padding-top: 7px;
+  padding-top: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;

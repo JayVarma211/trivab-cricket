@@ -1191,38 +1191,7 @@ export default function AdminPlayers() {
                           <span className="id-player-style">{selectedPlayerForDetails.playingStyle}</span>
                         </div>
 
-                        {/* Stats row */}
-                        <div className="id-player-stats-row">
-                          {selectedPlayerForDetails.teamName && selectedPlayerForDetails.teamName !== 'Free Agent' && selectedPlayerForDetails.teamName !== 'free-agent' && (
-                            <div style={{ maxWidth: '120px' }}>
-                              <span className="id-stat-lbl">Team</span>
-                              <span className="id-stat-val" style={{ 
-                                fontSize: '0.72rem', color: '#fff', display: 'block',
-                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                              }} title={selectedPlayerForDetails.teamName}>
-                                {selectedPlayerForDetails.teamName}
-                              </span>
-                            </div>
-                          )}
-                          <div>
-                            <span className="id-stat-lbl">Matches</span>
-                            <span className="id-stat-val">
-                              {selectedPlayerForDetails.joinedTournaments
-                                ? selectedPlayerForDetails.joinedTournaments.reduce((acc, t) => acc + (t.matchesPlayed || 0), 0)
-                                : 0}
-                            </span>
-                          </div>
-                        </div>
 
-                        {/* Tournaments */}
-                        <div className="id-player-tournaments-row">
-                          <span className="id-stat-lbl">Tournaments</span>
-                          <span className="id-tournaments-val" style={{ color: '#d4af37', fontWeight: 600, fontSize: '0.58rem' }}>
-                            {selectedPlayerForDetails.joinedTournaments && selectedPlayerForDetails.joinedTournaments.length > 0
-                              ? selectedPlayerForDetails.joinedTournaments.map(t => typeof t === 'string' ? t : (t.name || 'Trivab Tournament')).join(', ')
-                              : 'No Tournaments Joined'}
-                          </span>
-                        </div>
 
                         {/* Footer: ID & QR */}
                         <div className="id-card-footer">
@@ -1231,7 +1200,7 @@ export default function AdminPlayers() {
                             <span className="id-code-text">{selectedPlayerForDetails.playerId || selectedPlayerForDetails.id}</span>
                           </div>
                           <div className="id-qr-box">
-                            <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={52} bgColor="#ffffff" fgColor="#000000" level="H" />
+                            <QRCodeSVG value={selectedPlayerForDetails.playerId || selectedPlayerForDetails.id} size={68} bgColor="#ffffff" fgColor="#000000" level="H" />
                           </div>
                         </div>
                       </div>
