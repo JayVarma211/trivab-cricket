@@ -1117,7 +1117,7 @@ export default function AdminPlayers() {
           >
             <button className="modal-close" onClick={() => setSelectedPlayerForDetails(null)}>✕</button>
             
-            <div className="flex justify-between items-center mb-lg pb-sm" style={{ borderBottom: '1px solid var(--admin-border)' }}>
+            <div className="flex justify-between items-center mb-lg pb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingRight: '40px' }}>
               <h3 className="text-lg font-bold text-gradient-gold">Player Profile Details & Pass</h3>
               <button 
                 onClick={async () => {
@@ -1434,7 +1434,7 @@ export default function AdminPlayers() {
           >
             <button className="modal-close" onClick={() => setSelectedCaptainForDetails(null)}>✕</button>
             
-            <div className="flex justify-between items-center mb-lg pb-sm" style={{ borderBottom: '1px solid var(--admin-border)' }}>
+            <div className="flex justify-between items-center mb-lg pb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingRight: '40px' }}>
               <h3 className="text-lg font-bold text-gradient-gold">Captain Profile Details & Pass</h3>
               <button 
                 onClick={async () => {

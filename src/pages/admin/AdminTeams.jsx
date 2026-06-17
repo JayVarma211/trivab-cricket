@@ -537,9 +537,27 @@ export default function AdminTeams() {
             <div className="flex justify-between items-start mb-md">
               <div>
                 <h3 className="text-lg font-bold text-gradient-gold">{team.teamName}</h3>
-                <p className="text-secondary text-sm">{team.city || 'Location TBD'}</p>
+                {team.city && team.city !== 'Location TBD' && (
+                  <p className="text-secondary text-sm">{team.city}</p>
+                )}
               </div>
-              <Trophy size={24} className="text-gold" />
+              {team.logoURL ? (
+                <img 
+                  src={team.logoURL} 
+                  alt={team.teamName} 
+                  style={{ 
+                    width: '36px', 
+                    height: '36px', 
+                    objectFit: 'cover', 
+                    borderRadius: '6px',
+                    border: '1px solid rgba(212,175,55,0.3)',
+                    background: 'rgba(255,255,255,0.05)',
+                    flexShrink: 0
+                  }} 
+                />
+              ) : (
+                <Trophy size={24} className="text-gold" style={{ flexShrink: 0 }} />
+              )}
             </div>
 
             <div className="team-stats mb-md">
