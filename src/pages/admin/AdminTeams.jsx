@@ -546,40 +546,40 @@ export default function AdminTeams() {
                   src={team.logoURL} 
                   alt={team.teamName} 
                   style={{ 
-                    width: '36px', 
-                    height: '36px', 
+                    width: '48px', 
+                    height: '48px', 
                     objectFit: 'cover', 
-                    borderRadius: '6px',
-                    border: '1px solid rgba(212,175,55,0.3)',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(212,175,55,0.4)',
                     background: 'rgba(255,255,255,0.05)',
                     flexShrink: 0
                   }} 
                 />
               ) : (
-                <Trophy size={24} className="text-gold" style={{ flexShrink: 0 }} />
+                <Trophy size={28} className="text-gold" style={{ flexShrink: 0 }} />
               )}
             </div>
 
             <div className="team-stats mb-md">
               <div className="stat-row">
-                <span className="label">Captain:</span>
+                <span className="label">Captain: </span>
                 <span className="value font-semi">{team.captainName || 'Not assigned'}</span>
               </div>
               <div className="stat-row">
-                <span className="label">Wins:</span>
+                <span className="label">Wins: </span>
                 <span className="value text-green font-semi">{team.wins || 0}</span>
               </div>
               <div className="stat-row">
-                <span className="label">Losses:</span>
+                <span className="label">Losses: </span>
                 <span className="value text-red font-semi">{team.losses || 0}</span>
               </div>
               <div className="stat-row">
-                <span className="label">Players:</span>
+                <span className="label">Players: </span>
                 <span className="value">{getTeamPlayersCount(team)}/{team.maxPlayers}</span>
               </div>
               {team.tournamentName && (
                 <div className="stat-row">
-                  <span className="label">League:</span>
+                  <span className="label">League: </span>
                   <span className="value text-gold font-semi" style={{ fontSize: '0.8rem' }}>{team.tournamentName}</span>
                 </div>
               )}

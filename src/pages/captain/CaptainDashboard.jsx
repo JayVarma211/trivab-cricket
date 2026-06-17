@@ -463,10 +463,43 @@ export default function CaptainDashboard() {
             </div>
 
             {team && (
-              <div className="p-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
-                <h4 className="text-sm font-bold text-gradient-gold">{team.teamName}</h4>
-                <p className="text-xs text-muted mt-xs">Tournament: <strong>{team.tournamentName || 'N/A'}</strong></p>
-                <p className="text-xs text-muted mt-xs">Roster Size: <strong>{players.length} / 40 Players</strong></p>
+              <div className="p-sm flex items-center gap-md flex-wrap" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px', padding: '16px' }}>
+                {team.logoURL ? (
+                  <div style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '10px',
+                    border: '2px solid var(--gold)',
+                    overflow: 'hidden',
+                    background: 'rgba(255,255,255,0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    <img src={team.logoURL} alt={team.teamName} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  </div>
+                ) : (
+                  <div style={{
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '10px',
+                    border: '2px dashed rgba(212,175,55,0.4)',
+                    background: 'rgba(255,255,255,0.02)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    color: 'var(--gold)'
+                  }}>
+                    <Shield size={32} style={{ opacity: 0.6 }} />
+                  </div>
+                )}
+                <div style={{ minWidth: 0 }}>
+                  <h4 className="text-base font-bold text-gradient-gold" style={{ fontSize: '1.1rem', marginBottom: '6px' }}>{team.teamName}</h4>
+                  <p className="text-xs text-muted mt-xs" style={{ fontSize: '0.78rem' }}>Tournament: <strong className="text-primary">{team.tournamentName || 'N/A'}</strong></p>
+                  <p className="text-xs text-muted mt-xs" style={{ fontSize: '0.78rem' }}>Roster Size: <strong className="text-primary">{players.length} / 40 Players</strong></p>
+                </div>
               </div>
             )}
           </div>

@@ -1005,10 +1005,36 @@
 }
 
 .admin-page .grid-3 > .card .stat-row {
+  display: inline-flex;
+  align-items: center;
   border: none;
   padding: 0;
   margin: 0;
-  gap: 4px;
+  gap: 5px;
+}
+
+.admin-page .grid-3 > .card .stat-row .label {
+  font-size: 0.8rem;
+  color: var(--text-muted) !important;
+  font-weight: 500;
+}
+
+.admin-page .grid-3 > .card .stat-row .value {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.admin-page .grid-3 > .card .stat-row .value.text-green {
+  color: #22c55e !important;
+}
+
+.admin-page .grid-3 > .card .stat-row .value.text-red {
+  color: #ef4444 !important;
+}
+
+.admin-page .grid-3 > .card .stat-row .value.text-gold {
+  color: var(--gold) !important;
 }
 
 .admin-page .grid-3 > .card .stat-row:not(:last-child) {
