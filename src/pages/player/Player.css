@@ -168,7 +168,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 16px;
   min-width: 0;
   padding: 8px 0;
@@ -198,12 +198,12 @@
 }
 
 .id-card-badge {
-  font-size: 0.5rem;
+  font-size: 0.55rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   background: linear-gradient(135deg, #8b0000, #d4af37);
   color: #fff;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 100px;
   text-transform: uppercase;
 }
@@ -211,37 +211,38 @@
 /* Player name */
 .id-player-name {
   font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: #fff;
   margin: 0 0 4px;
-  line-height: 1.3;
+  line-height: 1.25;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  overflow: visible;
+  overflow: hidden;
   text-overflow: ellipsis;
   padding-bottom: 2px;
+  max-width: 100%;
 }
 
 .id-card-element .id-player-name { color: #fff !important; }
 
 .id-player-style {
   display: inline-block;
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: #d4af37;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: rgba(212,175,55,0.12);
-  border: 1px solid rgba(212,175,55,0.2);
-  padding: 3px 8px;
+  background: rgba(212,175,55,0.14);
+  border: 1px solid rgba(212,175,55,0.22);
+  padding: 4px 10px;
   border-radius: 100px;
   margin-bottom: 4px;
 }
 
 .id-card-element .id-player-style {
   color: #d4af37 !important;
-  background: rgba(212,175,55,0.12) !important;
+  background: rgba(212,175,55,0.14) !important;
 }
 
 /* Stats row */
@@ -258,21 +259,21 @@
 }
 
 .id-stat-lbl {
-  font-size: 0.5rem;
+  font-size: 0.55rem;
   font-weight: 700;
-  color: rgba(160,180,200,0.7);
-  letter-spacing: 0.1em;
+  color: rgba(160,180,200,0.75);
+  letter-spacing: 0.11em;
   text-transform: uppercase;
   line-height: 1;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
 }
 
-.id-card-element .id-stat-lbl { color: rgba(160,180,200,0.7) !important; }
+.id-card-element .id-stat-lbl { color: rgba(160,180,200,0.75) !important; }
 
 .id-stat-val {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #fff;
   line-height: 1.2;
 }
@@ -300,50 +301,51 @@
 
 /* Footer inside card */
 .id-card-footer {
-  border-top: 1px solid rgba(212,175,55,0.1);
+  border-top: 1px solid rgba(212,175,55,0.12);
   padding-top: 12px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .id-code-group {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 3px;
   min-width: 0;
+  justify-content: center;
 }
 
 .id-code-text {
   font-family: var(--font-display);
-  font-size: 0.62rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 160px;
+  max-width: 180px;
 }
 
 .id-card-element .id-code-text { color: #fff !important; }
 
 .id-qr-box {
   background: #fff;
-  padding: 3px;
-  border-radius: 5px;
+  padding: 4px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 58px;
-  height: 58px;
+  width: 72px;
+  height: 72px;
 }
 
 .id-qr-box svg {
-  width: 52px !important;
-  height: 52px !important;
+  width: 66px !important;
+  height: 66px !important;
   display: block;
 }
 

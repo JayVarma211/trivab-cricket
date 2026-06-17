@@ -11,13 +11,22 @@
 .camera-card {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 6px;
 }
 
 .camera-header {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  margin-bottom: var(--space-md);
+  margin-bottom: 0.9rem;
+}
+
+#qr-scanner-camera-box {
+  width: 100%;
+  min-height: 340px;
+  border-radius: 14px;
+  overflow: hidden;
 }
 
 .manual-search-form {
