@@ -439,7 +439,12 @@ export default function Register() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Profile Photo <span style={{ color: '#ef4444' }}>*</span></label>
+                <label className="form-label">
+                  Profile Photo <span style={{ color: '#ef4444' }}>*</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 'normal', marginLeft: '6px' }}>
+                    (upload image upto 2mb only)
+                  </span>
+                </label>
                 <div className="file-upload-container">
                   {photoPreview ? (
                     <div className="photo-preview-wrap">

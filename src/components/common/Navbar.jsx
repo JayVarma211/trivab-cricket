@@ -222,10 +222,6 @@ export default function Navbar() {
               </div>
             )}
           </div>
-
-          <NavLink to="/schedule" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Matches</NavLink>
-          <NavLink to="/gallery" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>Gallery</NavLink>
-
           {/* News & Events */}
           <NavLink to="/news" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             News &amp; Events

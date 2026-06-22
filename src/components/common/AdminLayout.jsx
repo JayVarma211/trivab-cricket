@@ -5,7 +5,7 @@ import { logoutUser } from '../../firebase/auth';
 import { getCollection } from '../../firebase/firestore';
 import {
   Users, Trophy, Calendar, Image, BarChart3, LogOut, Menu, Home,
-  Newspaper, X, ChevronRight, Shield, Scan, MessageSquare
+  Newspaper, X, ChevronRight, Shield, Scan, MessageSquare, CreditCard
 } from 'lucide-react';
 import '../../pages/admin/Admin.css';
 
@@ -40,6 +40,7 @@ export default function AdminLayout({ children }) {
     { label: 'Players', icon: <Users size={20} />, to: '/admin/players', section: 'main' },
     { label: 'Teams', icon: <Shield size={20} />, to: '/admin/teams', section: 'main' },
     { label: 'Matches', icon: <Calendar size={20} />, to: '/admin/matches', section: 'main' },
+    { label: 'Tournament Fees', icon: <CreditCard size={20} />, to: '/admin/fees', section: 'main' },
     { label: 'Images', icon: <Image size={20} />, to: '/admin/images', section: 'main' },
     { label: 'News & Events', icon: <Newspaper size={20} />, to: '/admin/news', section: 'content' },
     { label: 'Inquiries', icon: <MessageSquare size={20} />, to: '/admin/inquiries', section: 'content', badge: unreadCount > 0 ? unreadCount : null },

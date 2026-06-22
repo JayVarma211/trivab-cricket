@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, getDocument, setDocument, addDocument, getPlayerByUIDOrEmail, where, orderBy, updateDocument } from '../../firebase/firestore';
-import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload } from 'lucide-react';
+import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload, CreditCard, Clock, Calendar, AlertCircle } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import uploadImageToCloudinary from '../../services/cloudinary';
+import { safeFormatDate, safeFormatDateTime } from '../../utils/dateFormatter';
 import './Captain.css';
 
 export default function CaptainDashboard() {
@@ -12,6 +13,8 @@ export default function CaptainDashboard() {
   const [team, setTeam] = useState(null);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [teamFees, setTeamFees] = useState(null);
+  const [paymentHistory, setPaymentHistory] = useState([]);
 
   // Edit states
   const [editMode, setEditMode] = useState(false);
@@ -96,6 +99,30 @@ export default function CaptainDashboard() {
             mobile: reg.mobile || ''
           }));
           setPlayers(teamPlayers);
+
+          // Fetch team fees info
+          try {
+            const feesData = await getDocument('team_fees', currentActiveId);
+            setTeamFees(feesData);
+          } catch (feesErr) {
+            console.warn("Failed to fetch team fees info:", feesErr);
+            setTeamFees(null);
+          }
+
+          // Fetch payment history
+          try {
+            const historyData = await getCollection('payment_history', [
+              where('teamId', '==', currentActiveId)
+            ]);
+            historyData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setPaymentHistory(historyData);
+          } catch (histErr) {
+            console.warn("Failed to fetch payment history:", histErr);
+            setPaymentHistory([]);
+          }
+        } else {
+          setTeamFees(null);
+          setPaymentHistory([]);
         }
 
         // Filter tournaments that the captain does not have a team in yet
@@ -504,6 +531,220 @@ export default function CaptainDashboard() {
             )}
           </div>
         </div>
+
+        {/* Tournament Fees Card */}
+        {team && (() => {
+          const getFeesBorderColor = (statusVal) => {
+            switch (statusVal) {
+              case 'Paid': return '#22c55e';
+              case 'Overdue': return '#ef4444';
+              case 'Pending': return '#d4af37';
+              default: return 'var(--border-card)';
+            }
+          };
+
+          const getFeesBgColor = (statusVal) => {
+            switch (statusVal) {
+              case 'Paid': return 'rgba(34, 197, 94, 0.1)';
+              case 'Overdue': return 'rgba(239, 68, 68, 0.1)';
+              case 'Pending': return 'rgba(212, 175, 55, 0.1)';
+              default: return 'rgba(255,255,255,0.05)';
+            }
+          };
+
+          const getFeesTextColor = (statusVal) => {
+            switch (statusVal) {
+              case 'Paid': return '#22c55e';
+              case 'Overdue': return '#ef4444';
+              case 'Pending': return '#d4af37';
+              default: return 'var(--text-secondary)';
+            }
+          };
+
+          const getFeesIcon = (statusVal) => {
+            switch (statusVal) {
+              case 'Paid': return <CheckCircle size={20} className="text-green" />;
+              case 'Overdue': return <AlertCircle size={20} className="text-red" />;
+              case 'Pending':
+              default:
+                return <Clock size={20} className="text-gold" />;
+            }
+          };
+
+          const formatCurrency = (val) => {
+            if (!val || isNaN(val)) return '₹0';
+            return `₹${Number(val).toLocaleString('en-IN')}`;
+          };
+
+          const totalFee = Number(teamFees?.totalTournamentFee || parseFloat(String(teamFees?.amount || '').replace(/[^\d.]/g, '')) || 0);
+          const totalPaid = Number(teamFees?.totalPaidAmount || (teamFees?.status === 'Paid' ? totalFee : 0));
+          const balance = totalFee - totalPaid;
+
+          return (
+            <div className="card animate-fade-in" style={{ borderLeft: `4px solid ${getFeesBorderColor(teamFees?.status)}` }}>
+              <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
+                <CreditCard size={20} /> Tournament Payment Details
+              </h3>
+              {teamFees ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* Status & Message Info */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', borderBottom: '1px solid var(--border-card)', paddingBottom: '14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{
+                        padding: '10px',
+                        borderRadius: '8px',
+                        background: getFeesBgColor(teamFees.status),
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {getFeesIcon(teamFees.status)}
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: 0, fontSize: '0.7rem' }}>Payment Status</h4>
+                        <span className="font-bold" style={{ fontSize: '1.15rem', color: getFeesTextColor(teamFees.status) }}>
+                          {teamFees.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing grid */}
+                  <div className="grid grid-3 gap-md">
+                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
+                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Total Tournament Fee</h4>
+                      <span className="font-bold text-primary" style={{ fontSize: '1.1rem' }}>
+                        {formatCurrency(totalFee)}
+                      </span>
+                    </div>
+
+                    <div style={{ padding: '12px', background: 'rgba(22,163,74,0.02)', border: '1px solid rgba(22,163,74,0.15)', borderRadius: '8px' }}>
+                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem', color: 'rgba(34,197,94,0.8)' }}>Total Paid Amount</h4>
+                      <span className="font-bold text-green" style={{ fontSize: '1.1rem', color: '#22c55e' }}>
+                        {formatCurrency(totalPaid)}
+                      </span>
+                    </div>
+
+                    <div style={{ padding: '12px', background: balance > 0 ? 'rgba(239,68,68,0.02)' : 'rgba(22,163,74,0.02)', border: balance > 0 ? '1px solid rgba(239,68,68,0.15)' : '1px solid rgba(22,163,74,0.15)', borderRadius: '8px' }}>
+                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem', color: balance > 0 ? 'rgba(239,68,68,0.8)' : 'rgba(34,197,94,0.8)' }}>Remaining Balance</h4>
+                      <span className="font-bold" style={{ fontSize: '1.1rem', color: balance > 0 ? '#ef4444' : '#22c55e' }}>
+                        {formatCurrency(balance)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Due amount & dates grid */}
+                  <div className="grid grid-3 gap-md">
+                    <div>
+                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Last Payment Date</h4>
+                      <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
+                        {teamFees.receivingDate ? safeFormatDate(teamFees.receivingDate) : '—'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Next Due Amount</h4>
+                      <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
+                        {teamFees.nextDueAmount ? formatCurrency(teamFees.nextDueAmount) : '—'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Next Due Date</h4>
+                      <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
+                        {teamFees.nextDue ? safeFormatDate(teamFees.nextDue) : 'No due date set'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {teamFees.message && (
+                    <div style={{
+                      padding: '12px 16px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.01)',
+                      border: '1px solid var(--border-card)',
+                      fontSize: '0.85rem',
+                      color: 'var(--text-secondary)'
+                    }}>
+                      <strong className="block text-xs uppercase tracking-wider text-gold" style={{ marginBottom: '4px', opacity: 0.8 }}>Message from Admin:</strong>
+                      {teamFees.message}
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border-card)', paddingTop: '10px', marginTop: '4px' }}>
+                    <span>Updated on: <strong>{safeFormatDateTime(teamFees.updatedAt)}</strong></span>
+                    <span className="text-gold" style={{ fontWeight: '500' }}>Admin Managed Only</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ padding: '20px 10px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--border-card)', borderRadius: '8px' }}>
+                  <Clock size={32} className="text-gold" style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+                  <h4 className="text-sm font-bold opacity-80" style={{ margin: '0 0 4px' }}>No Fee Record Found</h4>
+                  <p className="text-xs text-muted" style={{ margin: 0, maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+                    Tournament fees for your team <strong>{team.teamName}</strong> have not been configured by the admin yet. Please check back later or contact support.
+                  </p>
+                </div>
+              )}
+
+              {/* PAYMENT HISTORY LOG TABLE */}
+              {paymentHistory && paymentHistory.length > 0 && (
+                <div style={{ marginTop: '24px', borderTop: '1px dashed var(--border-card)', paddingTop: '20px' }}>
+                  <h4 className="text-sm font-bold mb-md text-gradient-gold flex items-center gap-xs">
+                    <Calendar size={16} /> Payment Log &amp; Transaction History
+                  </h4>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--border-card)', color: 'var(--text-muted)' }}>
+                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Payment Date</th>
+                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Total Paid</th>
+                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Status</th>
+                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Next Due</th>
+                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Message / Notes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paymentHistory.map((hist, idx) => (
+                          <tr key={hist.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                            <td style={{ padding: '10px 4px', color: 'var(--text-primary)' }}>
+                              {hist.receivingDate ? safeFormatDate(hist.receivingDate) : safeFormatDate(hist.createdAt)}
+                            </td>
+                            <td style={{ padding: '10px 4px', fontWeight: 'bold', color: '#22c55e' }}>
+                              {formatCurrency(hist.totalPaidAmount)}
+                            </td>
+                            <td style={{ padding: '10px 4px' }}>
+                              <span style={{ 
+                                padding: '2px 8px', 
+                                borderRadius: '4px', 
+                                fontSize: '0.72rem', 
+                                fontWeight: 'bold',
+                                color: getFeesTextColor(hist.status),
+                                background: getFeesBgColor(hist.status)
+                              }}>
+                                {hist.status}
+                              </span>
+                            </td>
+                            <td style={{ padding: '10px 4px', color: 'var(--text-secondary)' }}>
+                              {hist.nextDue ? (
+                                <div>
+                                  <div style={{ fontWeight: '500' }}>{formatCurrency(hist.nextDueAmount)}</div>
+                                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{safeFormatDate(hist.nextDue)}</div>
+                                </div>
+                              ) : '—'}
+                            </td>
+                            <td style={{ padding: '10px 4px', color: 'var(--text-muted)', fontSize: '0.78rem', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={hist.message || ''}>
+                              {hist.message || '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* SECOND: Squad Distribution or Edit Mode Form */}
         {editMode ? (

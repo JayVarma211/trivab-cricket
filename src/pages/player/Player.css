@@ -195,7 +195,9 @@
 }
 
 .id-card-brand-logo {
-  height: 58px;
+  height: 70px;
+  margin-top: -12px;
+  margin-bottom: -12px;
   object-fit: contain;
   filter: brightness(1.1);
 }
@@ -321,6 +323,7 @@
 }
 
 .id-code-text {
+  display: block; /* Render as block element for html2canvas */
   font-family: var(--font-display);
   font-size: 0.85rem;
   font-weight: 700;
@@ -330,7 +333,8 @@
   overflow: visible; /* Prevent character cut-offs */
   text-overflow: ellipsis;
   max-width: 140px;
-  line-height: 1.35;
+  line-height: 1.4;
+  padding-bottom: 4px; /* Safe padding for descenders */
 }
 
 .id-card-element .id-code-text { color: #fff !important; }
@@ -392,7 +396,9 @@
     padding: 2px 0;
   }
   .id-card-element:not(.pdf-clone) .id-card-brand-logo {
-    height: 34px;
+    height: 48px;
+    margin-top: -8px;
+    margin-bottom: -8px;
   }
   .id-card-element:not(.pdf-clone) .id-player-name {
     font-size: 0.95rem;
@@ -411,7 +417,9 @@
     padding: 4px;
   }
   .id-card-element:not(.pdf-clone) .id-code-text {
+    display: block;
     font-size: 0.72rem;
     max-width: 100px;
+    padding-bottom: 2px;
   }
 }

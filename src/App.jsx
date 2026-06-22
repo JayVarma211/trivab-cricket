@@ -43,6 +43,7 @@ import AdminImages from './pages/admin/AdminImages';
 import AdminTournaments from './pages/admin/AdminTournaments';
 import AdminNews from './pages/admin/AdminNews';
 import AdminInquiries from './pages/admin/AdminInquiries';
+import AdminFees from './pages/admin/AdminFees';
 
 export default function App() {
   const { loading } = useAuth();
@@ -151,6 +152,13 @@ export default function App() {
             <AdminProtectedRoute>
               <AdminLayout>
                 <AdminInquiries />
+              </AdminLayout>
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/fees" element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <AdminFees />
               </AdminLayout>
             </AdminProtectedRoute>
           } />
