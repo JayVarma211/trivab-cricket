@@ -33,13 +33,13 @@
 .hero-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(13, 6, 6, 0.55) 0%, rgba(22, 11, 11, 0.4) 50%, rgba(13, 6, 6, 0.55) 100%);
+  background: linear-gradient(135deg, rgba(13, 6, 6, 0.65) 0%, rgba(22, 11, 11, 0.45) 50%, rgba(13, 6, 6, 0.65) 100%);
   z-index: 2;
   pointer-events: none;
 }
 
 [data-theme="light"] .hero-video-overlay {
-  background: linear-gradient(135deg, rgba(253, 251, 251, 0.45) 0%, rgba(246, 238, 238, 0.3) 50%, rgba(253, 251, 251, 0.45) 100%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(245, 245, 245, 0.5) 50%, rgba(255, 255, 255, 0.65) 100%);
 }
 
 .hero-section .orb {
@@ -69,13 +69,24 @@
   margin-bottom: var(--space-lg);
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 24px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
   line-height: 1.15;
+}
+
+/* Remove text-shadow from transparent gradient gold text to prevent white bleed-through */
+.hero-title .text-gradient-gold {
+  text-shadow: none !important;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
 }
 
 [data-theme="light"] .hero-title {
   color: #0c0707;
-  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.95), 0 4px 16px rgba(255, 255, 255, 0.8), 0 0 24px rgba(255, 255, 255, 0.5);
+  text-shadow: none;
+}
+
+[data-theme="light"] .hero-title .text-gradient-gold {
+  text-shadow: none !important;
+  filter: none;
 }
 
 .hero-subtitle {
@@ -84,12 +95,12 @@
   margin-bottom: var(--space-2xl);
   max-width: 700px;
   color: rgba(255, 255, 255, 0.95) !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 4px 12px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 [data-theme="light"] .hero-subtitle {
-  color: rgba(12, 7, 7, 0.9) !important;
-  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.95), 0 4px 12px rgba(255, 255, 255, 0.8);
+  color: #1f2937 !important; /* High contrast dark charcoal gray */
+  text-shadow: none; /* No shadow on light background for perfect crisp reading */
 }
 
 .hero-actions {
