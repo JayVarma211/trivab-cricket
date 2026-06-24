@@ -94,8 +94,7 @@ export default function Navbar() {
     const fetchNavbarTournaments = async () => {
       try {
         const list = await getCollection('tournaments') || [];
-        const active = list.filter(t => t.isActivated !== false);
-        setDbTournaments(active);
+        setDbTournaments(list);
       } catch (err) {
         console.error("Failed to load tournaments for navbar:", err);
       }

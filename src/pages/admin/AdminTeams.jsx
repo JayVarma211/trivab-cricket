@@ -228,7 +228,7 @@ export default function AdminTeams() {
       const captainsData = await getCollection('captains', []);
       const registrationsData = await getCollection('registrations', []);
       setTeams(teamsData);
-      setTournaments((tournamentsData || []).filter(t => t.isActivated !== false));
+      setTournaments(tournamentsData || []);
       setPlayers(playersData);
       setCaptains(captainsData || []);
       setRegistrations(registrationsData || []);

@@ -51,7 +51,6 @@ export default function CaptainDashboard() {
         setCaptain(captData);
 
         const tournamentsList = await getCollection('tournaments', [orderBy('createdAt', 'desc')]);
-        setAllTournaments((tournamentsList || []).filter(t => t.isActivated !== false));
 
         // Fetch all teams managed by this captain
         let captainTeams = await getCollection('teams', [
@@ -139,9 +138,12 @@ export default function CaptainDashboard() {
           setAnnouncements([]);
         }
 
-        // Filter tournaments that the captain does not have a team in yet
+        // Filter tournaments that the captain does not have a team in yet and are activated
         const joinedTournamentIds = captainTeams.map(t => t.tournamentId).filter(id => id);
-        const available = tournamentsList.filter(t => !joinedTournamentIds.includes(t.id));
+        const joinedTournaments = (tournamentsList || []).filter(t => joinedTournamentIds.includes(t.id));
+        setAllTournaments(joinedTournaments);
+
+        const available = tournamentsList.filter(t => t.isActivated !== false && !joinedTournamentIds.includes(t.id));
         setAvailableTournamentsToRegister(available);
         setRegTournamentSelection('');
 
@@ -195,7 +197,7 @@ export default function CaptainDashboard() {
       return;
     }
 
-    const selectedTourn = allTournaments.find(t => t.id === regTournamentSelection);
+    const selectedTourn = await getDocument('tournaments', regTournamentSelection);
     if (!selectedTourn) {
       setRegError('Selected tournament not found.');
       return;
@@ -284,7 +286,7 @@ export default function CaptainDashboard() {
       return;
     }
 
-    const selectedTourn = allTournaments.find(t => t.id === enrollTournamentSelection);
+    const selectedTourn = await getDocument('tournaments', enrollTournamentSelection);
     if (!selectedTourn) {
       setEnrollError('Selected tournament not found.');
       return;

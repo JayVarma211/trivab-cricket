@@ -40,7 +40,7 @@ export default function AdminMatches() {
       const tournamentsData = await getCollection('tournaments', []);
       setMatches(matchesData);
       setTeams(teamsData);
-      setTournaments((tournamentsData || []).filter(t => t.isActivated !== false));
+      setTournaments(tournamentsData || []);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load data');

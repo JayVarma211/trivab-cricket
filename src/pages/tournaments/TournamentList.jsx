@@ -95,9 +95,9 @@ export default function TournamentList() {
     const fetchTournaments = async () => {
       try {
         const list = await getCollection('tournaments', [orderBy('createdAt', 'desc')]);
-        setTournaments((list || []).filter(t => t.isActivated !== false));
+        setTournaments(list || []);
       } catch (err) {
-        console.log('Using database fallback for active tournaments');
+        console.log('Using database fallback for tournaments');
         setTournaments([]);
       } finally {
         setLoading(false);
@@ -199,13 +199,13 @@ export default function TournamentList() {
         <Loader />
       ) : tournaments.length > 0 ? (
         <div style={{ marginTop: 'var(--space-2xl)' }}>
-          <h2 className="display-sm text-gradient-gold mb-xl text-center">Active Schedules &amp; Standings</h2>
+          <h2 className="display-sm text-gradient-gold mb-xl text-center">Schedules &amp; Standings</h2>
           <div className="grid grid-3 gap-xl">
             {tournaments.map((t) => (
               <div className="card tournament-card-main border-top-gold" key={t.id} style={{ background: 'var(--bg-secondary)' }}>
                 <div className="flex justify-between items-center mb-sm">
-                  <span className={`badge ${t.status === 'Live' ? 'badge-red' : t.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
-                    {t.status}
+                  <span className={`badge ${t.isActivated === false ? 'badge-grey' : t.status === 'Live' ? 'badge-red' : t.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
+                    {t.isActivated === false ? 'Inactive' : t.status}
                   </span>
                   <span className="text-xs text-muted font-bold flex items-center gap-xs">
                     <Calendar size={12} /> {t.date || 'TBD'}
