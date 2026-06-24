@@ -14,26 +14,36 @@
   padding: var(--space-4xl) 0;
   border-bottom: 1px solid var(--border-card);
   overflow: hidden;
-  background: var(--bg-primary);
+  background: var(--gradient-hero);
 }
-
-.hero-bg-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 1;
-  pointer-events: none;
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
-}
-
-
 
 .hero-section .orb {
-  z-index: 3;
+  z-index: 0;
+}
+
+/* Orb positions matching the original hero design */
+.orb-1 {
+  width: 600px;
+  height: 600px;
+  top: -150px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(128, 0, 0, 0.22), transparent 70%);
+}
+
+.orb-2 {
+  width: 500px;
+  height: 500px;
+  bottom: -120px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(128, 0, 0, 0.18), transparent 70%);
+}
+
+[data-theme="light"] .orb-1 {
+  background: radial-gradient(circle, rgba(200, 80, 80, 0.18), transparent 70%);
+}
+
+[data-theme="light"] .orb-2 {
+  background: radial-gradient(circle, rgba(200, 80, 80, 0.14), transparent 70%);
 }
 
 .hero-container.centered {
@@ -58,32 +68,8 @@
 .hero-title {
   margin-bottom: var(--space-lg);
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  color: #ffffff !important;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.8);
+  color: var(--text-primary);
   line-height: 1.15;
-}
-
-.hero-title .text-gradient-gold {
-  background: none !important;
-  -webkit-background-clip: initial !important;
-  -webkit-text-fill-color: #ffffff !important;
-  background-clip: initial !important;
-  color: #ffffff !important;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.8) !important;
-}
-
-[data-theme="light"] .hero-title {
-  color: #000000 !important;
-  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 1px 2px rgba(255,255,255,0.9) !important;
-}
-
-[data-theme="light"] .hero-title .text-gradient-gold {
-  background: none !important;
-  -webkit-background-clip: initial !important;
-  -webkit-text-fill-color: #000000 !important;
-  background-clip: initial !important;
-  color: #000000 !important;
-  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 1px 2px rgba(255,255,255,0.9) !important;
 }
 
 .hero-subtitle {
@@ -91,16 +77,10 @@
   line-height: 1.8;
   margin-bottom: var(--space-2xl);
   max-width: 700px;
-  color: #ffffff !important;
-  opacity: 0.95;
-  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.8);
+  color: var(--text-secondary);
+  opacity: 0.9;
 }
 
-[data-theme="light"] .hero-subtitle {
-  color: #000000 !important;
-  opacity: 0.95;
-  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 1px 2px rgba(255,255,255,0.9) !important;
-}
 
 .hero-actions {
   display: flex;

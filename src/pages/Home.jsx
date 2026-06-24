@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getCollection, limit } from '../firebase/firestore';
 import { Trophy, Calendar, ShieldCheck, Sparkles, ArrowRight, Star } from 'lucide-react';
@@ -21,19 +21,9 @@ const TICKER_LOGOS = [
 ];
 
 export default function Home() {
-  const videoRef = useRef(null);
   const [recentTournaments, setRecentTournaments] = useState([]);
   const [upcomingMatches, setUpcomingMatches] = useState([]);
 
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.defaultMuted = true;
-      videoRef.current.muted = true;
-      videoRef.current.play().catch(err => {
-        console.warn("Autoplay prevented by browser:", err);
-      });
-    }
-  }, []);
   const [stats] = useState({
     players: '2,000+',
     tournaments: '55+',
@@ -127,28 +117,9 @@ export default function Home() {
       />
       {/* Hero Section */}
       <section className="hero-section">
-        {/* Background Video */}
-        <video 
-          ref={videoRef}
-          className="hero-bg-video" 
-          src="/videos/backvideo.mp4"
-          autoPlay 
-          muted 
-          loop 
-          playsInline 
-          preload="auto"
-          onCanPlay={(e) => {
-            e.target.muted = true;
-            e.target.play().catch(err => console.warn("Autoplay prevented:", err));
-          }}
-        >
-          <source src="/videos/backvideo.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-
-
-
-
+        {/* Decorative Orbs — original hero background */}
+        <div className="orb orb-1" aria-hidden="true" />
+        <div className="orb orb-2" aria-hidden="true" />
 
         <div className="container hero-container centered">
           <motion.div 
@@ -181,6 +152,7 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
 
       {/* Stats Counter Section */}
       <section className="stats-strip container section-padding-sm">
