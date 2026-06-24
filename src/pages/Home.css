@@ -33,13 +33,13 @@
 .hero-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(13, 6, 6, 0.65) 0%, rgba(22, 11, 11, 0.45) 50%, rgba(13, 6, 6, 0.65) 100%);
+  background: rgba(13, 6, 6, 0.25); /* Faint dark tint to link the page, video remains 100% sharp */
   z-index: 2;
   pointer-events: none;
 }
 
 [data-theme="light"] .hero-video-overlay {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(245, 245, 245, 0.5) 50%, rgba(255, 255, 255, 0.65) 100%);
+  background: rgba(255, 255, 255, 0.2); /* Faint light tint, video remains 100% sharp */
 }
 
 .hero-section .orb {
@@ -69,7 +69,7 @@
   margin-bottom: var(--space-lg);
   font-size: clamp(2.5rem, 6vw, 4.5rem);
   color: #ffffff !important;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.8);
   line-height: 1.15;
 }
 
@@ -79,12 +79,12 @@
   -webkit-text-fill-color: #ffffff !important;
   background-clip: initial !important;
   color: #ffffff !important;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.8) !important;
 }
 
 [data-theme="light"] .hero-title {
   color: #000000 !important;
-  text-shadow: none !important;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 1px 2px rgba(255,255,255,0.9) !important;
 }
 
 [data-theme="light"] .hero-title .text-gradient-gold {
@@ -93,7 +93,7 @@
   -webkit-text-fill-color: #000000 !important;
   background-clip: initial !important;
   color: #000000 !important;
-  text-shadow: none !important;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 1px 2px rgba(255,255,255,0.9) !important;
 }
 
 .hero-subtitle {
@@ -103,13 +103,13 @@
   max-width: 700px;
   color: #ffffff !important;
   opacity: 0.95;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 2px 4px rgba(0,0,0,0.8);
 }
 
 [data-theme="light"] .hero-subtitle {
   color: #000000 !important;
   opacity: 0.95;
-  text-shadow: none !important;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 1px 2px rgba(255,255,255,0.9) !important;
 }
 
 .hero-actions {
