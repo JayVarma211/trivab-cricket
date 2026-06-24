@@ -115,7 +115,23 @@ export default function Home() {
         schema={homeSchema}
       />
       {/* Hero Section */}
-      <section className="hero-section bg-gradient-animated">
+      <section className="hero-section">
+        {/* Background Video */}
+        <video 
+          className="hero-bg-video" 
+          autoPlay 
+          muted 
+          loop 
+          playsInline 
+          preload="auto"
+        >
+          <source src="/videos/backvideo.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        {/* Video Overlay Tint */}
+        <div className="hero-video-overlay" />
+
         {/* Animated Background Effects */}
         <div className="floating-ambient-particles">
           <div className="particle p1" />

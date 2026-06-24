@@ -764,7 +764,7 @@ export default function AdminTournaments() {
                     if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
                     return '';
                   })()}
-                  style={{ width: '70px', height: '70px', objectFit: 'contain', flexShrink: 0 }}
+                  style={{ width: '70px', height: '70px', objectFit: 'contain', flexShrink: 0, padding: '4px' }}
                 />
               )}
 
@@ -876,7 +876,7 @@ export default function AdminTournaments() {
                     if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
                     return '';
                   })()}
-                  style={{ width: '100px', height: '100px', objectFit: 'contain', flexShrink: 0 }}
+                  style={{ width: '100px', height: '100px', objectFit: 'contain', flexShrink: 0, padding: '6px' }}
                 />
               )}
               <div style={{ textAlign: 'left' }}>

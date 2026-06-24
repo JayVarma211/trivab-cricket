@@ -178,7 +178,7 @@ export default function TournamentList() {
                 <img 
                   src={getCleanLogoUrl(item.logo)} 
                   alt={item.name} 
-                  style={{ width: '105px', height: '105px', objectFit: 'contain', display: 'block' }} 
+                  style={{ width: '105px', height: '105px', objectFit: 'contain', display: 'block', padding: '6px' }} 
                   className={getLogoClass(getCleanLogoUrl(item.logo))}
                 />
               </div>

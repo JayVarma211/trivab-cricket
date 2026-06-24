@@ -696,7 +696,7 @@ export default function TournamentDetails() {
               src={getCleanLogoUrl(tournament.logo)} 
               alt={tournament.name} 
               className={`tournament-details-logo-img ${getLogoClass(getCleanLogoUrl(tournament.logo))}`}
-              style={{ width: 110, height: 110, objectFit: 'contain', display: 'block', flexShrink: 0 }} 
+              style={{ width: 110, height: 110, objectFit: 'contain', display: 'block', flexShrink: 0, padding: '6px' }} 
             />
           )}
           <div style={{ minWidth: 0 }}>
