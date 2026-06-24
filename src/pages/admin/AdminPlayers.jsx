@@ -825,11 +825,11 @@ export default function AdminPlayers() {
                 onChange={handleInputChange}
               >
                 <option value="">-- Choose T-Shirt Size --</option>
-                <option value="S (36)">S (36)</option>
-                <option value="M (38)">M (38)</option>
-                <option value="L (40)">L (40)</option>
-                <option value="XL (42)">XL (42)</option>
-                <option value="XXL (44)">XXL (44)</option>
+                <option value="S (38)">S (38)</option>
+                <option value="M (40)">M (40)</option>
+                <option value="L (42)">L (42)</option>
+                <option value="XL (44)">XL (44)</option>
+                <option value="XXL (46)">XXL (46)</option>
               </select>
             </div>
 
@@ -843,11 +843,11 @@ export default function AdminPlayers() {
                 onChange={handleInputChange}
               >
                 <option value="">-- Choose Track Pant Size --</option>
-                <option value="S (30)">S (30)</option>
-                <option value="M (32)">M (32)</option>
-                <option value="L (34)">L (34)</option>
-                <option value="XL (36)">XL (36)</option>
-                <option value="XXL (38)">XXL (38)</option>
+                <option value="S (28)">S (28)</option>
+                <option value="M (30)">M (30)</option>
+                <option value="L (32)">L (32)</option>
+                <option value="XL (34)">XL (34)</option>
+                <option value="XXL (36)">XXL (36)</option>
               </select>
             </div>
 
