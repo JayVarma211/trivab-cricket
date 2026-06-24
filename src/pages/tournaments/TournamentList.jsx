@@ -173,14 +173,14 @@ export default function TournamentList() {
         <div className="grid grid-3 gap-xl">
           {TRIVAB_TOURNAMENT_CATEGORIES.map((item) => (
             <div className="card tournament-card-main border-top-gold" key={item.id}>
-              <div className="flex justify-between items-start mb-md">
+              <div className="flex justify-between items-start mb-md w-full">
                 <span className="badge badge-gold">{item.badge}</span>
-                <img 
-                  src={getCleanLogoUrl(item.logo)} 
-                  alt={item.name} 
-                  style={{ width: '105px', height: '105px', objectFit: 'contain', display: 'block', padding: '6px' }} 
-                  className={getLogoClass(getCleanLogoUrl(item.logo))}
-                />
+                <div className="tournament-list-logo-badge">
+                  <img 
+                    src={getCleanLogoUrl(item.logo)} 
+                    alt={item.name} 
+                  />
+                </div>
               </div>
 
               <h3 className="display-xs text-gradient-gold mb-sm">{item.name}</h3>

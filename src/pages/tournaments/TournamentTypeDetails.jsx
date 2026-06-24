@@ -237,7 +237,9 @@ export default function TournamentTypeDetails() {
       {/* Hero Intro Header */}
       <div className="parent-hub-header flex gap-xl items-center mb-xl flex-wrap">
         {parentData.logo && (
-          <img src={getCleanLogoUrl(parentData.logo)} alt={parentData.name} className={`parent-hub-logo animate-scale-in ${getLogoClass(getCleanLogoUrl(parentData.logo))}`} style={{ width: '130px', height: '130px', objectFit: 'contain', flexShrink: 0, padding: '6px' }} />
+          <div className="parent-hub-logo-wrapper-badge">
+            <img src={getCleanLogoUrl(parentData.logo)} alt={parentData.name} className="parent-hub-logo" />
+          </div>
         )}
         <div className="parent-hub-info flex-1 min-width-300">
           <span className="badge badge-gold mb-xs">Tournament Category</span>
@@ -286,7 +288,9 @@ export default function TournamentTypeDetails() {
               <div className="edition-card-visual flex items-center justify-between p-lg">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {edition.logo && (
-                    <img src={getCleanLogoUrl(edition.logo)} alt={edition.name} className={`edition-card-logo ${getLogoClass(getCleanLogoUrl(edition.logo))}`} />
+                    <div className="edition-logo-badge-wrapper">
+                      <img src={getCleanLogoUrl(edition.logo)} alt={edition.name} className="edition-card-logo" />
+                    </div>
                   )}
                   <div>
                     <span className={`badge ${stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : stats.status === 'Inactive' ? 'badge-grey' : 'badge-gold'} mb-xs`}>

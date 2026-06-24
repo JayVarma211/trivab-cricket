@@ -26,18 +26,20 @@
   object-fit: cover;
   z-index: 1;
   pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 .hero-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(13, 6, 6, 0.84) 0%, rgba(22, 11, 11, 0.74) 50%, rgba(13, 6, 6, 0.84) 100%);
+  background: linear-gradient(135deg, rgba(13, 6, 6, 0.45) 0%, rgba(22, 11, 11, 0.3) 50%, rgba(13, 6, 6, 0.45) 100%);
   z-index: 2;
   pointer-events: none;
 }
 
 [data-theme="light"] .hero-video-overlay {
-  background: linear-gradient(135deg, rgba(253, 251, 251, 0.88) 0%, rgba(246, 238, 238, 0.78) 50%, rgba(253, 251, 251, 0.88) 100%);
+  background: linear-gradient(135deg, rgba(253, 251, 251, 0.35) 0%, rgba(246, 238, 238, 0.2) 50%, rgba(253, 251, 251, 0.35) 100%);
 }
 
 .hero-section .orb {

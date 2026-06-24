@@ -480,7 +480,7 @@ export default function CaptainDashboard() {
       {announcements && announcements.length > 0 && (
         <div className="card card-gold mb-xl animate-fade-in" style={{ borderLeft: '4px solid var(--gold)' }}>
           <h3 className="text-md font-bold mb-md text-gradient-gold flex items-center gap-xs">
-            <Bell size={20} className="text-gold animate-bounce" /> Administrative Announcements &amp; Notices
+            <Bell size={20} className="text-gold animate-bounce" /> Tournament Announcements &amp; Notices
           </h3>
           <div style={{ 
             display: 'grid', 

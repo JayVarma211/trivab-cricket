@@ -751,21 +751,28 @@ export default function AdminTournaments() {
                 opacity: isActive ? 1 : 0.65
               }}
             >
-              {/* Logo — transparent, no background */}
+              {/* Logo — circular white card badge */}
               {displayTourn.logo && (
-                <img
-                  src={getCleanLogoUrl(displayTourn.logo)}
-                  alt=""
-                  className={(() => {
-                    const url = getCleanLogoUrl(displayTourn.logo).toLowerCase();
-                    if (url.includes('cloudinary') || url.includes('http')) return '';
-                    if (url.includes('xpress')) return 'logo-black-bg';
-                    if (url.includes('dads')) return 'logo-white-bg';
-                    if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
-                    return '';
-                  })()}
-                  style={{ width: '70px', height: '70px', objectFit: 'contain', flexShrink: 0, padding: '4px' }}
-                />
+                <div className="admin-tournament-logo-badge-wrapper" style={{
+                  width: '65px',
+                  height: '65px',
+                  borderRadius: '50%',
+                  backgroundColor: '#ffffff',
+                  border: '2px solid var(--gold)',
+                  boxShadow: '0 2px 6px rgba(0, 0, 0, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  padding: '4px'
+                }}>
+                  <img
+                    src={getCleanLogoUrl(displayTourn.logo)}
+                    alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                  />
+                </div>
               )}
 
               {/* Info */}
@@ -865,19 +872,26 @@ export default function AdminTournaments() {
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '16px' }}>
               {selectedTournamentForModal.logo && (
-                <img
-                  src={getCleanLogoUrl(selectedTournamentForModal.logo)}
-                  alt=""
-                  className={(() => {
-                    const url = getCleanLogoUrl(selectedTournamentForModal.logo).toLowerCase();
-                    if (url.includes('cloudinary') || url.includes('http')) return '';
-                    if (url.includes('xpress')) return 'logo-black-bg';
-                    if (url.includes('dads')) return 'logo-white-bg';
-                    if (url.includes('baplt20') || url.includes('baplpune')) return 'logo-silver-bg';
-                    return '';
-                  })()}
-                  style={{ width: '100px', height: '100px', objectFit: 'contain', flexShrink: 0, padding: '6px' }}
-                />
+                <div className="admin-tournament-logo-modal-badge" style={{
+                  width: '90px',
+                  height: '90px',
+                  borderRadius: '50%',
+                  backgroundColor: '#ffffff',
+                  border: '2px solid var(--gold)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  padding: '5px'
+                }}>
+                  <img
+                    src={getCleanLogoUrl(selectedTournamentForModal.logo)}
+                    alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
+                  />
+                </div>
               )}
               <div style={{ textAlign: 'left' }}>
                 <h3 className="text-lg font-bold text-gradient-gold" style={{ margin: 0 }}>

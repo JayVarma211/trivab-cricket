@@ -244,4 +244,77 @@
   }
 }
 
+/* ============================================================
+   TOURNAMENT TYPE DETAIL BADGES
+   ============================================================ */
+.parent-hub-logo-wrapper-badge {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 3px solid var(--gold);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 15px rgba(212, 175, 55, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 8px;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.parent-hub-logo-wrapper-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 25px rgba(212, 175, 55, 0.4);
+}
+
+.parent-hub-logo-wrapper-badge .parent-hub-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.edition-logo-badge-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 6px;
+  transition: transform 0.3s ease;
+}
+
+.edition-hub-card:hover .edition-logo-badge-wrapper {
+  transform: scale(1.05);
+}
+
+.edition-logo-badge-wrapper .edition-card-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .parent-hub-logo-wrapper-badge {
+    width: 90px;
+    height: 90px;
+    border-width: 2.5px;
+    padding: 6px;
+    margin: 0 auto;
+  }
+  .edition-logo-badge-wrapper {
+    width: 65px;
+    height: 65px;
+    padding: 4px;
+  }
+}
+
 /* Light theme logo overrides removed */

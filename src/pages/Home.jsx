@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { getCollection, limit } from '../firebase/firestore';
 import { Trophy, Calendar, ShieldCheck, Sparkles, ArrowRight, Star } from 'lucide-react';
@@ -21,8 +21,19 @@ const TICKER_LOGOS = [
 ];
 
 export default function Home() {
+  const videoRef = useRef(null);
   const [recentTournaments, setRecentTournaments] = useState([]);
   const [upcomingMatches, setUpcomingMatches] = useState([]);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.defaultMuted = true;
+      videoRef.current.muted = true;
+      videoRef.current.play().catch(err => {
+        console.warn("Autoplay prevented by browser:", err);
+      });
+    }
+  }, []);
   const [stats] = useState({
     players: '2,000+',
     tournaments: '55+',
@@ -118,12 +129,18 @@ export default function Home() {
       <section className="hero-section">
         {/* Background Video */}
         <video 
+          ref={videoRef}
           className="hero-bg-video" 
+          src="/videos/backvideo.mp4"
           autoPlay 
           muted 
           loop 
           playsInline 
           preload="auto"
+          onCanPlay={(e) => {
+            e.target.muted = true;
+            e.target.play().catch(err => console.warn("Autoplay prevented:", err));
+          }}
         >
           <source src="/videos/backvideo.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -132,15 +149,7 @@ export default function Home() {
         {/* Video Overlay Tint */}
         <div className="hero-video-overlay" />
 
-        {/* Animated Background Effects */}
-        <div className="floating-ambient-particles">
-          <div className="particle p1" />
-          <div className="particle p2" />
-          <div className="particle p3" />
-        </div>
 
-        <div className="orb orb-gold spline-float-1" style={{ top: '10%', left: '15%', width: '400px', height: '400px' }} />
-        <div className="orb orb-blue spline-float-2" style={{ bottom: '15%', right: '10%', width: '500px', height: '500px' }} />
 
         <div className="container hero-container centered">
           <motion.div 

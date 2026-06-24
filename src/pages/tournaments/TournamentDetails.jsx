@@ -692,12 +692,12 @@ export default function TournamentDetails() {
       <div className="flex justify-between items-start mb-xl gap-lg flex-wrap tournament-header-row">
         <div className="tournament-header-left" style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
           {tournament.logo && (
-            <img 
-              src={getCleanLogoUrl(tournament.logo)} 
-              alt={tournament.name} 
-              className={`tournament-details-logo-img ${getLogoClass(getCleanLogoUrl(tournament.logo))}`}
-              style={{ width: 110, height: 110, objectFit: 'contain', display: 'block', flexShrink: 0, padding: '6px' }} 
-            />
+            <div className="tournament-logo-badge-wrapper">
+              <img 
+                src={getCleanLogoUrl(tournament.logo)} 
+                alt={tournament.name} 
+              />
+            </div>
           )}
           <div style={{ minWidth: 0 }}>
             <span className="badge badge-red mb-xs">{tournament.status}</span>

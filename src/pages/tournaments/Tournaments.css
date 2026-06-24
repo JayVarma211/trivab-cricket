@@ -275,3 +275,75 @@
     padding: 10px 16px !important;
   }
 }
+
+/* ============================================================
+   TOURNAMENT LOGO CIRCULAR BADGES
+   ============================================================ */
+.tournament-logo-badge-wrapper {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 3px solid var(--gold);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 0 15px rgba(212, 175, 55, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 8px;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.tournament-logo-badge-wrapper:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), 0 0 25px rgba(212, 175, 55, 0.4);
+}
+
+.tournament-logo-badge-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.tournament-list-logo-badge {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 5px;
+  transition: transform 0.3s ease;
+}
+
+.tournament-card-main:hover .tournament-list-logo-badge {
+  transform: scale(1.05);
+}
+
+.tournament-list-logo-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .tournament-logo-badge-wrapper {
+    width: 85px;
+    height: 85px;
+    border-width: 2.5px;
+    padding: 6px;
+  }
+  .tournament-list-logo-badge {
+    width: 75px;
+    height: 75px;
+    padding: 4px;
+  }
+}
