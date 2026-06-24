@@ -128,7 +128,7 @@ export default function CaptainDashboard() {
               where('tag', '==', 'Announcement')
             ]);
             announcementsData.sort((a, b) => new Date(b.date) - new Date(a.date));
-            setAnnouncements(announcementsData);
+            setAnnouncements(announcementsData.slice(0, 1));
           } catch (announceErr) {
             console.warn("Failed to fetch announcements:", announceErr);
             setAnnouncements([]);
@@ -482,34 +482,41 @@ export default function CaptainDashboard() {
           <h3 className="text-md font-bold mb-md text-gradient-gold flex items-center gap-xs">
             <Bell size={20} className="text-gold animate-bounce" /> Administrative Announcements &amp; Notices
           </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+            gap: '16px' 
+          }}>
             {announcements.map((ann, idx) => (
               <div 
                 key={ann.id || idx} 
                 style={{ 
-                  background: 'rgba(255, 255, 255, 0.01)', 
+                  background: 'var(--bg-secondary)', 
                   border: '1px solid var(--border-card)', 
                   borderRadius: '12px', 
                   padding: '16px', 
                   display: 'flex', 
-                  gap: '16px', 
-                  flexWrap: 'wrap' 
+                  flexDirection: 'column',
+                  gap: '12px',
+                  boxShadow: 'var(--shadow-sm)',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}
               >
                 {ann.imageURL && (
-                  <div style={{ width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
+                  <div style={{ width: '100%', height: '160px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
                     <img src={ann.imageURL} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 )}
-                <div style={{ flex: 1, minWidth: '240px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '6px' }}>
                     <span className="badge badge-gold" style={{ fontSize: '0.65rem', padding: '2px 8px' }}>ANNOUNCEMENT</span>
                     <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                       {safeFormatDate(ann.date)}
                     </span>
                   </div>
-                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--text-primary)' }}>{ann.title}</h4>
-                  <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{ann.content}</p>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--text-primary)', lineHeight: '1.3' }}>{ann.title}</h4>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5, whiteSpace: 'pre-line', flex: 1 }}>{ann.content}</p>
                 </div>
               </div>
             ))}
@@ -867,24 +874,29 @@ export default function CaptainDashboard() {
             </form>
           </div>
         ) : (
-          <div className="card stats-panel-card">
-            <h3 className="text-lg font-bold mb-md text-gradient-gold">Squad Distribution</h3>
-            <div className="stats-row flex gap-lg">
-              <div className="stat-box text-center">
-                <span className="stat-num text-gradient-gold">{players.filter(p => p.playingStyle === 'Batsman').length}</span>
-                <span className="stat-lbl block text-xs">BATSMEN</span>
+          <div className="card stats-panel-card" style={{ padding: '20px' }}>
+            <h3 className="text-lg font-bold mb-sm text-gradient-gold">Squad Distribution</h3>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(2, 1fr)', 
+              gap: '12px', 
+              marginTop: '12px' 
+            }}>
+              <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
+                <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Batsman').length}</span>
+                <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>BATSMEN</span>
               </div>
-              <div className="stat-box text-center">
-                <span className="stat-num text-gradient-gold">{players.filter(p => p.playingStyle === 'Bowler').length}</span>
-                <span className="stat-lbl block text-xs">BOWLERS</span>
+              <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
+                <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Bowler').length}</span>
+                <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>BOWLERS</span>
               </div>
-              <div className="stat-box text-center">
-                <span className="stat-num text-gradient-gold">{players.filter(p => p.playingStyle === 'Wicket Keeper').length}</span>
-                <span className="stat-lbl block text-xs">KEEPERS</span>
+              <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
+                <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Wicket Keeper').length}</span>
+                <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>KEEPERS</span>
               </div>
-              <div className="stat-box text-center">
-                <span className="stat-num text-gradient-gold">{players.filter(p => p.playingStyle === 'All-Rounder').length}</span>
-                <span className="stat-lbl block text-xs">ALL-ROUNDERS</span>
+              <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
+                <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'All-Rounder').length}</span>
+                <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>ALL-ROUNDERS</span>
               </div>
             </div>
           </div>

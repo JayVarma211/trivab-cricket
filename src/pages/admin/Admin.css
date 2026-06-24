@@ -1466,3 +1466,15 @@
     gap: 16px;
   }
 }
+
+/* Responsive Grid for Admin Dashboard Feed & Recent Activity */
+.admin-feed-activity-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 768px) {
+  .admin-feed-activity-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

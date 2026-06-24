@@ -277,7 +277,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Two columns: Enrollment Feed + Activity */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '28px' }}>
+      <div className="admin-feed-activity-grid" style={{ marginBottom: '28px' }}>
         {/* Roster Enrollments Feed */}
         <div>
           <h3 className="admin-section-title">Enrollment Feed</h3>
