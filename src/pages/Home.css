@@ -30,17 +30,7 @@
   will-change: transform;
 }
 
-.hero-video-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(13, 6, 6, 0.25); /* Faint dark tint to link the page, video remains 100% sharp */
-  z-index: 2;
-  pointer-events: none;
-}
 
-[data-theme="light"] .hero-video-overlay {
-  background: rgba(255, 255, 255, 0.2); /* Faint light tint, video remains 100% sharp */
-}
 
 .hero-section .orb {
   z-index: 3;

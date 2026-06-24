@@ -146,8 +146,7 @@ export default function Home() {
           Your browser does not support the video tag.
         </video>
 
-        {/* Video Overlay Tint */}
-        <div className="hero-video-overlay" />
+
 
 
 
