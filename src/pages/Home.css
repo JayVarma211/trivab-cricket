@@ -68,25 +68,32 @@
 .hero-title {
   margin-bottom: var(--space-lg);
   font-size: clamp(2.5rem, 6vw, 4.5rem);
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
   line-height: 1.15;
 }
 
-/* Remove text-shadow from transparent gradient gold text to prevent white bleed-through */
 .hero-title .text-gradient-gold {
-  text-shadow: none !important;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-clip: initial !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8) !important;
 }
 
 [data-theme="light"] .hero-title {
-  color: #0c0707;
-  text-shadow: none;
+  color: #000000 !important;
+  text-shadow: none !important;
 }
 
 [data-theme="light"] .hero-title .text-gradient-gold {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: #000000 !important;
+  background-clip: initial !important;
+  color: #000000 !important;
   text-shadow: none !important;
-  filter: none;
 }
 
 .hero-subtitle {
@@ -94,13 +101,15 @@
   line-height: 1.8;
   margin-bottom: var(--space-2xl);
   max-width: 700px;
-  color: rgba(255, 255, 255, 0.95) !important;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  color: #ffffff !important;
+  opacity: 0.95;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
 }
 
 [data-theme="light"] .hero-subtitle {
-  color: #1f2937 !important; /* High contrast dark charcoal gray */
-  text-shadow: none; /* No shadow on light background for perfect crisp reading */
+  color: #000000 !important;
+  opacity: 0.95;
+  text-shadow: none !important;
 }
 
 .hero-actions {
