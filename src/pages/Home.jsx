@@ -35,7 +35,7 @@ export default function Home() {
     const fetchHomeData = async () => {
       try {
         const tourn = await getCollection('tournaments');
-        const activeTourns = (tourn || []).filter(t => t.isActivated !== false);
+        const activeTourns = tourn || [];
         setRecentTournaments(diversifyTournaments(activeTourns).slice(0, 3));
         const matches = await getCollection('matches', [limit(3)]);
         setUpcomingMatches(matches);
