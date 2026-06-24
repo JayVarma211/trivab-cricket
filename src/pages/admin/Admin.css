@@ -1453,3 +1453,16 @@
 [data-theme="light"] .btn-table-action { border-color: rgba(0,0,0,0.1); color: rgba(0,0,0,0.5); }
 [data-theme="light"] .admin-tournament-item { background: #fff; }
 [data-theme="light"] .admin-tournament-logo { border-color: rgba(0,0,0,0.12); }
+
+/* Custom Responsive Grid for Tournaments Modal */
+.admin-modal-layout-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .admin-modal-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

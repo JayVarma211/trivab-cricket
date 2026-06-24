@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getCollection, setDocument, deleteDocument, where, addDocument } from '../../firebase/firestore';
-import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, Calendar, Users, Eye, ArrowLeft, Loader2 } from 'lucide-react';
+import { getCollection, setDocument, deleteDocument, where, addDocument, updateDocument } from '../../firebase/firestore';
+import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, Calendar, Users, Eye, ArrowLeft, Loader2, Upload } from 'lucide-react';
+import uploadImageToCloudinary from '../../services/cloudinary';
 import './Admin.css';
 
 const getCleanLogoUrl = (url) => {
@@ -66,7 +67,10 @@ export default function AdminTournaments() {
     description: '',
     winner: 'TBD',
     runnerUp: 'TBD',
+    customName: '',
+    customLogo: ''
   });
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const handleActivate = async (pred) => {
     setError('');
     try {
@@ -170,19 +174,67 @@ export default function AdminTournaments() {
 
   const downloadSquadExcel = () => {
     if (!selectedTournamentForModal || !viewingTeamSquad) return;
-    const headers = ['Player Name', 'Player ID', 'Jersey Number', 'Playing Style', 'Mobile', 'Matches in Tournament', 'MCA Status', 'MCA Card ID'];
+    const headers = [
+      'Player Name', 
+      'Player ID', 
+      'Initials',
+      'Mobile (CricHeroes No)', 
+      'Emergency Contact Name', 
+      'Emergency Contact Mobile', 
+      'Blood Group', 
+      'Date of Birth', 
+      'Email', 
+      'Playing Style', 
+      'Jersey Number', 
+      'Name on Jersey', 
+      'MCA Player?', 
+      'MCA ID Number', 
+      'MCA Card URL',
+      'Track Pant Size', 
+      'T-Shirt Size', 
+      'Sleeve Type', 
+      'Instagram ID', 
+      'Status',
+      'Matches in Tournament',
+      'Joined Tournaments & Matches',
+      'Created At'
+    ];
     const data = teamPlayers.map(p => {
       const tournObj = p.joinedTournaments?.find(jt => (typeof jt === 'string' ? jt : jt.id) === selectedTournamentForModal.id);
       const tournMatches = tournObj?.matchesPlayed !== undefined ? tournObj.matchesPlayed : 0;
+      
+      const tournamentsJoinedStr = p.joinedTournaments && p.joinedTournaments.length > 0
+        ? p.joinedTournaments.map(t => {
+            const name = typeof t === 'string' ? t : t.name || t.id;
+            const matches = t.matchesPlayed !== undefined ? t.matchesPlayed : 0;
+            return `${name} (${matches} matches)`;
+          }).join('; ')
+        : 'None';
+
       return [
-        p.fullName,
-        p.playerId,
-        p.jerseyNumber || '—',
+        p.fullName || '—',
+        p.playerId || '—',
+        p.playerInitials || '—',
+        p.mobile || '—',
+        p.emergencyContactName || '—',
+        p.emergencyContactMobile || '—',
+        p.bloodGroup || '—',
+        p.dob || '—',
+        p.email || '—',
         p.playingStyle || 'Player',
-        p.mobile || '',
-        tournMatches,
+        p.jerseyNumber || '—',
+        p.nameOnJersey || '—',
         p.mcaPlayer ? 'Yes' : 'No',
-        p.mcaIdNumber || ''
+        p.mcaIdNumber || '—',
+        p.mcaCardURL || '—',
+        p.trackPantSize || '—',
+        p.tshirtSize || '—',
+        p.sleeveType || '—',
+        p.instagramId || '—',
+        p.status || 'Active',
+        tournMatches,
+        tournamentsJoinedStr,
+        p.createdAt || '—'
       ];
     });
     exportToCSV(data, headers, `${viewingTeamSquad.teamName.replace(/\s+/g, '_')}_Squad.csv`);
@@ -283,8 +335,26 @@ export default function AdminTournaments() {
     setFormData(prev => ({
       ...prev,
       typeId,
-      description: selected ? selected.description : ''
+      description: selected ? selected.description : '',
+      customName: selected ? '' : (prev.customName || ''),
+      customLogo: selected ? '' : (prev.customLogo || '')
     }));
+  };
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const url = await uploadImageToCloudinary(file);
+      setFormData(prev => ({ ...prev, customLogo: url }));
+      alert('Logo uploaded successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload logo.');
+    } finally {
+      setUploadingLogo(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -297,23 +367,51 @@ export default function AdminTournaments() {
     }
 
     try {
-      const selectedType = PREDEFINED_TOURNAMENTS.find(t => t.id === formData.typeId);
-      
-      const tournamentData = {
-        name: selectedType.name,
-        logo: selectedType.logo,
-        status: formData.status,
-        date: formData.date || 'TBD',
-        teamCount: formData.teamCount || 12,
-        description: formData.description || selectedType.description,
-        winner: formData.winner || 'TBD',
-        runnerUp: formData.runnerUp || 'TBD',
-        createdAt: new Date().toISOString()
-      };
+      const isCustom = formData.typeId === 'custom';
+      let targetId = editingId;
+      let tournamentData = {};
 
-      // We use setDocument with the selected predefined ID (e.g., 'bapl-south')
-      // to link directly with our navbar dropdown links.
-      await setDocument('tournaments', formData.typeId, tournamentData);
+      if (isCustom) {
+        if (!formData.customName) {
+          setError('Please enter custom tournament name');
+          return;
+        }
+        if (!targetId) {
+          const slug = formData.customName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          targetId = `custom-${slug}-${Date.now().toString().slice(-4)}`;
+        }
+        tournamentData = {
+          name: formData.customName,
+          logo: formData.customLogo || '/logos/bapllogo.jpg',
+          status: formData.status,
+          date: formData.date || 'TBD',
+          teamCount: formData.teamCount || 12,
+          description: formData.description || '',
+          winner: formData.winner || 'TBD',
+          runnerUp: formData.runnerUp || 'TBD',
+          createdAt: new Date().toISOString(),
+          isCustom: true
+        };
+      } else {
+        const selectedType = PREDEFINED_TOURNAMENTS.find(t => t.id === formData.typeId);
+        targetId = formData.typeId;
+        tournamentData = {
+          name: selectedType.name,
+          logo: selectedType.logo,
+          status: formData.status,
+          date: formData.date || 'TBD',
+          teamCount: formData.teamCount || 12,
+          description: formData.description || selectedType.description,
+          winner: formData.winner || 'TBD',
+          runnerUp: formData.runnerUp || 'TBD',
+          createdAt: new Date().toISOString()
+        };
+      }
+
+      await setDocument('tournaments', targetId, {
+        ...tournamentData,
+        isActivated: true
+      });
 
       fetchData();
       setShowForm(false);
@@ -336,14 +434,17 @@ export default function AdminTournaments() {
   };
 
   const handleEdit = (tourn) => {
+    const isPredefined = PREDEFINED_TOURNAMENTS.some(p => p.id === tourn.id);
     setFormData({
-      typeId: tourn.id,
+      typeId: isPredefined ? tourn.id : 'custom',
       status: tourn.status || 'Upcoming',
       date: tourn.date || '',
       teamCount: tourn.teamCount || 12,
       description: tourn.description || '',
       winner: tourn.winner || 'TBD',
       runnerUp: tourn.runnerUp || 'TBD',
+      customName: isPredefined ? '' : (tourn.name || ''),
+      customLogo: isPredefined ? '' : (tourn.logo || '')
     });
     setEditingId(tourn.id);
     setShowForm(true);
@@ -358,6 +459,8 @@ export default function AdminTournaments() {
       description: '',
       winner: 'TBD',
       runnerUp: 'TBD',
+      customName: '',
+      customLogo: ''
     });
   };
 
@@ -371,6 +474,43 @@ export default function AdminTournaments() {
     if (status === 'Completed') return 'badge-green';
     return 'badge-gold';
   };
+
+  const allItems = [
+    ...PREDEFINED_TOURNAMENTS.map(pred => {
+      const dbTourn = tournaments.find(t => t.id === pred.id);
+      return {
+        id: pred.id,
+        name: dbTourn?.name || pred.name,
+        logo: dbTourn?.logo || pred.logo,
+        status: dbTourn ? (dbTourn.isActivated !== false ? dbTourn.status : 'Inactive') : 'Inactive',
+        date: dbTourn?.date || 'TBD',
+        teamCount: dbTourn?.teamCount || 12,
+        description: dbTourn?.description || pred.description,
+        isActive: !!dbTourn && dbTourn.isActivated !== false,
+        dbTourn: dbTourn,
+        isPredefined: true
+      };
+    }),
+    ...tournaments
+      .filter(t => !PREDEFINED_TOURNAMENTS.some(p => p.id === t.id))
+      .map(t => ({
+        id: t.id,
+        name: t.name,
+        logo: t.logo,
+        status: t.isActivated !== false ? t.status : 'Inactive',
+        date: t.date || 'TBD',
+        teamCount: t.teamCount || 12,
+        description: t.description || '',
+        isActive: t.isActivated !== false,
+        dbTourn: t,
+        isPredefined: false
+      }))
+  ];
+
+  const filteredItems = allItems.filter(item => 
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.status.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) return <div className="container section-padding"><p>Loading...</p></div>;
 
@@ -421,8 +561,60 @@ export default function AdminTournaments() {
                 {PREDEFINED_TOURNAMENTS.map(t => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
+                <option value="custom">-- Custom / New Tournament --</option>
               </select>
             </div>
+
+            {formData.typeId === 'custom' && (
+              <>
+                <div className="form-group col-2">
+                  <label className="form-label">Custom Tournament Name <span className="text-red">*</span></label>
+                  <input
+                    type="text"
+                    name="customName"
+                    className="form-input"
+                    required={formData.typeId === 'custom'}
+                    placeholder="e.g. TRIVAB Champions Cup"
+                    value={formData.customName}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Custom Tournament Logo URL</label>
+                  <input
+                    type="text"
+                    name="customLogo"
+                    className="form-input"
+                    placeholder="e.g. https://domain.com/logo.png"
+                    value={formData.customLogo}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Or Upload Logo Image</label>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      style={{ display: 'none' }}
+                      id="custom-logo-file-input"
+                    />
+                    <label
+                      htmlFor="custom-logo-file-input"
+                      className="btn btn-outline btn-sm"
+                      style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <Upload size={14} /> Choose File
+                    </label>
+                    {uploadingLogo && <span className="text-xs text-muted">Uploading...</span>}
+                    {formData.customLogo && !uploadingLogo && (
+                      <span className="text-xs text-green" style={{ color: '#22c55e' }}>✓ Uploaded</span>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="form-group">
               <label className="form-label">Duration Date Range (e.g. May - June 2026)</label>
@@ -532,20 +724,10 @@ export default function AdminTournaments() {
       </div>
 
       <div className="admin-tournament-list">
-        {PREDEFINED_TOURNAMENTS.filter(pred => 
-          pred.name.toLowerCase().includes(searchTerm.toLowerCase())
-        ).map((pred, idx, arr) => {
-          const dbTourn = tournaments.find(t => t.id === pred.id);
-          const isActive = dbTourn && dbTourn.isActivated !== false;
-          const displayTourn = dbTourn || {
-            id: pred.id,
-            name: pred.name,
-            logo: pred.logo,
-            status: 'Inactive',
-            date: 'TBD',
-            teamCount: 12,
-            description: pred.description
-          };
+        {filteredItems.map((item, idx, arr) => {
+          const isActive = item.isActive;
+          const displayTourn = item;
+          const dbTourn = item.dbTourn;
 
           const badgeInactiveStyle = {
             background: 'rgba(255, 255, 255, 0.05)',
@@ -560,7 +742,7 @@ export default function AdminTournaments() {
 
           return (
             <div 
-              key={pred.id} 
+              key={item.id} 
               className={`admin-tournament-item ${!isActive ? 'inactive-item' : ''}`} 
               onClick={() => isActive && handleTournamentClick(dbTourn)}
               style={{
@@ -641,7 +823,7 @@ export default function AdminTournaments() {
                       <Edit2 size={15} />
                     </button>
                     <button
-                      onClick={() => handleDeactivate(pred.id, pred.name)}
+                      onClick={() => handleDeactivate(item.id, item.name)}
                       className="btn btn-outline text-red btn-xs"
                       style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
                     >
@@ -650,7 +832,7 @@ export default function AdminTournaments() {
                   </>
                 ) : (
                   <button
-                    onClick={() => handleActivate(pred)}
+                    onClick={() => handleActivate(item)}
                     className="btn btn-gold btn-xs"
                     style={{ padding: '4px 12px', fontSize: '0.75rem', height: 'auto' }}
                   >
@@ -774,7 +956,7 @@ export default function AdminTournaments() {
               </div>
             ) : (
               /* Main Details View: Teams (Left) & Matches (Right) */
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', textAlign: 'left' }}>
+              <div className="admin-modal-layout-grid" style={{ textAlign: 'left' }}>
                 
                 {/* Left Column: Teams */}
                 <div>

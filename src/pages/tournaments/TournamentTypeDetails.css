@@ -228,4 +228,20 @@
   }
 }
 
+@media (max-width: 480px) {
+  /* Stack edition card visual logo & title vertically on narrow screens */
+  .edition-card-visual > div {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: var(--space-sm) !important;
+  }
+  .edition-card-logo {
+    width: 64px !important;
+    height: 64px !important;
+  }
+  .edition-hub-card h3 {
+    font-size: 1.05rem !important;
+  }
+}
+
 /* Light theme logo overrides removed */

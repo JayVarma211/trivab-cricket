@@ -119,5 +119,11 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if isAdmin();
     }
+
+    // Payment history collection
+    match /payment_history/{historyId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
   }
 }

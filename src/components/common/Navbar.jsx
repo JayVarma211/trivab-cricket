@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { logoutUser } from '../../firebase/auth';
+import { getCollection } from '../../firebase/firestore';
 import {
   Trophy, Users, Calendar, Star, Award, Newspaper,
   Sun, Moon, Menu, X, ChevronDown, ChevronRight, LogOut, User,
@@ -87,6 +88,20 @@ export default function Navbar() {
   const [mobileTournamentsOpen, setMobileTournamentsOpen] = useState(false);
   const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
+  const [dbTournaments, setDbTournaments] = useState([]);
+
+  useEffect(() => {
+    const fetchNavbarTournaments = async () => {
+      try {
+        const list = await getCollection('tournaments') || [];
+        const active = list.filter(t => t.isActivated !== false);
+        setDbTournaments(active);
+      } catch (err) {
+        console.error("Failed to load tournaments for navbar:", err);
+      }
+    };
+    fetchNavbarTournaments();
+  }, [location.pathname]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -183,17 +198,31 @@ export default function Navbar() {
             </button>
             {tournamentsDropOpen && (
               <div className="tournaments-nav-dropdown animate-fade-in-down">
-                {TOURNAMENTS_MENU.map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.to}
-                    className="tournaments-nav-item"
-                    onClick={() => setTournamentsDropOpen(false)}
-                  >
-                    <img src={item.logo} className={`nav-menu-logo ${getLogoClass(item.logo)}`} alt={item.label} />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
+                {dbTournaments.length > 0 ? (
+                  dbTournaments.map((t) => (
+                    <Link
+                      key={t.id}
+                      to={`/tournaments/${t.id}`}
+                      className="tournaments-nav-item"
+                      onClick={() => setTournamentsDropOpen(false)}
+                    >
+                      <img src={t.logo || '/logos/bapllogo.jpg'} className={`nav-menu-logo ${getLogoClass(t.logo)}`} alt={t.name} />
+                      <span className="truncate" style={{ maxWidth: '220px' }}>{t.name}</span>
+                    </Link>
+                  ))
+                ) : (
+                  TOURNAMENTS_MENU.map((item) => (
+                    <Link
+                      key={item.label}
+                      to={item.to}
+                      className="tournaments-nav-item"
+                      onClick={() => setTournamentsDropOpen(false)}
+                    >
+                      <img src={item.logo} className={`nav-menu-logo ${getLogoClass(item.logo)}`} alt={item.label} />
+                      <span>{item.label}</span>
+                    </Link>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -348,18 +377,33 @@ export default function Navbar() {
               </button>
               {mobileTournamentsOpen && (
                 <div style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-                  {TOURNAMENTS_MENU.map((item) => (
-                    <Link
-                      key={item.label}
-                      to={item.to}
-                      className="mobile-nav-link"
-                      style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <img src={item.logo} className={getLogoClass(item.logo)} style={{ width: '22px', height: '22px', objectFit: 'contain' }} alt={item.label} />
-                      <span>{item.label}</span>
-                    </Link>
-                  ))}
+                  {dbTournaments.length > 0 ? (
+                    dbTournaments.map((t) => (
+                      <Link
+                        key={t.id}
+                        to={`/tournaments/${t.id}`}
+                        className="mobile-nav-link"
+                        style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <img src={t.logo || '/logos/bapllogo.jpg'} className={getLogoClass(t.logo)} style={{ width: '22px', height: '22px', objectFit: 'contain' }} alt={t.name} />
+                        <span className="truncate" style={{ maxWidth: '200px' }}>{t.name}</span>
+                      </Link>
+                    ))
+                  ) : (
+                    TOURNAMENTS_MENU.map((item) => (
+                      <Link
+                        key={item.label}
+                        to={item.to}
+                        className="mobile-nav-link"
+                        style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <img src={item.logo} className={getLogoClass(item.logo)} style={{ width: '22px', height: '22px', objectFit: 'contain' }} alt={item.label} />
+                        <span>{item.label}</span>
+                      </Link>
+                    ))
+                  )}
                 </div>
               )}
             </div>

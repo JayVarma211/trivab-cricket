@@ -107,13 +107,28 @@ export default function AdminTeams() {
     if (!selectedTeamForModal || teamModalPlayers.length === 0) return;
 
     const headers = [
-      'Player ID',
-      'Full Name',
-      'Email',
-      'Mobile',
-      'Playing Style',
-      'Jersey Number',
-      'Joined Tournaments & Matches'
+      'Player Name', 
+      'Player ID', 
+      'Initials',
+      'Mobile (CricHeroes No)', 
+      'Emergency Contact Name', 
+      'Emergency Contact Mobile', 
+      'Blood Group', 
+      'Date of Birth', 
+      'Email', 
+      'Playing Style', 
+      'Jersey Number', 
+      'Name on Jersey', 
+      'MCA Player?', 
+      'MCA ID Number', 
+      'MCA Card URL',
+      'Track Pant Size', 
+      'T-Shirt Size', 
+      'Sleeve Type', 
+      'Instagram ID', 
+      'Status',
+      'Joined Tournaments & Matches',
+      'Created At'
     ];
 
     const rows = teamModalPlayers.map(p => {
@@ -126,13 +141,28 @@ export default function AdminTeams() {
         : 'None';
 
       return [
-        p.playerId || p.id || '',
-        p.fullName || '',
-        p.email || '',
-        p.mobile || '',
-        p.playingStyle || '',
-        p.jerseyNumber || '',
-        tournamentsJoinedStr
+        p.fullName || '—',
+        p.playerId || p.id || '—',
+        p.playerInitials || '—',
+        p.mobile || '—',
+        p.emergencyContactName || '—',
+        p.emergencyContactMobile || '—',
+        p.bloodGroup || '—',
+        p.dob || '—',
+        p.email || '—',
+        p.playingStyle || 'Player',
+        p.jerseyNumber || '—',
+        p.nameOnJersey || '—',
+        p.mcaPlayer ? 'Yes' : 'No',
+        p.mcaIdNumber || '—',
+        p.mcaCardURL || '—',
+        p.trackPantSize || '—',
+        p.tshirtSize || '—',
+        p.sleeveType || '—',
+        p.instagramId || '—',
+        p.status || 'Active',
+        tournamentsJoinedStr,
+        p.createdAt || '—'
       ];
     });
 

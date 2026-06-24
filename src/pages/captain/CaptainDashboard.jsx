@@ -4,7 +4,7 @@ import { getCollection, getDocument, setDocument, addDocument, getPlayerByUIDOrE
 import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload, CreditCard, Clock, Calendar, AlertCircle } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import uploadImageToCloudinary from '../../services/cloudinary';
-import { safeFormatDate, safeFormatDateTime } from '../../utils/dateFormatter';
+import { safeFormatDate, safeFormatDateTime, safeParseDate } from '../../utils/dateFormatter';
 import './Captain.css';
 
 export default function CaptainDashboard() {
@@ -15,6 +15,7 @@ export default function CaptainDashboard() {
   const [loading, setLoading] = useState(true);
   const [teamFees, setTeamFees] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
 
   // Edit states
   const [editMode, setEditMode] = useState(false);
@@ -114,15 +115,28 @@ export default function CaptainDashboard() {
             const historyData = await getCollection('payment_history', [
               where('teamId', '==', currentActiveId)
             ]);
-            historyData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            historyData.sort((a, b) => safeParseDate(b.createdAt).getTime() - safeParseDate(a.createdAt).getTime());
             setPaymentHistory(historyData);
           } catch (histErr) {
             console.warn("Failed to fetch payment history:", histErr);
             setPaymentHistory([]);
           }
+
+          // Fetch announcements
+          try {
+            const announcementsData = await getCollection('news_events', [
+              where('tag', '==', 'Announcement')
+            ]);
+            announcementsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+            setAnnouncements(announcementsData);
+          } catch (announceErr) {
+            console.warn("Failed to fetch announcements:", announceErr);
+            setAnnouncements([]);
+          }
         } else {
           setTeamFees(null);
           setPaymentHistory([]);
+          setAnnouncements([]);
         }
 
         // Filter tournaments that the captain does not have a team in yet
@@ -458,6 +472,47 @@ export default function CaptainDashboard() {
           <CheckCircle size={20} />
           <div>
             <span className="text-sm">Roster Status: <strong>{players.length} / 40 Players Registered</strong>. You can register {40 - players.length} more players.</span>
+          </div>
+        </div>
+      )}
+
+      {/* Announcements Notice Box */}
+      {announcements && announcements.length > 0 && (
+        <div className="card card-gold mb-xl animate-fade-in" style={{ borderLeft: '4px solid var(--gold)' }}>
+          <h3 className="text-md font-bold mb-md text-gradient-gold flex items-center gap-xs">
+            <Bell size={20} className="text-gold animate-bounce" /> Administrative Announcements &amp; Notices
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {announcements.map((ann, idx) => (
+              <div 
+                key={ann.id || idx} 
+                style={{ 
+                  background: 'rgba(255, 255, 255, 0.01)', 
+                  border: '1px solid var(--border-card)', 
+                  borderRadius: '12px', 
+                  padding: '16px', 
+                  display: 'flex', 
+                  gap: '16px', 
+                  flexWrap: 'wrap' 
+                }}
+              >
+                {ann.imageURL && (
+                  <div style={{ width: '120px', height: '120px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
+                    <img src={ann.imageURL} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
+                <div style={{ flex: 1, minWidth: '240px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '6px' }}>
+                    <span className="badge badge-gold" style={{ fontSize: '0.65rem', padding: '2px 8px' }}>ANNOUNCEMENT</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                      {safeFormatDate(ann.date)}
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--text-primary)' }}>{ann.title}</h4>
+                  <p style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{ann.content}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

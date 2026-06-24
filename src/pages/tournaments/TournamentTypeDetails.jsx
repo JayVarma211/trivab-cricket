@@ -168,7 +168,7 @@ export default function TournamentTypeDetails() {
         getCollection('tournaments')
       ]);
 
-      const activeTournIds = new Set(dbTournaments.map(t => t.id));
+      const activeTournIds = new Set(dbTournaments.filter(t => t.isActivated !== false).map(t => t.id));
 
       const statsMap = {};
       editionIds.forEach(id => {
@@ -273,7 +273,7 @@ export default function TournamentTypeDetails() {
       <div className="edition-grid">
         {parentData.editions.map((edition) => {
           const stats = editionStats[edition.id] || { teamCount: 0, matchCount: 0, status: 'Upcoming' };
-          const isComingSoon = edition.comingSoon;
+          const isComingSoon = edition.comingSoon && stats.status === 'Inactive';
           
           return (
             <div key={edition.id} className="card edition-hub-card border-top-gold page-enter">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Newspaper, Calendar, Tag, ArrowRight, Search, Sparkles } from 'lucide-react';
+import { Newspaper, Calendar, Tag, ArrowRight, Search, Sparkles, Share2 } from 'lucide-react';
 import { getCollection } from '../firebase/firestore';
 import { motion } from 'framer-motion';
 import SEO from '../components/common/SEO';
@@ -64,6 +64,22 @@ export default function NewsEvents() {
     };
     fetchNews();
   }, []);
+
+  const handleShare = (article) => {
+    const text = `*${article.title}*\n\n${article.content ? article.content.substring(0, 120) + '...' : ''}\n\nRead more at TRIVAB Sports!`;
+    const url = window.location.origin + '/news';
+    
+    if (navigator.share) {
+      navigator.share({
+        title: article.title,
+        text: text,
+        url: url
+      }).catch(err => console.log("Share failed:", err));
+    } else {
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + '\n' + url)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+  };
 
   const allTags = ['All', ...new Set(articles.map(a => a.tag).filter(Boolean))];
 
@@ -275,6 +291,28 @@ export default function NewsEvents() {
                 <p className="text-sm text-secondary" style={{ flex: 1, lineHeight: 1.7, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {article.content}
                 </p>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', borderTop: '1px dashed var(--border-card)', paddingTop: '10px', marginTop: 'auto' }}>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShare(article);
+                    }}
+                    style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '6px', 
+                      fontSize: '0.8rem', 
+                      color: 'var(--gold)', 
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.opacity = 0.8}
+                    onMouseLeave={e => e.currentTarget.style.opacity = 1}
+                  >
+                    <Share2 size={13} /> Share Update
+                  </button>
+                </div>
               </motion.article>
             ))}
           </motion.div>
