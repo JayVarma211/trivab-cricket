@@ -78,13 +78,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.82);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 9999;
   backdrop-filter: blur(5px);
   padding: 16px;
+  /* Prevent the page behind from scrolling */
+  overscroll-behavior: contain;
 }
 
 .modal-content {
@@ -98,6 +100,9 @@
   padding: var(--space-xl);
   max-height: 90vh;
   overflow-y: auto;
+  /* Smooth inner scroll */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .modal-close {
@@ -110,6 +115,7 @@
   color: var(--text-secondary);
   cursor: pointer;
   transition: color 0.2s ease;
+  z-index: 2;
 }
 
 .modal-close:hover {
@@ -208,11 +214,19 @@
     justify-content: center !important;
   }
 
-  /* Modal: take most of screen on mobile */
+  /* Modal: on mobile, anchor near top of screen so all content is immediately visible */
+  .modal-overlay {
+    align-items: flex-start !important;
+    padding: 12px 12px 20px !important;
+    overflow-y: auto !important;
+  }
+
   .modal-content {
     padding: var(--space-lg) !important;
-    max-height: 88vh !important;
+    max-height: none !important;        /* let content size naturally, overlay scrolls */
     border-radius: var(--radius-md) !important;
+    margin: 0 auto !important;
+    width: 100% !important;
   }
 
   /* Participating teams section */
@@ -260,6 +274,10 @@
 @media (max-width: 375px) {
   .modal-content {
     padding: var(--space-md) !important;
+  }
+
+  .modal-overlay {
+    padding: 8px 8px 16px !important;
   }
 
   .display-md {

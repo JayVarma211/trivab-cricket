@@ -807,18 +807,17 @@ ul, ol {
 }
 
 /* ============================================================
-   19. MODAL
-   ============================================================ */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: var(--bg-overlay);
   backdrop-filter: blur(8px);
-  z-index: 1000;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-lg);
+  overscroll-behavior: contain;
 }
 
 .modal-content {
@@ -830,6 +829,10 @@ ul, ol {
   width: 100%;
   box-shadow: var(--shadow-lg);
   position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .modal-close {
@@ -846,12 +849,29 @@ ul, ol {
   cursor: pointer;
   transition: all var(--transition-fast);
   color: var(--text-muted);
+  z-index: 2;
 }
 
 .modal-close:hover {
   background: var(--accent-red);
   color: white;
 }
+
+/* Mobile: anchor modal at top so content is immediately visible without scrolling */
+@media (max-width: 640px) {
+  .modal-overlay {
+    align-items: flex-start;
+    padding: 12px 12px 24px;
+    overflow-y: auto;
+  }
+
+  .modal-content {
+    max-height: none;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
 
 /* ============================================================
    20. RESPONSIVE BREAKPOINTS
