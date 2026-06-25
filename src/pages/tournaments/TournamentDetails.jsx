@@ -880,7 +880,7 @@ export default function TournamentDetails() {
       </div>
       {showJoinModal && createPortal(
         <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxHeight: 'calc(100vh - 64px)', overflowY: 'auto' }}>
             <button className="modal-close" onClick={() => setShowJoinModal(false)}>✕</button>
             <h3 className="text-lg font-bold text-gradient-gold mb-md">Join {tournament.name}</h3>
             
