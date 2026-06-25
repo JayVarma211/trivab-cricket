@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getCollection, orderBy } from '../firebase/firestore';
 import { Calendar, MapPin, Search, ShieldCheck, Trophy, Users, X } from 'lucide-react';
 import Loader from '../components/common/Loader';
@@ -175,7 +176,7 @@ export default function MatchSchedule() {
       )}
 
       {/* Match Details & squads Modal */}
-      {selectedMatchForModal && (
+      {selectedMatchForModal && createPortal(
         <div className="modal-overlay" onClick={() => setSelectedMatchForModal(null)}>
             <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '640px', width: '100%', position: 'relative' }}>
               <button className="modal-close" onClick={() => setSelectedMatchForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
@@ -288,7 +289,8 @@ export default function MatchSchedule() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

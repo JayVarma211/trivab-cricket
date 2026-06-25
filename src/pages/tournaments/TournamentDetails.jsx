@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import { getDocument, getCollection, where, updateDocument, setDocument, addDocument, getPlayerByUIDOrEmail, syncTeamRosterCountAndNotify } from '../../firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
@@ -8,6 +9,7 @@ import uploadImageToCloudinary from '../../services/cloudinary';
 import { sendCaptainRosterNotification } from '../../services/email';
 import SEO from '../../components/common/SEO';
 import './Tournaments.css';
+
 
 const PREDEFINED_TOURNAMENTS = [
   {
@@ -876,7 +878,7 @@ export default function TournamentDetails() {
           </ul>
         </div>
       </div>
-      {showJoinModal && (
+      {showJoinModal && createPortal(
         <div className="modal-overlay" onClick={() => setShowJoinModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowJoinModal(false)}>✕</button>
@@ -984,11 +986,12 @@ export default function TournamentDetails() {
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Team Details Modal */}
-      {selectedTeamForModal && (
+      {selectedTeamForModal && createPortal(
         <div className="modal-overlay" onClick={() => setSelectedTeamForModal(null)}>
           <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '580px', width: '100%', position: 'relative' }}>
             <button className="modal-close" onClick={() => setSelectedTeamForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
@@ -1066,7 +1069,7 @@ export default function TournamentDetails() {
                                   <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 ) : (
                                   p.fullName[0]
-                                )}
+                                ) }
                               </div>
                               <div style={{ textAlign: 'left' }}>
                                 <span className="text-sm font-semi text-primary" style={{ display: 'block', lineHeight: 1.2 }}>{p.fullName}</span>
@@ -1086,7 +1089,8 @@ export default function TournamentDetails() {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
