@@ -854,8 +854,8 @@ export default function AdminTournaments() {
 
       {/* Tournament Details & Squad Modal */}
       {selectedTournamentForModal && (
-        <div className="modal-overlay" onClick={() => setSelectedTournamentForModal(null)} style={{ display: 'flex', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '850px', width: '95%', maxHeight: '90vh', overflowY: 'auto', position: 'relative', color: 'var(--admin-text)' }}>
+        <div className="modal-overlay" onClick={() => setSelectedTournamentForModal(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '850px', width: '95%', position: 'relative', color: 'var(--admin-text)' }}>
             <button className="modal-close" onClick={() => setSelectedTournamentForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--admin-muted)', cursor: 'pointer' }}>✕</button>
 
             {/* Back Button for Squad View */}

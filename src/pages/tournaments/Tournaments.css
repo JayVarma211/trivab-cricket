@@ -81,12 +81,15 @@
   background: rgba(0, 0, 0, 0.82);
   display: flex;
   justify-content: center;
-  align-items: center;
+  /* Always anchor to top + scroll — ensures modal is never cut off on any screen size */
+  align-items: flex-start;
+  overflow-y: auto;
   z-index: 9999;
   backdrop-filter: blur(5px);
-  padding: 16px;
-  /* Prevent the page behind from scrolling */
+  /* Top/bottom padding keeps modal away from screen edges */
+  padding: 24px 16px 40px;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
@@ -95,13 +98,12 @@
   border: 1.5px solid var(--gold);
   width: 100%;
   max-width: 500px;
+  /* No max-height — let the overlay scroll instead of clipping the form */
   position: relative;
   box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
   padding: var(--space-xl);
-  max-height: 90vh;
-  overflow-y: auto;
-  /* Smooth inner scroll */
-  -webkit-overflow-scrolling: touch;
+  /* Ensure the card aligns at the vertical centre when content is short */
+  margin: auto;
   overscroll-behavior: contain;
 }
 
@@ -214,16 +216,13 @@
     justify-content: center !important;
   }
 
-  /* Modal: on mobile, anchor near top of screen so all content is immediately visible */
+  /* Modal: tighter padding on mobile */
   .modal-overlay {
-    align-items: flex-start !important;
-    padding: 12px 12px 20px !important;
-    overflow-y: auto !important;
+    padding: 12px 10px 32px !important;
   }
 
   .modal-content {
     padding: var(--space-lg) !important;
-    max-height: none !important;        /* let content size naturally, overlay scrolls */
     border-radius: var(--radius-md) !important;
     margin: 0 auto !important;
     width: 100% !important;
@@ -277,7 +276,7 @@
   }
 
   .modal-overlay {
-    padding: 8px 8px 16px !important;
+    padding: 8px 8px 24px !important;
   }
 
   .display-md {

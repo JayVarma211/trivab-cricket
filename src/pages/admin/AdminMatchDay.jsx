@@ -439,7 +439,7 @@ export default function AdminMatchDay() {
 
       {/* Roster Scanner Camera Modal */}
       {scannerActive && (
-        <div className="modal-overlay" onClick={stopCameraScanner} style={{ display: 'flex', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
+        <div className="modal-overlay" onClick={stopCameraScanner}>
           <div className="modal-content text-center" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '480px', width: '100%' }}>
             <div className="flex justify-between items-center mb-md">
               <h3 className="text-md font-bold text-gradient-gold" style={{ margin: 0 }}>

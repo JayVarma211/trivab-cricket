@@ -807,6 +807,8 @@ ul, ol {
 }
 
 /* ============================================================
+   19. MODAL
+   ============================================================ */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -814,10 +816,13 @@ ul, ol {
   backdrop-filter: blur(8px);
   z-index: 9999;
   display: flex;
-  align-items: center;
+  /* anchor-top + scroll: modal is never cut off on any screen size or height */
+  align-items: flex-start;
   justify-content: center;
-  padding: var(--space-lg);
+  overflow-y: auto;
+  padding: 24px var(--space-lg) 40px;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
@@ -829,9 +834,8 @@ ul, ol {
   width: 100%;
   box-shadow: var(--shadow-lg);
   position: relative;
-  max-height: 90vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
+  /* No max-height — the overlay scrolls so content is never clipped */
+  margin: auto;
   overscroll-behavior: contain;
 }
 
@@ -857,16 +861,13 @@ ul, ol {
   color: white;
 }
 
-/* Mobile: anchor modal at top so content is immediately visible without scrolling */
+/* Mobile: tighter padding */
 @media (max-width: 640px) {
   .modal-overlay {
-    align-items: flex-start;
-    padding: 12px 12px 24px;
-    overflow-y: auto;
+    padding: 12px 10px 32px;
   }
 
   .modal-content {
-    max-height: none;
     margin: 0 auto;
     width: 100%;
   }

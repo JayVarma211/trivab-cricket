@@ -989,8 +989,8 @@ export default function TournamentDetails() {
 
       {/* Team Details Modal */}
       {selectedTeamForModal && (
-        <div className="modal-overlay" onClick={() => setSelectedTeamForModal(null)} style={{ display: 'flex', position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 99999, alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' }}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '580px', width: '100%', maxHeight: '85vh', overflowY: 'auto', position: 'relative' }}>
+        <div className="modal-overlay" onClick={() => setSelectedTeamForModal(null)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: 'var(--space-xl)', maxWidth: '580px', width: '100%', position: 'relative' }}>
             <button className="modal-close" onClick={() => setSelectedTeamForModal(null)} style={{ position: 'absolute', top: '16px', right: '16px', fontSize: '1.25rem', border: 'none', background: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>✕</button>
             
             {/* Header info */}
