@@ -7,9 +7,9 @@ const PDF_W  = 85.6; // mm — standard CR80 card width
 const PDF_H  = 54;   // mm — standard CR80 card height
 
 /**
- * Capture a DOM element as a properly-aligned canvas and return as image data.
+ * Capture a DOM element as a properly-aligned canvas and return as a canvas element.
  * @param {HTMLElement} el
- * @returns {Promise<string>} - base64 png
+ * @returns {Promise<HTMLCanvasElement>}
  */
 async function captureElement(el) {
   return html2canvas(el, {
@@ -24,25 +24,51 @@ async function captureElement(el) {
     // Scroll offsets must be 0 — we're using a fixed off-screen clone
     scrollX:         0,
     scrollY:         0,
-    // windowWidth/Height prevent html2canvas from mis-scaling relative units
-    windowWidth:     CARD_W,
-    windowHeight:    CARD_H,
+    // windowWidth/Height: match the actual browser viewport so rem/% units resolve correctly
+    windowWidth:     window.innerWidth,
+    windowHeight:    window.innerHeight,
     x:               0,
     y:               0,
-    // Disable image smoothing for pixel-perfect edges
-    imageTimeout:    5000,
-    onclone: (document, clonedEl) => {
-      // Ensure the cloned element has no transforms or box-shadow that could cause offsets
-      clonedEl.style.transform  = 'none';
-      clonedEl.style.boxShadow  = 'none';
-      clonedEl.style.margin     = '0';
-      clonedEl.style.position   = 'absolute';
-      clonedEl.style.top        = '0';
-      clonedEl.style.left       = '0';
-      clonedEl.style.width      = `${CARD_W}px`;
-      clonedEl.style.height     = `${CARD_H}px`;
-      clonedEl.style.borderRadius = '0'; // Flat for print
-      clonedEl.style.overflow   = 'hidden';
+    imageTimeout:    8000,
+    onclone: (clonedDoc, clonedEl) => {
+      // Reset any layout-shifting properties on the card itself
+      clonedEl.style.transform    = 'none';
+      clonedEl.style.boxShadow    = 'none';
+      clonedEl.style.margin       = '0';
+      clonedEl.style.position     = 'absolute';
+      clonedEl.style.top          = '0';
+      clonedEl.style.left         = '0';
+      clonedEl.style.width        = `${CARD_W}px`;
+      clonedEl.style.height       = `${CARD_H}px`;
+      clonedEl.style.borderRadius = '0';
+      clonedEl.style.overflow     = 'hidden';
+
+      // Copy all computed font-size and root CSS variables from the live document
+      // so that rem units resolve the same way in the clone
+      const liveRoot       = document.documentElement;
+      const liveRootStyle  = getComputedStyle(liveRoot);
+      const clonedRoot     = clonedDoc.documentElement;
+      const rootFontSize   = liveRootStyle.fontSize; // e.g. "16px"
+      clonedRoot.style.fontSize = rootFontSize;
+
+      // Inject all custom CSS variables (--gold, --font-body, etc.) into clone root
+      const cssVarText = Array.from(document.styleSheets)
+        .flatMap(sheet => {
+          try {
+            return Array.from(sheet.cssRules || []);
+          } catch {
+            return [];
+          }
+        })
+        .filter(rule => rule.selectorText === ':root')
+        .map(rule => rule.cssText)
+        .join('\n');
+
+      if (cssVarText) {
+        const styleEl = clonedDoc.createElement('style');
+        styleEl.textContent = cssVarText;
+        clonedDoc.head.appendChild(styleEl);
+      }
     }
   });
 }
@@ -50,9 +76,11 @@ async function captureElement(el) {
 /**
  * Create a temporary off-screen clone of the target element,
  * capture it, then remove the clone.
+ * @param {HTMLElement} el
+ * @returns {Promise<HTMLCanvasElement>}
  */
 async function createAndCaptureClone(el) {
-  // Force-load all images inside the element
+  // Force-load all images inside the element before cloning
   const imgs = el.querySelectorAll('img');
   await Promise.all(Array.from(imgs).map(img =>
     img.complete
@@ -60,33 +88,48 @@ async function createAndCaptureClone(el) {
       : new Promise(res => { img.onload = res; img.onerror = res; })
   ));
 
-  const clone = el.cloneNode(true);
-  clone.classList.add('pdf-clone');
-  clone.style.cssText = `
+  // Place clone off-screen but within the document flow so that CSS vars / rem resolve correctly
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `
     position: fixed;
     top: 0;
-    left: -${CARD_W + 100}px;
+    left: -${CARD_W + 200}px;
     width: ${CARD_W}px;
     height: ${CARD_H}px;
-    margin: 0;
-    padding: 0;
-    transform: none;
-    box-shadow: none;
-    box-sizing: border-box;
     overflow: hidden;
-    border-radius: 0;
-    z-index: 99999;
+    pointer-events: none;
+    z-index: 999999;
   `;
-  document.body.appendChild(clone);
 
-  // Wait for fonts + any lazy-loaded resources
-  await new Promise(resolve => setTimeout(resolve, 250));
+  const clone = el.cloneNode(true);
+  // Remove the pdf-clone class if present to avoid any override styles
+  clone.classList.remove('pdf-clone');
+  clone.style.cssText = `
+    width: ${CARD_W}px !important;
+    height: ${CARD_H}px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    border-radius: 12px !important;
+    position: static !important;
+    flex-shrink: 0 !important;
+  `;
+
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  // Wait for fonts and any lazy-loaded resources to render
+  await document.fonts.ready;
+  await new Promise(resolve => setTimeout(resolve, 300));
 
   try {
     const canvas = await captureElement(clone);
     return canvas;
   } finally {
-    document.body.removeChild(clone);
+    document.body.removeChild(wrapper);
   }
 }
 
@@ -138,5 +181,6 @@ export const downloadIDCardPDF = async (
     pdf.save(fileName);
   } catch (err) {
     console.error('PDF download failed:', err);
+    throw err;
   }
 };

@@ -537,19 +537,62 @@ export default function AdminPlayers() {
       'Captain ID',
       'Full Name',
       'Email',
-      'Mobile',
+      'Mobile / CricHeroes Reg No.',
       'Managed Team',
+      'Date of Birth',
+      'Blood Group',
+      'Emergency Contact Name',
+      'Emergency Contact Mobile',
+      'Playing Style',
+      'Jersey Number',
+      'Name on Jersey',
+      'Instagram ID',
+      'T-Shirt Size',
+      'Track Pant Size',
+      'Sleeve Type',
+      'MCA Player',
+      'MCA ID Number',
+      'Photo URL',
+      'Joined Tournaments',
       'Created At'
     ];
 
-    const rows = captains.map(c => [
-      c.captainId || c.id || '',
-      c.fullName || '',
-      c.email || '',
-      c.mobile || '',
-      c.teamName || 'Unassigned',
-      c.createdAt || ''
-    ]);
+    const rows = captains.map(c => {
+      // Cross-reference the players collection using uid to get all registration fields
+      const playerProfile = players.find(p => p.uid === c.uid || p.email === c.email) || {};
+
+      const tournamentsStr = playerProfile.joinedTournaments && playerProfile.joinedTournaments.length > 0
+        ? playerProfile.joinedTournaments.map(t => {
+            const name = typeof t === 'string' ? t : t.name || t.id;
+            const matches = t.matchesPlayed !== undefined ? t.matchesPlayed : 0;
+            return `${name} (${matches} matches)`;
+          }).join('; ')
+        : 'None';
+
+      return [
+        c.captainId || c.id || '',
+        c.fullName || '',
+        c.email || '',
+        playerProfile.cricHeroesRegNo || playerProfile.mobile || c.mobile || '',
+        c.teamName || 'Unassigned',
+        playerProfile.dob || '',
+        playerProfile.bloodGroup || '',
+        playerProfile.emergencyContactName || '',
+        playerProfile.emergencyContactMobile || '',
+        playerProfile.playingStyle || '',
+        playerProfile.jerseyNumber !== undefined ? playerProfile.jerseyNumber : '',
+        playerProfile.nameOnJersey || '',
+        playerProfile.instagramId || '',
+        playerProfile.tshirtSize || '',
+        playerProfile.trackPantSize || '',
+        playerProfile.sleeveType || '',
+        playerProfile.mcaPlayer ? 'Yes' : 'No',
+        playerProfile.mcaIdNumber || '',
+        c.photoURL || playerProfile.photoURL || '',
+        tournamentsStr,
+        c.createdAt || ''
+      ];
+    });
 
     const csvContent = [
       headers.join(','),
