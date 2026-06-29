@@ -15,6 +15,8 @@ export default function PlayerProfile() {
   // Editable form fields
   const [fullName, setFullName] = useState('');
   const [mobile, setMobile] = useState('');
+  const [dob, setDob] = useState(''); // New Date of Birth field
+  const [email, setEmail] = useState('');
   const [playingStyle, setPlayingStyle] = useState('Batsman');
   const [jerseyNumber, setJerseyNumber] = useState('');
   const [photo, setPhoto] = useState(null);
@@ -47,6 +49,8 @@ export default function PlayerProfile() {
           setPlayer(profile);
           setFullName(profile.fullName || '');
           setMobile(profile.mobile || '');
+          setDob(profile.dob || '');
+          setEmail(profile.email || '');
           setPlayingStyle(profile.playingStyle || 'Batsman');
           setJerseyNumber(profile.jerseyNumber || '');
           setPhotoPreview(profile.photoURL || null);
@@ -89,6 +93,8 @@ export default function PlayerProfile() {
           ...player,
           fullName,
           mobile,
+          email,
+          dob,
           photoURL
         };
         await setDocument('captains', user.uid, updated);
@@ -103,6 +109,8 @@ export default function PlayerProfile() {
           ...player,
           fullName,
           mobile,
+          email,
+          dob,
           playingStyle,
           jerseyNumber,
           photoURL
@@ -194,6 +202,18 @@ export default function PlayerProfile() {
               />
             </div>
 
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-input"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={saving}
+              />
+            </div>
+
             {role !== 'captain' && (
               <>
                 <div className="form-group">
@@ -224,6 +244,18 @@ export default function PlayerProfile() {
                 </div>
               </>
             )}
+
+            {/* Date of Birth - available for both players and captains */}
+            <div className="form-group">
+              <label className="form-label">Date of Birth</label>
+              <input
+                type="date"
+                className="form-input"
+                value={dob}
+                onChange={(e) => setDob(e.target.value)}
+                disabled={saving}
+              />
+            </div>
 
             <button type="submit" className="btn btn-gold btn-lg mt-md w-full" disabled={saving}>
               {saving ? 'Saving changes...' : <><Save size={18} /> Save Settings</>}
