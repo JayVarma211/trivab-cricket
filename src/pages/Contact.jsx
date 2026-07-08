@@ -300,7 +300,7 @@ export default function Contact() {
                   disabled={loading}
                 >
                   <option value="General Inquiry">General Inquiry</option>
-                  <option value="Bharat Army Membership">Bharat Army Membership</option>
+                  <option value="Corporate Sports Tournament">Corporate Sports Tournament</option>
                   <option value="Organize Cricket Tournament">Organize Cricket Tournament</option>
                   <option value="Sponsorship">Sponsorship Opportunity</option>
                   <option value="Careers">Careers / Job Application</option>

@@ -45,10 +45,10 @@ const CommunityIcon = () => (
 );
 
 const SERVICES_MENU = [
+  { label: 'Corporate Sports Events', icon: <Building2 size={16} />, to: '/services?type=corporate' },
+  { label: 'Community Sports Events', icon: <CommunityIcon />, to: '/services?type=community' },
   { label: 'International Cricket Tour', icon: <Globe size={16} />, to: '/services?type=international' },
   { label: 'Domestic Cricket Tour', icon: <IndiaFlag />, to: '/services?type=domestic' },
-  { label: 'Corporate Sports Events', icon: <Building2 size={16} />, to: '/services?type=corporate' },
-  { label: 'Community Sport Events', icon: <CommunityIcon />, to: '/services?type=community' },
 ];
 
 const ABOUT_MENU = [
@@ -89,11 +89,27 @@ export default function Navbar() {
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
 
 
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 20);
+      
+      if (menuOpen) {
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setVisible(false);
+      } else {
+        setVisible(true);
+      }
+      setLastScrollY(currentScrollY);
+    };
+    
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [lastScrollY, menuOpen]);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -138,7 +154,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
+    <header className={`navbar ${scrolled ? 'navbar-scrolled' : ''} ${!visible ? 'navbar-hidden' : ''}`}>
       <div className="navbar-inner container">
         {/* Logo */}
         <Link to="/" className="navbar-logo">
@@ -174,31 +190,6 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Tournaments Dropdown */}
-          <div className="nav-dropdown-wrapper" ref={tournamentsDropRef}>
-            <button
-              className={`nav-link dropdown-trigger ${location.pathname.startsWith('/tournaments') ? 'active' : ''}`}
-              onClick={() => setTournamentsDropOpen(prev => !prev)}
-            >
-              Tournaments <ChevronDown size={14} className={`drop-caret ${tournamentsDropOpen ? 'open' : ''}`} />
-            </button>
-            {tournamentsDropOpen && (
-              <div className="tournaments-nav-dropdown animate-fade-in-down">
-                {TOURNAMENTS_MENU.map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.to}
-                    className="tournaments-nav-item"
-                    onClick={() => setTournamentsDropOpen(false)}
-                  >
-                    <img src={item.logo} className={`nav-menu-logo ${getLogoClass(item.logo)}`} alt={item.label} />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* Our Services Dropdown */}
           <div className="nav-dropdown-wrapper" ref={servicesDropRef}>
             <button
@@ -217,6 +208,31 @@ export default function Navbar() {
                     onClick={() => setServicesDropOpen(false)}
                   >
                     <span className="service-icon">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Tournaments Dropdown (BAPL) */}
+          <div className="nav-dropdown-wrapper" ref={tournamentsDropRef}>
+            <button
+              className={`nav-link dropdown-trigger ${location.pathname.startsWith('/tournaments') ? 'active' : ''}`}
+              onClick={() => setTournamentsDropOpen(prev => !prev)}
+            >
+              BAPL <ChevronDown size={14} className={`drop-caret ${tournamentsDropOpen ? 'open' : ''}`} />
+            </button>
+            {tournamentsDropOpen && (
+              <div className="tournaments-nav-dropdown animate-fade-in-down">
+                {TOURNAMENTS_MENU.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className="tournaments-nav-item"
+                    onClick={() => setTournamentsDropOpen(false)}
+                  >
+                    <img src={item.logo} className={`nav-menu-logo ${getLogoClass(item.logo)}`} alt={item.label} />
                     <span>{item.label}</span>
                   </Link>
                 ))}
@@ -335,36 +351,6 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Tournaments */}
-            <div className="mobile-dropdown-wrapper" style={{ width: '100%' }}>
-              <button
-                className="mobile-nav-link"
-                onClick={() => setMobileTournamentsOpen(prev => !prev)}
-                style={{ width: '100%', justifyContent: 'space-between', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-              >
-                <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <Trophy size={18} /> Tournaments
-                </span>
-                <ChevronDown size={16} style={{ transform: mobileTournamentsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-              </button>
-              {mobileTournamentsOpen && (
-                <div style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
-                  {TOURNAMENTS_MENU.map((item) => (
-                    <Link
-                      key={item.label}
-                      to={item.to}
-                      className="mobile-nav-link"
-                      style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <img src={item.logo} className={getLogoClass(item.logo)} style={{ width: '22px', height: '22px', objectFit: 'contain' }} alt={item.label} />
-                      <span>{item.label}</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
             {/* Mobile Our Services */}
             <div className="mobile-dropdown-wrapper" style={{ width: '100%' }}>
               <button
@@ -388,6 +374,36 @@ export default function Navbar() {
                       onClick={() => setMenuOpen(false)}
                     >
                       {item.icon}
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Tournaments (BAPL) */}
+            <div className="mobile-dropdown-wrapper" style={{ width: '100%' }}>
+              <button
+                className="mobile-nav-link"
+                onClick={() => setMobileTournamentsOpen(prev => !prev)}
+                style={{ width: '100%', justifyContent: 'space-between', border: 'none', background: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Trophy size={18} /> BAPL
+                </span>
+                <ChevronDown size={16} style={{ transform: mobileTournamentsOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+              </button>
+              {mobileTournamentsOpen && (
+                <div style={{ paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                  {TOURNAMENTS_MENU.map((item) => (
+                    <Link
+                      key={item.label}
+                      to={item.to}
+                      className="mobile-nav-link"
+                      style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <img src={item.logo} className={getLogoClass(item.logo)} style={{ width: '22px', height: '22px', objectFit: 'contain' }} alt={item.label} />
                       <span>{item.label}</span>
                     </Link>
                   ))}

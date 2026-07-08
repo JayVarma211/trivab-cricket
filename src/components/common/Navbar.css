@@ -7,8 +7,13 @@
   z-index: 900;
   height: var(--navbar-height);
   background: transparent;
-  transition: background var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition-slow);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition-slow);
   border-bottom: 1px solid transparent;
+  transform: translateY(0);
+}
+
+.navbar-hidden {
+  transform: translateY(-100%);
 }
 
 .navbar-scrolled {
@@ -325,14 +330,14 @@
     font-weight: 600;
   }
   .logo-image {
-    height: 70px;
+    height: 90px;
   }
 }
 
 @media (max-width: 480px) {
   .logo-text    { font-size: 1.2rem; }
   .logo-image {
-    height: 55px;
+    height: 76px;
   }
 }
 

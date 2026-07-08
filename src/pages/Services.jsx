@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Globe, Trophy, Building2, Users, ArrowRight, CheckCircle2, Star, Calendar } from 'lucide-react';
+import { Globe, Trophy, Building2, Users, ArrowRight, CheckCircle2, Star, Calendar, Pill, FlaskConical, Landmark, Cpu, CreditCard, Briefcase, TrendingUp, Activity, Calculator, Home } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/common/SEO';
 
@@ -21,6 +21,46 @@ export default function Services() {
   };
 
   const servicesData = {
+    corporate: {
+      title: 'Corporate Sports Events',
+      subtitle: 'Premium team building through executive cricket championships.',
+      icon: <Building2 size={48} className="text-gold" />,
+      tagline: 'Boost team spirit with professional league fixtures',
+      description: 'We orchestrate end-to-end corporate cricket tournaments tailored for blue-chip companies, startups, and business consortiums. Improve employee engagement, promote wellness, and build brand visibility with a premium, fully-managed sports platform.',
+      highlights: [
+        'Fully managed tournaments with flexible match schedules',
+        'Company-branded uniforms, banners, and digital marketing materials',
+        'Exquisite prize ceremonies with custom corporate trophies',
+        'Dedicated event coordinators, photographers, and video highlight reels',
+        'Gourmet catering and hospitality options for employees and guests',
+        'Safe, fully insured sports facilities with first-aid support'
+      ],
+      ctaText: 'Plan a Corporate Tournament',
+      images: [
+        '/logos/CORPORATE1.jpeg',
+        '/logos/CORPORATE2.jpeg',
+        '/logos/CORPORATE3.jpeg',
+        '/logos/CORPORATE4.jpeg',
+        '/logos/CORPORATE5.jpeg'
+      ]
+    },
+    community: {
+      title: 'Community Sports Events',
+      subtitle: 'Fostering local cricket talent and active neighborhoods.',
+      icon: <Users size={48} className="text-gold" />,
+      tagline: 'Connecting neighborhoods through the spirit of the game',
+      description: 'We organize youth coaching clinics, community tournaments, and friendly club matches that encourage participation, discover local talent, and bring families together around sports. We believe cricket belongs to everyone.',
+      highlights: [
+        'Neighborhood/society leagues and friendly weekend fixtures',
+        'Discovering grassroots talent with academy sponsorships',
+        'Family-friendly matches, women\'s cups, and kids cricket days',
+        'High-quality coaching clinics by certified trainers',
+        'Fostering health, discipline, and active lifestyles locally',
+        'Inclusive tournaments welcoming players of all skill levels'
+      ],
+      ctaText: 'Get Involved in Community Sports',
+      images: ['/images/Community.jpg', '/images/Community1.jpg']
+    },
     international: {
       title: 'International Cricket Tour',
       subtitle: 'Experience cricket on global stages with world-class facilities.',
@@ -54,46 +94,6 @@ export default function Services() {
       ],
       ctaText: 'Enroll in Domestic Tour',
       images: ['/logos/DOMESTICTOUR.jpeg', '/logos/DOMESTICTOUR1.jpeg']
-    },
-    corporate: {
-      title: 'Corporate Sports Events',
-      subtitle: 'Premium team building through executive cricket championships.',
-      icon: <Building2 size={48} className="text-gold" />,
-      tagline: 'Boost team spirit with professional league fixtures',
-      description: 'We orchestrate end-to-end corporate cricket tournaments tailored for blue-chip companies, startups, and business consortiums. Improve employee engagement, promote wellness, and build brand visibility with a premium, fully-managed sports platform.',
-      highlights: [
-        'Fully managed tournaments with flexible match schedules',
-        'Company-branded uniforms, banners, and digital marketing materials',
-        'Exquisite prize ceremonies with custom corporate trophies',
-        'Dedicated event coordinators, photographers, and video highlight reels',
-        'Gourmet catering and hospitality options for employees and guests',
-        'Safe, fully insured sports facilities with first-aid support'
-      ],
-      ctaText: 'Plan a Corporate Tournament',
-      images: [
-        '/logos/CORPORATE1.jpeg',
-        '/logos/CORPORATE2.jpeg',
-        '/logos/CORPORATE3.jpeg',
-        '/logos/CORPORATE4.jpeg',
-        '/logos/CORPORATE5.jpeg'
-      ]
-    },
-    community: {
-      title: 'Community Sport Events',
-      subtitle: 'Fostering local cricket talent and active neighborhoods.',
-      icon: <Users size={48} className="text-gold" />,
-      tagline: 'Connecting neighborhoods through the spirit of the game',
-      description: 'We organize youth coaching clinics, community tournaments, and friendly club matches that encourage participation, discover local talent, and bring families together around sports. We believe cricket belongs to everyone.',
-      highlights: [
-        'Neighborhood/society leagues and friendly weekend fixtures',
-        'Discovering grassroots talent with academy sponsorships',
-        'Family-friendly matches, women\'s cups, and kids cricket days',
-        'High-quality coaching clinics by certified trainers',
-        'Fostering health, discipline, and active lifestyles locally',
-        'Inclusive tournaments welcoming players of all skill levels'
-      ],
-      ctaText: 'Get Involved in Community Sports',
-      images: ['/logos/trivabmonsoon.jpg']
     }
   };
 
@@ -195,7 +195,6 @@ export default function Services() {
                 padding: 'var(--space-xl)',
                 pointerEvents: 'none'
               }}>
-                <span className="badge badge-gold" style={{ alignSelf: 'flex-start', marginBottom: '8px' }}>Verified Service</span>
                 <h3 className="display-sm" style={{ margin: 0, color: '#ffffff', textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}>{currentService.tagline}</h3>
               </div>
             </div>
@@ -235,6 +234,57 @@ export default function Services() {
               </div>
             </div>
           </motion.div>
+
+          {activeTab === 'corporate' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              style={{
+                marginTop: '48px',
+                borderTop: '1px solid var(--border-card)',
+                paddingTop: '48px',
+                width: '100%'
+              }}
+            >
+              <h3 className="display-sm text-gradient-gold" style={{ marginBottom: '12px', fontSize: '1.6rem' }}>Sectors We Serve</h3>
+              <p className="text-secondary mb-lg" style={{ fontSize: '1.02rem', maxWidth: '850px', lineHeight: 1.6 }}>
+                We plan, organize, and manage professional corporate events and sports tournaments for a wide spectrum of sectors, bringing the same level of stadium-grade prestige and operational excellence to every event:
+              </p>
+              
+              <div className="sectors-grid">
+                {[
+                  { name: 'Pharmaceutical', icon: <Pill size={20} />, num: '01' },
+                  { name: 'Chemicals', icon: <FlaskConical size={20} />, num: '02' },
+                  { name: 'Banking Sectors', icon: <Landmark size={20} />, num: '03' },
+                  { name: 'Fintechs', icon: <Cpu size={20} />, num: '04' },
+                  { name: 'NBFC', icon: <CreditCard size={20} />, num: '05' },
+                  { name: 'SMEs', icon: <Briefcase size={20} />, num: '06' },
+                  { name: 'MSMEs', icon: <TrendingUp size={20} />, num: '07' },
+                  { name: 'Hospitals', icon: <Activity size={20} />, num: '08' },
+                  { name: 'CA Firms', icon: <Calculator size={20} />, num: '09' },
+                  { name: 'Real Estate & Developers', icon: <Home size={20} />, num: '10' }
+                ].map((sector, index) => (
+                  <motion.div
+                    key={sector.name}
+                    className="sector-card"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.4 }}
+                  >
+                    <div className="sector-card-hover-bg" />
+                    <div className="sector-card-header">
+                      <div className="sector-icon-wrapper">
+                        {sector.icon}
+                      </div>
+                      <span className="sector-card-num">[ {sector.num} ]</span>
+                    </div>
+                    <h4 className="sector-card-title">{sector.name}</h4>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     </div>
