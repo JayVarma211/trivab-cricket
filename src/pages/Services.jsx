@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Globe, Trophy, Building2, Users, ArrowRight, CheckCircle2, Star, Calendar, Pill, FlaskConical, Landmark, Cpu, CreditCard, Briefcase, TrendingUp, Activity, Calculator, Home, Plus, Settings, Sparkles, Camera, Smile, Coffee, Shield, Heart, Zap, Quote } from 'lucide-react';
+import { Globe, Trophy, Building2, Users, ArrowRight, CheckCircle2, Star, Calendar, Pill, FlaskConical, Landmark, Cpu, CreditCard, Briefcase, TrendingUp, Activity, Calculator, Home, Plus, Settings, Sparkles, Camera, Smile, Coffee, Shield, Heart, Zap, Quote, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/common/SEO';
 
