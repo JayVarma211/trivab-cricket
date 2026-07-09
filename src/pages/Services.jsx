@@ -45,20 +45,22 @@ export default function Services() {
       ]
     },
     community: {
-      title: 'Community Sports Events',
-      subtitle: 'Fostering local cricket talent and active neighborhoods.',
+      title: 'Community Sports & Lifestyle Events',
+      subtitle: 'Premium Offering',
       icon: <Users size={48} className="text-gold" />,
-      tagline: 'Connecting neighborhoods through the spirit of the game',
-      description: 'We organize youth coaching clinics, community tournaments, and friendly club matches that encourage participation, discover local talent, and bring families together around sports. We believe cricket belongs to everyone.',
+      tagline: 'Creating Experiences That Bring Every Community Together',
+      description: 'We design and manage memorable sports tournaments, lifestyle events, wellness initiatives, and family engagement programs for residential societies, commercial complexes, business parks, clubs, educational institutions, and local communities. Our professionally managed experiences encourage participation, strengthen relationships, promote healthy living, and create vibrant, connected communities.',
       highlights: [
-        'Neighborhood/society leagues and friendly weekend fixtures',
-        'Discovering grassroots talent with academy sponsorships',
-        'Family-friendly matches, women\'s cups, and kids cricket days',
-        'High-quality coaching clinics by certified trainers',
-        'Fostering health, discipline, and active lifestyles locally',
-        'Inclusive tournaments welcoming players of all skill levels'
+        'Residential Society Leagues & Inter-Apartment Championships',
+        'Commercial Building & Business Park Sports Festivals',
+        'Family Carnival, Kids Zone & Senior Citizen Activities',
+        'Multi-Sport Championships & Fun Fitness Challenges',
+        'Community Wellness Programs, Yoga & Marathon Events',
+        'Cultural Festivals, Annual Day & Celebration Events',
+        'Professional Event Operations, Photography & Live Coverage',
+        'Customized Branding, Sponsor Integration & Award Ceremonies'
       ],
-      ctaText: 'Get Involved in Community Sports',
+      ctaText: 'Plan Your Community Event',
       images: ['/images/Community.jpg', '/images/Community1.jpg']
     },
     international: {
@@ -176,6 +178,12 @@ export default function Services() {
         <AnimatePresence mode="wait">
           {activeTab === 'corporate' ? (
             <CorporateSportsView 
+              images={currentService.images} 
+              title={currentService.title} 
+              icon={currentService.icon} 
+            />
+          ) : activeTab === 'community' ? (
+            <CommunitySportsView 
               images={currentService.images} 
               title={currentService.title} 
               icon={currentService.icon} 
@@ -729,5 +737,158 @@ function ServiceImageSlider({ images, title }) {
         ))}
       </div>
     </div>
+  );
+}
+
+function CommunitySportsView({ images, title, icon }) {
+  const deliverables = [
+    {
+      title: "Residential Society Leagues",
+      subtitle: "Inter-Apartment Championships",
+      desc: "Tailored multi-season tournaments that engage families and create strong neighborly camaraderie.",
+      icon: <Home size={22} className="text-gold" />
+    },
+    {
+      title: "Commercial & Business Parks",
+      subtitle: "Corporate Sports Festivals",
+      desc: "Building-wide athletic challenges and sports days designed for modern commercial workspaces.",
+      icon: <Building2 size={22} className="text-gold" />
+    },
+    {
+      title: "Carnivals & Family Days",
+      subtitle: "Kids Zone & Senior Activities",
+      desc: "Inclusive festivals with customized recreation zones for every generation, from kids to seniors.",
+      icon: <Smile size={22} className="text-gold" />
+    },
+    {
+      title: "Multi-Sport Championships",
+      subtitle: "Fitness & Fun Challenges",
+      desc: "Premium matches in Cricket, Football, Badminton, Pickleball, and collaborative team relays.",
+      icon: <Trophy size={22} className="text-gold" />
+    },
+    {
+      title: "Community Wellness",
+      subtitle: "Yoga & Marathon Events",
+      desc: "Expert-guided yoga sessions, structured runs, and neighborhood fitness transformation campaigns.",
+      icon: <Activity size={22} className="text-gold" />
+    },
+    {
+      title: "Cultural Festivals",
+      subtitle: "Annual Celebrations",
+      desc: "End-to-end execution of neighborhood annual day gatherings, traditional festivities, and gala events.",
+      icon: <Sparkles size={22} className="text-gold" />
+    },
+    {
+      title: "Professional Operations",
+      subtitle: "HD Broadcast & Photography",
+      desc: "Full event support with certified coordinators, referees, photography, and live updates.",
+      icon: <Camera size={22} className="text-gold" />
+    },
+    {
+      title: "Customized Branding",
+      subtitle: "Sponsors & Ceremonies",
+      desc: "High-end corporate sponsor opportunities, custom team merchandise, and custom award trophies.",
+      icon: <Award size={22} className="text-gold" />
+    }
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      style={{ display: 'flex', flexDirection: 'column', gap: '48px', width: '100%' }}
+    >
+      {/* 1. Introduction Segment */}
+      <div className="services-content-grid" style={{ alignItems: 'flex-start' }}>
+        <div className="card-gold services-image-card" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
+          <ServiceImageSlider images={images} title={title} />
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(9,9,11,0.9) 0%, rgba(9,9,11,0.2) 60%, transparent 100%)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            padding: 'var(--space-xl)',
+            pointerEvents: 'none'
+          }}>
+            <h3 className="display-sm" style={{ margin: 0, color: '#ffffff', textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}>
+              Creating Experiences That Bring Every Community Together
+            </h3>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="stat-icon" style={{ marginBottom: 0, width: '56px', height: '56px', borderRadius: '12px' }}>
+              {icon}
+            </div>
+            <div>
+              <h2 className="display-sm text-gradient-gold" style={{ margin: 0 }}>Community Sports &amp; Lifestyle Events</h2>
+              <span className="text-xs text-muted">Premium Offering</span>
+            </div>
+          </div>
+
+          <p className="text-secondary" style={{ fontSize: '1.08rem', lineHeight: 1.7, marginTop: '8px' }}>
+            We design and manage memorable sports tournaments, lifestyle events, wellness initiatives, and family engagement programs for residential societies, commercial complexes, business parks, clubs, educational institutions, and local communities. Our professionally managed experiences encourage participation, strengthen relationships, promote healthy living, and create vibrant, connected communities.
+          </p>
+
+          <div style={{ marginTop: 'var(--space-md)' }}>
+            <Link to="/contact?subject=Community Sports & Lifestyle Events" className="btn btn-gold" style={{ alignSelf: 'flex-start' }}>
+              Plan Your Community Event <ArrowRight size={18} />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Key Deliverables Grid */}
+      <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <span className="section-label">Premium Services</span>
+          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '8px', fontSize: '1.8rem' }}>Key Deliverables</h3>
+          <p className="text-secondary" style={{ maxWidth: '600px', margin: '8px auto 0', fontSize: '0.95rem' }}>
+            High-quality operations designed to foster connections, wellness, and celebration inside your community.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+          {deliverables.map((item, index) => (
+            <div key={index} className="deliverable-card" style={{ padding: '30px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="stat-icon" style={{ width: '40px', height: '40px', margin: 0, flexShrink: 0 }}>
+                  {item.icon}
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)' }}>{item.title}</h4>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--gold-light)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{item.subtitle}</span>
+                </div>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                {item.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Community Impact Message */}
+      <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px', paddingBottom: '24px' }}>
+        <div style={{ maxWidth: '850px', margin: '0 auto' }}>
+          <div className="deliverable-card" style={{ padding: '40px', background: 'rgba(128,0,0,0.02)', display: 'flex', flexDirection: 'column', gap: '20px', border: '1px solid rgba(196,64,64,0.1)', textAlign: 'center', alignItems: 'center' }}>
+            <div style={{ display: 'flex', color: '#FF5A5A', opacity: 0.8 }}><Quote size={32} /></div>
+            <h4 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#FF5A5A', fontFamily: 'var(--font-display)' }}>Fostering Vibrant Neighborhood Connections</h4>
+            <p className="text-secondary" style={{ fontSize: '1.08rem', lineHeight: 1.7, margin: 0, fontStyle: 'italic', maxWidth: '700px' }}>
+              "A vibrant community is built on shared moments. By bringing sports, wellness, and lifestyle celebrations directly to your residential doors, we create active spaces where neighbors become lifelong friends and families build lasting memories."
+            </p>
+            <div style={{ height: '1px', width: '80px', background: 'var(--border-card)', margin: '10px 0' }} />
+            <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--gold-light)', fontWeight: 600 }}>
+              Let's create an unforgettable experience that brings everyone together.
+            </p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }
