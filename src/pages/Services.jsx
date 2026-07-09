@@ -429,7 +429,7 @@ function CorporateSportsView({ images, title, icon }) {
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
-                "HD Photography", "Drone Videography", "Cinematic Films", "Match Reels",
+                "HD Photography", "Match Reels",
                 "Team Interviews", "Player Interviews", "Leadership messages", "Live Streaming",
                 "After-movies", "Award ceremonies"
               ].map((item, i) => (
@@ -475,9 +475,8 @@ function CorporateSportsView({ images, title, icon }) {
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
-                "VIP seating", "Hospitality lounge", "Refreshments", "Gourmet catering",
-                "Tea & coffee bars", "Family seating", "Kids activity zone", "Live announcements",
-                "Mid-break music", "Sponsor stalls"
+                "VIP seating", "Refreshments", "Gourmet catering", "Family seating",
+                "Live announcements", "Mid-break music", "Sponsor stalls"
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ color: 'var(--gold-light)', fontSize: '0.9rem' }}>✦</span>
