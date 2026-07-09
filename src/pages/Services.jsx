@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Globe, Trophy, Building2, Users, ArrowRight, CheckCircle2, Star, Calendar, Pill, FlaskConical, Landmark, Cpu, CreditCard, Briefcase, TrendingUp, Activity, Calculator, Home } from 'lucide-react';
+import { Globe, Trophy, Building2, Users, ArrowRight, CheckCircle2, Star, Calendar, Pill, FlaskConical, Landmark, Cpu, CreditCard, Briefcase, TrendingUp, Activity, Calculator, Home, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/common/SEO';
 
@@ -254,16 +254,17 @@ export default function Services() {
               
               <div className="sectors-grid">
                 {[
-                  { name: 'Pharmaceutical', icon: <Pill size={20} />, num: '01' },
-                  { name: 'Chemicals', icon: <FlaskConical size={20} />, num: '02' },
-                  { name: 'Banking Sectors', icon: <Landmark size={20} />, num: '03' },
-                  { name: 'Fintechs', icon: <Cpu size={20} />, num: '04' },
-                  { name: 'NBFC', icon: <CreditCard size={20} />, num: '05' },
-                  { name: 'SMEs', icon: <Briefcase size={20} />, num: '06' },
-                  { name: 'MSMEs', icon: <TrendingUp size={20} />, num: '07' },
-                  { name: 'Hospitals', icon: <Activity size={20} />, num: '08' },
-                  { name: 'CA Firms', icon: <Calculator size={20} />, num: '09' },
-                  { name: 'Real Estate & Developers', icon: <Home size={20} />, num: '10' }
+                  {name: 'Pharmaceutical', icon: <Pill size={20} />, num: '01'},
+                  {name: 'Chemicals', icon: <FlaskConical size={20} />, num: '02'},
+                  {name: 'Banking Sectors', icon: <Landmark size={20} />, num: '03'},
+                  {name: 'Fintechs', icon: <Cpu size={20} />, num: '04'},
+                  {name: 'NBFC', icon: <CreditCard size={20} />, num: '05'},
+                  {name: 'SMEs', icon: <Briefcase size={20} />, num: '06'},
+                  {name: 'MSMEs', icon: <TrendingUp size={20} />, num: '07'},
+                  {name: 'Hospitals', icon: <Activity size={20} />, num: '08'},
+                  {name: 'CA Firms', icon: <Calculator size={20} />, num: '09'},
+                  {name: 'Real Estate & Developers', icon: <Home size={20} />, num: '10'},
+                  {name: 'And Other Sectors...', icon: <Plus size={20} />, num: '11'}
                 ].map((sector, index) => (
                   <motion.div
                     key={sector.name}
