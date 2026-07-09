@@ -272,7 +272,7 @@ function CorporateSportsView({ images, title, icon }) {
             pointerEvents: 'none'
           }}>
             <h3 className="display-sm" style={{ margin: 0, color: '#ffffff', textShadow: '0 2px 8px rgba(0, 0, 0, 0.8)' }}>
-              Premium Corporate Cricket Experience
+              Complete Corporate Sports &amp; Event Management
             </h3>
           </div>
         </div>
@@ -283,134 +283,168 @@ function CorporateSportsView({ images, title, icon }) {
               {icon}
             </div>
             <div>
-              <h2 className="display-sm text-gradient-gold" style={{ margin: 0 }}>Corporate Sports Events</h2>
-              <span className="text-xs text-muted">Premium Turnkey Solutions</span>
+              <h2 className="display-sm text-gradient-gold" style={{ margin: 0 }}>Corporate Sports &amp; Events</h2>
+              <span className="text-xs text-muted">Premium Turnkey Management</span>
             </div>
           </div>
 
           <p className="text-secondary" style={{ fontSize: '1.08rem', lineHeight: 1.7, marginTop: '8px' }}>
-            Transform your workplace into a high-performing, connected, and motivated community through professionally managed corporate cricket tournaments. We deliver a seamless, end-to-end sporting experience that goes beyond competition—creating opportunities for employee engagement, leadership development, team collaboration, and organizational pride.
-          </p>
-          <p className="text-secondary" style={{ fontSize: '1.02rem', lineHeight: 1.6 }}>
-            Whether you're planning an annual sports day, an inter-department championship, a client engagement event, or a multi-company corporate league, our experienced team handles every aspect with precision, allowing your HR and administration teams to focus on what matters most—your people.
-          </p>
-          <p className="text-secondary" style={{ fontSize: '1.02rem', lineHeight: 1.6 }}>
-            Our tournaments are designed to strengthen workplace relationships, celebrate employee achievements, and create memorable experiences that positively impact company culture.
+            We provide a fully managed, turnkey solution for corporate sports tournaments, employee engagement programs, wellness initiatives, team-building activities, and large-scale corporate events. From concept and planning to flawless execution, our experienced team manages every operational detail, delivering professional experiences that align with your organization's culture and objectives.
           </p>
 
           <div style={{ marginTop: 'var(--space-md)' }}>
             <Link to="/contact?subject=Corporate Sports Tournament" className="btn btn-gold" style={{ alignSelf: 'flex-start' }}>
-              Plan a Corporate Tournament <ArrowRight size={18} />
+              Plan a Corporate Event <ArrowRight size={18} />
             </Link>
           </div>
         </div>
       </div>
 
-      {/* 2. Why Corporate Sports Matter */}
-      <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <span className="section-label">Strategic Value</span>
-          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '8px', fontSize: '1.8rem' }}>Why Corporate Sports Matter</h3>
-          <p className="text-secondary" style={{ maxWidth: '600px', margin: '8px auto 0', fontSize: '0.95rem' }}>
-            Modern organizations understand that engaged employees are more productive, collaborative, and committed.
-          </p>
-        </div>
-        <div className="deliverables-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-          {[
-            { title: "Strengthen Engagement", text: "Strengthen employee engagement and workplace culture across all levels." },
-            { title: "Improve Collaboration", text: "Improve collaboration across departments, units, and leadership hierarchies." },
-            { title: "Promote Well-being", text: "Promote physical and mental well-being to support overall employee health." },
-            { title: "Recognition & Reward", text: "Recognize and reward active participation, effort, and team spirit." },
-            { title: "Employer Branding", text: "Enhance external employer branding and boost internal employee satisfaction." },
-            { title: "Foster Leadership", text: "Foster organic leadership development, communication skills, and synergy." },
-            { title: "Increase Morale", text: "Increase employee morale, dedication, and daily workspace motivation." },
-            { title: "Lasting Memories", text: "Create memorable experiences that bond teams beyond the workplace." },
-            { title: "Encourage Sportsmanship", text: "Encourage healthy, constructive competition and corporate sportsmanship." },
-            { title: "Support Retention", text: "Support talent retention through high-value engagement initiatives." }
-          ].map((item, index) => (
-            <div key={index} className="deliverable-card" style={{ padding: '24px', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <CheckCircle2 size={18} className="text-gold" />
-                <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-primary)' }}>{item.title}</h4>
-              </div>
-              <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item.text}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Complete Tournament Management */}
+      {/* 2. Complete Tournament Management */}
       <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <span className="section-label">Turnkey Execution</span>
-          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '8px', fontSize: '1.8rem' }}>Complete Tournament Management</h3>
+          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '8px', fontSize: '1.8rem' }}>Complete Event Management</h3>
           <p className="text-secondary" style={{ maxWidth: '600px', margin: '8px auto 0', fontSize: '0.95rem' }}>
-            We provide a fully managed, turnkey solution handling every operational detail from conception to execution.
+            We provide a fully managed, turnkey solution handling every operational detail from planning through execution.
           </p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-          {/* Card A */}
+          {/* Pre-Event Planning */}
           <div className="deliverable-card" style={{ padding: '36px 30px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Calendar size={18} /></div>
               <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-light)' }}>Pre-Event Planning</h4>
             </div>
-            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+              Every successful event begins with meticulous planning. Our team works closely with your HR, Administration, CSR, and Leadership teams.
+            </p>
+            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                "Consultation with HR and organizing committee",
-                "Tournament format planning",
-                "Budget planning and event timeline",
-                "Team registration management",
-                "Fixture creation and scheduling",
-                "Player database management",
-                "Digital invitations and participation campaigns",
+                "Requirement analysis and event consultation",
+                "Event concept development",
+                "Sports and activity selection based on employee participation",
+                "Budget planning and cost optimization",
+                "Event timelines and execution roadmap",
+                "Venue selection and booking",
+                "Team and participant registration",
+                "Digital registration platform",
                 "Event branding and creative design",
-                "Venue booking and logistics planning"
+                "Employee communication campaigns",
+                "Scheduling and logistics planning",
+                "Vendor coordination",
+                "Equipment planning and procurement",
+                "Risk assessment and contingency planning"
               ].map((li, i) => (
-                <li key={i} style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{li}</li>
+                <li key={i} style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{li}</li>
               ))}
             </ul>
           </div>
 
-          {/* Card B */}
+          {/* Event Operations & Execution */}
           <div className="deliverable-card" style={{ padding: '36px 30px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Settings size={18} /></div>
-              <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-light)' }}>Tournament Operations</h4>
+              <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-light)' }}>Operations &amp; Execution</h4>
             </div>
-            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+              Our experienced operations team ensures every aspect of your event is managed professionally.
+            </p>
+            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                "Premium cricket grounds and turfs",
-                "Professional turf or matting wickets",
-                "Certified umpires, scorers, and referees",
-                "Live score management & digital portals",
-                "Dedicated event managers and ground staff",
-                "Technical support and sound announcements",
-                "Team changing areas & drinking water stations"
+                "Premium indoor and outdoor venues",
+                "Professional sports infrastructure and equipment",
+                "Professional referees, umpires, and technical officials",
+                "Event coordinators and ground management staff",
+                "Registration and help desk management",
+                "Live scorekeeping and tournament management systems",
+                "Stage setup and event production",
+                "Audio, lighting, and sound systems",
+                "On-site troubleshooting and event supervision"
               ].map((li, i) => (
-                <li key={i} style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{li}</li>
+                <li key={i} style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{li}</li>
               ))}
             </ul>
           </div>
 
-          {/* Card C */}
+          {/* Corporate Branding & Event Identity */}
           <div className="deliverable-card" style={{ padding: '36px 30px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Sparkles size={18} /></div>
-              <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-light)' }}>Branding &amp; Identity</h4>
+              <h4 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: 'var(--gold-light)' }}>Branding &amp; Event Identity</h4>
             </div>
-            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+              Every event becomes an extension of your organization's brand.
+            </p>
+            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
-                "Customized team jerseys with company logos",
-                "Branded caps & custom athletic apparel",
-                "Boundary, pitch, and backdrop branding",
-                "Entry arch, trophies, and digital award branding",
-                "Social media posters, fixtures, & player cards",
-                "Sponsor branding integration opportunities"
+                "Customized employee uniforms and sports apparel",
+                "Company-branded T-shirts, jerseys, caps, and accessories",
+                "Event logo and theme development",
+                "Entrance arch branding",
+                "Stage branding",
+                "Venue branding",
+                "Backdrops and photo walls",
+                "Digital invitations",
+                "Social media creatives",
+                "Event brochures",
+                "Trophy and award branding",
+                "Sponsor branding integration",
+                "Promotional merchandise"
               ].map((li, i) => (
-                <li key={i} style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{li}</li>
+                <li key={i} style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{li}</li>
               ))}
             </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Types of Events We Organize */}
+      <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <span className="section-label">Our Capabilities</span>
+          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '8px', fontSize: '1.8rem' }}>Types of Events We Organize</h3>
+          <p className="text-secondary" style={{ maxWidth: '600px', margin: '8px auto 0', fontSize: '0.95rem' }}>
+            Our expertise extends across a wide range of corporate events designed to engage, motivate, and inspire employees.
+          </p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '28px' }}>
+          {/* Sports Events */}
+          <div className="deliverable-card" style={{ padding: '36px 30px' }}>
+            <h4 style={{ margin: '0 0 16px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--gold-light)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Trophy size={20} /> Sports Events
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
+              {[
+                "Cricket", "Football", "Badminton", "Pickleball", "Indoor Games", "Multi-Sport Championships"
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: 'var(--gold-light)' }}>✦</span>
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Corporate Events */}
+          <div className="deliverable-card" style={{ padding: '36px 30px' }}>
+            <h4 style={{ margin: '0 0 16px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--gold-light)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Building2 size={20} /> Corporate Events
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
+              {[
+                "Annual Sports Days", "Employee Engagement Programs", "Team Building Activities",
+                "Family Day Events", "Corporate Picnics", "Wellness & Fitness Challenges",
+                "Annual Celebrations", "Awards & Recognition Ceremonies", "Leadership Retreats",
+                "CSR Events", "Product Launches", "Conferences & Gatherings",
+                "Cultural Festivals", "Dealer & Partner Meets"
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: 'var(--gold-light)' }}>✦</span>
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{item}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -418,20 +452,21 @@ function CorporateSportsView({ images, title, icon }) {
       {/* 4. Experience Categories */}
       <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-          {/* Column 1 */}
+          {/* Column 1: Media Coverage */}
           <div className="deliverable-card" style={{ padding: '30px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Camera size={18} /></div>
               <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Professional Media Coverage</h4>
             </div>
             <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
-              Every memorable moment deserves to be captured. These assets can be used for your company's internal communications, recruitment campaigns, employer branding, and social media platforms:
+              Capture every achievement and memorable moment through premium media coverage. These assets can be utilized for internal communication, recruitment, annual reports, employer branding, company websites, and social media marketing:
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
-                "HD Photography", "Match Reels",
-                "Team Interviews", "Player Interviews", "Leadership messages", "Live Streaming",
-                "After-movies", "Award ceremonies"
+                "Professional photography", "Cinematic videography", "Drone coverage (where permitted)",
+                "Event highlight films", "Social media reels", "Live streaming", "Employee interviews",
+                "Leadership messages", "Testimonials", "Event after-movie", "Award ceremony coverage",
+                "Team photographs", "Promotional content", "Post-event content library"
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ color: 'var(--gold-light)', fontSize: '0.9rem' }}>✦</span>
@@ -441,20 +476,20 @@ function CorporateSportsView({ images, title, icon }) {
             </div>
           </div>
 
-          {/* Column 2 */}
+          {/* Column 2: Employee Experience */}
           <div className="deliverable-card" style={{ padding: '30px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Smile size={18} /></div>
               <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Employee Experience</h4>
             </div>
             <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
-              We believe every participant should enjoy a premium sporting environment with professional standards:
+              We believe every employee should enjoy a professional, engaging, and memorable event experience:
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
-                "Custom jerseys", "Welcome kits", "Official ID cards", "Match schedules",
-                "Certificates", "Refreshments", "Medical support", "Playing fields",
-                "Live scoring", "Player stats", "MVP recognition", "Performances"
+                "Personalized welcome kits", "Branded event merchandise", "Official ID cards",
+                "Event schedules", "Refreshments throughout", "Wellness & hydration stations",
+                "Comfortable facilities", "Live event updates", "Performance tracking", "Recognition awards"
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ color: 'var(--gold-light)', fontSize: '0.9rem' }}>✦</span>
@@ -464,19 +499,19 @@ function CorporateSportsView({ images, title, icon }) {
             </div>
           </div>
 
-          {/* Column 3 */}
+          {/* Column 3: Hospitality & Guest Experience */}
           <div className="deliverable-card" style={{ padding: '30px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
               <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Coffee size={18} /></div>
               <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Hospitality &amp; Guest Experience</h4>
             </div>
             <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
-              Provide a world-class experience for employees, clients, and leadership teams during the tournament:
+              Create an exceptional experience for employees, leadership teams, clients, business partners, and guests:
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
-                "VIP seating", "Refreshments", "Gourmet catering", "Family seating",
-                "Live announcements", "Mid-break music", "Sponsor stalls"
+                "Executive seating", "Premium catering", "Refreshment counters", "Entertainment during breaks",
+                "Live announcements", "Background music & DJ", "Sponsor activation areas"
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span style={{ color: 'var(--gold-light)', fontSize: '0.9rem' }}>✦</span>
@@ -491,17 +526,18 @@ function CorporateSportsView({ images, title, icon }) {
       {/* 5. Awards, Safety, Compliance, Add-ons */}
       <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-          {/* Card A */}
+          {/* Awards & Recognition */}
           <div className="deliverable-card" style={{ padding: '30px', borderLeft: '3px solid var(--gold-light)' }}>
             <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--gold-light)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Trophy size={18} /> Awards &amp; Recognition
             </h4>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>Celebrate employee achievements with a memorable closing ceremony.</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+              Celebrate excellence with professionally managed award ceremonies recognizing performance, participation, teamwork, and leadership:
+            </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {[
-                "Championship Trophy", "Runner-up Trophy", "Best Player", "Best Batsman", "Best Bowler",
-                "Player of the Tournament", "Emerging Player", "Fair Play Award", "Best Team Spirit Award",
-                "Best Captain", "Outstanding Leadership Award", "Department Champions", "Corporate Mementos"
+                "Championship Trophy", "Runner-up Trophy", "Team Excellence Awards",
+                "Best Performer", "Employee Champion Award", "Department Excellence Award"
               ].map((award, i) => (
                 <span key={i} style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', padding: '4px 8px', borderRadius: '4px', color: 'var(--text-secondary)' }}>
                   {award}
@@ -510,38 +546,44 @@ function CorporateSportsView({ images, title, icon }) {
             </div>
           </div>
 
-          {/* Card B */}
+          {/* Safety & Compliance */}
           <div className="deliverable-card" style={{ padding: '30px', borderLeft: '3px solid #C44040' }}>
             <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#C44040', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Shield size={18} /> Safety &amp; Event Compliance
+              <Shield size={18} /> Safety &amp; Compliance
             </h4>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>Employee safety is our highest priority.</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+              The safety and well-being of every participant remains our highest priority.
+            </p>
             <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
               {[
-                "First-aid support & on-site medical assistance",
-                "Ambulance on standby (optional)",
-                "Comprehensive event insurance options",
-                "Certified, secure sports facilities",
-                "Emergency response planning & secure conditions",
-                "Hydration stations & crowd management operations"
+                "First-aid support",
+                "Ambulance support (optional)",
+                "Certified venues",
+                "Fire and safety compliance",
+                "Hydration stations",
+                "Weather contingency planning",
+                "Risk management protocols"
               ].map((safe, i) => (
                 <li key={i}>{safe}</li>
               ))}
             </ul>
           </div>
 
-          {/* Card C */}
+          {/* Optional Premium Experiences */}
           <div className="deliverable-card" style={{ padding: '30px', borderLeft: '3px solid #FF5A5A' }}>
             <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#FF5A5A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Plus size={18} /> Optional Premium Add-ons
+              <Plus size={18} /> Optional Premium Experiences
             </h4>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>Enhance your event with exclusive, stadium-grade upgrades.</p>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+              Take your event to the next level with exclusive premium enhancements:
+            </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {[
-                "Celebrity appearances", "Coaching clinics", "Keynote speakers", "Trophy unveiling",
-                "Live commentary", "LED scoreboards", "Giant LED screens", "Opening ceremonies",
-                "Fireworks displays", "Live DJ", "networking sessions", "Family carnivals",
-                "Sponsor booths", "Multi-city leagues"
+                "Professional hosts & emcees", "Live commentary", "Opening & closing ceremonies",
+                "LED scoreboards", "Giant LED display screens", "Engagement zones",
+                "Virtual & hybrid support", "Cultural performances", "Live music and DJs",
+                "Networking sessions", "CSR engagement", "Wellness workshops", "Fitness sessions",
+                "Sponsor exhibition booths", "Multi-location events", "Annual engagement programs"
               ].map((addon, i) => (
                 <span key={i} style={{ fontSize: '0.78rem', background: 'rgba(196,64,64,0.05)', border: '1px solid rgba(196,64,64,0.1)', padding: '4px 8px', borderRadius: '4px', color: '#FF5A5A' }}>
                   {addon}
@@ -557,18 +599,24 @@ function CorporateSportsView({ images, title, icon }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px' }}>
           {/* Why HR Teams Choose Us */}
           <div className="card-gold" style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <h4 className="display-sm text-gradient-gold" style={{ margin: 0, fontSize: '1.4rem' }}>Why HR Teams Choose Us</h4>
+            <h4 className="display-sm text-gradient-gold" style={{ margin: 0, fontSize: '1.4rem' }}>Why HR Teams Choose Us ?</h4>
             <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-              We understand that HR professionals are measured not only by event execution but by the impact those events have on employee engagement, satisfaction, and organizational culture.
+              We understand that successful corporate events are measured not only by flawless execution but by their lasting impact on employee engagement, organizational culture, and business relationships.
             </p>
             <p className="text-secondary" style={{ fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-              Our team becomes an extension of your HR department, managing every operational detail while ensuring a smooth, stress-free experience from planning through post-event reporting.
+              Our experienced team becomes an extension of your HR, Administration, and Corporate Communications departments, ensuring every event is professionally managed from planning through post-event reporting.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+              <h5 style={{ margin: '0 0 4px 0', fontSize: '0.95rem', color: 'var(--gold-light)', fontWeight: 700 }}>We Help You:</h5>
               {[
-                "Increase employee participation and engagement metrics",
-                "Save valuable planning time through a single point of operational contact",
-                "Receive comprehensive post-event reports, photo libraries, and participation insights"
+                "Increase employee engagement and participation",
+                "Strengthen teamwork and workplace culture",
+                "Support employee wellness initiatives",
+                "Enhance employer branding",
+                "Improve cross-functional collaboration",
+                "Reduce planning workload through a single point of contact",
+                "Deliver memorable employee experiences",
+                "Receive detailed post-event reports, media assets, participation analytics, and feedback insights"
               ].map((pt, i) => (
                 <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
                   <span style={{ color: 'var(--gold-light)', fontWeight: 'bold' }}>✓</span>
@@ -583,13 +631,16 @@ function CorporateSportsView({ images, title, icon }) {
             <div style={{ display: 'flex', color: '#FF5A5A', opacity: 0.8 }}><Quote size={32} /></div>
             <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 800, color: '#FF5A5A', fontFamily: 'var(--font-display)' }}>A Message to HR Leaders</h4>
             <p className="text-secondary" style={{ fontSize: '0.98rem', lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>
-              "Your employees are your greatest asset. Investing in experiences that bring people together is an investment in your organization's culture, collaboration, and long-term success."
+              "People build organizations, and meaningful experiences build stronger people."
             </p>
             <p className="text-secondary" style={{ fontSize: '0.92rem', lineHeight: 1.5, margin: 0 }}>
-              Our Corporate Cricket Platform is more than a sporting event—it's a strategic employee engagement initiative that inspires teamwork, recognizes talent, encourages healthy lifestyles, and creates lasting memories. We manage every detail with professionalism, allowing your HR team to deliver an exceptional experience with confidence.
+              Today's employees value workplaces that invest in their well-being, celebrate achievements, and create opportunities to connect beyond everyday responsibilities. A thoughtfully designed sports or corporate event is more than just an activity—it's a powerful tool for building trust, encouraging collaboration, improving morale, and strengthening company culture.
+            </p>
+            <p className="text-secondary" style={{ fontSize: '0.92rem', lineHeight: 1.5, margin: 0 }}>
+              Our mission is to help organizations create unforgettable experiences that inspire employees, reinforce organizational values, and leave a lasting positive impact. From intimate team-building sessions to large-scale corporate festivals and sports championships, we deliver every event with creativity, professionalism, and precision.
             </p>
             <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--gold-light)', fontWeight: 600 }}>
-              Let's create an event your employees will talk about long after the final match.
+              Let's create experiences your employees will remember, your leadership will appreciate, and your organization will be proud of.
             </p>
           </div>
         </div>
