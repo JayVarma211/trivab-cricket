@@ -167,20 +167,20 @@ export default function Navbar() {
             <NavLink to="/" className="nav-link" end>Home</NavLink>
             
             {/* About Us Dropdown */}
-            <div className="nav-dropdown-wrapper" ref={aboutRef}>
+            <div className="nav-dropdown-wrapper" ref={aboutDropRef}>
               <button 
                 className="nav-link dropdown-trigger"
                 onClick={() => {
-                  setAboutOpen(p => !p);
-                  setServicesOpen(false);
-                  setTournamentsOpen(false);
+                  setAboutDropOpen(p => !p);
+                  setServicesDropOpen(false);
+                  setTournamentsDropOpen(false);
                 }}
               >
                 About Us <ChevronDown size={14} />
               </button>
               
               <AnimatePresence>
-                {aboutOpen && (
+                {aboutDropOpen && (
                   <motion.div 
                     className="tournaments-nav-dropdown"
                     initial={{ opacity: 0, y: 10 }}
@@ -193,7 +193,7 @@ export default function Navbar() {
                         key={item.label} 
                         to={item.to} 
                         className="tournaments-nav-item"
-                        onClick={() => setAboutOpen(false)}
+                        onClick={() => setAboutDropOpen(false)}
                       >
                         {item.label}
                       </Link>
@@ -204,20 +204,20 @@ export default function Navbar() {
             </div>
 
             {/* Our Services Dropdown */}
-            <div className="nav-dropdown-wrapper" ref={servicesRef}>
+            <div className="nav-dropdown-wrapper" ref={servicesDropRef}>
               <button 
                 className="nav-link dropdown-trigger"
                 onClick={() => {
-                  setServicesOpen(p => !p);
-                  setAboutOpen(false);
-                  setTournamentsOpen(false);
+                  setServicesDropOpen(p => !p);
+                  setAboutDropOpen(false);
+                  setTournamentsDropOpen(false);
                 }}
               >
                 Our Services <ChevronDown size={14} />
               </button>
               
               <AnimatePresence>
-                {servicesOpen && (
+                {servicesDropOpen && (
                   <motion.div 
                     className="services-nav-dropdown"
                     initial={{ opacity: 0, y: 10 }}
@@ -230,7 +230,7 @@ export default function Navbar() {
                         key={item.label} 
                         to={item.to} 
                         className="services-nav-item"
-                        onClick={() => setServicesOpen(false)}
+                        onClick={() => setServicesDropOpen(false)}
                       >
                         {item.icon}
                         <span>{item.label}</span>
@@ -242,20 +242,20 @@ export default function Navbar() {
             </div>
 
             {/* Tournaments Dropdown (BAPL) */}
-            <div className="nav-dropdown-wrapper" ref={tournamentsRef}>
+            <div className="nav-dropdown-wrapper" ref={tournamentsDropRef}>
               <button 
                 className="nav-link dropdown-trigger"
                 onClick={() => {
-                  setTournamentsOpen(p => !p);
-                  setAboutOpen(false);
-                  setServicesOpen(false);
+                  setTournamentsDropOpen(p => !p);
+                  setAboutDropOpen(false);
+                  setServicesDropOpen(false);
                 }}
               >
                 BAPL <ChevronDown size={14} />
               </button>
               
               <AnimatePresence>
-                {tournamentsOpen && (
+                {tournamentsDropOpen && (
                   <motion.div 
                     className="tournaments-nav-dropdown"
                     initial={{ opacity: 0, y: 10 }}
@@ -269,7 +269,7 @@ export default function Navbar() {
                         key={item.label} 
                         to={item.to} 
                         className="tournaments-nav-item"
-                        onClick={() => setTournamentsOpen(false)}
+                        onClick={() => setTournamentsDropOpen(false)}
                       >
                         <img src={item.logo} className={getLogoClass(item.logo)} style={{ width: '24px', height: '24px', objectFit: 'contain' }} alt={item.label} />
                         <span>{item.label}</span>
