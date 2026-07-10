@@ -172,7 +172,8 @@
   width: 100%;
   z-index: 10;
   position: relative;
-  padding: 160px 24px 120px;
+  /* Use variable so mobile override of --navbar-height flows through */
+  padding: calc(var(--navbar-height) + 60px) 24px 120px;
 }
 
 .hero-container.centered .hero-content {
@@ -1077,8 +1078,9 @@
 
 @media (max-width: 768px) {
   .hero-container.centered {
-    padding-top: 120px;
-    padding-bottom: 80px;
+    padding-top: calc(var(--navbar-height) + 36px);
+    padding-bottom: 56px;
+    padding-inline: 20px;
   }
   .promise-section,
   .deliverables-section,
@@ -1086,7 +1088,7 @@
   .features-section,
   .recent-tournaments-section,
   .conversion-block {
-    padding: 80px 0;
+    padding: 56px 0;
   }
 }
 

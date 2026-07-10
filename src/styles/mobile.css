@@ -1,0 +1,1336 @@
+/* ============================================================
+   TRIVAB SPORTS — PREMIUM MOBILE EXPERIENCE
+   Target: ≤768px (≥769px is completely untouched)
+   Philosophy: Apple · Linear · Stripe · Vercel quality
+   Spacing system:
+     --m-xs   8px
+     --m-sm   12px
+     --m-md   20px
+     --m-lg   32px
+     --m-xl   48px
+     --m-2xl  64px
+   ============================================================ */
+
+/* ============================================================
+   0. MOBILE CSS CUSTOM PROPERTIES
+   ============================================================ */
+@media (max-width: 768px) {
+  :root {
+    --m-xs:  8px;
+    --m-sm:  12px;
+    --m-md:  20px;
+    --m-lg:  32px;
+    --m-xl:  48px;
+    --m-2xl: 64px;
+
+    /* Override global spacing tokens for tighter mobile rhythm */
+    --space-xs:  4px;
+    --space-sm:  8px;
+    --space-md:  12px;
+    --space-lg:  16px;
+    --space-xl:  20px;
+    --space-2xl: 28px;
+    --space-3xl: 40px;
+    --space-4xl: 56px;
+
+    /* Reduce navbar height on mobile */
+    --navbar-height: 72px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --m-xs:  6px;
+    --m-sm:  10px;
+    --m-md:  16px;
+    --m-lg:  24px;
+    --m-xl:  40px;
+    --m-2xl: 56px;
+
+    --space-3xl: 32px;
+    --space-4xl: 44px;
+
+    --navbar-height: 64px;
+  }
+}
+
+/* ============================================================
+   1. BASE RESET — prevent horizontal overflow on all phones
+   ============================================================ */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+/* ============================================================
+   2. CONTAINER — proper edge padding across all breakpoints
+   ============================================================ */
+@media (max-width: 768px) {
+  .container,
+  .container-sm {
+    padding-inline: var(--m-md);
+    width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  .container,
+  .container-sm {
+    padding-inline: var(--m-sm);
+  }
+}
+
+/* ============================================================
+   3. NAVBAR — compact, touch-friendly, 44px touch targets
+   ============================================================ */
+@media (max-width: 768px) {
+  .navbar {
+    height: var(--navbar-height);
+  }
+
+  .navbar-inner {
+    gap: var(--m-sm);
+    padding-inline: var(--m-md);
+  }
+
+  /* Logo scales down gracefully */
+  .logo-image {
+    height: 54px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  /* Right action buttons: minimum 44×44 touch target */
+  .navbar-actions {
+    gap: 6px;
+  }
+
+  .btn-icon,
+  .hamburger,
+  .theme-toggle,
+  .scanner-btn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Mobile menu improvements */
+  .mobile-menu {
+    top: var(--navbar-height);
+    padding: var(--m-md);
+    gap: var(--m-sm);
+  }
+
+  .mobile-nav-link {
+    padding: 14px 16px;
+    font-size: 1rem;
+    min-height: 48px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+  }
+
+  .mobile-nav-links {
+    gap: 4px;
+  }
+
+  .mobile-auth {
+    gap: var(--m-sm);
+    padding-top: var(--m-sm);
+    border-top: 1px solid var(--border-card);
+  }
+
+  .mobile-auth .btn {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-image {
+    height: 46px;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo-image {
+    height: 40px;
+  }
+}
+
+/* ============================================================
+   4. PAGE WRAPPER — account for reduced navbar height
+   ============================================================ */
+@media (max-width: 768px) {
+  .page-wrapper {
+    padding-top: var(--navbar-height);
+  }
+
+  /* Home page offsets navbar with negative margin */
+  .home-page {
+    margin-top: calc(-1 * var(--navbar-height));
+  }
+}
+
+/* ============================================================
+   5. HERO SECTION — balanced, premium, no awkward wrapping
+   ============================================================ */
+@media (max-width: 768px) {
+  .hero-section {
+    min-height: 100svh; /* use svh for mobile keyboards */
+    min-height: 100vh;  /* fallback */
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-container.centered {
+    padding-top: calc(var(--navbar-height) + 40px);
+    padding-bottom: 56px;
+    padding-inline: var(--m-md);
+    text-align: center;
+  }
+
+  .hero-content {
+    max-width: 100%;
+    gap: 0;
+  }
+
+  /* Badge / pill */
+  .hero-label-badge {
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    padding: 6px 16px;
+    margin-bottom: var(--m-md);
+    border-radius: 4px;
+    max-width: 100%;
+  }
+
+  /* Hero title — fluid, no awkward word breaks */
+  .hero-section .hero-title {
+    font-size: clamp(2rem, 8vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin-bottom: var(--m-sm);
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: manual;
+    max-width: 100%;
+  }
+
+  /* Subtitle — readable line length, comfortable line-height */
+  .hero-section .hero-subtitle {
+    font-size: clamp(0.9rem, 3.5vw, 1.05rem);
+    line-height: 1.75;
+    margin-bottom: var(--m-lg);
+    max-width: 100%;
+    letter-spacing: 0.01em;
+  }
+
+  /* CTA buttons */
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--m-sm);
+    width: 100%;
+  }
+
+  .hero-actions .btn-crimson,
+  .hero-actions .btn-ghost,
+  .hero-actions a {
+    width: 100%;
+    max-width: 360px;
+    min-height: 52px;
+    padding: 14px 24px;
+    font-size: 0.9rem;
+    border-radius: 14px;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Hide scroll indicator on small screens */
+  .hero-scroll-indicator {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-container.centered {
+    padding-top: calc(var(--navbar-height) + 28px);
+    padding-bottom: 40px;
+    padding-inline: var(--m-md);
+  }
+
+  .hero-section .hero-title {
+    font-size: clamp(1.75rem, 9vw, 2.5rem);
+  }
+
+  .hero-section .hero-subtitle {
+    font-size: 0.9rem;
+    line-height: 1.7;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-section .hero-title {
+    font-size: clamp(1.6rem, 9vw, 2.2rem);
+  }
+}
+
+/* ============================================================
+   6. SECTION SPACING SYSTEM — consistent rhythm
+   ============================================================ */
+@media (max-width: 768px) {
+  .section-padding {
+    padding: var(--m-2xl) 0;
+  }
+
+  .section-padding-sm {
+    padding: var(--m-xl) 0;
+  }
+
+  .section-header {
+    margin-bottom: var(--m-lg);
+    padding-inline: 0;
+  }
+
+  .section-title {
+    font-size: clamp(1.5rem, 5.5vw, 2rem) !important;
+    line-height: 1.2;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .section-subtitle {
+    font-size: clamp(0.875rem, 3vw, 1rem) !important;
+    line-height: 1.7;
+    max-width: 100%;
+  }
+
+  .section-label {
+    font-size: 0.7rem;
+    padding: 5px 12px;
+  }
+
+  /* Named page sections  */
+  .promise-section,
+  .deliverables-section,
+  .authority-section,
+  .features-section,
+  .recent-tournaments-section,
+  .conversion-block,
+  .stats-strip {
+    padding: var(--m-2xl) 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-padding,
+  .promise-section,
+  .deliverables-section,
+  .authority-section,
+  .features-section,
+  .recent-tournaments-section,
+  .conversion-block {
+    padding: var(--m-xl) 0;
+  }
+
+  .stats-strip {
+    padding: var(--m-xl) 0;
+  }
+}
+
+/* ============================================================
+   7. TYPOGRAPHY SCALE — unified, fluid across all phones
+   ============================================================ */
+@media (max-width: 768px) {
+  .display-2xl {
+    font-size: clamp(2rem, 7vw, 2.8rem) !important;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .display-xl {
+    font-size: clamp(1.75rem, 6vw, 2.4rem) !important;
+    line-height: 1.15;
+  }
+
+  .display-lg {
+    font-size: clamp(1.5rem, 5vw, 2rem) !important;
+    line-height: 1.2;
+  }
+
+  .display-md {
+    font-size: clamp(1.25rem, 4.5vw, 1.75rem) !important;
+    line-height: 1.25;
+  }
+
+  .display-sm {
+    font-size: clamp(1.1rem, 3.5vw, 1.4rem) !important;
+    line-height: 1.3;
+  }
+
+  /* Promises / Long headings */
+  .promise-title {
+    font-size: clamp(1.5rem, 5.5vw, 2rem);
+    line-height: 1.2;
+    margin-bottom: var(--m-sm);
+  }
+
+  .promise-body {
+    font-size: clamp(0.9rem, 3vw, 1rem);
+    line-height: 1.75;
+  }
+
+  .conversion-title {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    line-height: 1.2;
+  }
+
+  .conversion-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: var(--m-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .display-2xl {
+    font-size: clamp(1.75rem, 8vw, 2.4rem) !important;
+  }
+
+  .display-xl {
+    font-size: clamp(1.5rem, 7vw, 2rem) !important;
+  }
+
+  .display-lg {
+    font-size: clamp(1.25rem, 6vw, 1.75rem) !important;
+  }
+}
+
+/* ============================================================
+   8. GRID UTILITIES — single column on mobile
+   ============================================================ */
+@media (max-width: 768px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+    gap: var(--m-md);
+  }
+
+  /* Allow 2-col grid for small items (stats, badges) */
+  .grid-2.keep-2-mobile {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--m-sm);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--m-sm) !important;
+  }
+
+  /* Flex utilities */
+  .flex-wrap { flex-wrap: wrap !important; }
+  .mobile-col { flex-direction: column !important; }
+}
+
+/* ============================================================
+   9. CARDS — proper padding, hierarchy, image ratios
+   ============================================================ */
+@media (max-width: 768px) {
+  .card,
+  .card-glass,
+  .card-gold {
+    padding: var(--m-md);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Disable heavy hover transforms on touch — prevent ghost states */
+  .card:hover,
+  .card-gold:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   10. BUTTONS — full-width where appropriate, 48px min height
+   ============================================================ */
+@media (max-width: 768px) {
+  .btn {
+    min-height: 48px;
+    padding: 12px 22px;
+    font-size: 0.9rem;
+    border-radius: 14px;
+    gap: 6px;
+  }
+
+  .btn-sm {
+    min-height: 40px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+  }
+
+  .btn-lg {
+    min-height: 52px;
+    padding: 14px 28px;
+    font-size: 1rem;
+    border-radius: 14px;
+  }
+
+  /* Reduce heavy hover effects on mobile */
+  .btn:hover,
+  .btn-gold:hover,
+  .btn-outline:hover {
+    transform: none;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+}
+
+/* ============================================================
+   11. HOME PAGE — Hero, Stats, Deliverables, Features, Ticker
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* ---- Stats strip ---- */
+  .stats-strip .container {
+    padding-inline: var(--m-md);
+  }
+
+  .stat-card {
+    padding: var(--m-md);
+    gap: 8px;
+    text-align: center;
+    align-items: center;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+  }
+
+  /* ---- Deliverables grid ---- */
+  .deliverables-grid {
+    grid-template-columns: 1fr;
+    gap: var(--m-md);
+  }
+
+  .deliverable-card {
+    padding: var(--m-md);
+    gap: var(--m-sm);
+    border-radius: var(--radius-lg);
+  }
+
+  .deliverable-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    font-size: 1.4rem;
+  }
+
+  .deliverable-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .deliverable-card p {
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  /* ---- Authority grid ---- */
+  .authority-grid {
+    grid-template-columns: 1fr;
+    gap: var(--m-md);
+  }
+
+  .authority-strip {
+    padding: var(--m-md);
+    gap: var(--m-sm);
+    border-radius: var(--radius-lg);
+  }
+
+  .authority-strip-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .authority-strip h4 {
+    font-size: 1rem;
+  }
+
+  .authority-strip p {
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  /* ---- Features grid ---- */
+  .features-section .grid {
+    grid-template-columns: 1fr;
+    gap: var(--m-md);
+  }
+
+  .feature-box {
+    padding: var(--m-md);
+    gap: var(--m-sm);
+    border-radius: var(--radius-lg);
+  }
+
+  .feature-box:hover {
+    transform: none;
+  }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+  }
+
+  .feature-box h3 {
+    font-size: 1.1rem;
+  }
+
+  .feature-box p {
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  /* ---- Promise section ---- */
+  .promise-inner {
+    max-width: 100%;
+    padding-inline: 0;
+  }
+
+  /* ---- Conversion block ---- */
+  .conversion-inner {
+    max-width: 100%;
+    padding-inline: 0;
+  }
+
+  .conversion-block .btn-crimson {
+    width: 100%;
+    max-width: 320px;
+    min-height: 52px;
+    border-radius: 14px;
+    justify-content: center;
+  }
+
+  /* ---- Ticker ---- */
+  .tournaments-ticker {
+    padding: var(--m-xl) 0;
+  }
+
+  .tournament-ticker-logo-wrap {
+    width: 80px !important;
+    height: 80px !important;
+    padding: 4px !important;
+  }
+
+  .ticker-logo-img-inner {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  /* ---- Tournament summary cards ---- */
+  .recent-tournaments-section .grid {
+    grid-template-columns: 1fr;
+    gap: var(--m-md);
+  }
+
+  .tournament-summary-card {
+    border-radius: var(--radius-lg);
+  }
+
+  .tournament-summary-card:hover {
+    transform: none;
+  }
+
+  /* ---- Tournament summary button ---- */
+  .tournament-summary-card .btn {
+    width: 100%;
+    min-height: 44px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tournament-ticker-logo-wrap {
+    width: 68px !important;
+    height: 68px !important;
+  }
+
+  .ticker-logo-img-inner {
+    width: 58px !important;
+    height: 58px !important;
+  }
+
+  .deliverable-card {
+    padding: var(--m-sm) var(--m-md);
+  }
+
+  .authority-strip {
+    padding: var(--m-sm) var(--m-md);
+  }
+}
+
+/* ============================================================
+   12. SERVICES PAGE — Tabs + Content Grids
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* ---- Services page hero ---- */
+  .services-page > section:first-of-type {
+    padding: calc(var(--navbar-height) + var(--m-xl)) 0 var(--m-xl) !important;
+  }
+
+  /* The big pill tab container → horizontal scroll pills */
+  /* Target: the inline-styled tabs wrapper in Services.jsx */
+  .services-page > div > div:first-child {
+    /* Override the inline pill container */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;          /* Firefox */
+    -ms-overflow-style: none;       /* IE/Edge */
+    flex-wrap: nowrap !important;   /* single scroll row */
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    border-radius: var(--radius-lg) !important; /* smaller pill bubble */
+    padding: 6px !important;
+    gap: 4px !important;
+  }
+
+  .services-page > div > div:first-child::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Individual tab buttons */
+  .services-page > div > div:first-child button {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    padding: 10px 20px !important;
+    font-size: 0.85rem !important;
+    white-space: nowrap;
+    min-height: 44px;
+    border-radius: var(--radius-full) !important;
+  }
+
+  /* Services content grid → single column */
+  .services-content-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--m-md) !important;
+  }
+
+  .services-image-card {
+    height: 220px !important;
+    border-radius: var(--radius-lg) !important;
+  }
+
+  /* Section padding inside services */
+  .services-page .section-padding {
+    padding-top: var(--m-xl);
+    padding-bottom: var(--m-2xl);
+  }
+}
+
+@media (max-width: 480px) {
+  .services-image-card {
+    height: 200px !important;
+  }
+}
+
+/* ============================================================
+   13. SECTORS SHOWCASE GRID
+   ============================================================ */
+@media (max-width: 768px) {
+  .sectors-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--m-sm) !important;
+    margin-top: var(--m-md);
+  }
+
+  .sector-card {
+    padding: var(--m-sm) var(--m-md);
+    gap: var(--m-sm);
+    border-radius: var(--radius-md);
+  }
+
+  .sector-card:hover {
+    transform: none;
+  }
+
+  .sector-card-title {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .sectors-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--m-sm) !important;
+  }
+
+  .sector-card {
+    padding: var(--m-sm);
+    flex-direction: row;
+    align-items: center;
+    gap: var(--m-sm);
+  }
+}
+
+/* ============================================================
+   14. ABOUT PAGE
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Tabs */
+  .about-tabs-container {
+    gap: var(--m-xs);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding-bottom: 12px;
+    scrollbar-width: none;
+  }
+
+  .about-tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .about-tab-btn {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    font-size: 0.875rem;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+
+  /* Founder cards */
+  .founder-card-layout {
+    grid-template-columns: 1fr !important;
+    border-radius: var(--radius-lg);
+  }
+
+  .founder-card-photo-col {
+    border-right: none;
+    border-bottom: 1px solid var(--border-card);
+    padding: var(--m-md) var(--m-md);
+  }
+
+  .founder-photo-container {
+    width: 120px;
+    height: 150px;
+  }
+
+  .founder-card-bio-col {
+    padding: var(--m-md);
+  }
+
+  .founder-card-bio-col h3,
+  .founder-card-bio-col .display-sm {
+    font-size: 1.15rem !important;
+  }
+
+  .founder-card-bio-col p,
+  .founder-card-bio-col .text-secondary {
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+
+  .founders-cards-stack {
+    gap: var(--m-md);
+  }
+
+  /* Logo badge grid */
+  .logo-badge-card {
+    padding: var(--m-sm);
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ============================================================
+   15. SERVICES DETAIL — Deliverable card sub-components
+   ============================================================ */
+@media (max-width: 768px) {
+  /* CorporateSportsView / CommunitySportsView cards */
+  .deliverable-card {
+    padding: var(--m-md);
+    gap: var(--m-sm);
+  }
+
+  .deliverable-card .stat-icon {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .deliverable-card h4 {
+    font-size: 0.95rem;
+  }
+
+  .deliverable-card p,
+  .deliverable-card span.text-secondary {
+    font-size: 0.83rem;
+    line-height: 1.6;
+  }
+
+  /* Section divider lines */
+  .deliverable-card [style*="borderTop"] {
+    padding-top: var(--m-lg) !important;
+  }
+
+  /* Sub-section grids inside corporate/community views */
+  .deliverable-card + .deliverable-card {
+    margin-top: 0;
+  }
+
+  /* Quote card in CommunitySportsView */
+  .deliverable-card[style*="alignItems: center"] {
+    padding: var(--m-md) !important;
+  }
+}
+
+/* ============================================================
+   16. FORMS — contact, auth, register
+   ============================================================ */
+@media (max-width: 768px) {
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 12px 14px;
+    font-size: 1rem; /* prevent iOS zoom */
+    border-radius: var(--radius-md);
+  }
+
+  .form-group {
+    gap: 6px;
+  }
+
+  .form-label {
+    font-size: 0.875rem;
+  }
+
+  /* Auth containers */
+  .auth-card,
+  .register-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--radius-lg) !important;
+    padding: var(--m-md) !important;
+  }
+
+  .auth-container {
+    padding: var(--m-md) !important;
+  }
+
+  .register-form-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--m-sm) !important;
+  }
+
+  .form-column {
+    width: 100% !important;
+  }
+
+  /* Submit buttons full-width */
+  .auth-card .btn,
+  .register-card .btn {
+    width: 100%;
+    min-height: 52px;
+    border-radius: 14px;
+    font-size: 1rem;
+  }
+}
+
+/* ============================================================
+   17. MODAL
+   ============================================================ */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: var(--m-sm) var(--m-md) var(--m-lg);
+    align-items: flex-end; /* bottom sheet feel */
+  }
+
+  .modal-content {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: var(--m-md);
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+  }
+}
+
+@media (min-width: 540px) and (max-width: 768px) {
+  .modal-overlay {
+    align-items: center; /* center on larger phones / portrait tablet */
+  }
+
+  .modal-content {
+    border-radius: var(--radius-xl);
+    max-width: 480px;
+  }
+}
+
+/* ============================================================
+   18. TABLES — scrollable container, prevent horizontal bleed
+   ============================================================ */
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-card);
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+}
+
+/* ============================================================
+   19. TABS (global .tabs component) → horizontal scroll
+   ============================================================ */
+@media (max-width: 768px) {
+  .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scroll-snap-type: x mandatory;
+    border-radius: var(--radius-lg);
+    gap: 2px;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    padding: 9px 18px;
+    font-size: 0.85rem;
+    min-height: 44px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+}
+
+/* ============================================================
+   20. BADGES & SECTION LABELS
+   ============================================================ */
+@media (max-width: 768px) {
+  .badge {
+    font-size: 0.7rem;
+    padding: 3px 10px;
+  }
+
+  .section-label {
+    font-size: 0.68rem;
+    padding: 5px 12px;
+    letter-spacing: 0.07em;
+  }
+}
+
+/* ============================================================
+   21. GALLERY / IMAGE GRIDS — force cover, 16:9 ratio
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Any card image wrapper: force 16:9 */
+  .card-image-wrap,
+  .gallery-img-wrap,
+  .tour-card-img {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+
+  .card-image-wrap img,
+  .gallery-img-wrap img,
+  .tour-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+}
+
+/* ============================================================
+   22. SCROLLBAR — hide on mobile for cleaner look
+   ============================================================ */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+/* ============================================================
+   23. FOCUS STATES — visible on keyboard/assistive navigation
+   ============================================================ */
+@media (max-width: 768px) {
+  :focus-visible {
+    outline: 2px solid var(--gold-light);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  button:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--gold-light);
+    outline-offset: 2px;
+  }
+}
+
+/* ============================================================
+   24. ANIMATIONS — subtle, 250–350ms, ease-out only
+   ============================================================ */
+@media (max-width: 768px) {
+  /* Prevent heavy 3D/translate animations from causing jank */
+  .card,
+  .card-gold,
+  .feature-box,
+  .deliverable-card,
+  .authority-strip,
+  .tournament-summary-card,
+  .sector-card {
+    transition-duration: 0.25s !important;
+  }
+
+  /* No translateY hover on cards; keep scale only */
+  .card:hover,
+  .card-gold:hover,
+  .feature-box:hover,
+  .deliverable-card:hover,
+  .authority-strip:hover,
+  .tournament-summary-card:hover,
+  .sector-card:hover {
+    transform: scale(1.01) !important;
+    box-shadow: var(--shadow-md) !important;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ============================================================
+   25. NAVBAR — dropdown menus on mobile (prevent overflow)
+   ============================================================ */
+@media (max-width: 768px) {
+  .tournaments-nav-dropdown,
+  .services-nav-dropdown,
+  .user-dropdown {
+    position: fixed;
+    left: var(--m-md) !important;
+    right: var(--m-md) !important;
+    width: auto !important;
+    transform: none !important;
+    top: auto;
+    max-height: 70vh;
+    overflow-y: auto;
+    border-radius: var(--radius-lg);
+    z-index: 999;
+  }
+}
+
+/* ============================================================
+   26. SPECIFIC 320px SAFETY — smallest supported screen
+   ============================================================ */
+@media (max-width: 320px) {
+  .container {
+    padding-inline: 12px;
+  }
+
+  .hero-section .hero-title {
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-section .hero-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .btn,
+  .btn-lg {
+    padding: 12px 18px;
+    font-size: 0.85rem;
+  }
+
+  .hero-label-badge {
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+  }
+
+  .section-title {
+    font-size: 1.4rem !important;
+  }
+}
+
+/* ============================================================
+   27. LANDSCAPE MOBILE — account for shorter viewport height
+   ============================================================ */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-section {
+    min-height: auto;
+    padding: 0;
+  }
+
+  .hero-container.centered {
+    padding-top: calc(var(--navbar-height) + 20px);
+    padding-bottom: 32px;
+  }
+
+  .hero-section .hero-title {
+    font-size: clamp(1.4rem, 5vw, 2rem);
+  }
+
+  .hero-section .hero-subtitle {
+    font-size: 0.875rem;
+    margin-bottom: var(--m-sm);
+  }
+
+  .hero-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-actions .btn-crimson,
+  .hero-actions .btn-ghost,
+  .hero-actions a {
+    width: auto;
+    min-width: 200px;
+  }
+}
+
+/* ============================================================
+   28. GHOST/OUTLINE BTN — theme-aware on plain background
+   ============================================================ */
+@media (max-width: 768px) {
+  /* On plain bg (home with no image), ghost btn needs contrast */
+  [data-theme="light"] .btn-ghost {
+    color: var(--text-primary) !important;
+    border-color: var(--border) !important;
+    background: rgba(0,0,0,0.04) !important;
+  }
+
+  [data-theme="light"] .btn-ghost:hover {
+    border-color: var(--gold) !important;
+    color: var(--gold) !important;
+    background: rgba(128,0,0,0.05) !important;
+  }
+}
+
+/* ============================================================
+   29. FOOTER — compact mobile layout
+   ============================================================ */
+@media (max-width: 768px) {
+  .footer-grid,
+  .footer-inner {
+    grid-template-columns: 1fr !important;
+    gap: var(--m-lg);
+  }
+
+  .footer-section {
+    padding: 0;
+  }
+
+  .footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--m-sm);
+  }
+}
+
+/* ============================================================
+   30. SERVICES PAGE — inline-styled content improvements
+   (CorporateSportsView / CommunitySportsView sub-grids)
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* The 2-column sub-grid inside service tabs */
+  [style*="grid-template-columns: repeat(2, 1fr)"],
+  [style*="grid-template-columns: repeat(3, 1fr)"],
+  [style*="grid-template-columns: repeat(4, 1fr)"],
+  [style*="grid-template-columns: repeat(auto-fit"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Allow 2-col only for very simple icon+label grids */
+  [style*="minmax(220px"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  [style*="minmax(280px"],
+  [style*="minmax(300px"],
+  [style*="minmax(320px"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Large padding resets on inline-styled cards */
+  [style*="padding: '52px"],
+  [style*="padding: '48px"] {
+    padding: var(--m-md) !important;
+  }
+
+  [style*="padding: '40px"] {
+    padding: var(--m-md) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Even the 2-col minmax(220px) collapses to 1 col */
+  [style*="minmax(220px"] {
+    grid-template-columns: 1fr !important;
+  }
+}
