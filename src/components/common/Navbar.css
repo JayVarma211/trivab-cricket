@@ -256,7 +256,12 @@
   display: none;
   background: var(--bg-card);
   border: 1px solid var(--border-card);
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
+}
+
+.hamburger svg {
+  stroke: var(--text-primary) !important;
+  color: var(--text-primary) !important;
 }
 
 /* ---- Mobile menu ---- */

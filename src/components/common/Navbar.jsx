@@ -294,10 +294,6 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* QR Scanner Shortcut */}
-            <Link to="/scanner" className="btn-icon scanner-btn" title="Scan QR Code" aria-label="QR Scanner">
-              <QrCode size={20} />
-            </Link>
 
             {/* Theme Toggle */}
             <button className="theme-toggle btn-icon" onClick={toggleTheme} aria-label="Toggle theme">

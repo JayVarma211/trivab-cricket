@@ -125,7 +125,7 @@
 
   /* Logo — proportional to navbar */
   .logo-image {
-    height: calc(var(--navbar-height) - 16px);
+    height: calc(var(--navbar-height) - 4px);
     width: auto;
     object-fit: contain;
   }
