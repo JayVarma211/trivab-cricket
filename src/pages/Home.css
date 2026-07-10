@@ -23,14 +23,17 @@
   justify-content: center;
   padding: 0;
   overflow: hidden;
-  background: #060303;
+  background: var(--bg-primary);
 }
 
-/* Full-bleed background image with modern CSS mask */
-.hero-bg-image {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+/* Hide full-bleed background elements as per user request */
+.hero-bg-image,
+.hero-overlay,
+.hero-vignette,
+.hero-light-leak,
+.hero-light-leak-2,
+.hero-particles {
+  display: none !important;
 }
 
 .hero-bg-image img {
@@ -221,12 +224,15 @@
 .hero-section .hero-title {
   margin-bottom: var(--space-xl);
   font-size: clamp(2.8rem, 6.5vw, 5.2rem);
-  color: #FFFFFF;
+  color: var(--text-primary);
   line-height: 1.05;
   font-weight: 900;
   letter-spacing: -0.035em;
   font-family: var(--font-display);
   font-style: normal;
+}
+
+[data-theme="dark"] .hero-section .hero-title {
   text-shadow: 0 4px 40px rgba(0, 0, 0, 0.8), 0 0 100px rgba(157, 28, 28, 0.15);
 }
 
@@ -243,17 +249,20 @@
   line-height: 1.85;
   margin-bottom: var(--space-3xl);
   max-width: 800px;
-  color: #FDF9F9;
+  color: var(--text-secondary);
   font-weight: 500;
   letter-spacing: 0.015em;
   font-family: var(--font-body);
   font-style: normal;
+  z-index: 10;
+  position: relative;
+}
+
+[data-theme="dark"] .hero-section .hero-subtitle {
   text-shadow: 
     0 2px 15px rgba(0, 0, 0, 0.95), 
     0 1px 4px rgba(0, 0, 0, 0.95),
     0 0 30px rgba(0, 0, 0, 0.6);
-  z-index: 10;
-  position: relative;
 }
 
 /* Hero CTA buttons with sci-fi design elements */
