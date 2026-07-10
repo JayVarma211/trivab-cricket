@@ -12,7 +12,7 @@
 /* ============================================================
    §0  DESIGN TOKENS — Mobile overrides
    ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   :root {
     /* 8-point spacing scale */
     --space-xs:  4px;
@@ -80,7 +80,7 @@
 /* ============================================================
    §2  CONTAINERS — consistent safe-area padding
    ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .container,
   .container-sm {
     width: 100%;
@@ -106,7 +106,7 @@
 /* ============================================================
    §3  NAVBAR — compact, glassmorphism, 44px touch targets
    ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .navbar {
     height: var(--navbar-height);
   }
@@ -246,7 +246,7 @@
 /* ============================================================
    §4  PAGE WRAPPER
    ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .page-wrapper {
     padding-top: var(--navbar-height);
   }
@@ -824,7 +824,8 @@
 @media (max-width: 768px) {
 
   /* Hero banner */
-  .services-page > section:first-of-type {
+  .services-page > section:first-of-type,
+  .gallery-page > section:first-of-type {
     padding: calc(var(--navbar-height) + 32px) 0 32px !important;
   }
 
@@ -1297,7 +1298,7 @@
 /* ============================================================
    §29  DROPDOWNS on mobile
    ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 960px) {
   .tournaments-nav-dropdown,
   .services-nav-dropdown,
   .user-dropdown {
@@ -1381,16 +1382,17 @@
     transform: scale(0.98) !important;
   }
 
-  /* Reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

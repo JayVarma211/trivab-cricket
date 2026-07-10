@@ -26,14 +26,11 @@
   background: var(--bg-primary);
 }
 
-/* Hide full-bleed background elements as per user request */
-.hero-bg-image,
-.hero-overlay,
-.hero-vignette,
-.hero-light-leak,
-.hero-light-leak-2,
-.hero-particles {
-  display: none !important;
+/* Full-bleed background image with modern CSS mask */
+.hero-bg-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .hero-bg-image img {
