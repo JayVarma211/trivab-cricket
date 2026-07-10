@@ -93,27 +93,27 @@
    2. LIGHT THEME OVERRIDES
    ============================================================ */
 [data-theme="light"] {
-  --bg-primary: #FDFBFB;
-  --bg-secondary: #F6EEEE;
+  --bg-primary: #F7F2F2;
+  --bg-secondary: #EFE6E6;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #FAF4F4;
-  --bg-glass: rgba(255, 255, 255, 0.85);
-  --bg-overlay: rgba(0, 0, 0, 0.4);
+  --bg-card-hover: #F9F5F5;
+  --bg-glass: rgba(247, 242, 242, 0.85);
+  --bg-overlay: rgba(76, 0, 0, 0.4);
 
-  --text-primary: #1A0707;
-  --text-secondary: #6B4D4D;
-  --text-muted: #A38585;
+  --text-primary: #4A0000;
+  --text-secondary: #7A4E4E;
+  --text-muted: #AA8282;
 
-  --border: rgba(128, 0, 0, 0.25);
-  --border-card: rgba(0, 0, 0, 0.08);
+  --border: rgba(76, 0, 0, 0.2);
+  --border-card: rgba(76, 0, 0, 0.08);
 
-  --navy: #F6EEEE;
-  --navy-mid: #EEDDDD;
-  --navy-light: #E5CCCC;
+  --navy: #EFE6E6;
+  --navy-mid: #E0D3D3;
+  --navy-light: #D1C0C0;
 
-  --gradient-hero: linear-gradient(135deg, #FDFBFB 0%, #F6EEEE 50%, #FDFBFB 100%);
-  --gradient-navy: linear-gradient(135deg, #F6EEEE 0%, #EEDDDD 100%);
-  --gradient-card: linear-gradient(145deg, #FFFFFF, #FDFBFB);
+  --gradient-hero: linear-gradient(135deg, #F7F2F2 0%, #EFE6E6 50%, #F7F2F2 100%);
+  --gradient-navy: linear-gradient(135deg, #EFE6E6 0%, #E0D3D3 100%);
+  --gradient-card: linear-gradient(145deg, #FFFFFF, #F7F2F2);
 
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
   --shadow-md: 0 4px 16px rgba(128, 0, 0, 0.06);

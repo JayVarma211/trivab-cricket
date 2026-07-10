@@ -26,11 +26,14 @@
   background: var(--bg-primary);
 }
 
-/* Full-bleed background image with modern CSS mask */
-.hero-bg-image {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+/* Hide background elements for a clean flat background style */
+.hero-bg-image,
+.hero-overlay,
+.hero-vignette,
+.hero-light-leak,
+.hero-light-leak-2,
+.hero-particles {
+  display: none !important;
 }
 
 .hero-bg-image img {
@@ -235,11 +238,11 @@
 }
 
 .hero-title .text-gradient-crimson {
-  background: linear-gradient(135deg, #FF6B6B 0%, #E04040 40%, #C42020 100%);
+  background: linear-gradient(135deg, #B91C1C 0%, #800000 50%, #4A0000 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 2px 10px rgba(196, 64, 64, 0.4));
+  filter: drop-shadow(0 2px 8px rgba(128, 0, 0, 0.15));
 }
 
 .hero-section .hero-subtitle {
