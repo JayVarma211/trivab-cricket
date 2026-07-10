@@ -311,11 +311,11 @@ function CorporateSportsView({ images, title, icon }) {
       {/* 2. Complete Tournament Management */}
       <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <span className="section-label">Turnkey Execution</span>
-          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '8px', fontSize: '1.8rem' }}>Complete Event Management</h3>
-          <p className="text-secondary" style={{ maxWidth: '600px', margin: '8px auto 0', fontSize: '0.95rem' }}>
+          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '0', marginBottom: '8px', fontSize: '1.8rem' }}>Complete Event Management</h3>
+          <p className="text-secondary" style={{ maxWidth: '600px', margin: '0 auto 12px', fontSize: '0.95rem' }}>
             We provide a fully managed, turnkey solution handling every operational detail from planning through execution.
           </p>
+          <span className="section-label">Turnkey Execution</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
           {/* Pre-Event Planning */}
@@ -577,13 +577,13 @@ function CorporateSportsView({ images, title, icon }) {
             </ul>
           </div>
 
-          {/* Optional Premium Experiences */}
-          <div className="deliverable-card" style={{ padding: '30px', borderLeft: '3px solid #FF5A5A' }}>
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#FF5A5A', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Plus size={18} /> Optional Premium Experiences
+          {/* Add-ons & Premium Experiences */}
+          <div className="deliverable-card" style={{ padding: '30px', borderLeft: '3px solid var(--gold-light)' }}>
+            <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--gold-light)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Sparkles size={18} /> Premium Add-ons
             </h4>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
-              Take your event to the next level with exclusive premium enhancements:
+              Elevate your event with exclusive enhancements that create unforgettable experiences for every attendee.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {[
@@ -593,7 +593,7 @@ function CorporateSportsView({ images, title, icon }) {
                 "Networking sessions", "CSR engagement", "Wellness workshops", "Fitness sessions",
                 "Sponsor exhibition booths", "Multi-location events", "Annual engagement programs"
               ].map((addon, i) => (
-                <span key={i} style={{ fontSize: '0.78rem', background: 'rgba(196,64,64,0.05)', border: '1px solid rgba(196,64,64,0.1)', padding: '4px 8px', borderRadius: '4px', color: '#FF5A5A' }}>
+                <span key={i} style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', padding: '4px 8px', borderRadius: '4px', color: 'var(--text-secondary)' }}>
                   {addon}
                 </span>
               ))}
