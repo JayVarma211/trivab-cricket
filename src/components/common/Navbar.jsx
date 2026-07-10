@@ -287,12 +287,7 @@ export default function Navbar() {
 
           {/* Right Actions */}
           <div className="navbar-actions">
-            {/* Mobile Register Button (visible < 960px) */}
-            {!user && (
-              <Link to="/register" className="btn btn-crimson btn-sm mobile-register-btn">
-                Register
-              </Link>
-            )}
+
 
 
             {/* Theme Toggle */}
@@ -355,11 +350,15 @@ export default function Navbar() {
 
             {/* Mobile hamburger */}
             <button
-              className="btn btn-icon hamburger"
+              className="theme-toggle btn-icon hamburger"
               onClick={() => setMenuOpen((p) => !p)}
               aria-label="Toggle menu"
             >
-              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+              {menuOpen ? (
+                <X size={22} style={{ stroke: 'var(--text-primary)', color: 'var(--text-primary)' }} />
+              ) : (
+                <Menu size={22} style={{ stroke: 'var(--text-primary)', color: 'var(--text-primary)' }} />
+              )}
             </button>
           </div>
         </div>
@@ -489,6 +488,7 @@ export default function Navbar() {
             ) : (
               <>
                 <Link to="/login" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setMenuOpen(false)}>Login</Link>
+                <Link to="/register" className="btn btn-crimson" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} onClick={() => setMenuOpen(false)}>Register</Link>
               </>
             )}
           </div>
