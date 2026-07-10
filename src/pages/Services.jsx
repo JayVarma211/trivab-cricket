@@ -22,6 +22,7 @@ export default function Services() {
 
   const servicesData = {
     corporate: {
+      tabLabel: 'Corporate Events',
       title: 'Corporate Sports Events',
       subtitle: 'Premium team building through executive cricket championships.',
       icon: <Building2 size={48} className="text-gold" />,
@@ -45,6 +46,7 @@ export default function Services() {
       ]
     },
     community: {
+      tabLabel: 'Community Events',
       title: 'Community Sports & Lifestyle Events',
       subtitle: 'Premium Offering',
       icon: <Users size={48} className="text-gold" />,
@@ -64,6 +66,7 @@ export default function Services() {
       images: ['/images/Community.jpg', '/images/Community1.jpg']
     },
     international: {
+      tabLabel: 'International Tour',
       title: 'International Cricket Tour',
       subtitle: 'Experience cricket on global stages with world-class facilities.',
       icon: <Globe size={48} className="text-gold" />,
@@ -81,6 +84,7 @@ export default function Services() {
       images: ['/logos/INTERNATIONALTOUR.jpeg']
     },
     domestic: {
+      tabLabel: 'Domestic Tour',
       title: 'Domestic Cricket Tour',
       subtitle: 'State-of-the-art turf tournaments across the major cities of India.',
       icon: <Trophy size={48} className="text-gold" />,
@@ -169,7 +173,7 @@ export default function Services() {
                 boxShadow: activeTab === key ? '0 4px 12px var(--gold-glow)' : 'none',
               }}
             >
-              {servicesData[key].title.split(' ')[0]} {key === 'domestic' || key === 'international' ? 'Tour' : 'Events'}
+              {servicesData[key].tabLabel}
             </button>
           ))}
         </div>
