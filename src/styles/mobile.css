@@ -851,11 +851,12 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
     max-width: 100% !important;
     margin-inline: 0 !important;
     border-radius: 14px !important;
-    padding: 4px !important;
-    gap: 4px !important;
+    padding: 6px 12px !important;
+    gap: 8px !important;
   }
 
   .services-page .container > div:first-child[style]::-webkit-scrollbar {
