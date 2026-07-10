@@ -312,7 +312,57 @@ function CorporateSportsView({ images, title, icon }) {
         </div>
       </div>
 
-      {/* 2. Complete Tournament Management */}
+      {/* 2. Types of Events We Organize */}
+      <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <span className="section-label">Our Capabilities</span>
+          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '8px', fontSize: '1.8rem' }}>Types of Events We Organize</h3>
+          <p className="text-secondary" style={{ maxWidth: '600px', margin: '8px auto 0', fontSize: '0.95rem' }}>
+            Our expertise extends across a wide range of corporate events designed to engage, motivate, and inspire employees.
+          </p>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '28px' }}>
+          {/* Sports Events */}
+          <div className="deliverable-card" style={{ padding: '36px 30px' }}>
+            <h4 style={{ margin: '0 0 16px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--gold-light)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Trophy size={20} /> Sports Events
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
+              {[
+                "Cricket", "Football", "Badminton", "Pickleball", "Indoor Games", "Multi-Sport Championships"
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: 'var(--gold-light)' }}>✦</span>
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Corporate Events */}
+          <div className="deliverable-card" style={{ padding: '36px 30px' }}>
+            <h4 style={{ margin: '0 0 16px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--gold-light)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Building2 size={20} /> Corporate Events
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
+              {[
+                "Annual Sports Days", "Employee Engagement Programs", "Team Building Activities",
+                "Family Day Events", "Corporate Picnics", "Wellness & Fitness Challenges",
+                "Annual Celebrations", "Awards & Recognition Ceremonies", "Leadership Retreats",
+                "CSR Events", "Product Launches", "Conferences & Gatherings",
+                "Cultural Festivals", "Dealer & Partner Meets"
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ color: 'var(--gold-light)' }}>✦</span>
+                  <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Complete Event Management */}
       <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h3 className="display-sm text-gradient-gold" style={{ marginTop: '0', marginBottom: '8px', fontSize: '1.8rem' }}>Complete Event Management</h3>
@@ -407,56 +457,6 @@ function CorporateSportsView({ images, title, icon }) {
                 <li key={i} style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{li}</li>
               ))}
             </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Types of Events We Organize */}
-      <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <span className="section-label">Our Capabilities</span>
-          <h3 className="display-sm text-gradient-gold" style={{ marginTop: '8px', fontSize: '1.8rem' }}>Types of Events We Organize</h3>
-          <p className="text-secondary" style={{ maxWidth: '600px', margin: '8px auto 0', fontSize: '0.95rem' }}>
-            Our expertise extends across a wide range of corporate events designed to engage, motivate, and inspire employees.
-          </p>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '28px' }}>
-          {/* Sports Events */}
-          <div className="deliverable-card" style={{ padding: '36px 30px' }}>
-            <h4 style={{ margin: '0 0 16px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--gold-light)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Trophy size={20} /> Sports Events
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
-              {[
-                "Cricket", "Football", "Badminton", "Pickleball", "Indoor Games", "Multi-Sport Championships"
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: 'var(--gold-light)' }}>✦</span>
-                  <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Corporate Events */}
-          <div className="deliverable-card" style={{ padding: '36px 30px' }}>
-            <h4 style={{ margin: '0 0 16px 0', fontSize: '1.25rem', fontWeight: 800, color: 'var(--gold-light)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Building2 size={20} /> Corporate Events
-            </h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
-              {[
-                "Annual Sports Days", "Employee Engagement Programs", "Team Building Activities",
-                "Family Day Events", "Corporate Picnics", "Wellness & Fitness Challenges",
-                "Annual Celebrations", "Awards & Recognition Ceremonies", "Leadership Retreats",
-                "CSR Events", "Product Launches", "Conferences & Gatherings",
-                "Cultural Festivals", "Dealer & Partner Meets"
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ color: 'var(--gold-light)' }}>✦</span>
-                  <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>{item}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
