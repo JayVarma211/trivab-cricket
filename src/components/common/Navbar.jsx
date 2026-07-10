@@ -281,8 +281,6 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            <NavLink to="/schedule" className="nav-link">Matches</NavLink>
-            <NavLink to="/gallery" className="nav-link">Gallery</NavLink>
             <NavLink to="/news" className="nav-link">News &amp; Events</NavLink>
             <NavLink to="/contact" className="nav-link">Contact Us</NavLink>
           </nav>
