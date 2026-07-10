@@ -7,8 +7,9 @@ import {
   Trophy, Users, Calendar, Star, Award, Newspaper,
   Sun, Moon, Menu, X, ChevronDown, ChevronRight, LogOut, User,
   LayoutDashboard, Shield, Zap, Globe, Briefcase, Heart, Building2,
-  Image, Mail
+  Image, Mail, QrCode
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
 
 const TOURNAMENTS_MENU = [
