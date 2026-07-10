@@ -154,7 +154,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`navbar ${scrolled ? 'navbar-scrolled' : ''} ${!visible ? 'navbar-hidden' : ''}`}>
+    <header className={`navbar ${scrolled || menuOpen ? 'navbar-scrolled navbar-menu-open' : ''} ${!visible && !menuOpen ? 'navbar-hidden' : ''}`}>
       <div className="navbar-inner container">
         {/* Logo */}
         <Link to="/" className="navbar-logo">

@@ -111,6 +111,13 @@
     height: var(--navbar-height);
   }
 
+  .navbar-menu-open {
+    background: var(--bg-card) !important;
+    border-bottom: 1px solid var(--border-card) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   .navbar-inner {
     gap: 8px;
     padding-inline: 16px;
@@ -664,6 +671,11 @@
   .deliverable-card::after {
     width: 10px;
     height: 10px;
+  }
+
+  /* Collapse inline-styled 2-column lists inside cards to 1 column on mobile to prevent text squishing */
+  .deliverable-card div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
   }
 }
 
