@@ -971,13 +971,27 @@
 @media (max-width: 480px) {
   .sectors-grid {
     grid-template-columns: 1fr !important;
+    gap: 10px !important;
   }
 
   .sector-card {
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 16px !important;
+    padding: 12px 16px !important;
+  }
+
+  .sector-card-header {
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .sector-card-title {
+    font-size: 0.92rem !important;
+    margin: 0 !important;
   }
 }
 
