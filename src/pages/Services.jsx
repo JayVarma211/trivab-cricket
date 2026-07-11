@@ -539,67 +539,71 @@ function CorporateSportsView({ images, title, icon }) {
       <div style={{ borderTop: '1px solid var(--border-card)', paddingTop: '48px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
           {/* Awards & Recognition */}
-          <div className="deliverable-card" style={{ padding: '30px', borderLeft: '3px solid var(--gold-light)' }}>
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--gold-light)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Trophy size={18} /> Awards &amp; Recognition
-            </h4>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
+          <div className="deliverable-card" style={{ padding: '30px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Trophy size={18} /></div>
+              <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Awards &amp; Recognition</h4>
+            </div>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
               Celebrate excellence with professionally managed award ceremonies recognizing performance, participation, teamwork, and leadership:
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
                 "Championship Trophy", "Runner-up Trophy", "Team Excellence Awards",
                 "Best Performer", "Employee Champion Award", "Department Excellence Award"
-              ].map((award, i) => (
-                <span key={i} style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', padding: '4px 8px', borderRadius: '4px', color: 'var(--text-secondary)' }}>
-                  {award}
-                </span>
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: 'var(--gold-light)', fontSize: '0.9rem' }}>✦</span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{item}</span>
+                </div>
               ))}
             </div>
           </div>
 
           {/* Safety & Compliance */}
-          <div className="deliverable-card" style={{ padding: '30px', borderLeft: '3px solid #C44040' }}>
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#C44040', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Shield size={18} /> Safety &amp; Compliance
-            </h4>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
-              The safety and well-being of every participant remains our highest priority.
+          <div className="deliverable-card" style={{ padding: '30px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Shield size={18} /></div>
+              <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Safety &amp; Compliance</h4>
+            </div>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
+              The safety and well-being of every participant remains our highest priority, with standard protocols:
             </p>
-            <ul style={{ paddingLeft: '16px', margin: 0, display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
-                "First-aid support",
-                "Ambulance support (optional)",
-                "Certified venues",
-                "Fire and safety compliance",
-                "Hydration stations",
-                "Weather contingency planning",
+                "First-aid support", "Ambulance support (optional)", "Certified venues",
+                "Fire and safety compliance", "Hydration stations", "Weather contingency planning",
                 "Risk management protocols"
-              ].map((safe, i) => (
-                <li key={i}>{safe}</li>
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: 'var(--gold-light)', fontSize: '0.9rem' }}>✦</span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{item}</span>
+                </div>
               ))}
-            </ul>
+            </div>
           </div>
 
           {/* Add-ons & Premium Experiences */}
-          <div className="deliverable-card" style={{ padding: '30px', borderLeft: '3px solid var(--gold-light)' }}>
-            <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--gold-light)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={18} /> Premium Add-ons
-            </h4>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '14px' }}>
-              Elevate your event with exclusive enhancements that create unforgettable experiences for every attendee.
+          <div className="deliverable-card" style={{ padding: '30px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div className="stat-icon" style={{ width: '40px', height: '40px' }}><Sparkles size={18} /></div>
+              <h4 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Premium Add-ons</h4>
+            </div>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '16px', lineHeight: 1.5 }}>
+              Elevate your event with exclusive enhancements that create unforgettable experiences for every attendee:
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
               {[
                 "Professional hosts & emcees", "Live commentary", "Opening & closing ceremonies",
                 "LED scoreboards", "Giant LED display screens", "Engagement zones",
                 "Virtual & hybrid support", "Cultural performances", "Live music and DJs",
                 "Networking sessions", "CSR engagement", "Wellness workshops", "Fitness sessions",
                 "Sponsor exhibition booths", "Multi-location events", "Annual engagement programs"
-              ].map((addon, i) => (
-                <span key={i} style={{ fontSize: '0.78rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', padding: '4px 8px', borderRadius: '4px', color: 'var(--text-secondary)' }}>
-                  {addon}
-                </span>
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ color: 'var(--gold-light)', fontSize: '0.9rem' }}>✦</span>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{item}</span>
+                </div>
               ))}
             </div>
           </div>
