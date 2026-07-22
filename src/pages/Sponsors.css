@@ -1,244 +1,171 @@
-/* ============================================================
-   BAPL SPONSORS PAGE — FULL DESIGN SYSTEM
-   ============================================================ */
+/* ================================================================
+   SPONSORS PAGE — Horizontal big-image card layout
+   ================================================================ */
 
-/* ─── Page wrapper ─── */
-.bapl-sponsors-page {
+/* ── Page wrapper ── */
+.sp-page {
   min-height: 100vh;
   background: var(--bg-primary);
   padding-bottom: var(--space-4xl);
 }
 
-/* ─── Hero ─── */
-.bapl-sponsors-hero {
+/* ── Hero ── */
+.sp-hero {
   position: relative;
-  padding: 80px 0 60px;
-  overflow: hidden;
+  padding: 80px 0 56px;
   text-align: center;
+  overflow: hidden;
 }
 
-.bapl-sponsors-hero-bg {
+.sp-hero-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(128,0,0,0.28) 0%, transparent 70%),
-              radial-gradient(ellipse 50% 40% at 80% 100%, rgba(128,0,0,0.12) 0%, transparent 60%);
-  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 0%, rgba(128,0,0,0.3) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 85% 90%, rgba(128,0,0,0.1) 0%, transparent 60%);
   pointer-events: none;
+  z-index: 0;
 }
 
-.bapl-sponsors-hero-content {
+.sp-hero-inner {
   position: relative;
   z-index: 1;
 }
 
-.bapl-sponsors-hero-label {
+.sp-hero-label {
   display: inline-block;
-  background: linear-gradient(135deg, rgba(128,0,0,0.15), rgba(157,28,28,0.1));
+  background: linear-gradient(135deg, rgba(128,0,0,0.18), rgba(157,28,28,0.1));
   border: 1px solid rgba(128,0,0,0.3);
   color: #9D1C1C;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  padding: 6px 18px;
+  padding: 6px 20px;
   border-radius: var(--radius-full);
   margin-bottom: var(--space-lg);
 }
 
-.bapl-sponsors-hero-title {
+.sp-hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 5.5vw, 3.8rem);
   font-weight: 900;
-  line-height: 1.15;
   color: var(--text-primary);
+  line-height: 1.12;
   margin-bottom: var(--space-md);
   letter-spacing: -0.02em;
 }
 
-.bapl-sponsors-hero-sub {
-  max-width: 640px;
-  margin: 0 auto var(--space-2xl);
+.sp-hero-sub {
+  max-width: 600px;
+  margin: 0 auto;
   color: var(--text-secondary);
   font-size: clamp(0.9rem, 1.8vw, 1.05rem);
-  line-height: 1.7;
+  line-height: 1.72;
 }
 
-/* ─── Logo strip ─── */
-.bapl-logo-strip {
+/* ── Sponsors list ── */
+.sp-list {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: var(--space-xl);
-}
-
-.bapl-logo-strip-item {
-  width: 64px;
-  height: 48px;
-  background: #fff;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(128,0,0,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.bapl-logo-strip-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(128,0,0,0.2);
-}
-
-.bapl-logo-strip-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* ─── Tier Sections ─── */
-.bapl-tier-section {
-  margin-bottom: var(--space-3xl);
-}
-
-.bapl-tier-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-xl);
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--border);
-}
-
-.bapl-tier-header-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(128,0,0,0.3);
-}
-
-.bapl-tier-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 3vw, 1.9rem);
-  font-weight: 800;
-  margin: 0 0 2px;
-}
-
-.bapl-tier-sub {
-  color: var(--text-muted);
-  font-size: 0.88rem;
-  margin: 0;
-}
-
-/* ─── Grids ─── */
-.bapl-title-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  flex-direction: column;
   gap: var(--space-xl);
+  padding-top: var(--space-2xl);
 }
 
-.bapl-associate-grid {
+/* ── Sponsor Card ── */
+.sp-card {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-lg);
-}
-
-.bapl-partners-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-lg);
-}
-
-/* ─── Sponsor Card ─── */
-.bapl-sponsor-card {
-  background: var(--bg-card);
+  grid-template-columns: 380px 1fr;
+  min-height: 240px;
   border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid rgba(128,0,0,0.18);
+  box-shadow: 0 4px 28px rgba(0,0,0,0.45);
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.55s ease var(--delay, 0s),
+    transform 0.55s ease var(--delay, 0s),
+    box-shadow 0.3s ease;
+}
+
+.sp-card-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.sp-card:hover {
+  box-shadow: 0 10px 48px rgba(128,0,0,0.25);
+  transform: translateY(-3px) !important;
+}
+
+/* ── Logo Panel ── */
+.sp-card-logo-panel {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-xl);
   position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.5s ease var(--card-delay, 0s),
-              transform 0.5s ease var(--card-delay, 0s),
-              box-shadow 0.3s ease;
+  min-height: 240px;
+  flex-shrink: 0;
 }
 
-.bapl-sponsor-card-visible {
-  opacity: 1;
-  transform: translateY(0);
+.sp-card-logo-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(128,0,0,0.03) 0%, transparent 60%);
+  pointer-events: none;
 }
 
-.bapl-sponsor-card:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.5) !important;
+.sp-card-logo-img {
+  width: 100%;
+  height: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  transition: transform 0.35s ease;
 }
 
-/* Title size card — horizontal on desktop */
-.bapl-sponsor-card--title {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr;
-  gap: var(--space-lg);
-  align-items: start;
-  padding: var(--space-2xl);
+.sp-card:hover .sp-card-logo-img {
+  transform: scale(1.04);
 }
 
-.bapl-sponsor-card--title .bapl-tier-ribbon {
-  grid-column: 1 / -1;
-}
-
-.bapl-sponsor-card--title .bapl-logo-wrap {
-  align-self: center;
-}
-
-.bapl-sponsor-card--title .bapl-sponsor-info {
-  align-self: center;
-}
-
-/* Associate size card — horizontal on desktop */
-.bapl-sponsor-card--associate {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto 1fr;
-  gap: var(--space-md);
-  align-items: start;
-}
-
-.bapl-sponsor-card--associate .bapl-tier-ribbon {
-  grid-column: 1 / -1;
-}
-
-.bapl-sponsor-card--associate .bapl-logo-wrap {
-  align-self: center;
-}
-
-.bapl-sponsor-card--associate .bapl-sponsor-info {
-  align-self: center;
-}
-
-/* Partner card — stacked */
-.bapl-sponsor-card--partner {
+/* ── Info Panel ── */
+.sp-card-info-panel {
+  padding: var(--space-2xl) var(--space-xl);
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  justify-content: center;
+  gap: var(--space-sm);
+  border-left: 1px solid rgba(128,0,0,0.12);
 }
 
-/* ─── Tier ribbon ─── */
-.bapl-tier-ribbon {
+/* Flipped card — logo right */
+.sp-card--flip {
+  grid-template-columns: 1fr 380px;
+}
+
+.sp-card--flip .sp-card-info-panel {
+  order: -1;
+  border-left: none;
+  border-right: 1px solid rgba(128,0,0,0.12);
+}
+
+.sp-card--flip .sp-card-logo-panel {
+  order: 1;
+}
+
+/* ── Badge ── */
+.sp-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.73rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   padding: 5px 14px;
   border-radius: var(--radius-full);
@@ -246,107 +173,67 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
-/* ─── Logo wrapper ─── */
-.bapl-logo-wrap {
-  background: #ffffff;
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-  flex-shrink: 0;
-  width: 140px;
-  height: 110px;
-}
-
-.bapl-logo-wrap--title {
-  width: 200px;
-  height: 150px;
-  padding: var(--space-lg);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-
-.bapl-logo-wrap--associate {
-  width: 160px;
-  height: 120px;
-}
-
-.bapl-sponsor-card--partner .bapl-logo-wrap {
-  width: 100%;
-  height: 100px;
-}
-
-.bapl-sponsor-logo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* ─── Info section ─── */
-.bapl-sponsor-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.bapl-sponsor-name {
+/* ── Name ── */
+.sp-name {
   font-family: var(--font-display);
-  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
   font-weight: 800;
   color: var(--text-primary);
   margin: 0;
   line-height: 1.2;
 }
 
-.bapl-sponsor-card--partner .bapl-sponsor-name {
-  font-size: 1rem;
+/* ── Divider ── */
+.sp-divider {
+  width: 48px;
+  height: 3px;
+  background: var(--gradient-gold);
+  border-radius: 99px;
+  margin: 2px 0;
 }
 
-.bapl-sponsor-desc {
+/* ── Description ── */
+.sp-desc {
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.65;
+  font-size: clamp(0.88rem, 1.5vw, 0.97rem);
+  line-height: 1.7;
   margin: 0;
+  max-width: 480px;
 }
 
-.bapl-sponsor-card--partner .bapl-sponsor-desc {
-  font-size: 0.85rem;
-}
-
-/* ─── Visit button ─── */
-.bapl-visit-btn {
+/* ── Website button ── */
+.sp-website-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   margin-top: var(--space-sm);
-  padding: 8px 18px;
-  background: transparent;
+  padding: 9px 22px;
   border: 1px solid rgba(128,0,0,0.4);
   border-radius: var(--radius-full);
-  color: var(--text-gold);
-  font-size: 0.82rem;
+  color: #9D1C1C;
+  font-size: 0.83rem;
   font-weight: 600;
   text-decoration: none;
   width: fit-content;
-  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+  background: transparent;
+  transition: all 0.22s ease;
 }
 
-.bapl-visit-btn:hover {
+.sp-website-btn:hover {
   background: rgba(128,0,0,0.15);
-  border-color: rgba(128,0,0,0.7);
-  color: #fff;
-  transform: translateX(2px);
+  border-color: rgba(157,28,28,0.7);
+  color: var(--text-primary);
+  transform: translateX(3px);
 }
 
-/* ─── CTA ─── */
-.bapl-sponsors-cta {
+/* ── CTA ── */
+.sp-cta {
   margin-top: var(--space-3xl);
 }
 
-.bapl-cta-card {
-  background: linear-gradient(135deg, rgba(128,0,0,0.12) 0%, rgba(74,2,2,0.08) 100%);
-  border: 1px solid rgba(128,0,0,0.25);
+.sp-cta-inner {
+  background: linear-gradient(135deg, rgba(128,0,0,0.12) 0%, rgba(74,2,2,0.06) 100%);
+  border: 1px solid rgba(128,0,0,0.22);
   border-radius: var(--radius-2xl);
   padding: var(--space-3xl) var(--space-2xl);
   text-align: center;
@@ -354,150 +241,119 @@
   overflow: hidden;
 }
 
-.bapl-cta-card::before {
+.sp-cta-inner::before {
   content: '';
   position: absolute;
-  top: -40%;
+  top: -50%;
   left: 50%;
   transform: translateX(-50%);
-  width: 500px;
-  height: 300px;
-  background: radial-gradient(ellipse, rgba(128,0,0,0.18) 0%, transparent 70%);
+  width: 480px;
+  height: 280px;
+  background: radial-gradient(ellipse, rgba(128,0,0,0.15) 0%, transparent 70%);
   pointer-events: none;
 }
 
-.bapl-cta-title {
+.sp-cta-title {
   font-family: var(--font-display);
-  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
   font-weight: 900;
   color: var(--text-primary);
   margin-bottom: var(--space-md);
 }
 
-.bapl-cta-desc {
+.sp-cta-desc {
   color: var(--text-secondary);
   font-size: clamp(0.9rem, 1.8vw, 1rem);
-  max-width: 520px;
+  max-width: 500px;
   margin: 0 auto var(--space-xl);
   line-height: 1.7;
 }
 
-/* ─── Light theme overrides ─── */
-[data-theme="light"] .bapl-logo-wrap,
-[data-theme="light"] .bapl-logo-strip-item {
-  background: #f8f8f8;
-  border: 1px solid rgba(128,0,0,0.1);
-}
-
-[data-theme="light"] .bapl-sponsor-card {
+/* ── Light theme ── */
+[data-theme="light"] .sp-card {
   background: #fff;
+  border-color: rgba(128,0,0,0.12);
 }
 
-[data-theme="light"] .bapl-cta-card {
-  background: linear-gradient(135deg, rgba(128,0,0,0.06) 0%, rgba(74,2,2,0.04) 100%);
+[data-theme="light"] .sp-card-logo-panel {
+  background: #f6f6f6;
 }
 
-/* ─── Responsive ─── */
-@media (min-width: 768px) {
-  .bapl-title-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .bapl-associate-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .bapl-partners-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .bapl-sponsors-hero {
-    padding: 100px 0 72px;
-  }
+[data-theme="light"] .sp-card-info-panel {
+  border-color: rgba(128,0,0,0.1);
 }
 
-@media (min-width: 1024px) {
-  .bapl-partners-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .bapl-sponsor-card--title .bapl-logo-wrap {
-    width: 220px;
-    height: 170px;
-  }
+[data-theme="light"] .sp-cta-inner {
+  background: linear-gradient(135deg, rgba(128,0,0,0.06) 0%, rgba(74,2,2,0.03) 100%);
 }
 
-@media (max-width: 767px) {
-  .bapl-sponsors-hero {
-    padding: 60px 0 44px;
+/* ── Responsive — tablet ── */
+@media (max-width: 900px) {
+  .sp-card,
+  .sp-card--flip {
+    grid-template-columns: 280px 1fr;
   }
 
-  .bapl-sponsors-hero-title {
-    font-size: 1.7rem;
-  }
-
-  .bapl-sponsors-hero-sub {
-    font-size: 0.92rem;
-  }
-
-  .bapl-logo-strip-item {
-    width: 52px;
-    height: 40px;
-  }
-
-  /* Title card stacks on mobile */
-  .bapl-sponsor-card--title {
-    display: flex;
-    flex-direction: column;
+  .sp-card-logo-panel {
+    min-height: 200px;
     padding: var(--space-lg);
   }
 
-  .bapl-sponsor-card--title .bapl-logo-wrap {
-    width: 100%;
-    height: 120px;
+  .sp-card-info-panel {
+    padding: var(--space-xl) var(--space-lg);
+  }
+}
+
+/* ── Responsive — mobile ── */
+@media (max-width: 640px) {
+  .sp-hero {
+    padding: 60px 0 40px;
   }
 
-  /* Associate card stacks on mobile */
-  .bapl-sponsor-card--associate {
-    display: flex;
-    flex-direction: column;
+  /* All cards stack vertically: logo top, info bottom */
+  .sp-card,
+  .sp-card--flip {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
   }
 
-  .bapl-sponsor-card--associate .bapl-logo-wrap {
-    width: 100%;
-    height: 100px;
+  .sp-card--flip .sp-card-info-panel {
+    order: 2;
+    border-right: none;
+    border-top: 1px solid rgba(128,0,0,0.12);
   }
 
-  .bapl-partners-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-md);
+  .sp-card--flip .sp-card-logo-panel {
+    order: 1;
+    border-right: none;
   }
 
-  .bapl-tier-header {
-    gap: var(--space-sm);
+  .sp-card-logo-panel {
+    min-height: 180px;
+    padding: var(--space-lg);
+    border-bottom: 1px solid rgba(128,0,0,0.1);
   }
 
-  .bapl-tier-header-icon {
-    width: 40px;
-    height: 40px;
+  .sp-card-info-panel {
+    padding: var(--space-lg);
+    border-left: none;
+    border-top: 1px solid rgba(128,0,0,0.1);
+    order: 2;
   }
 
-  .bapl-cta-card {
+  .sp-card-logo-img {
+    max-height: 150px;
+  }
+
+  .sp-name {
+    font-size: 1.2rem;
+  }
+
+  .sp-cta-inner {
     padding: var(--space-xl) var(--space-lg);
   }
 
-  .bapl-sponsor-card {
-    padding: var(--space-lg);
-  }
-
-  .bapl-logo-wrap {
-    width: 100%;
-    height: 90px;
-  }
-}
-
-@media (max-width: 420px) {
-  .bapl-partners-grid {
-    grid-template-columns: 1fr;
+  .sp-list {
+    gap: var(--space-lg);
   }
 }
