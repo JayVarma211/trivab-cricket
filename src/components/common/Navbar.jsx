@@ -7,7 +7,7 @@ import {
   Trophy, Users, Calendar, Star, Award, Newspaper,
   Sun, Moon, Menu, X, ChevronDown, ChevronRight, LogOut, User,
   LayoutDashboard, Shield, Zap, Globe, Briefcase, Heart, Building2,
-  Image, Mail, QrCode
+  Image, Mail, QrCode, Handshake
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
@@ -282,6 +282,7 @@ export default function Navbar() {
             </div>
 
             <NavLink to="/news" className="nav-link">News &amp; Events</NavLink>
+            <NavLink to="/sponsors" className="nav-link">Sponsors</NavLink>
             <NavLink to="/contact" className="nav-link">Contact Us</NavLink>
           </nav>
 
@@ -466,9 +467,11 @@ export default function Navbar() {
               <Image size={18} /> Gallery
             </NavLink>
 
-            {/* News & Events */}
             <NavLink to="/news" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
               <Newspaper size={18} /> News &amp; Events
+            </NavLink>
+            <NavLink to="/sponsors" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
+              <Handshake size={18} /> Sponsors
             </NavLink>
             <NavLink to="/contact" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
               <Mail size={18} /> Contact Us

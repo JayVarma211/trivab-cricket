@@ -1,210 +1,301 @@
-import { useEffect, useState } from 'react';
-import { getAllSponsors } from '../firebase/firestore';
-import { Award, ShieldAlert, Star, ShieldCheck, Heart } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { ExternalLink, Star, Award, Handshake } from 'lucide-react';
+import SEO from '../components/common/SEO';
 import './Sponsors.css';
 
-const FALLBACK_SPONSORS = [
-  { 
-    id: 's1', 
-    name: 'Panchnaad Groups', 
-    tier: 'Title Sponsor', 
-    role: 'Title Sponsor',
-    bannerURL: '/logos/panchnaad.jpg', 
-    website: 'http://panchnaadgroup.com', 
-    description: 'Title Sponsor of the premier BAPL League, building the future of Mumbai.' 
+const BAPL_SPONSORS = [
+  {
+    id: 'origin',
+    name: 'Origin',
+    tier: 'Title Sponsor',
+    tagline: 'Title Sponsor',
+    logo: '/sponsors/Origin.png',
+    website: 'https://www.origincorp.in/',
+    description: 'The cornerstone of BAPL, Origin brings unparalleled commitment and energy to the forefront of cricket excellence in Mumbai.',
   },
-  { 
-    id: 's2', 
-    name: 'Nexus Sports', 
-    tier: 'Co-Sponsor', 
-    role: 'Sports & Apparel Partner',
-    bannerURL: '/logos/nexussports.jpg', 
-    website: 'https://nexus.com', 
-    description: 'Sports and apparel partner providing premium custom team kits.' 
+  {
+    id: 'shrreeji-sharan',
+    name: 'Shrreeji Sharan',
+    tier: 'Associate Sponsor',
+    tagline: 'Associate Sponsor',
+    logo: '/sponsors/Shrreeji sharan.png',
+    website: 'https://www.shrreejisharan.com',
+    description: "Proud associate partner of BAPL, standing alongside the league's vision to elevate the standard of amateur cricket.",
   },
-  { 
-    id: 's3', 
-    name: 'buffering', 
-    tier: 'Co-Sponsor', 
-    role: 'Media Partner',
-    bannerURL: '/logos/buffering.jpg', 
-    website: 'https://buffering.in', 
-    description: 'Official media coverage and broadcasting partner.' 
+  {
+    id: 'apsara',
+    name: 'Apsara Graphics LLP',
+    tier: 'Printing Partner',
+    tagline: 'Printing Partner',
+    logo: '/sponsors/Apsara.jpg',
+    website: null,
+    description: 'Delivering world-class print quality for BAPL — from jerseys to hoardings, Apsara Graphics makes every detail count.',
   },
-  { 
-    id: 's4', 
-    name: 'Regal interior studios', 
-    tier: 'Co-Sponsor', 
-    role: 'Design & Decor Partner',
-    bannerURL: '/logos/regalinterior.jpg', 
-    website: 'https://regalstudios.com', 
-    description: 'Design and decor partner designing premium VIP enclosures.' 
+  {
+    id: 'aum',
+    name: 'AUM Advertising & Media Pvt. Ltd.',
+    tier: 'Advertising Partner',
+    tagline: 'Advertising Partner',
+    logo: '/sponsors/Aum.jpg',
+    website: null,
+    description: 'Amplifying the BAPL brand across every platform with creative, impactful advertising strategies that reach millions.',
   },
-  { 
-    id: 's5', 
-    name: 'crickstore', 
-    tier: 'Partner Sponsor', 
-    role: 'Associate Partner',
-    bannerURL: '/logos/crickstore.jpg', 
-    website: 'https://www.crickstore.com', 
-    description: 'Associate partner supplying professional cricket equipment.' 
+  {
+    id: 'bliez',
+    name: 'Bliez',
+    tier: 'Broadcasting Partner',
+    tagline: 'Broadcasting Partner',
+    logo: '/sponsors/Bliez.PNG',
+    website: null,
+    description: 'Bringing every boundary, wicket, and winning moment to fans across the globe with live, professional-grade broadcasting.',
   },
-  { 
-    id: 's6', 
-    name: 'hub town', 
-    tier: 'Partner Sponsor', 
-    role: 'Real Estate Partner',
-    bannerURL: '/logos/hubtown.jpg', 
-    website: 'http://www.hubtown.co.in', 
-    description: 'Real estate partner supporting community sports initiatives.' 
+  {
+    id: 'rio',
+    name: 'RIO',
+    tier: 'Gifting Partner',
+    tagline: 'Gifting Partner',
+    logo: '/sponsors/Rio.jpg',
+    website: null,
+    description: 'Celebrating champions with premium gifting solutions — because every match winner deserves to be honoured in style.',
   },
-  { 
-    id: 's7', 
-    name: 'physiorehability', 
-    tier: 'Partner Sponsor', 
-    role: 'Physio Partner',
-    bannerURL: '/logos/physiorehability.jpg', 
-    website: 'https://physiorehab.com', 
-    description: 'Official physiotherapy and muscle recovery partner.' 
+  {
+    id: 'hifi-digital',
+    name: 'HIFI Digital',
+    tier: 'Digital Partner',
+    tagline: 'Digital Partner',
+    logo: '/sponsors/HIFI Digital.jpg',
+    website: null,
+    description: 'Powering the digital presence of BAPL with cutting-edge technology, social media management, and online engagement.',
   },
-  { 
-    id: 's8', 
-    name: 'upurFit', 
-    tier: 'Partner Sponsor', 
-    role: 'Pain & Relief Partner',
-    bannerURL: '/logos/upurfit.jpg', 
-    website: 'https://upurfit.com', 
-    description: 'Pain relief and recovery partner keeping players fit.' 
+  {
+    id: 'gllyphn',
+    name: 'Gllyphn',
+    tier: 'Pain Relief Partner',
+    tagline: 'Pain Relief Partner',
+    logo: '/sponsors/Gllphyn.PNG',
+    website: null,
+    description: 'Keeping athletes at peak performance — Gllyphn is the trusted pain relief and recovery partner of the BAPL league.',
   },
-  { 
-    id: 's9', 
-    name: 'midday gujrati', 
-    tier: 'Partner Sponsor', 
-    role: 'News Partner',
-    bannerURL: '/logos/midday.jpg', 
-    website: 'https://www.gujaratimidday.com', 
-    description: 'Official Gujarati news media and print coverage partner.' 
-  }
 ];
 
-export default function Sponsors() {
-  const [sponsors, setSponsors] = useState(FALLBACK_SPONSORS);
+const TIER_CONFIG = {
+  'Title Sponsor': {
+    icon: <Award size={20} />,
+    gradient: 'linear-gradient(135deg, #800000 0%, #9D1C1C 60%, #4A0202 100%)',
+    badge: '#FFD700',
+    badgeText: '#000',
+    glow: '0 0 40px rgba(128,0,0,0.45), 0 0 80px rgba(212,175,55,0.15)',
+    border: '2px solid rgba(212,175,55,0.5)',
+  },
+  'Associate Sponsor': {
+    icon: <Star size={20} />,
+    gradient: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+    badge: '#C0C0C0',
+    badgeText: '#000',
+    glow: '0 0 32px rgba(128,0,0,0.2)',
+    border: '1px solid rgba(192,192,192,0.3)',
+  },
+  default: {
+    icon: <Handshake size={20} />,
+    gradient: 'linear-gradient(135deg, #1F1111 0%, #160B0B 100%)',
+    badge: '#9D1C1C',
+    badgeText: '#fff',
+    glow: '0 0 20px rgba(128,0,0,0.12)',
+    border: '1px solid rgba(128,0,0,0.2)',
+  },
+};
+
+function getTierConfig(tier) {
+  return TIER_CONFIG[tier] || TIER_CONFIG.default;
+}
+
+function SponsorCard({ sponsor, index, size = 'normal' }) {
+  const cardRef = useRef(null);
+  const cfg = getTierConfig(sponsor.tier);
+  const isTitle = sponsor.tier === 'Title Sponsor';
+  const isAssociate = sponsor.tier === 'Associate Sponsor';
 
   useEffect(() => {
-    const fetchSponsors = async () => {
-      try {
-        const list = await getAllSponsors();
-        if (list && list.length > 0) {
-          setSponsors(list);
+    const card = cardRef.current;
+    if (!card) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          card.classList.add('sponsor-card-visible');
+          observer.unobserve(card);
         }
-      } catch (err) {
-        console.log('Error fetching sponsors from Firestore, keeping fallback defaults:', err);
-      }
-    };
-    fetchSponsors();
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(card);
+    return () => observer.disconnect();
   }, []);
 
   return (
-    <div className="sponsors-page page-enter container section-padding">
-      <div className="section-header">
-        <span className="section-label">Partnerships</span>
-        <h1 className="section-title">Official Platform <span className="text-gradient-gold">Sponsors</span></h1>
-        <p className="section-subtitle">We are proudly supported by elite organizations dedicated to supporting sports development.</p>
+    <div
+      ref={cardRef}
+      className={`bapl-sponsor-card bapl-sponsor-card--${size}`}
+      style={{
+        '--card-delay': `${index * 0.08}s`,
+        border: cfg.border,
+        boxShadow: cfg.glow,
+      }}
+    >
+      {/* Tier badge ribbon */}
+      <div
+        className="bapl-tier-ribbon"
+        style={{ background: cfg.badge, color: cfg.badgeText }}
+      >
+        {cfg.icon}
+        <span>{sponsor.tagline}</span>
       </div>
 
-      <div className="sponsors-layout">
-        {/* Title Sponsors */}
-        <div className="sponsor-tier-section">
-          <h2 className="display-sm tier-header text-gradient-gold">
-            <Award size={24} /> Title Sponsors
-          </h2>
-          <div className="grid grid-2 gap-xl">
-            {sponsors
-              .filter((s) => s.tier === 'Title Sponsor')
-              .map((sponsor) => (
-                <div className="card sponsor-card title-tier-card" key={sponsor.id}>
-                  <div className="sponsor-meta">
-                    <span className="badge badge-gold">{sponsor.role || 'Title Sponsor'}</span>
-                    <h3 className="text-lg font-bold mt-sm">{sponsor.name}</h3>
-                    <p className="text-secondary text-sm mt-xs">{sponsor.description}</p>
-                    <a href={sponsor.website} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm mt-md">
-                      Visit Website
-                    </a>
-                  </div>
-                  <div className="sponsor-logo-box">
-                    {sponsor.bannerURL ? (
-                      <img src={sponsor.bannerURL} alt={`${sponsor.name} logo`} className="sponsor-logo-img" />
-                    ) : (
-                      <span className="text-gradient-gold">{sponsor.name.split(' ').map(w => w[0]).join('')}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
+      {/* Logo section */}
+      <div className={`bapl-logo-wrap ${isTitle ? 'bapl-logo-wrap--title' : isAssociate ? 'bapl-logo-wrap--associate' : ''}`}>
+        <img
+          src={sponsor.logo}
+          alt={`${sponsor.name} logo`}
+          className="bapl-sponsor-logo"
+          loading="lazy"
+        />
+      </div>
 
-        {/* Co-Sponsors */}
-        <div className="sponsor-tier-section mt-xl">
-          <h2 className="display-sm tier-header text-gradient-gold">
-            <Star size={24} /> Co-Sponsors
-          </h2>
-          <div className="grid grid-2 gap-xl">
-            {sponsors
-              .filter((s) => s.tier === 'Co-Sponsor')
-              .map((sponsor) => (
-                <div className="card sponsor-card" key={sponsor.id}>
-                  <div className="sponsor-meta">
-                    <span className="badge badge-blue">{sponsor.role || 'Co-Sponsor'}</span>
-                    <h3 className="text-lg font-bold mt-sm">{sponsor.name}</h3>
-                    <p className="text-secondary text-sm mt-xs">{sponsor.description}</p>
-                    <a href={sponsor.website} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm mt-md">
-                      Visit Website
-                    </a>
-                  </div>
-                  <div className="sponsor-logo-box">
-                    {sponsor.bannerURL ? (
-                      <img src={sponsor.bannerURL} alt={`${sponsor.name} logo`} className="sponsor-logo-img" />
-                    ) : (
-                      <span className="text-blue">{sponsor.name.split(' ').map(w => w[0]).join('')}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
+      {/* Info section */}
+      <div className="bapl-sponsor-info">
+        <h3 className="bapl-sponsor-name">{sponsor.name}</h3>
+        <p className="bapl-sponsor-desc">{sponsor.description}</p>
 
-        {/* Partners */}
-        <div className="sponsor-tier-section mt-xl">
-          <h2 className="display-sm tier-header text-gradient-gold">
-            <Heart size={24} /> Partner Sponsors
-          </h2>
-          <div className="grid grid-3 gap-lg">
-            {sponsors
-              .filter((s) => s.tier !== 'Title Sponsor' && s.tier !== 'Co-Sponsor')
-              .map((sponsor) => (
-                <div className="card sponsor-card partner-card" key={sponsor.id}>
-                  <div className="sponsor-logo-box small">
-                    {sponsor.bannerURL ? (
-                      <img src={sponsor.bannerURL} alt={`${sponsor.name} logo`} className="sponsor-logo-img" />
-                    ) : (
-                      <span className="text-muted">{sponsor.name.split(' ').map(w => w[0]).join('')}</span>
-                    )}
-                  </div>
-                  <div className="sponsor-meta mt-sm">
-                    <span className="badge badge-orange text-xs mb-xs" style={{ display: 'inline-block' }}>
-                      {sponsor.role || 'Partner Sponsor'}
-                    </span>
-                    <h3 className="text-sm font-bold">{sponsor.name}</h3>
-                    <p className="text-muted text-xs mt-xs">{sponsor.description}</p>
-                    <a href={sponsor.website} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm mt-sm">
-                      Visit Website
-                    </a>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
+        {sponsor.website && (
+          <a
+            href={sponsor.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bapl-visit-btn"
+          >
+            <span>Visit Website</span>
+            <ExternalLink size={14} />
+          </a>
+        )}
       </div>
     </div>
+  );
+}
+
+export default function Sponsors() {
+  const titleSponsor = BAPL_SPONSORS.filter((s) => s.tier === 'Title Sponsor');
+  const associateSponsor = BAPL_SPONSORS.filter((s) => s.tier === 'Associate Sponsor');
+  const partnerSponsors = BAPL_SPONSORS.filter(
+    (s) => s.tier !== 'Title Sponsor' && s.tier !== 'Associate Sponsor'
+  );
+
+  return (
+    <>
+      <SEO
+        title="Sponsors – BAPL | TRIVAB Sports"
+        description="Meet the proud partners and sponsors powering BAPL — Mumbai's premier amateur cricket league by TRIVAB Sports & Events."
+      />
+
+      <div className="bapl-sponsors-page">
+
+        {/* ── Hero header ── */}
+        <section className="bapl-sponsors-hero">
+          <div className="bapl-sponsors-hero-bg" aria-hidden="true" />
+          <div className="bapl-sponsors-hero-content container">
+            <span className="bapl-sponsors-hero-label">BAPL Partnerships</span>
+            <h1 className="bapl-sponsors-hero-title">
+              Introducing the{' '}
+              <span className="text-gradient-gold">Sponsors</span>{' '}
+              for&nbsp;BAPL
+            </h1>
+            <p className="bapl-sponsors-hero-sub">
+              These elite organizations stand behind every boundary, every wicket,
+              and every champion moment — powering Mumbai's most celebrated
+              amateur cricket league.
+            </p>
+
+            {/* Floating logos strip */}
+            <div className="bapl-logo-strip">
+              {BAPL_SPONSORS.map((s) => (
+                <div key={s.id} className="bapl-logo-strip-item" title={s.name}>
+                  <img src={s.logo} alt={s.name} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Title Sponsor ── */}
+        <section className="bapl-tier-section container">
+          <div className="bapl-tier-header">
+            <div className="bapl-tier-header-icon" style={{ background: 'linear-gradient(135deg,#800000,#9D1C1C)' }}>
+              <Award size={22} />
+            </div>
+            <div>
+              <h2 className="bapl-tier-title text-gradient-gold">Title Sponsor</h2>
+              <p className="bapl-tier-sub">The cornerstone partner driving BAPL forward</p>
+            </div>
+          </div>
+
+          <div className="bapl-title-grid">
+            {titleSponsor.map((s, i) => (
+              <SponsorCard key={s.id} sponsor={s} index={i} size="title" />
+            ))}
+          </div>
+        </section>
+
+        {/* ── Associate Sponsor ── */}
+        <section className="bapl-tier-section container">
+          <div className="bapl-tier-header">
+            <div className="bapl-tier-header-icon" style={{ background: 'linear-gradient(135deg,#555,#888)' }}>
+              <Star size={22} />
+            </div>
+            <div>
+              <h2 className="bapl-tier-title text-gradient-gold">Associate Sponsor</h2>
+              <p className="bapl-tier-sub">Standing alongside the league's vision</p>
+            </div>
+          </div>
+
+          <div className="bapl-associate-grid">
+            {associateSponsor.map((s, i) => (
+              <SponsorCard key={s.id} sponsor={s} index={i} size="associate" />
+            ))}
+          </div>
+        </section>
+
+        {/* ── Official Partners ── */}
+        <section className="bapl-tier-section container">
+          <div className="bapl-tier-header">
+            <div className="bapl-tier-header-icon" style={{ background: 'linear-gradient(135deg,#800000,#4A0202)' }}>
+              <Handshake size={22} />
+            </div>
+            <div>
+              <h2 className="bapl-tier-title text-gradient-gold">Official Partners</h2>
+              <p className="bapl-tier-sub">Specialist partners across every dimension of the league</p>
+            </div>
+          </div>
+
+          <div className="bapl-partners-grid">
+            {partnerSponsors.map((s, i) => (
+              <SponsorCard key={s.id} sponsor={s} index={i} size="partner" />
+            ))}
+          </div>
+        </section>
+
+        {/* ── CTA ── */}
+        <section className="bapl-sponsors-cta container">
+          <div className="bapl-cta-card">
+            <h2 className="bapl-cta-title">Become a <span className="text-gradient-gold">BAPL Partner</span></h2>
+            <p className="bapl-cta-desc">
+              Join the fastest growing cricket league in Mumbai. Partner with BAPL
+              and put your brand in front of thousands of passionate cricket fans.
+            </p>
+            <a href="/contact" className="btn btn-gold">
+              Get in Touch
+            </a>
+          </div>
+        </section>
+
+      </div>
+    </>
   );
 }

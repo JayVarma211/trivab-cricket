@@ -26,6 +26,7 @@ import Gallery from './pages/Gallery';
 import QRScanner from './pages/QRScanner';
 import TournamentTypeDetails from './pages/tournaments/TournamentTypeDetails';
 import NewsEvents from './pages/NewsEvents';
+import Sponsors from './pages/Sponsors';
 
 // Protected pages
 import PlayerDashboard from './pages/player/PlayerDashboard';
@@ -74,6 +75,7 @@ export default function App() {
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/scanner" element={<QRScanner />} />
           <Route path="/news" element={<NewsEvents />} />
+          <Route path="/sponsors" element={<Sponsors />} />
 
           {/* Player */}
           <Route path="/player" element={<ProtectedRoute allowedRoles={['player', 'captain', 'admin']} />}>
