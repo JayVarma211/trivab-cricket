@@ -70,7 +70,7 @@ export default function Footer() {
             </li>
           </ul>
           <div className="footer-badge">
-            <span>🏏</span> Powered by TRIVAB Platform
+            <span>🏏</span> Powered by HSJV Tech
           </div>
         </div>
       </div>
