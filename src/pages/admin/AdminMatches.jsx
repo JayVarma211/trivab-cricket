@@ -9,9 +9,19 @@ const SCHEDULE_TYPES = ['Match', 'Practice', 'Meeting', 'Event', 'Training', 'Se
 const STATUS_OPTIONS = ['Upcoming', 'In Progress', 'Completed', 'Cancelled'];
 const FORMAT_OPTIONS = ['T20', 'T10', '50-over', '100-ball', 'Practice', 'Other'];
 
+export const getStringVal = (val) => {
+  if (val === null || val === undefined) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'number') return String(val);
+  if (typeof val === 'object') {
+    return val.id || val.name || val.teamName || val.title || '';
+  }
+  return String(val);
+};
+
 export const formatTimeAMPM = (timeStr) => {
   if (!timeStr) return '';
-  const trimmed = String(timeStr).trim();
+  const trimmed = getStringVal(timeStr).trim();
   if (!trimmed) return '';
   if (/am|pm/i.test(trimmed)) return trimmed;
 
@@ -32,7 +42,7 @@ export const formatTimeAMPM = (timeStr) => {
 
 export const timeTo24h = (timeStr) => {
   if (!timeStr) return '';
-  const trimmed = String(timeStr).trim();
+  const trimmed = getStringVal(timeStr).trim();
   if (!trimmed) return '';
 
   const ampmMatch = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
@@ -49,6 +59,41 @@ export const timeTo24h = (timeStr) => {
   }
 
   return trimmed;
+};
+
+export const formatDateSafe = (dateStr) => {
+  if (!dateStr) return '—';
+  const str = typeof dateStr === 'string' ? dateStr : (dateStr?.seconds ? new Date(dateStr.seconds * 1000).toISOString() : String(dateStr));
+  try {
+    let d = new Date(str);
+    if (isNaN(d.getTime())) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        d = new Date(str + 'T00:00:00');
+      }
+    }
+    if (isNaN(d.getTime())) {
+      return str;
+    }
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch (e) {
+    return String(str);
+  }
+};
+
+export const formatDateForInput = (dateStr) => {
+  if (!dateStr) return new Date().toISOString().split('T')[0];
+  const str = typeof dateStr === 'string' ? dateStr : (dateStr?.seconds ? new Date(dateStr.seconds * 1000).toISOString() : String(dateStr));
+  try {
+    let d = new Date(str);
+    if (isNaN(d.getTime())) {
+      const match = String(str).match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (match) return `${match[1]}-${match[2]}-${match[3]}`;
+      return new Date().toISOString().split('T')[0];
+    }
+    return d.toISOString().split('T')[0];
+  } catch (e) {
+    return new Date().toISOString().split('T')[0];
+  }
 };
 
 export default function AdminMatches() {
@@ -218,18 +263,31 @@ export default function AdminMatches() {
   };
 
   const handleEdit = (match) => {
+    if (!match) return;
+    const tournId = getStringVal(match.tournamentId);
+    const tA = getStringVal(match.teamA);
+    const tB = getStringVal(match.teamB);
+    const tTitle = getStringVal(match.title);
+    const tType = getStringVal(match.type) || 'Match';
+    const tVenue = getStringVal(match.venue);
+    const tStatus = getStringVal(match.status) || 'Upcoming';
+    const tFormat = getStringVal(match.format) || 'T20';
+    const tDesc = getStringVal(match.description);
+    const rawDate = match.date;
+    const rawTime = getStringVal(match.time);
+
     setFormData({
-      title: match.title || '',
-      type: match.type || 'Match',
-      teamA: match.teamA || '',
-      teamB: match.teamB || '',
-      venue: match.venue || '',
-      date: match.date || '',
-      time: timeTo24h(match.time),
-      status: match.status || 'Upcoming',
-      format: match.format || 'T20',
-      tournamentId: match.tournamentId || '',
-      description: match.description || '',
+      title: tTitle,
+      type: tType,
+      teamA: tA,
+      teamB: tB,
+      venue: tVenue,
+      date: formatDateForInput(rawDate),
+      time: timeTo24h(rawTime),
+      status: tStatus,
+      format: tFormat,
+      tournamentId: tournId,
+      description: tDesc,
     });
     setEditingId(match.id);
     setShowForm(true);
@@ -633,9 +691,12 @@ export default function AdminMatches() {
               </tr>
             ) : (
               filteredMatches.map(match => {
-                const tournament = tournaments.find(t => t.id === match.tournamentId);
-                const displayTitle = match.title || (match.teamA && match.teamB ? `${match.teamA} vs ${match.teamB}` : match.type || 'Match');
-                const displayTeams = match.teamA && match.teamB ? `${match.teamA} vs ${match.teamB}` : (match.targetTeamName || 'All Teams');
+                const tournId = getStringVal(match.tournamentId);
+                const tournament = tournaments.find(t => t.id === tournId || t.name === tournId);
+                const tAStr = getStringVal(match.teamA);
+                const tBStr = getStringVal(match.teamB);
+                const displayTitle = getStringVal(match.title) || (tAStr && tBStr ? `${tAStr} vs ${tBStr}` : getStringVal(match.type) || 'Match');
+                const displayTeams = tAStr && tBStr ? `${tAStr} vs ${tBStr}` : (getStringVal(match.targetTeamName) || 'All Teams');
 
                 return (
                   <tr key={match.id}>
@@ -643,13 +704,13 @@ export default function AdminMatches() {
                       <div>
                         <span className="font-semi text-gold" style={{ display: 'block', fontSize: '0.92rem' }}>{displayTitle}</span>
                         {match.description && (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)' }}>{match.description.slice(0, 50)}...</span>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)' }}>{getStringVal(match.description).slice(0, 50)}...</span>
                         )}
                       </div>
                     </td>
                     <td>
                       <span className="badge badge-gold" style={{ fontSize: '0.72rem' }}>
-                        {match.type || 'Match'}
+                        {getStringVal(match.type) || 'Match'}
                       </span>
                     </td>
                     <td className="text-secondary text-sm font-semi">
@@ -661,7 +722,7 @@ export default function AdminMatches() {
                     <td style={{ whiteSpace: 'nowrap' }}>
                       <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
                         <Clock size={13} style={{ color: 'var(--admin-muted)' }} />
-                        {match.date ? new Date(match.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                        {formatDateSafe(match.date)}
                         {match.time ? ` @ ${formatTimeAMPM(match.time)}` : ''}
                       </span>
                     </td>
