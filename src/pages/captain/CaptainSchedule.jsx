@@ -23,6 +23,27 @@ const STATUS_STYLES = {
   Cancelled: { background: 'rgba(255,255,255,0.08)', color: '#9CA3AF', border: '1px solid rgba(255,255,255,0.15)' },
 };
 
+const formatTimeAMPM = (timeStr) => {
+  if (!timeStr) return '';
+  const trimmed = String(timeStr).trim();
+  if (!trimmed) return '';
+  if (/am|pm/i.test(trimmed)) return trimmed;
+
+  const parts = trimmed.split(':');
+  if (parts.length >= 2) {
+    let hours = parseInt(parts[0], 10);
+    const minutes = parts[1].slice(0, 2);
+    if (!isNaN(hours)) {
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      if (hours === 0) hours = 12;
+      const formattedHours = hours < 10 ? `0${hours}` : `${hours}`;
+      return `${formattedHours}:${minutes} ${ampm}`;
+    }
+  }
+  return trimmed;
+};
+
 export default function CaptainSchedule() {
   const { user, role } = useAuth();
   const [schedules, setSchedules] = useState([]);
@@ -282,7 +303,7 @@ export default function CaptainSchedule() {
                       {sch.time && (
                         <div className="flex items-center gap-xs">
                           <Clock size={14} className="text-gold" />
-                          <span>Time: <strong className="text-primary">{sch.time}</strong></span>
+                          <span>Time: <strong className="text-primary">{formatTimeAMPM(sch.time)}</strong></span>
                         </div>
                       )}
                       {sch.venue && (

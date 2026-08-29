@@ -9,6 +9,48 @@ const SCHEDULE_TYPES = ['Match', 'Practice', 'Meeting', 'Event', 'Training', 'Se
 const STATUS_OPTIONS = ['Upcoming', 'In Progress', 'Completed', 'Cancelled'];
 const FORMAT_OPTIONS = ['T20', 'T10', '50-over', '100-ball', 'Practice', 'Other'];
 
+export const formatTimeAMPM = (timeStr) => {
+  if (!timeStr) return '';
+  const trimmed = String(timeStr).trim();
+  if (!trimmed) return '';
+  if (/am|pm/i.test(trimmed)) return trimmed;
+
+  const parts = trimmed.split(':');
+  if (parts.length >= 2) {
+    let hours = parseInt(parts[0], 10);
+    const minutes = parts[1].slice(0, 2);
+    if (!isNaN(hours)) {
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      if (hours === 0) hours = 12;
+      const formattedHours = hours < 10 ? `0${hours}` : `${hours}`;
+      return `${formattedHours}:${minutes} ${ampm}`;
+    }
+  }
+  return trimmed;
+};
+
+export const timeTo24h = (timeStr) => {
+  if (!timeStr) return '';
+  const trimmed = String(timeStr).trim();
+  if (!trimmed) return '';
+
+  const ampmMatch = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (ampmMatch) {
+    let hours = parseInt(ampmMatch[1], 10);
+    const minutes = ampmMatch[2];
+    const ampm = ampmMatch[3].toUpperCase();
+
+    if (ampm === 'PM' && hours < 12) hours += 12;
+    if (ampm === 'AM' && hours === 12) hours = 0;
+
+    const formattedHours = hours < 10 ? `0${hours}` : `${hours}`;
+    return `${formattedHours}:${minutes}`;
+  }
+
+  return trimmed;
+};
+
 export default function AdminMatches() {
   const { role } = useAuth();
   const navigate = useNavigate();
@@ -64,10 +106,27 @@ export default function AdminMatches() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    if (name === 'tournamentId') {
+      const newTournamentId = value;
+      const newAvailableTeams = newTournamentId
+        ? teams.filter(t => t.tournamentId === newTournamentId)
+        : teams;
+
+      const teamAStillValid = newAvailableTeams.some(t => t.teamName === formData.teamA);
+      const teamBStillValid = newAvailableTeams.some(t => t.teamName === formData.teamB);
+
+      setFormData(prev => ({
+        ...prev,
+        tournamentId: newTournamentId,
+        teamA: teamAStillValid ? prev.teamA : '',
+        teamB: teamBStillValid ? prev.teamB : '',
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -89,6 +148,8 @@ export default function AdminMatches() {
         ? `${formData.teamA} vs ${formData.teamB}`
         : (formData.teamA || formData.teamB || 'All Teams');
 
+      const formattedTime = formatTimeAMPM(formData.time);
+
       const matchData = {
         title: formData.title || (formData.teamA && formData.teamB ? `${formData.teamA} vs ${formData.teamB}` : `${formData.type} Session`),
         type: formData.type || 'Match',
@@ -99,7 +160,7 @@ export default function AdminMatches() {
         targetTeamName: targetAudience,
         venue: formData.venue || '',
         date: formData.date || '',
-        time: formData.time || '',
+        time: formattedTime,
         status: formData.status || 'Upcoming',
         format: formData.format || 'T20',
         tournamentId: formData.tournamentId || '',
@@ -113,7 +174,7 @@ export default function AdminMatches() {
         try {
           await setDocument('schedules', editingId, matchData);
         } catch (sErr) {
-          console.warn('Sync to schedules collection skipped (permission/rule restriction):', sErr);
+          console.warn('Sync to schedules collection skipped:', sErr);
         }
         setSuccess('Match / Schedule entry updated successfully!');
       } else {
@@ -125,11 +186,10 @@ export default function AdminMatches() {
         const docRef = await addDocument('matches', matchData);
         matchDocId = docRef.id;
 
-        // Optional sync to schedules collection with same ID
         try {
           await setDocument('schedules', docRef.id, { id: docRef.id, ...matchData });
         } catch (sErr) {
-          console.warn('Sync to schedules collection skipped (permission/rule restriction):', sErr);
+          console.warn('Sync to schedules collection skipped:', sErr);
         }
         setSuccess('New Match / Schedule entry created and published to captains!');
       }
@@ -165,7 +225,7 @@ export default function AdminMatches() {
       teamB: match.teamB || '',
       venue: match.venue || '',
       date: match.date || '',
-      time: match.time || '',
+      time: timeTo24h(match.time),
       status: match.status || 'Upcoming',
       format: match.format || 'T20',
       tournamentId: match.tournamentId || '',
@@ -425,25 +485,47 @@ export default function AdminMatches() {
                 </select>
               </div>
 
-              {/* Teams Selection */}
+              {/* Teams Selection (Filtered by selected Tournament) */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
                 <div className="form-group">
-                  <label className="form-label">TEAM A (Optional)</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>TEAM A (Optional)</span>
+                    {formData.tournamentId && (
+                      <span style={{ fontSize: '0.7rem', color: 'var(--gold)', fontWeight: 600 }}>
+                        ({availableTeams.length} {availableTeams.length === 1 ? 'team' : 'teams'})
+                      </span>
+                    )}
+                  </label>
                   <select className="form-select" name="teamA" value={formData.teamA} onChange={handleInputChange}>
                     <option value="">-- Select Team A --</option>
-                    {teams.map(t => (
-                      <option key={t.id} value={t.teamName}>{t.teamName}</option>
-                    ))}
+                    {availableTeams.length === 0 ? (
+                      <option value="" disabled>No teams found for this tournament</option>
+                    ) : (
+                      availableTeams.map(t => (
+                        <option key={t.id} value={t.teamName}>{t.teamName}</option>
+                      ))
+                    )}
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">TEAM B (Optional)</label>
+                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>TEAM B (Optional)</span>
+                    {formData.tournamentId && (
+                      <span style={{ fontSize: '0.7rem', color: 'var(--gold)', fontWeight: 600 }}>
+                        ({availableTeams.length} {availableTeams.length === 1 ? 'team' : 'teams'})
+                      </span>
+                    )}
+                  </label>
                   <select className="form-select" name="teamB" value={formData.teamB} onChange={handleInputChange}>
                     <option value="">-- Select Team B --</option>
-                    {teams.map(t => (
-                      <option key={t.id} value={t.teamName}>{t.teamName}</option>
-                    ))}
+                    {availableTeams.length === 0 ? (
+                      <option value="" disabled>No teams found for this tournament</option>
+                    ) : (
+                      availableTeams.map(t => (
+                        <option key={t.id} value={t.teamName}>{t.teamName}</option>
+                      ))
+                    )}
                   </select>
                 </div>
               </div>
@@ -471,6 +553,11 @@ export default function AdminMatches() {
                     value={formData.time}
                     onChange={handleInputChange}
                   />
+                  {formData.time && (
+                    <span style={{ fontSize: '0.78rem', color: '#EAB308', marginTop: '6px', display: 'block', fontWeight: 600 }}>
+                      ⏰ Format: {formatTimeAMPM(formData.time)}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -575,7 +662,7 @@ export default function AdminMatches() {
                       <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
                         <Clock size={13} style={{ color: 'var(--admin-muted)' }} />
                         {match.date ? new Date(match.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                        {match.time ? ` @ ${match.time}` : ''}
+                        {match.time ? ` @ ${formatTimeAMPM(match.time)}` : ''}
                       </span>
                     </td>
                     <td>
