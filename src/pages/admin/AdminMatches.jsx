@@ -324,6 +324,11 @@ export default function AdminMatches() {
     return matchesSearch && matchesStatus;
   });
 
+  const selectedTournId = getStringVal(formData.tournamentId);
+  const availableTeams = selectedTournId
+    ? teams.filter(t => getStringVal(t.tournamentId) === selectedTournId || getStringVal(t.tournamentName) === selectedTournId)
+    : teams;
+
   const escapeCSV = (val) => {
     if (val === undefined || val === null) return '';
     let str = String(val);
