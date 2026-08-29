@@ -45,7 +45,7 @@ export const timeTo24h = (timeStr) => {
   const trimmed = getStringVal(timeStr).trim();
   if (!trimmed) return '';
 
-  const ampmMatch = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  const ampmMatch = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
   if (ampmMatch) {
     let hours = parseInt(ampmMatch[1], 10);
     const minutes = ampmMatch[2];
@@ -58,7 +58,15 @@ export const timeTo24h = (timeStr) => {
     return `${formattedHours}:${minutes}`;
   }
 
-  return trimmed;
+  const h24Match = trimmed.match(/^(\d{1,2}):(\d{2})/);
+  if (h24Match) {
+    let hours = parseInt(h24Match[1], 10);
+    const minutes = h24Match[2];
+    const formattedHours = hours < 10 ? `0${hours}` : `${hours}`;
+    return `${formattedHours}:${minutes}`;
+  }
+
+  return '';
 };
 
 export const formatDateSafe = (dateStr) => {
@@ -82,18 +90,30 @@ export const formatDateSafe = (dateStr) => {
 
 export const formatDateForInput = (dateStr) => {
   if (!dateStr) return new Date().toISOString().split('T')[0];
-  const str = typeof dateStr === 'string' ? dateStr : (dateStr?.seconds ? new Date(dateStr.seconds * 1000).toISOString() : String(dateStr));
-  try {
-    let d = new Date(str);
-    if (isNaN(d.getTime())) {
-      const match = String(str).match(/(\d{4})-(\d{2})-(\d{2})/);
-      if (match) return `${match[1]}-${match[2]}-${match[3]}`;
-      return new Date().toISOString().split('T')[0];
-    }
-    return d.toISOString().split('T')[0];
-  } catch (e) {
-    return new Date().toISOString().split('T')[0];
+
+  if (typeof dateStr === 'object' && dateStr?.seconds) {
+    const d = new Date(dateStr.seconds * 1000);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
+
+  const str = String(dateStr).trim();
+  const ymdMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (ymdMatch) {
+    return `${ymdMatch[1]}-${ymdMatch[2]}-${ymdMatch[3]}`;
+  }
+
+  const d = new Date(str);
+  if (!isNaN(d.getTime())) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  return new Date().toISOString().split('T')[0];
 };
 
 export default function AdminMatches() {
