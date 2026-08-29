@@ -935,11 +935,17 @@
 /* ============================================================
    MATCH DAY GRID LAYOUT
    ============================================================ */
-.matchday-layout-grid {
+.matchday-squads-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 24px;
-  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .matchday-squads-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 /* ============================================================
@@ -1285,7 +1291,7 @@
 @media (max-width: 768px) {
   .stats-grid { grid-template-columns: 1fr 1fr !important; }
   .action-cards-grid { grid-template-columns: repeat(2, 1fr); }
-  .matchday-layout-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .matchday-squads-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
   .player-details-grid { grid-template-columns: 1fr; gap: 16px; }
   .admin-page .grid-3 > .card {
     flex-direction: column !important;

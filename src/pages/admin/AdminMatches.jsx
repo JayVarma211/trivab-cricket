@@ -110,7 +110,11 @@ export default function AdminMatches() {
 
       if (editingId) {
         await setDocument('matches', editingId, matchData);
-        await setDocument('schedules', editingId, matchData);
+        try {
+          await setDocument('schedules', editingId, matchData);
+        } catch (sErr) {
+          console.warn('Sync to schedules collection skipped (permission/rule restriction):', sErr);
+        }
         setSuccess('Match / Schedule entry updated successfully!');
       } else {
         matchData.tossWinner = '';
@@ -121,8 +125,12 @@ export default function AdminMatches() {
         const docRef = await addDocument('matches', matchData);
         matchDocId = docRef.id;
 
-        // Sync to schedules collection with same ID
-        await setDocument('schedules', docRef.id, { id: docRef.id, ...matchData });
+        // Optional sync to schedules collection with same ID
+        try {
+          await setDocument('schedules', docRef.id, { id: docRef.id, ...matchData });
+        } catch (sErr) {
+          console.warn('Sync to schedules collection skipped (permission/rule restriction):', sErr);
+        }
         setSuccess('New Match / Schedule entry created and published to captains!');
       }
 

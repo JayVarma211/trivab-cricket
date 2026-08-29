@@ -6,7 +6,8 @@ service cloud.firestore {
     // Helper function to check if user is admin
     function isAdmin() {
       return request.auth != null && (
-        request.auth.token.get('email', '').lower() == 'trivabsports@gmail.com' ||
+        request.auth.token.email == 'trivabsports@gmail.com' ||
+        request.auth.token.email == 'trivabsportsandevents@gmail.com' ||
         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
       );
@@ -50,6 +51,12 @@ service cloud.firestore {
     
     // Matches collection
     match /matches/{matchId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Schedules collection
+    match /schedules/{scheduleId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
