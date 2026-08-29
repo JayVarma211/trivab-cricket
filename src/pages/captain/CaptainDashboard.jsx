@@ -134,10 +134,38 @@ export default function CaptainDashboard() {
             setAnnouncements([]);
           }
 
-          // Fetch captain schedules (admin-published)
+          // Fetch captain schedules & matches (admin-published)
           try {
-            const schedulesData = await getCollection('schedules', [orderBy('date', 'asc')]);
-            setSchedules(schedulesData || []);
+            const [matchesList, schedulesList] = await Promise.all([
+              getCollection('matches', []).catch(() => []),
+              getCollection('schedules', []).catch(() => [])
+            ]);
+
+            const map = new Map();
+            [...(matchesList || []), ...(schedulesList || [])].forEach((item) => {
+              if (!item.id) return;
+              map.set(item.id, { ...map.get(item.id), ...item });
+            });
+
+            const combined = Array.from(map.values());
+            combined.sort((a, b) => new Date(a.date || '2099-01-01') - new Date(b.date || '2099-01-01'));
+
+            // Filter for captain's team
+            const currentTeamName = selectedTeam?.teamName || '';
+            const currentTeamId = selectedTeam?.id || '';
+
+            const filteredSchedules = combined.filter((s) => {
+              if (!currentTeamName) return true;
+              const target = (s.targetTeamName || '').toLowerCase();
+              if (!target || target === 'all teams' || target.includes('all teams') || target === 'general / all') return true;
+              const isTeamA = (s.teamA || '').toLowerCase() === currentTeamName.toLowerCase();
+              const isTeamB = (s.teamB || '').toLowerCase() === currentTeamName.toLowerCase();
+              const isTeamId = s.teamAId === currentTeamId || s.teamBId === currentTeamId || s.targetTeamId === currentTeamId;
+              const isTitleMatch = (s.title || '').toLowerCase().includes(currentTeamName.toLowerCase()) || target.includes(currentTeamName.toLowerCase());
+              return isTeamA || isTeamB || isTeamId || isTitleMatch;
+            });
+
+            setSchedules(filteredSchedules);
           } catch (schedErr) {
             console.warn('Failed to fetch schedules:', schedErr);
             setSchedules([]);

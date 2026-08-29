@@ -334,7 +334,7 @@ export default function Navbar() {
                       <Link to="/player/id-card" className="drop-item" onClick={() => setDropOpen(false)}>
                         <Award size={16} /> My ID Card
                       </Link>
-                      {(role === 'captain' || role === 'admin') && (
+                      {role === 'captain' && (
                         <Link to="/captain/schedule" className="drop-item" onClick={() => setDropOpen(false)}>
                           <CalendarClock size={16} /> Schedule
                         </Link>
@@ -489,7 +489,7 @@ export default function Navbar() {
                 <Link to={getDashboardLink()} className="btn btn-gold" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setMenuOpen(false)}>
                   <LayoutDashboard size={16} /> Dashboard
                 </Link>
-                {(role === 'captain' || role === 'admin') && (
+                {role === 'captain' && (
                   <Link to="/captain/schedule" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} onClick={() => setMenuOpen(false)}>
                     <CalendarClock size={16} style={{ marginRight: '6px' }} /> Schedule
                   </Link>
