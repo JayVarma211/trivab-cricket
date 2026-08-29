@@ -603,10 +603,23 @@
    ADMIN TABLES — Styled, clean
    ============================================================ */
 .table-responsive {
-  overflow-x: auto;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-x pan-y !important;
   background: var(--admin-card-bg);
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius);
+  transform: none !important;
+  transition: none !important;
+}
+
+.table-responsive,
+.table-responsive:hover,
+.table-responsive:active,
+.table-responsive:focus,
+.table-responsive *,
+.table-responsive *:active {
+  transform: none !important;
 }
 
 .data-table {

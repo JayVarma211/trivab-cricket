@@ -33,6 +33,7 @@ import PlayerDashboard from './pages/player/PlayerDashboard';
 import PlayerProfile from './pages/player/PlayerProfile';
 import DigitalIDCard from './pages/player/DigitalIDCard';
 import CaptainDashboard from './pages/captain/CaptainDashboard';
+import CaptainSchedule from './pages/captain/CaptainSchedule';
 
 // Admin pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -45,6 +46,7 @@ import AdminTournaments from './pages/admin/AdminTournaments';
 import AdminNews from './pages/admin/AdminNews';
 import AdminInquiries from './pages/admin/AdminInquiries';
 import AdminFees from './pages/admin/AdminFees';
+import AdminSchedule from './pages/admin/AdminSchedule';
 
 export default function App() {
   const { loading } = useAuth();
@@ -87,6 +89,7 @@ export default function App() {
           {/* Captain */}
           <Route path="/captain" element={<ProtectedRoute allowedRoles={['captain', 'admin']} />}>
             <Route path="dashboard" element={<CaptainDashboard />} />
+            <Route path="schedule" element={<CaptainSchedule />} />
           </Route>
 
           {/* Admin Auth */}
@@ -161,6 +164,13 @@ export default function App() {
             <AdminProtectedRoute>
               <AdminLayout>
                 <AdminFees />
+              </AdminLayout>
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/schedule" element={
+            <AdminProtectedRoute>
+              <AdminLayout>
+                <AdminSchedule />
               </AdminLayout>
             </AdminProtectedRoute>
           } />

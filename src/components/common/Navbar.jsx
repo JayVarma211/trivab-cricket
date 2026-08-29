@@ -7,7 +7,7 @@ import {
   Trophy, Users, Calendar, Star, Award, Newspaper,
   Sun, Moon, Menu, X, ChevronDown, ChevronRight, LogOut, User,
   LayoutDashboard, Shield, Zap, Globe, Briefcase, Heart, Building2,
-  Image, Mail, QrCode, Handshake
+  Image, Mail, QrCode, Handshake, CalendarClock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
@@ -334,6 +334,11 @@ export default function Navbar() {
                       <Link to="/player/id-card" className="drop-item" onClick={() => setDropOpen(false)}>
                         <Award size={16} /> My ID Card
                       </Link>
+                      {(role === 'captain' || role === 'admin') && (
+                        <Link to="/captain/schedule" className="drop-item" onClick={() => setDropOpen(false)}>
+                          <CalendarClock size={16} /> Schedule
+                        </Link>
+                      )}
                       <div className="drop-divider" />
                       <button className="drop-item drop-logout" onClick={() => { setDropOpen(false); handleLogout(); }}>
                         <LogOut size={16} /> Sign Out
@@ -484,7 +489,12 @@ export default function Navbar() {
                 <Link to={getDashboardLink()} className="btn btn-gold" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setMenuOpen(false)}>
                   <LayoutDashboard size={16} /> Dashboard
                 </Link>
-                <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => { setMenuOpen(false); handleLogout(); }}>
+                {(role === 'captain' || role === 'admin') && (
+                  <Link to="/captain/schedule" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} onClick={() => setMenuOpen(false)}>
+                    <CalendarClock size={16} style={{ marginRight: '6px' }} /> Schedule
+                  </Link>
+                )}
+                <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} onClick={() => { setMenuOpen(false); handleLogout(); }}>
                   <LogOut size={16} /> Sign Out
                 </button>
               </>

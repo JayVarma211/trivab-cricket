@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, getDocument, setDocument, addDocument, getPlayerByUIDOrEmail, where, orderBy, updateDocument } from '../../firebase/firestore';
-import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload, CreditCard, Clock, Calendar, AlertCircle } from 'lucide-react';
+import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload, CreditCard, Clock, Calendar, AlertCircle, CalendarClock, MapPin } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import { safeFormatDate, safeFormatDateTime, safeParseDate } from '../../utils/dateFormatter';
@@ -16,6 +16,7 @@ export default function CaptainDashboard() {
   const [teamFees, setTeamFees] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [schedules, setSchedules] = useState([]);
 
   // Edit states
   const [editMode, setEditMode] = useState(false);
@@ -132,10 +133,20 @@ export default function CaptainDashboard() {
             console.warn("Failed to fetch announcements:", announceErr);
             setAnnouncements([]);
           }
+
+          // Fetch captain schedules (admin-published)
+          try {
+            const schedulesData = await getCollection('schedules', [orderBy('date', 'asc')]);
+            setSchedules(schedulesData || []);
+          } catch (schedErr) {
+            console.warn('Failed to fetch schedules:', schedErr);
+            setSchedules([]);
+          }
         } else {
           setTeamFees(null);
           setPaymentHistory([]);
           setAnnouncements([]);
+          setSchedules([]);
         }
 
         // Filter tournaments that the captain does not have a team in yet and are activated
@@ -525,6 +536,104 @@ export default function CaptainDashboard() {
           </div>
         </div>
       )}
+
+      {/* ── Captain Schedule (read-only) ── */}
+      <div className="card mb-xl animate-fade-in" style={{ borderLeft: '4px solid #3B82F6' }}>
+        <h3 className="text-md font-bold mb-md flex items-center gap-xs" style={{ color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <CalendarClock size={20} style={{ color: '#3B82F6' }} />
+          <span>Captain Schedule</span>
+          <span style={{ marginLeft: 'auto', fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '999px', padding: '2px 12px' }}>
+            {schedules.length} {schedules.length === 1 ? 'Entry' : 'Entries'}
+          </span>
+        </h3>
+
+        {schedules.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', color: 'var(--text-muted)' }}>
+            <CalendarClock size={36} style={{ opacity: 0.3, marginBottom: '10px' }} />
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>No schedules published yet. Check back soon!</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {schedules.map((sch) => {
+              const TYPE_COLORS = { Practice: '#3B82F6', Match: '#EF4444', Meeting: '#F59E0B', Event: '#8B5CF6', Training: '#10B981', 'Selection Trial': '#EC4899' };
+              const STATUS_STYLES = {
+                Upcoming: { background: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.25)' },
+                Completed: { background: 'rgba(16,185,129,0.12)', color: '#34D399', border: '1px solid rgba(16,185,129,0.25)' },
+                Cancelled: { background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.25)' },
+              };
+              const typeColor = TYPE_COLORS[sch.type] || '#800000';
+              const statusStyle = STATUS_STYLES[sch.status] || STATUS_STYLES.Upcoming;
+              return (
+                <div
+                  key={sch.id}
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    border: '1px solid var(--border-card)',
+                    borderLeft: `4px solid ${typeColor}`,
+                    borderRadius: '10px',
+                    padding: '16px 20px',
+                    display: 'flex',
+                    gap: '16px',
+                    alignItems: 'flex-start',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {/* Date block */}
+                  <div style={{ textAlign: 'center', minWidth: '52px', flexShrink: 0 }}>
+                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>
+                      {sch.date ? new Date(sch.date + 'T00:00:00').getDate() : '—'}
+                    </div>
+                    <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                      {sch.date ? new Date(sch.date + 'T00:00:00').toLocaleString('en-IN', { month: 'short' }) : ''}
+                    </div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                      {sch.date ? new Date(sch.date + 'T00:00:00').getFullYear() : ''}
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div style={{ width: '1px', height: '48px', background: 'var(--border-card)', flexShrink: 0, alignSelf: 'center' }} />
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: '180px' }}>
+                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                      <span style={{ background: typeColor + '22', color: typeColor, border: `1px solid ${typeColor}44`, borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 700 }}>
+                        {sch.type}
+                      </span>
+                      <span style={{ ...statusStyle, borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 700 }}>
+                        {sch.status}
+                      </span>
+                    </div>
+                    <p style={{ margin: '0 0 6px', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{sch.title}</p>
+                    <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                      {sch.time && (
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Clock size={11} /> {sch.time}
+                        </span>
+                      )}
+                      {sch.venue && (
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <MapPin size={11} /> {sch.venue}
+                        </span>
+                      )}
+                      {sch.targetTeamName && (
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Users size={11} /> {sch.targetTeamName}
+                        </span>
+                      )}
+                    </div>
+                    {sch.description && (
+                      <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                        {sch.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <div className="captain-grid">
         {/* FIRST: Active Managed Team Selection */}

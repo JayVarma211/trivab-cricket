@@ -434,7 +434,7 @@ export default function AdminMatches() {
         </button>
       </div>
 
-      <div className="table-responsive card">
+      <div className="table-responsive">
         <table className="data-table">
           <thead>
             <tr>

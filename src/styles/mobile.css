@@ -1168,10 +1168,21 @@
    ============================================================ */
 @media (max-width: 768px) {
   .table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x pan-y !important;
     border-radius: 12px;
     border: 1px solid var(--border-card);
+    transform: none !important;
+  }
+
+  .table-responsive,
+  .table-responsive:hover,
+  .table-responsive:active,
+  .table-responsive:focus,
+  .table-responsive *,
+  .table-responsive *:active {
+    transform: none !important;
   }
 
   .data-table th,
@@ -1181,10 +1192,11 @@
     white-space: nowrap;
   }
 
-  table {
-    display: block;
-    overflow-x: auto;
-    width: 100%;
+  .table-responsive table,
+  .table-responsive .data-table {
+    display: table !important;
+    width: 100% !important;
+    min-width: 650px !important;
   }
 }
 

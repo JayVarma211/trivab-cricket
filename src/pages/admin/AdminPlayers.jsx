@@ -1022,7 +1022,7 @@ export default function AdminPlayers() {
       </div>
 
       {activeTab === 'players' ? (
-        <div className="table-responsive card">
+        <div className="table-responsive">
           <table className="data-table">
             <thead>
               <tr>
@@ -1090,7 +1090,7 @@ export default function AdminPlayers() {
           </table>
         </div>
       ) : (
-        <div className="table-responsive card">
+        <div className="table-responsive">
           <table className="data-table">
             <thead>
               <tr>
