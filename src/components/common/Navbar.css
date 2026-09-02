@@ -338,6 +338,14 @@
   .auth-btns    { display: none; }
   .hamburger    { display: flex; }
   .user-info    { display: none; }
+  .navbar-actions .btn-icon svg,
+  .navbar-actions .hamburger svg,
+  .navbar-actions .theme-toggle svg {
+    display: block;
+    flex-shrink: 0;
+    color: currentColor;
+    stroke: currentColor;
+  }
   .mobile-register-btn {
     display: inline-flex !important;
     height: 32px;

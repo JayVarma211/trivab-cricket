@@ -218,6 +218,25 @@
 }
 
 @media (max-width: 768px) {
+  .captain-dashboard .dashboard-header {
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .captain-dashboard .dashboard-header > div:first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .captain-dashboard .dashboard-header .btn {
+    flex: 0 0 auto;
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
   .captain-dashboard {
     padding-left: 12px !important;
     padding-right: 12px !important;
