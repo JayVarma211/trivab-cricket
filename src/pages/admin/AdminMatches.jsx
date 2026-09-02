@@ -125,6 +125,8 @@ export default function AdminMatches() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [detailFilter, setDetailFilter] = useState('All');
+  const [detailFilterValue, setDetailFilterValue] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
@@ -340,9 +342,26 @@ export default function AdminMatches() {
       m.type?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = statusFilter === 'All' || m.status === statusFilter;
+    const tournament = tournaments.find(t => t.id === getStringVal(m.tournamentId) || t.name === getStringVal(m.tournamentId));
+    const filterValue = detailFilterValue.toLowerCase();
+    const matchesDetail = detailFilter === 'All' || !detailFilterValue || (
+      detailFilter === 'Date'
+        ? formatDateForInput(m.date) === detailFilterValue
+        : detailFilter === 'Team'
+          ? [m.teamA, m.teamB, m.targetTeamName].some(team => getStringVal(team).toLowerCase().includes(filterValue))
+          : detailFilter === 'Tournament'
+            ? getStringVal(m.tournamentId).toLowerCase() === filterValue || getStringVal(tournament?.name).toLowerCase() === filterValue
+            : getStringVal(m.venue).toLowerCase().includes(filterValue)
+    );
 
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesDetail;
   });
+
+  const filterOptions = {
+    Team: [...new Set(teams.map(team => getStringVal(team.teamName)).filter(Boolean))].sort(),
+    Tournament: [...new Set(tournaments.map(tournament => getStringVal(tournament.name)).filter(Boolean))].sort(),
+    Ground: [...new Set(matches.map(match => getStringVal(match.venue)).filter(Boolean))].sort(),
+  };
 
   const selectedTournId = getStringVal(formData.tournamentId);
   const availableTeams = selectedTournId
@@ -468,6 +487,49 @@ export default function AdminMatches() {
             className="form-input"
           />
         </div>
+
+        <select
+          className="form-select"
+          value={detailFilter}
+          onChange={(e) => {
+            setDetailFilter(e.target.value);
+            setDetailFilterValue('');
+          }}
+          aria-label="Filter matches by"
+          style={{ minWidth: '150px', width: 'auto' }}
+        >
+          <option value="All">Filter: All</option>
+          <option value="Date">Filter: Date</option>
+          <option value="Team">Filter: Team</option>
+          <option value="Tournament">Filter: Tournament</option>
+          <option value="Ground">Filter: Ground</option>
+        </select>
+
+        {detailFilter !== 'All' && detailFilter === 'Date' && (
+          <input
+            className="form-input"
+            type="date"
+            value={detailFilterValue}
+            onChange={(e) => setDetailFilterValue(e.target.value)}
+            aria-label="Select match date"
+            style={{ width: 'auto' }}
+          />
+        )}
+
+        {detailFilter !== 'All' && detailFilter !== 'Date' && (
+          <select
+            className="form-select"
+            value={detailFilterValue}
+            onChange={(e) => setDetailFilterValue(e.target.value)}
+            aria-label={`Filter matches by ${detailFilter.toLowerCase()}`}
+            style={{ minWidth: '170px', width: 'auto' }}
+          >
+            <option value="">All {detailFilter}s</option>
+            {filterOptions[detailFilter].map(option => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+        )}
 
         {/* Status Pills */}
         <div className="flex gap-xs flex-wrap">
