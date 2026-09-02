@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, addDocument, updateDocument, deleteDocument, where } from '../../firebase/firestore';
-import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, X, Users, Loader2, Download } from 'lucide-react';
+import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, X, Users, Loader2, Download, Upload } from 'lucide-react';
+import uploadImageToCloudinary from '../../services/cloudinary';
 import './Admin.css';
 
 export default function AdminTeams() {
@@ -18,6 +19,7 @@ export default function AdminTeams() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const [formData, setFormData] = useState({
     teamName: '',
@@ -29,6 +31,7 @@ export default function AdminTeams() {
     maxPlayers: 40,
     tournamentId: '',
     tournamentName: '',
+    logoURL: '',
   });
 
   const [selectedTournamentFilter, setSelectedTournamentFilter] = useState('All');
@@ -258,6 +261,23 @@ export default function AdminTeams() {
     }));
   };
 
+  const handleLogoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingLogo(true);
+    setError('');
+    try {
+      const logoURL = await uploadImageToCloudinary(file);
+      setFormData(prev => ({ ...prev, logoURL }));
+    } catch (err) {
+      setError('Failed to upload team logo. Please try again.');
+    } finally {
+      setUploadingLogo(false);
+      e.target.value = '';
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -274,6 +294,7 @@ export default function AdminTeams() {
         maxPlayers: formData.maxPlayers || 40,
         tournamentId: formData.tournamentId || '',
         tournamentName: formData.tournamentName || '',
+        logoURL: formData.logoURL || '',
       };
 
       if (editingId) {
@@ -336,6 +357,7 @@ export default function AdminTeams() {
       maxPlayers: team.maxPlayers || 40,
       tournamentId: team.tournamentId || '',
       tournamentName: team.tournamentName || '',
+      logoURL: team.logoURL || '',
     });
     setEditingId(team.id);
     setShowForm(true);
@@ -352,6 +374,7 @@ export default function AdminTeams() {
       maxPlayers: 40,
       tournamentId: '',
       tournamentName: '',
+      logoURL: '',
     });
   };
 
@@ -416,6 +439,36 @@ export default function AdminTeams() {
           </h2>
           
           <form onSubmit={handleSubmit} className="grid grid-2 gap-md">
+            <div className="form-group col-2">
+              <label className="form-label">Team Logo</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+                {formData.logoURL ? (
+                  <img
+                    src={formData.logoURL}
+                    alt={`${formData.teamName || 'Team'} logo preview`}
+                    style={{ width: '64px', height: '64px', objectFit: 'cover', borderRadius: '10px', border: '1px solid var(--admin-border-accent)' }}
+                  />
+                ) : (
+                  <div style={{ width: '64px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', border: '1px dashed var(--admin-border-accent)', color: 'var(--admin-muted)' }}>
+                    <Trophy size={24} />
+                  </div>
+                )}
+                <label className="btn btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', cursor: uploadingLogo ? 'wait' : 'pointer' }}>
+                  <Upload size={16} /> {uploadingLogo ? 'Uploading...' : 'Choose Logo'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoChange}
+                    disabled={uploadingLogo}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+              </div>
+              <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)', marginTop: '4px' }}>
+                Upload a square team logo image.
+              </span>
+            </div>
+
             <div className="form-group">
               <label className="form-label">Team Name</label>
               <input
@@ -505,8 +558,8 @@ export default function AdminTeams() {
             </div>
 
             <div className="flex gap-md col-2">
-              <button type="submit" className="btn btn-gold flex-1">
-                {editingId ? 'Update Team' : 'Add Team'}
+              <button type="submit" className="btn btn-gold flex-1" disabled={uploadingLogo}>
+                {uploadingLogo ? 'Uploading Logo...' : (editingId ? 'Update Team' : 'Add Team')}
               </button>
               <button
                 type="button"
