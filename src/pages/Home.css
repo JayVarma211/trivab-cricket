@@ -15,452 +15,161 @@
 /* ============================================================
    HERO SECTION — Futuristic Cyber HUD
    ============================================================ */
+/* ============================================================
+   HERO SLIDESHOW — Cinematic Dark Hero (Matches Screenshot 2)
+   ============================================================ */
 .hero-section {
   position: relative;
-  min-height: 100vh;
+  min-height: 88vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 120px 24px 80px;
   overflow: hidden;
-  background: var(--bg-primary);
+  text-align: center;
+  transition: background var(--transition-slow);
 }
 
-/* ============================================================
-   HERO SLIDESHOW
-   ============================================================ */
-.hero-slideshow {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
+/* Light Mode Hero Background (Screenshot 1) */
+[data-theme="light"] .hero-section {
+  background: #FBF6F5;
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(245, 215, 215, 0.5) 0%, #FBF6F5 75%);
 }
 
-.hero-slide-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+/* Dark Mode Hero Background (Screenshot 2) */
+[data-theme="dark"] .hero-section,
+.hero-section {
+  background: #0B0404;
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(120, 20, 20, 0.35) 0%, #0B0404 75%);
 }
 
-.hero-slide-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  /* Dark overlay baked in via filter for dark theme */
-  filter: brightness(0.38) saturate(1.1);
-}
-
-/* Lighter for light theme — keep text readable */
-[data-theme="light"] .hero-slide-img img {
-  filter: brightness(0.45) saturate(1.0);
-}
-
-/* Slide nav arrows */
-.hero-slide-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 15;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  color: #fff;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.25s;
-  backdrop-filter: blur(6px);
-}
-.hero-slide-btn:hover { background: rgba(157, 28, 28, 0.6); }
-.hero-slide-btn--prev { left: 24px; }
-.hero-slide-btn--next { right: 24px; }
-
-/* Slide dots */
-.hero-slide-dots {
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 15;
-  display: flex;
-  gap: 10px;
-}
-.hero-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.4);
-  cursor: pointer;
-  transition: background 0.25s, transform 0.25s;
-  padding: 0;
-}
-.hero-dot.active {
-  background: #C44040;
-  transform: scale(1.35);
-}
-
-/* Restore overlay / vignette / particles so they render above slideshow */
+.hero-slideshow,
 .hero-overlay,
 .hero-vignette,
 .hero-light-leak,
 .hero-light-leak-2,
-.hero-particles {
-  display: block;
+.hero-particles,
+.hero-slide-btn,
+.hero-slide-dots,
+.hero-scroll-indicator {
+  display: none !important;
 }
 
-
-.hero-bg-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 40%;
-  filter: brightness(0.25) saturate(1.2) contrast(1.1);
-}
-
-/* Sci-fi Cyber Grid Overlay */
-.hero-overlay::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(rgba(157, 28, 28, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(157, 28, 28, 0.07) 1px, transparent 1px);
-  background-size: 50px 50px;
-  background-position: center center;
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* High-tech sweep laser scanline */
-.hero-overlay::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.4), transparent);
-  animation: cyberScanner 6s linear infinite;
-  z-index: 3;
-  pointer-events: none;
-}
-
-@keyframes cyberScanner {
-  0% { transform: translateY(-10%); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(100vh); opacity: 0; }
-}
-
-/* Layered gradient overlays for cinematic depth */
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background:
-    linear-gradient(180deg,
-      rgba(6, 3, 3, 0.7) 0%,
-      rgba(6, 3, 3, 0.2) 35%,
-      rgba(6, 3, 3, 0.15) 50%,
-      rgba(6, 3, 3, 0.5) 75%,
-      rgba(6, 3, 3, 0.98) 100%
-    );
-}
-
-/* Cinematic vignette */
-.hero-vignette {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: radial-gradient(circle at center, transparent 20%, rgba(6, 3, 3, 0.75) 100%);
-  pointer-events: none;
-}
-
-/* Red cinematic light leaks */
-.hero-light-leak {
-  position: absolute;
-  top: -10%;
-  right: -5%;
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(circle, rgba(157, 28, 28, 0.18) 0%, transparent 60%);
-  z-index: 2;
-  pointer-events: none;
-  filter: blur(80px);
-}
-
-.hero-light-leak-2 {
-  position: absolute;
-  bottom: -10%;
-  left: -5%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(128, 0, 0, 0.12) 0%, transparent 60%);
-  z-index: 2;
-  pointer-events: none;
-  filter: blur(60px);
-}
-
-/* Floating dust particles */
-.hero-particles {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.dust {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.45);
-  animation: dustFloat linear infinite;
-}
-
-.dust:nth-child(1) { left: 10%; top: 20%; animation-duration: 18s; animation-delay: 0s; width: 2px; height: 2px; }
-.dust:nth-child(2) { left: 25%; top: 60%; animation-duration: 22s; animation-delay: -3s; }
-.dust:nth-child(3) { left: 45%; top: 15%; animation-duration: 16s; animation-delay: -7s; width: 4px; height: 4px; opacity: 0.25; }
-.dust:nth-child(4) { left: 65%; top: 45%; animation-duration: 20s; animation-delay: -5s; width: 2px; height: 2px; }
-.dust:nth-child(5) { left: 80%; top: 70%; animation-duration: 24s; animation-delay: -2s; }
-.dust:nth-child(6) { left: 55%; top: 80%; animation-duration: 19s; animation-delay: -8s; width: 2px; height: 2px; }
-.dust:nth-child(7) { left: 90%; top: 30%; animation-duration: 15s; animation-delay: -4s; }
-.dust:nth-child(8) { left: 35%; top: 40%; animation-duration: 21s; animation-delay: -10s; width: 4px; height: 4px; opacity: 0.2; }
-
-@keyframes dustFloat {
-  0% { transform: translateY(0) translateX(0); opacity: 0; }
-  10% { opacity: 0.6; }
-  90% { opacity: 0.6; }
-  100% { transform: translateY(-100vh) translateX(30px); opacity: 0; }
-}
-
-/* Hero content positioning */
-.hero-container.centered {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  width: 100%;
-  z-index: 10;
-  position: relative;
-  /* Use variable so mobile override of --navbar-height flows through */
-  padding: calc(var(--navbar-height) + 60px) 24px 120px;
-}
-
-.hero-container.centered .hero-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  max-width: 950px;
-  margin: 0 auto;
-}
-
-/* High-tech HUD badge */
-.hero-label-badge {
+/* Hero Tag Badge */
+.hero-section .hero-label-badge {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 24px;
-  border-radius: 4px;
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  background: rgba(157, 28, 28, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  color: #FF5A5A;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.22em;
+  gap: 6px;
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-family: monospace;
-  margin-bottom: 40px;
-  position: relative;
+  font-family: monospace, var(--font-body);
+  margin-bottom: 32px;
+  transition: all var(--transition-base);
+  box-shadow: none !important;
 }
 
-/* Tech brackets on badge corners */
-.hero-label-badge::before {
-  content: '[';
-  position: absolute;
-  left: 6px;
-  color: rgba(239, 68, 68, 0.6);
+[data-theme="light"] .hero-section .hero-label-badge {
+  border: 1px solid #F5C6C6 !important;
+  background: #FDF2F2 !important;
+  color: #D93838 !important;
 }
 
-.hero-label-badge::after {
-  content: ']';
-  position: absolute;
-  right: 6px;
-  color: rgba(239, 68, 68, 0.6);
+[data-theme="dark"] .hero-section .hero-label-badge,
+.hero-section .hero-label-badge {
+  border: 1px solid rgba(185, 28, 28, 0.4) !important;
+  background: rgba(74, 18, 18, 0.4) !important;
+  color: #FF6B6B !important;
 }
 
-/* Hero title — overrides .display-2xl to ensure proper rendering */
+/* Hero Title */
 .hero-section .hero-title {
-  margin-bottom: var(--space-xl);
-  font-size: clamp(2.8rem, 6.5vw, 5.2rem);
-  color: var(--text-primary);
-  line-height: 1.05;
+  margin-bottom: 24px;
+  font-size: clamp(2.8rem, 6.2vw, 5rem);
+  line-height: 1.1;
   font-weight: 900;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.03em;
   font-family: var(--font-display);
-  font-style: normal;
+  text-shadow: none !important;
 }
 
-[data-theme="dark"] .hero-section .hero-title {
-  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.8), 0 0 100px rgba(157, 28, 28, 0.15);
+.hero-title-main {
+  display: inline-block;
+  font-weight: 900;
 }
 
-.hero-title .text-gradient-crimson {
-  background: linear-gradient(135deg, #B91C1C 0%, #800000 50%, #4A0000 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: drop-shadow(0 2px 8px rgba(128, 0, 0, 0.15));
+[data-theme="light"] .hero-title-main {
+  color: #3D0A0A !important;
 }
 
+[data-theme="dark"] .hero-title-main,
+.hero-title-main {
+  color: #FFFFFF !important;
+}
+
+.hero-title-highlight {
+  display: inline-block;
+  font-weight: 900;
+}
+
+[data-theme="light"] .hero-title-highlight {
+  color: #B91C1C !important;
+}
+
+[data-theme="dark"] .hero-title-highlight,
+.hero-title-highlight {
+  color: #8F1111 !important;
+  text-shadow: 0 0 35px rgba(185, 28, 28, 0.4);
+}
+
+/* Hero Subtitle */
 .hero-section .hero-subtitle {
-  font-size: clamp(1rem, 2.5vw, 1.22rem);
-  line-height: 1.85;
-  margin-bottom: var(--space-3xl);
-  max-width: 800px;
-  color: var(--text-secondary);
+  font-size: clamp(0.95rem, 2vw, 1.12rem);
+  line-height: 1.8;
+  margin: 0 auto 40px;
+  max-width: 860px;
   font-weight: 500;
-  letter-spacing: 0.015em;
+  letter-spacing: 0.01em;
   font-family: var(--font-body);
-  font-style: normal;
-  z-index: 10;
-  position: relative;
+  text-shadow: none !important;
 }
 
-[data-theme="dark"] .hero-section .hero-subtitle {
-  text-shadow: 
-    0 2px 15px rgba(0, 0, 0, 0.95), 
-    0 1px 4px rgba(0, 0, 0, 0.95),
-    0 0 30px rgba(0, 0, 0, 0.6);
+[data-theme="light"] .hero-section .hero-subtitle {
+  color: #6B4C4C !important;
 }
 
-/* Hero CTA buttons with sci-fi design elements */
-.hero-actions {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
+[data-theme="dark"] .hero-section .hero-subtitle,
+.hero-section .hero-subtitle {
+  color: #D1C7C7 !important;
 }
 
+/* CTA Crimson Button */
 .btn-crimson {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 18px 40px;
-  border-radius: 4px; /* Sci-fi sharp corners */
-  background: linear-gradient(135deg, #C44040 0%, #9D1C1C 50%, #800000 100%);
-  color: #FFFFFF;
-  font-weight: 700;
-  font-size: 0.95rem;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #B91C1C 0%, #800000 100%);
+  color: #FFFFFF !important;
+  font-size: 0.92rem;
+  font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  cursor: pointer;
   text-decoration: none;
-  font-family: var(--font-body);
-  font-style: normal;
-  box-shadow:
-    0 4px 24px rgba(157, 28, 28, 0.4),
-    0 0 80px rgba(157, 28, 28, 0.15);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
+  border: none;
+  box-shadow: 0 8px 25px rgba(185, 28, 28, 0.35);
+  transition: all 0.25s ease;
 }
 
-/* Shimmer sweep on btn */
-.btn-crimson::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  animation: btnShimmer 3s infinite;
-}
-
-@keyframes btnShimmer {
-  0% { left: -100%; }
-  100% { left: 200%; }
-}
-
-/* Tech corner line overlay for button */
 .btn-crimson:hover {
-  box-shadow:
-    0 8px 40px rgba(157, 28, 28, 0.6),
-    0 0 100px rgba(255, 90, 90, 0.3);
+  background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+  box-shadow: 0 12px 35px rgba(185, 28, 28, 0.5);
   transform: translateY(-2px);
-}
-
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 40px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #FFFFFF;
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-family: var(--font-body);
-  font-style: normal;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-.btn-ghost:hover {
-  border-color: rgba(196, 64, 64, 0.6);
-  background: rgba(157, 28, 28, 0.08);
-  color: #FF8A8A;
-  transform: translateY(-2px);
-}
-
-/* Scroll indicator */
-.hero-scroll-indicator {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  z-index: 10;
-  font-family: monospace;
-}
-
-.scroll-line {
-  width: 2px;
-  height: 44px;
-  background: linear-gradient(to bottom, #C44040, transparent);
-  animation: scrollPulse 2s ease-in-out infinite;
-}
-
-@keyframes scrollPulse {
-  0%, 100% { opacity: 0.3; height: 44px; }
-  50% { opacity: 1; height: 56px; }
 }
 
 /* ============================================================
@@ -1283,90 +992,4 @@
   margin-top: 4px;
 }
 
-/* ---- Lightbox ---- */
-.photo-lightbox {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: rgba(0,0,0,0.88);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  cursor: zoom-out;
-}
 
-.lightbox-img-wrap {
-  position: relative;
-  max-width: 90vw;
-  max-height: 90vh;
-  border-radius: 10px;
-  overflow: hidden;
-  cursor: default;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-}
-
-.lightbox-img-wrap img {
-  display: block;
-  max-width: 90vw;
-  max-height: 85vh;
-  object-fit: contain;
-}
-
-.lightbox-close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0,0,0,0.5);
-  border: none;
-  color: #fff;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  font-size: 1.1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-.lightbox-close:hover { background: rgba(196,64,64,0.8); }
-
-.lightbox-caption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0,0,0,0.55);
-  color: #fff;
-  text-align: center;
-  padding: 10px 16px;
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-/* Hero title text always white over slideshow */
-.hero-section .hero-title,
-.hero-section .hero-subtitle {
-  color: #ffffff !important;
-}
-
-[data-theme=\"light\"] .hero-section .hero-title {
-  color: #ffffff !important;
-  text-shadow: 0 2px 16px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.6) !important;
-}
-[data-theme=\"light\"] .hero-section .hero-subtitle {
-  color: rgba(255,255,255,0.92) !important;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.7) !important;
-}
-
-.hero-section .hero-label-badge {
-  color: #FF9090;
-  border-color: rgba(239,68,68,0.5);
-  background: rgba(0,0,0,0.3);
-}
-
-/* Hero scroll indicator always white */
-.hero-scroll-indicator {
-  color: rgba(255,255,255,0.5) !important;
-}

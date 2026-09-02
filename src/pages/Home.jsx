@@ -12,12 +12,6 @@ const HERO_SLIDES = [
   { src: '/images/background3.jpg', alt: 'TRIVAB Sports event atmosphere' },
 ];
 
-const ACTION_PHOTOS = [
-  { src: '/images/trivab-action1.jpg', alt: 'TRIVAB cricket match in action', caption: 'Live Match Action' },
-  { src: '/images/trivab-action2.jpg', alt: 'TRIVAB tournament moments', caption: 'Tournament Moments' },
-  { src: '/images/trivab-action3.jpg', alt: 'TRIVAB sports event highlights', caption: 'Event Highlights' },
-];
-
 const TICKER_LOGOS = [
   { src: '/logos/baplt20north.png', alt: 'BAPL T20 North', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-north' },
   { src: '/logos/baplxpresst20south.png', alt: 'BAPL Xpress South', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/baplxpress-south' },
@@ -36,7 +30,6 @@ export default function Home() {
   const [recentTournaments, setRecentTournaments] = useState([]);
   const [upcomingMatches, setUpcomingMatches] = useState([]);
   const [heroSlide, setHeroSlide] = useState(0);
-  const [activePhoto, setActivePhoto] = useState(null);
   const slideTimerRef = useRef(null);
 
   // Auto-advance hero slideshow
@@ -219,12 +212,12 @@ export default function Home() {
             variants={heroContainerVariants}
           >
             <motion.span className="hero-label-badge" variants={heroSpring}>
-              <Sparkles size={13} /> TRIVAB Sports &amp; Events
+              [ <Sparkles size={13} style={{ display: 'inline-block', margin: '0 4px' }} /> TRIVAB SPORTS &amp; EVENTS ]
             </motion.span>
 
             <motion.h1 className="hero-title" variants={heroSpring}>
-              Sports &amp; Events,<br />
-              <span className="text-gradient-crimson">Organized to Perfection.</span>
+              <span className="hero-title-main">Sports &amp; Events,</span><br />
+              <span className="hero-title-highlight">Organized to Perfection.</span>
             </motion.h1>
 
             <motion.p className="hero-subtitle" variants={heroSpring}>
@@ -234,7 +227,7 @@ export default function Home() {
             <motion.div className="hero-actions" variants={heroSpring} style={{ justifyContent: 'center' }}>
               <motion.div whileHover={magneticHover} whileTap={{ scale: 0.97 }}>
                 <Link to="/services?type=corporate" className="btn-crimson">
-                  Organize an Event For your Company <ArrowRight size={18} />
+                  ORGANIZE AN EVENT FOR YOUR COMPANY <ArrowRight size={18} />
                 </Link>
               </motion.div>
             </motion.div>
@@ -469,76 +462,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================================================================
-          ACTION PHOTOS GALLERY
-          ================================================================ */}
-      <section className="action-gallery-section">
-        <div className="container">
-          <motion.div
-            className="section-header"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-          >
-            <span className="section-label">In Action</span>
-            <h2 className="section-title">TRIVAB on the Field</h2>
-            <p className="section-subtitle">Real moments from our tournaments &mdash; where passion meets the pitch.</p>
-          </motion.div>
 
-          <motion.div
-            className="action-gallery-grid"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.15 }}
-            variants={containerVariants}
-          >
-            {ACTION_PHOTOS.map((photo, idx) => (
-              <motion.div
-                key={idx}
-                className="action-photo-card"
-                variants={scaleUp}
-                whileHover={{ scale: 1.03, y: -6 }}
-                onClick={() => setActivePhoto(photo)}
-              >
-                <div className="action-photo-img-wrap">
-                  <img src={photo.src} alt={photo.alt} loading="lazy" />
-                  <div className="action-photo-overlay">
-                    <span className="action-photo-caption">{photo.caption}</span>
-                    <span className="action-photo-zoom">View ↗</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* Lightbox */}
-        <AnimatePresence>
-          {activePhoto && (
-            <motion.div
-              className="photo-lightbox"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActivePhoto(null)}
-            >
-              <motion.div
-                className="lightbox-img-wrap"
-                initial={{ scale: 0.88, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.88, opacity: 0 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-                onClick={e => e.stopPropagation()}
-              >
-                <img src={activePhoto.src} alt={activePhoto.alt} />
-                <button className="lightbox-close" onClick={() => setActivePhoto(null)} aria-label="Close">✕</button>
-                <span className="lightbox-caption">{activePhoto.caption}</span>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </section>
 
       {/* ================================================================
           FEATURES — Preserved

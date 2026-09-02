@@ -74,9 +74,20 @@
 }
 
 .nav-link.active {
-  color: var(--gold);
-  background: rgba(128, 0, 0, 0.08);
-  font-weight: 600;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 6px 18px;
+}
+
+[data-theme="light"] .nav-link.active {
+  color: #800000;
+  background: #FCE8E8;
+}
+
+[data-theme="dark"] .nav-link.active,
+.nav-link.active {
+  color: #FF6B6B;
+  background: #3A0808;
 }
 
 /* ---- Right actions ---- */

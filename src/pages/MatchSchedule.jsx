@@ -12,6 +12,7 @@ export default function MatchSchedule() {
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All'); // All | Live | Upcoming | Completed
+  const [tournamentFilter, setTournamentFilter] = useState('All');
   const [selectedMatchForModal, setSelectedMatchForModal] = useState(null);
 
   useEffect(() => {
@@ -36,8 +37,9 @@ export default function MatchSchedule() {
   }, []);
 
   const filteredMatches = matches.filter((m) => {
-    if (filter === 'All') return true;
-    return m.status === filter;
+    const matchesStatus = filter === 'All' || m.status === filter;
+    const matchesTourn = tournamentFilter === 'All' || m.tournamentId === tournamentFilter;
+    return matchesStatus && matchesTourn;
   });
 
   const modalTournament = selectedMatchForModal ? tournaments.find(t => t.id === selectedMatchForModal.tournamentId) : null;
@@ -80,6 +82,17 @@ export default function MatchSchedule() {
             </button>
           ))}
         </div>
+        <select
+          className="form-select"
+          value={tournamentFilter}
+          onChange={(e) => setTournamentFilter(e.target.value)}
+          style={{ padding: '8px 16px', fontSize: '0.85rem', width: 'auto', borderRadius: '999px', border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+        >
+          <option value="All">All Tournaments</option>
+          {tournaments.map(t => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
       </div>
 
       {loading ? (

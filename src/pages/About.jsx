@@ -229,15 +229,17 @@ export default function About() {
 
             <div className="divider" style={{ margin: 'var(--space-2xl) 0' }} />
 
-            {/* Team Photo Banner */}
-            <div className="team-photo-banner mb-2xl">
-              <div className="team-photo-inner">
-                <img src="/images/team-photo.jpg" alt="TRIVAB Sports Leadership Team" className="team-banner-img" />
-                <div className="team-banner-overlay">
-                  <span className="team-banner-label">Our Team</span>
-                  <h3 className="team-banner-title">TRIVAB Sports &amp; Events</h3>
-                  <p className="team-banner-sub">The passionate people behind every tournament</p>
+            {/* Leadership & Operations Team Photo */}
+            <div className="team-photo-card mb-2xl">
+              <div className="team-photo-img-wrap">
+                <img src="/images/team-photo.jpg" alt="TRIVAB Sports Leadership Team" className="team-photo-img" />
+              </div>
+              <div className="team-photo-bar">
+                <div>
+                  <span className="team-photo-badge">Leadership &amp; Operations Team</span>
+                  <h3 className="team-photo-title">TRIVAB Sports &amp; Events</h3>
                 </div>
+                <p className="team-photo-sub">The dedicated team behind every tournament, match day, and player experience.</p>
               </div>
             </div>
 
@@ -258,7 +260,7 @@ export default function About() {
                 <div className="founder-card-layout">
                   <div className="founder-card-photo-col">
                     <div className="founder-photo-container">
-                      <img src="/logos/ankitshah.jpeg" alt="Ankit Shah" className="founder-photo-img" />
+                      <img src="/logos/ankitshah.png" alt="Ankit Shah" className="founder-photo-img" />
                     </div>
                     <div className="founder-photo-name">Ankit Shah</div>
                     <p className="text-xs text-muted flex items-center justify-center gap-xxs" style={{ marginTop: '8px' }}>
@@ -277,7 +279,7 @@ export default function About() {
                 <div className="founder-card-layout">
                   <div className="founder-card-photo-col">
                     <div className="founder-photo-container">
-                      <img src="/logos/viralshah.jpeg" alt="Viral Shah" className="founder-photo-img" />
+                      <img src="/logos/viralshah.png" alt="Viral Shah" className="founder-photo-img" />
                     </div>
                     <div className="founder-photo-name">Viral Shah</div>
                     <p className="text-xs text-muted flex items-center justify-center gap-xxs" style={{ marginTop: '8px' }}>
@@ -296,7 +298,7 @@ export default function About() {
                 <div className="founder-card-layout">
                   <div className="founder-card-photo-col">
                     <div className="founder-photo-container">
-                      <img src="/logos/ravishah.jpg" alt="Bhavesh Shah" className="founder-photo-img" />
+                      <img src="/logos/ravishah.png" alt="Bhavesh Shah" className="founder-photo-img" />
                     </div>
                     <div className="founder-photo-name">Bhavesh Shah</div>
                     <p className="text-xs text-muted flex items-center justify-center gap-xxs" style={{ marginTop: '8px' }}>

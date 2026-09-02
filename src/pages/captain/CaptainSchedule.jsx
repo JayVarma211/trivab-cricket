@@ -48,9 +48,11 @@ export default function CaptainSchedule() {
   const { user, role } = useAuth();
   const [schedules, setSchedules] = useState([]);
   const [captainTeams, setCaptainTeams] = useState([]);
+  const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterType, setFilterType] = useState('All');
+  const [filterTournament, setFilterTournament] = useState('All');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,11 +69,14 @@ export default function CaptainSchedule() {
         }
         setCaptainTeams(userTeams || []);
 
-        // 2. Fetch all entries from matches and schedules
-        const [matchesList, schedulesList] = await Promise.all([
+        // 2. Fetch all entries from matches and schedules, and tournaments
+        const [matchesList, schedulesList, tournamentsList] = await Promise.all([
           getCollection('matches', []).catch(() => []),
-          getCollection('schedules', []).catch(() => [])
+          getCollection('schedules', []).catch(() => []),
+          getCollection('tournaments', []).catch(() => [])
         ]);
+
+        setTournaments(tournamentsList || []);
 
         // Combine and deduplicate entries by ID or title+date
         const map = new Map();
@@ -122,10 +127,19 @@ export default function CaptainSchedule() {
 
   const relevantSchedules = schedules.filter(isRelevantToCaptain);
 
+  // Extract unique tournament options
+  const tournMap = new Map();
+  (tournaments || []).forEach(t => { if (t.id && t.name) tournMap.set(t.id, t.name); });
+  relevantSchedules.forEach(s => {
+    if (s.tournamentId && s.tournamentName) tournMap.set(s.tournamentId, s.tournamentName);
+  });
+  const uniqueTournaments = Array.from(tournMap.entries()).map(([id, name]) => ({ id, name }));
+
   const filtered = relevantSchedules.filter((s) => {
     const matchesStatus = filterStatus === 'All' || s.status === filterStatus;
     const matchesType = filterType === 'All' || s.type === filterType;
-    return matchesStatus && matchesType;
+    const matchesTourn = filterTournament === 'All' || s.tournamentId === filterTournament || s.tournamentName === filterTournament;
+    return matchesStatus && matchesType && matchesTourn;
   });
 
   if (loading) return <Loader fullscreen={false} />;
@@ -185,6 +199,19 @@ export default function CaptainSchedule() {
               );
             })}
           </div>
+
+          {/* Tournament Filter */}
+          <select
+            className="form-select"
+            value={filterTournament}
+            onChange={(e) => setFilterTournament(e.target.value)}
+            style={{ padding: '6px 16px', fontSize: '0.82rem', width: 'auto', borderRadius: '999px' }}
+          >
+            <option value="All">All Tournaments</option>
+            {uniqueTournaments.map(t => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
 
           {/* Type Filter */}
           <select

@@ -8,31 +8,31 @@ import SEO from '../components/common/SEO';
 const SAMPLE_IMAGES = [
   {
     id: 's1',
-    name: 'BAPL Season Kickoff Match',
-    url: 'https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&q=80&w=800',
+    name: 'TRIVAB League Team Lineup',
+    url: '/images/trivab-action1.jpg',
     uploadedAt: '2026-06-01T12:00:00Z',
-    size: '1.2'
+    size: '1.0'
   },
   {
     id: 's2',
-    name: 'Monsoon Championship Turf Pitch',
-    url: 'https://images.unsplash.com/photo-1540747737956-3787257478be?auto=format&fit=crop&q=80&w=800',
+    name: 'Tournament Match in Action',
+    url: '/images/trivab-action2.jpg',
     uploadedAt: '2026-06-03T10:00:00Z',
-    size: '0.85'
+    size: '1.1'
   },
   {
     id: 's3',
-    name: 'Tournament Champions Cup',
-    url: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=800',
+    name: 'Captain Toss & Match Handshake',
+    url: '/images/trivab-action3.jpg',
     uploadedAt: '2026-06-05T14:30:00Z',
-    size: '1.5'
+    size: '1.0'
   },
   {
     id: 's4',
-    name: 'Evening Turf Training Session',
-    url: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&q=80&w=800',
+    name: 'TRIVAB Leadership & Operations Team',
+    url: '/images/team-photo.jpg',
     uploadedAt: '2026-06-07T18:00:00Z',
-    size: '1.1'
+    size: '1.0'
   }
 ];
 

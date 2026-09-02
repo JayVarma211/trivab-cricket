@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Newspaper, Calendar, Tag, ArrowRight, Search, Sparkles, Share2 } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Newspaper, Calendar, Tag, ArrowRight, Search, Sparkles, Share2, X } from 'lucide-react';
 import { getCollection } from '../firebase/firestore';
 import { motion } from 'framer-motion';
 import SEO from '../components/common/SEO';
@@ -18,6 +19,7 @@ export default function NewsEvents() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState('All');
+  const [selectedArticleModal, setSelectedArticleModal] = useState(null);
 
   const SAMPLE_NEWS = [
     {
@@ -230,12 +232,13 @@ export default function NewsEvents() {
                 key={article.id}
                 className="card"
                 variants={fadeInUp}
+                onClick={() => setSelectedArticleModal(article)}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 'var(--space-md)',
                   transition: 'all 0.3s',
-                  cursor: 'default',
+                  cursor: 'pointer',
                   overflow: 'hidden',
                 }}
                 whileHover={{ y: -5, borderColor: 'var(--gold)' }}
@@ -291,7 +294,10 @@ export default function NewsEvents() {
                 <p className="text-sm text-secondary" style={{ flex: 1, lineHeight: 1.7, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {article.content}
                 </p>
-                <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', borderTop: '1px dashed var(--border-card)', paddingTop: '10px', marginTop: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px dashed var(--border-card)', paddingTop: '10px', marginTop: 'auto' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--gold)', fontWeight: 600 }}>
+                    Read Full Story →
+                  </span>
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
@@ -302,15 +308,17 @@ export default function NewsEvents() {
                       alignItems: 'center', 
                       gap: '6px', 
                       fontSize: '0.8rem', 
-                      color: 'var(--gold)', 
+                      color: 'var(--text-muted)', 
                       fontWeight: 600,
+                      background: 'none',
+                      border: 'none',
                       cursor: 'pointer',
                       transition: 'opacity 0.2s'
                     }}
                     onMouseEnter={e => e.currentTarget.style.opacity = 0.8}
                     onMouseLeave={e => e.currentTarget.style.opacity = 1}
                   >
-                    <Share2 size={13} /> Share Update
+                    <Share2 size={13} /> Share
                   </button>
                 </div>
               </motion.article>
@@ -318,6 +326,122 @@ export default function NewsEvents() {
           </motion.div>
         )}
       </div>
+
+      {/* Article Detail Modal */}
+      {selectedArticleModal && createPortal(
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.75)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            zIndex: 999999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+            boxSizing: 'border-box'
+          }}
+          onClick={() => setSelectedArticleModal(null)}
+        >
+          <div 
+            style={{
+              background: 'var(--bg-card, #ffffff)',
+              color: 'var(--text-primary, #0f172a)',
+              border: '1px solid var(--border-card, #e2e8f0)',
+              borderRadius: '16px',
+              maxWidth: '580px',
+              width: '100%',
+              maxHeight: '85vh',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+              overflow: 'hidden'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '16px 20px',
+              borderBottom: '1px solid var(--border-card, #e2e8f0)',
+              background: 'var(--bg-secondary, #f8fafc)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span className="badge badge-gold" style={{ fontSize: '0.72rem', letterSpacing: '0.05em', padding: '4px 10px' }}>
+                  {selectedArticleModal.tag || 'NEWS & EVENTS'}
+                </span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
+                  {selectedArticleModal.date ? new Date(selectedArticleModal.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : ''}
+                </span>
+              </div>
+
+              <button
+                onClick={() => setSelectedArticleModal(null)}
+                style={{
+                  background: 'var(--border-card, #e2e8f0)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--text-primary, #1e293b)',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Scrollable Body */}
+            <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
+              {selectedArticleModal.imageURL && (
+                <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', marginBottom: '20px', border: '1px solid var(--border-card, #e2e8f0)', background: '#0f172a' }}>
+                  <img
+                    src={selectedArticleModal.imageURL}
+                    alt={selectedArticleModal.title || ''}
+                    style={{ width: '100%', maxHeight: '320px', objectFit: 'contain', display: 'block' }}
+                  />
+                </div>
+              )}
+
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginBottom: '14px', lineHeight: 1.35 }}>
+                {selectedArticleModal.title}
+              </h2>
+
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary, #334155)', lineHeight: 1.7, whiteSpace: 'pre-line', margin: 0 }}>
+                {selectedArticleModal.content}
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border-card, #e2e8f0)', background: 'var(--bg-secondary, #f8fafc)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <button 
+                onClick={() => handleShare(selectedArticleModal)}
+                className="btn btn-outline btn-sm"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Share2 size={14} /> Share Story
+              </button>
+              <button className="btn btn-gold btn-sm" onClick={() => setSelectedArticleModal(null)}>
+                Close Window
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

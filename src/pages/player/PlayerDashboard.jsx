@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getPlayerByUIDOrEmail, getCollection, where } from '../../firebase/firestore';
-import { ShieldCheck, User, Award, Settings, Bell, Calendar, Trophy } from 'lucide-react';
+import { ShieldCheck, User, Award, Settings, Bell, Calendar, Trophy, Filter } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import './Player.css';
 
@@ -11,6 +11,7 @@ export default function PlayerDashboard() {
   const [player, setPlayer] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [matchTournamentFilter, setMatchTournamentFilter] = useState('All');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -121,25 +122,49 @@ export default function PlayerDashboard() {
 
         {/* Col 2: Match Schedule Widget */}
         <div className="card">
-          <h2 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
-            <Calendar size={20} /> My Matches
-          </h2>
-          {matches.length === 0 ? (
-            <p className="text-sm text-muted">No matches scheduled for team {player.teamName} yet.</p>
-          ) : (
-            <div className="flex flex-col gap-md">
-              {matches.map((m) => (
-                <div className="match-mini-card" key={m.id}>
-                  <div className="flex justify-between text-xs text-muted">
-                    <span>{m.date} - {m.time}</span>
-                    <span className="badge badge-blue">{m.status}</span>
+          <div className="flex justify-between items-center mb-md flex-wrap gap-sm">
+            <h2 className="text-lg font-bold text-gradient-gold flex items-center gap-sm" style={{ margin: 0 }}>
+              <Calendar size={20} /> My Matches
+            </h2>
+            {(player.joinedTournaments && player.joinedTournaments.length > 1) && (
+              <select
+                className="form-select"
+                value={matchTournamentFilter}
+                onChange={(e) => setMatchTournamentFilter(e.target.value)}
+                style={{ padding: '5px 12px', fontSize: '0.78rem', width: 'auto', borderRadius: '999px', border: '1px solid var(--border-card)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+              >
+                <option value="All">All Tournaments</option>
+                {player.joinedTournaments.map((t, idx) => (
+                  <option key={t.id || idx} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+          {(() => {
+            const displayMatches = matchTournamentFilter === 'All'
+              ? matches
+              : matches.filter(m => m.tournamentId === matchTournamentFilter);
+            if (displayMatches.length === 0) {
+              return <p className="text-sm text-muted">No matches scheduled{matchTournamentFilter !== 'All' ? ' for this tournament' : ` for team ${player.teamName}`} yet.</p>;
+            }
+            return (
+              <div className="flex flex-col gap-md">
+                {displayMatches.map((m) => (
+                  <div className="match-mini-card" key={m.id}>
+                    <div className="flex justify-between text-xs text-muted">
+                      <span>{m.date} - {m.time}</span>
+                      <span className="badge badge-blue">{m.status}</span>
+                    </div>
+                    <h4 className="text-sm font-bold mt-xs">{m.teamA} vs {m.teamB}</h4>
+                    <div className="flex justify-between items-center mt-xs">
+                      <p className="text-xs text-muted">Venue: {m.venue}</p>
+                      {m.tournamentName && <span className="text-xs text-gold" style={{ opacity: 0.7 }}>🏆 {m.tournamentName}</span>}
+                    </div>
                   </div>
-                  <h4 className="text-sm font-bold mt-xs">{m.teamA} vs {m.teamB}</h4>
-                  <p className="text-xs text-muted mt-xs">Venue: {m.venue}</p>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Col 3: Notifications Feed */}

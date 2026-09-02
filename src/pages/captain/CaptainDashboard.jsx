@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, getDocument, setDocument, addDocument, getPlayerByUIDOrEmail, where, orderBy, updateDocument } from '../../firebase/firestore';
-import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload, CreditCard, Clock, Calendar, AlertCircle, CalendarClock, MapPin } from 'lucide-react';
+import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload, CreditCard, Clock, Calendar, AlertCircle, CalendarClock, MapPin, Filter, Newspaper, X, Trophy } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import { safeFormatDate, safeFormatDateTime, safeParseDate } from '../../utils/dateFormatter';
@@ -17,6 +18,11 @@ export default function CaptainDashboard() {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [schedules, setSchedules] = useState([]);
+  const [selectedAnnouncementModal, setSelectedAnnouncementModal] = useState(null);
+
+  // Tournament & Status Schedule Filters
+  const [selectedTournamentFilter, setSelectedTournamentFilter] = useState('All');
+  const [scheduleStatusFilter, setScheduleStatusFilter] = useState('All');
 
   // Edit states
   const [editMode, setEditMode] = useState(false);
@@ -122,13 +128,11 @@ export default function CaptainDashboard() {
             setPaymentHistory([]);
           }
 
-          // Fetch announcements
+          // Fetch announcements & notices
           try {
-            const announcementsData = await getCollection('news_events', [
-              where('tag', '==', 'Announcement')
-            ]);
-            announcementsData.sort((a, b) => new Date(b.date) - new Date(a.date));
-            setAnnouncements(announcementsData.slice(0, 1));
+            const newsData = await getCollection('news_events');
+            const sortedNews = (newsData || []).sort((a, b) => new Date(b.date || '2000-01-01') - new Date(a.date || '2000-01-01'));
+            setAnnouncements(sortedNews.slice(0, 8));
           } catch (announceErr) {
             console.warn("Failed to fetch announcements:", announceErr);
             setAnnouncements([]);
@@ -437,9 +441,35 @@ export default function CaptainDashboard() {
 
   const limitReached = players.length >= 40;
 
+  // Build list of unique tournaments for schedule dropdown
+  const tournamentOptionsMap = new Map();
+  (allTournaments || []).forEach(t => {
+    if (t.id && t.name) tournamentOptionsMap.set(t.id, t.name);
+  });
+  (schedules || []).forEach(s => {
+    if (s.tournamentId && s.tournamentName) {
+      tournamentOptionsMap.set(s.tournamentId, s.tournamentName);
+    } else if (s.tournamentId && !tournamentOptionsMap.has(s.tournamentId)) {
+      tournamentOptionsMap.set(s.tournamentId, s.tournamentId);
+    }
+  });
+  const uniqueScheduleTournaments = Array.from(tournamentOptionsMap.entries()).map(([id, name]) => ({ id, name }));
+
+  const filteredScheduleItems = schedules.filter((sch) => {
+    let matchTourn = true;
+    if (selectedTournamentFilter !== 'All') {
+      matchTourn = sch.tournamentId === selectedTournamentFilter || sch.tournamentName === selectedTournamentFilter;
+    }
+    let matchStatus = true;
+    if (scheduleStatusFilter !== 'All') {
+      matchStatus = sch.status === scheduleStatusFilter;
+    }
+    return matchTourn && matchStatus;
+  });
+
   return (
     <div className="captain-dashboard page-enter container section-padding">
-      <div className="dashboard-header flex justify-between items-end mb-xl">
+      <div className="dashboard-header flex justify-between items-end mb-xl flex-wrap gap-md">
         <div>
           <span className="text-gold text-sm font-bold uppercase tracking-wider">Management Center</span>
           <h1 className="display-md">Captain Dashboard</h1>
@@ -499,596 +529,708 @@ export default function CaptainDashboard() {
         </div>
       )}
 
-      {/* Cap Limit Banner Notification */}
-      {limitReached ? (
-        <div className="alert alert-warning flex gap-sm items-center mb-xl">
-          <Bell size={20} className="animate-bounce" />
-          <div>
-            <strong className="block text-sm">ROSTER CAP REACHED (40/40 Players)</strong>
-            <span className="text-xs">Your squad contains the maximum permitted number of participants. New players will not be able to join your team.</span>
-          </div>
-        </div>
-      ) : (
-        <div className="alert alert-info flex gap-sm items-center mb-xl">
-          <CheckCircle size={20} />
-          <div>
-            <span className="text-sm">Roster Status: <strong>{players.length} / 40 Players Registered</strong>. You can register {40 - players.length} more players.</span>
-          </div>
-        </div>
-      )}
+      {/* ── 2-COLUMN DASHBOARD LAYOUT ── */}
+      <div className="captain-dashboard-layout mb-xl">
 
-      {/* Announcements Notice Box */}
-      {announcements && announcements.length > 0 && (
-        <div className="card card-gold mb-xl animate-fade-in" style={{ borderLeft: '4px solid var(--gold)' }}>
-          <h3 className="text-md font-bold mb-md text-gradient-gold flex items-center gap-xs">
-            <Bell size={20} className="text-gold animate-bounce" /> Tournament Announcements &amp; Notices
-          </h3>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-            gap: '16px' 
-          }}>
-            {announcements.map((ann, idx) => (
-              <div 
-                key={ann.id || idx} 
-                style={{ 
-                  background: 'var(--bg-secondary)', 
-                  border: '1px solid var(--border-card)', 
-                  borderRadius: '12px', 
-                  padding: '16px', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  gap: '12px',
-                  boxShadow: 'var(--shadow-sm)',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-              >
-                {ann.imageURL && (
-                  <div style={{ width: '100%', height: '160px', borderRadius: '8px', overflow: 'hidden', flexShrink: 0 }}>
-                    <img src={ann.imageURL} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                )}
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', gap: '6px' }}>
-                    <span className="badge badge-gold" style={{ fontSize: '0.65rem', padding: '2px 8px' }}>ANNOUNCEMENT</span>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      {safeFormatDate(ann.date)}
-                    </span>
-                  </div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--text-primary)', lineHeight: '1.3' }}>{ann.title}</h4>
-                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.5, whiteSpace: 'pre-line', flex: 1 }}>{ann.content}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+        {/* ── LEFT MAIN COLUMN ── */}
+        <div className="captain-main-col">
 
-      {/* ── Captain Schedule (read-only) ── */}
-      <div className="card mb-xl animate-fade-in" style={{ borderLeft: '4px solid #3B82F6' }}>
-        <h3 className="text-md font-bold mb-md flex items-center gap-xs" style={{ color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <CalendarClock size={20} style={{ color: '#3B82F6' }} />
-          <span>Captain Schedule</span>
-          <span style={{ marginLeft: 'auto', fontSize: '0.75rem', fontWeight: 600, background: 'rgba(59,130,246,0.15)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '999px', padding: '2px 12px' }}>
-            {schedules.length} {schedules.length === 1 ? 'Entry' : 'Entries'}
-          </span>
-        </h3>
+          {/* Captain Schedule & Matches (with Tournament Filter & Switcher) */}
+          <div className="card animate-fade-in" style={{ borderLeft: '4px solid #3B82F6' }}>
+            <div className="flex justify-between items-center mb-md flex-wrap gap-sm">
+              <h3 className="text-md font-bold flex items-center gap-xs" style={{ color: 'var(--text-primary)', margin: 0 }}>
+                <CalendarClock size={20} style={{ color: '#3B82F6' }} />
+                <span>Captain Schedule &amp; Matches</span>
+              </h3>
 
-        {schedules.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', color: 'var(--text-muted)' }}>
-            <CalendarClock size={36} style={{ opacity: 0.3, marginBottom: '10px' }} />
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>No schedules published yet. Check back soon!</p>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {schedules.map((sch) => {
-              const TYPE_COLORS = { Practice: '#3B82F6', Match: '#EF4444', Meeting: '#F59E0B', Event: '#8B5CF6', Training: '#10B981', 'Selection Trial': '#EC4899' };
-              const STATUS_STYLES = {
-                Upcoming: { background: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.25)' },
-                Completed: { background: 'rgba(16,185,129,0.12)', color: '#34D399', border: '1px solid rgba(16,185,129,0.25)' },
-                Cancelled: { background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.25)' },
-              };
-              const typeColor = TYPE_COLORS[sch.type] || '#800000';
-              const statusStyle = STATUS_STYLES[sch.status] || STATUS_STYLES.Upcoming;
-              return (
-                <div
-                  key={sch.id}
-                  style={{
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border-card)',
-                    borderLeft: `4px solid ${typeColor}`,
-                    borderRadius: '10px',
-                    padding: '16px 20px',
-                    display: 'flex',
-                    gap: '16px',
-                    alignItems: 'flex-start',
-                    flexWrap: 'wrap',
-                  }}
+              {/* Tournament Filter & Switcher Dropdown */}
+              <div className="flex items-center gap-xs flex-wrap">
+                <span className="text-xs text-muted font-semi flex items-center gap-xxs">
+                  <Filter size={13} className="text-gold" /> Tournament:
+                </span>
+                <select
+                  className="form-select"
+                  value={selectedTournamentFilter}
+                  onChange={(e) => setSelectedTournamentFilter(e.target.value)}
+                  style={{ padding: '4px 12px', fontSize: '0.8rem', width: 'auto', borderRadius: '8px', border: '1px solid var(--border-card)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                 >
-                  {/* Date block */}
-                  <div style={{ textAlign: 'center', minWidth: '52px', flexShrink: 0 }}>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>
-                      {sch.date ? new Date(sch.date + 'T00:00:00').getDate() : '—'}
-                    </div>
-                    <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                      {sch.date ? new Date(sch.date + 'T00:00:00').toLocaleString('en-IN', { month: 'short' }) : ''}
-                    </div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
-                      {sch.date ? new Date(sch.date + 'T00:00:00').getFullYear() : ''}
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div style={{ width: '1px', height: '48px', background: 'var(--border-card)', flexShrink: 0, alignSelf: 'center' }} />
-
-                  {/* Info */}
-                  <div style={{ flex: 1, minWidth: '180px' }}>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                      <span style={{ background: typeColor + '22', color: typeColor, border: `1px solid ${typeColor}44`, borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 700 }}>
-                        {sch.type}
-                      </span>
-                      <span style={{ ...statusStyle, borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 700 }}>
-                        {sch.status}
-                      </span>
-                    </div>
-                    <p style={{ margin: '0 0 6px', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{sch.title}</p>
-                    <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                      {sch.time && (
-                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Clock size={11} /> {sch.time}
-                        </span>
-                      )}
-                      {sch.venue && (
-                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <MapPin size={11} /> {sch.venue}
-                        </span>
-                      )}
-                      {sch.targetTeamName && (
-                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Users size={11} /> {sch.targetTeamName}
-                        </span>
-                      )}
-                    </div>
-                    {sch.description && (
-                      <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                        {sch.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div className="captain-grid">
-        {/* FIRST: Active Managed Team Selection */}
-        <div className="card">
-          <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
-            <Shield size={20} /> Active Managed Team
-          </h3>
-          <div style={{ maxWidth: '600px' }}>
-            <h4 className="text-sm font-bold mb-sm opacity-80">Select Active Managed Team</h4>
-            <div className="form-group mb-md">
-              <select
-                className="form-select"
-                value={activeTeamId}
-                onChange={(e) => handleSwitchActiveTeam(e.target.value)}
-                style={{ padding: '8px 12px', fontSize: '0.85rem' }}
-              >
-                {managedTeams.length === 0 ? (
-                  <option value="">-- No teams registered --</option>
-                ) : (
-                  managedTeams.map(t => (
-                    <option key={t.id} value={t.id}>
-                      {t.teamName} [{t.tournamentName || 'Tournament'}]
-                    </option>
-                  ))
-                )}
-              </select>
+                  <option value="All">All Tournaments</option>
+                  {uniqueScheduleTournaments.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            {team && (
-              <div className="p-sm flex items-center gap-md flex-wrap" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px', padding: '16px' }}>
-                {team.logoURL ? (
-                  <div style={{
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: '10px',
-                    border: '2px solid var(--gold)',
-                    overflow: 'hidden',
-                    background: 'rgba(255,255,255,0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0
-                  }}>
-                    <img src={team.logoURL} alt={team.teamName} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                  </div>
-                ) : (
-                  <div style={{
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: '10px',
-                    border: '2px dashed rgba(212,175,55,0.4)',
-                    background: 'rgba(255,255,255,0.02)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    color: 'var(--gold)'
-                  }}>
-                    <Shield size={32} style={{ opacity: 0.6 }} />
-                  </div>
-                )}
-                <div style={{ minWidth: 0 }}>
-                  <h4 className="text-base font-bold text-gradient-gold" style={{ fontSize: '1.1rem', marginBottom: '6px' }}>{team.teamName}</h4>
-                  <p className="text-xs text-muted mt-xs" style={{ fontSize: '0.78rem' }}>Tournament: <strong className="text-primary">{team.tournamentName || 'N/A'}</strong></p>
-                  <p className="text-xs text-muted mt-xs" style={{ fontSize: '0.78rem' }}>Roster Size: <strong className="text-primary">{players.length} / 40 Players</strong></p>
-                </div>
+            {/* Status Filter Tabs */}
+            <div className="flex gap-xs flex-wrap mb-md" style={{ borderBottom: '1px solid var(--border-card)', paddingBottom: '10px' }}>
+              {['All', 'Upcoming', 'Live', 'Completed'].map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setScheduleStatusFilter(st)}
+                  style={{
+                    padding: '4px 14px',
+                    borderRadius: '999px',
+                    border: scheduleStatusFilter === st ? '1px solid #3B82F6' : '1px solid var(--border-card)',
+                    background: scheduleStatusFilter === st ? 'rgba(59,130,246,0.15)' : 'var(--bg-secondary)',
+                    color: scheduleStatusFilter === st ? '#60A5FA' : 'var(--text-secondary)',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
+
+            {/* Schedule List */}
+            {filteredScheduleItems.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', color: 'var(--text-muted)' }}>
+                <CalendarClock size={36} style={{ opacity: 0.3, marginBottom: '10px' }} />
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>No matches or schedules found for the selected tournament filter.</p>
+              </div>
+            ) : (
+              <div className="captain-schedule-scroll-list">
+                {filteredScheduleItems.map((sch) => {
+                  const TYPE_COLORS = { Practice: '#3B82F6', Match: '#EF4444', Meeting: '#F59E0B', Event: '#8B5CF6', Training: '#10B981', 'Selection Trial': '#EC4899' };
+                  const STATUS_STYLES = {
+                    Upcoming: { background: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.25)' },
+                    Live: { background: 'rgba(239,68,68,0.2)', color: '#F87171', border: '1px solid rgba(239,68,68,0.4)' },
+                    Completed: { background: 'rgba(16,185,129,0.12)', color: '#34D399', border: '1px solid rgba(16,185,129,0.25)' },
+                    Cancelled: { background: 'rgba(239,68,68,0.12)', color: '#F87171', border: '1px solid rgba(239,68,68,0.25)' },
+                  };
+                  const typeColor = TYPE_COLORS[sch.type] || '#800000';
+                  const statusStyle = STATUS_STYLES[sch.status] || STATUS_STYLES.Upcoming;
+                  const tournObj = allTournaments.find(t => t.id === sch.tournamentId);
+                  const tournName = tournObj?.name || sch.tournamentName || 'Trivab League';
+
+                  return (
+                    <div
+                      key={sch.id}
+                      style={{
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border-card)',
+                        borderLeft: `4px solid ${typeColor}`,
+                        borderRadius: '10px',
+                        padding: '16px 20px',
+                        display: 'flex',
+                        gap: '16px',
+                        alignItems: 'flex-start',
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      {/* Date block */}
+                      <div style={{ textAlign: 'center', minWidth: '52px', flexShrink: 0 }}>
+                        <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>
+                          {sch.date ? new Date(sch.date + 'T00:00:00').getDate() : '—'}
+                        </div>
+                        <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          {sch.date ? new Date(sch.date + 'T00:00:00').toLocaleString('en-IN', { month: 'short' }) : ''}
+                        </div>
+                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                          {sch.date ? new Date(sch.date + 'T00:00:00').getFullYear() : ''}
+                        </div>
+                      </div>
+
+                      {/* Divider */}
+                      <div style={{ width: '1px', height: '48px', background: 'var(--border-card)', flexShrink: 0, alignSelf: 'center' }} />
+
+                      {/* Info */}
+                      <div style={{ flex: 1, minWidth: '180px' }}>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px', alignItems: 'center' }}>
+                          <span style={{ background: typeColor + '22', color: typeColor, border: `1px solid ${typeColor}44`, borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 700 }}>
+                            {sch.type}
+                          </span>
+                          <span style={{ ...statusStyle, borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 700 }}>
+                            {sch.status}
+                          </span>
+                          <span style={{ background: 'rgba(212,175,55,0.12)', color: 'var(--gold)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 600 }}>
+                            🏆 {tournName}
+                          </span>
+                        </div>
+                        <p style={{ margin: '0 0 6px', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{sch.title}</p>
+                        <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                          {sch.time && (
+                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Clock size={11} /> {sch.time}
+                            </span>
+                          )}
+                          {sch.venue && (
+                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <MapPin size={11} /> {sch.venue}
+                            </span>
+                          )}
+                          {sch.targetTeamName && (
+                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Users size={11} /> {sch.targetTeamName}
+                            </span>
+                          )}
+                        </div>
+                        {sch.description && (
+                          <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                            {sch.description}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Tournament Fees Card */}
-        {team && (() => {
-          const getFeesBorderColor = (statusVal) => {
-            switch (statusVal) {
-              case 'Paid': return '#22c55e';
-              case 'Overdue': return '#ef4444';
-              case 'Pending': return '#d4af37';
-              default: return 'var(--border-card)';
-            }
-          };
 
-          const getFeesBgColor = (statusVal) => {
-            switch (statusVal) {
-              case 'Paid': return 'rgba(34, 197, 94, 0.1)';
-              case 'Overdue': return 'rgba(239, 68, 68, 0.1)';
-              case 'Pending': return 'rgba(212, 175, 55, 0.1)';
-              default: return 'rgba(255,255,255,0.05)';
-            }
-          };
 
-          const getFeesTextColor = (statusVal) => {
-            switch (statusVal) {
-              case 'Paid': return '#22c55e';
-              case 'Overdue': return '#ef4444';
-              case 'Pending': return '#d4af37';
-              default: return 'var(--text-secondary)';
-            }
-          };
+          {/* Team Status Banner (Moved above Manage Your Team Squad) */}
+          {limitReached ? (
+            <div className="alert alert-warning flex gap-sm items-center mb-md">
+              <Bell size={20} className="animate-bounce" />
+              <div>
+                <strong className="block text-sm">TEAM STATUS: ROSTER CAP REACHED (40/40 Players)</strong>
+                <span className="text-xs">Your squad contains the maximum permitted number of participants. New players will not be able to join your team.</span>
+              </div>
+            </div>
+          ) : (
+            <div className="alert alert-info flex gap-sm items-center mb-md">
+              <CheckCircle size={20} />
+              <div>
+                <span className="text-sm">Team Status: <strong>{players.length} / 40 Players Registered</strong>. You can register {40 - players.length} more players.</span>
+              </div>
+            </div>
+          )}
 
-          const getFeesIcon = (statusVal) => {
-            switch (statusVal) {
-              case 'Paid': return <CheckCircle size={20} className="text-green" />;
-              case 'Overdue': return <AlertCircle size={20} className="text-red" />;
-              case 'Pending':
-              default:
-                return <Clock size={20} className="text-gold" />;
-            }
-          };
+          {/* Manage Your Team Squad Card (Renamed from Active Managed Team) */}
+          <div className="card mb-md">
+            <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
+              <Shield size={20} /> Manage Your Team Squad
+            </h3>
+            <div style={{ maxWidth: '600px' }}>
+              <h4 className="text-sm font-bold mb-sm opacity-80">Select Managed Team Squad</h4>
+              <div className="form-group mb-md">
+                <select
+                  className="form-select"
+                  value={activeTeamId}
+                  onChange={(e) => handleSwitchActiveTeam(e.target.value)}
+                  style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+                >
+                  {managedTeams.length === 0 ? (
+                    <option value="">-- No teams registered --</option>
+                  ) : (
+                    managedTeams.map(t => (
+                      <option key={t.id} value={t.id}>
+                        {t.teamName} [{t.tournamentName || 'Tournament'}]
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
 
-          const formatCurrency = (val) => {
-            if (!val || isNaN(val)) return '₹0';
-            return `₹${Number(val).toLocaleString('en-IN')}`;
-          };
+              {team && (
+                <div className="p-sm flex items-center gap-md flex-wrap" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px', padding: '16px' }}>
+                  {team.logoURL ? (
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '10px',
+                      border: '2px solid var(--gold)',
+                      overflow: 'hidden',
+                      background: 'rgba(255,255,255,0.05)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}>
+                      <img src={team.logoURL} alt={team.teamName} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                  ) : (
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '10px',
+                      border: '2px dashed rgba(212,175,55,0.4)',
+                      background: 'rgba(255,255,255,0.02)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      color: 'var(--gold)'
+                    }}>
+                      <Shield size={32} style={{ opacity: 0.6 }} />
+                    </div>
+                  )}
+                  <div style={{ minWidth: 0 }}>
+                    <h4 className="text-base font-bold text-gradient-gold" style={{ fontSize: '1.1rem', marginBottom: '6px' }}>{team.teamName}</h4>
+                    <p className="text-xs text-muted mt-xs" style={{ fontSize: '0.78rem' }}>Tournament: <strong className="text-primary">{team.tournamentName || 'N/A'}</strong></p>
+                    <p className="text-xs text-muted mt-xs" style={{ fontSize: '0.78rem' }}>Roster Size: <strong className="text-primary">{players.length} / 40 Players</strong></p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
-          const totalFee = Number(teamFees?.totalTournamentFee || parseFloat(String(teamFees?.amount || '').replace(/[^\d.]/g, '')) || 0);
-          const totalPaid = Number(teamFees?.totalPaidAmount || (teamFees?.status === 'Paid' ? totalFee : 0));
-          const balance = totalFee - totalPaid;
+          {/* Tournament Fees Card */}
+          {team && (() => {
+            const getFeesBorderColor = (statusVal) => {
+              switch (statusVal) {
+                case 'Paid': return '#22c55e';
+                case 'Overdue': return '#ef4444';
+                case 'Pending': return '#d4af37';
+                default: return 'var(--border-card)';
+              }
+            };
 
-          return (
-            <div className="card animate-fade-in" style={{ borderLeft: `4px solid ${getFeesBorderColor(teamFees?.status)}` }}>
-              <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
-                <CreditCard size={20} /> Tournament Payment Details
-              </h3>
-              {teamFees ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  {/* Status & Message Info */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', borderBottom: '1px solid var(--border-card)', paddingBottom: '14px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div style={{
-                        padding: '10px',
-                        borderRadius: '8px',
-                        background: getFeesBgColor(teamFees.status),
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}>
-                        {getFeesIcon(teamFees.status)}
+            const getFeesBgColor = (statusVal) => {
+              switch (statusVal) {
+                case 'Paid': return 'rgba(34, 197, 94, 0.1)';
+                case 'Overdue': return 'rgba(239, 68, 68, 0.1)';
+                case 'Pending': return 'rgba(212, 175, 55, 0.1)';
+                default: return 'rgba(255,255,255,0.05)';
+              }
+            };
+
+            const getFeesTextColor = (statusVal) => {
+              switch (statusVal) {
+                case 'Paid': return '#22c55e';
+                case 'Overdue': return '#ef4444';
+                case 'Pending': return '#d4af37';
+                default: return 'var(--text-secondary)';
+              }
+            };
+
+            const getFeesIcon = (statusVal) => {
+              switch (statusVal) {
+                case 'Paid': return <CheckCircle size={20} className="text-green" />;
+                case 'Overdue': return <AlertCircle size={20} className="text-red" />;
+                case 'Pending':
+                default:
+                  return <Clock size={20} className="text-gold" />;
+              }
+            };
+
+            const formatCurrency = (val) => {
+              if (!val || isNaN(val)) return '₹0';
+              return `₹${Number(val).toLocaleString('en-IN')}`;
+            };
+
+            const totalFee = Number(teamFees?.totalTournamentFee || parseFloat(String(teamFees?.amount || '').replace(/[^\d.]/g, '')) || 0);
+            const totalPaid = Number(teamFees?.totalPaidAmount || (teamFees?.status === 'Paid' ? totalFee : 0));
+            const balance = totalFee - totalPaid;
+
+            return (
+              <div className="card animate-fade-in" style={{ borderLeft: `4px solid ${getFeesBorderColor(teamFees?.status)}` }}>
+                <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
+                  <CreditCard size={20} /> Tournament Payment Details
+                </h3>
+                {teamFees ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', borderBottom: '1px solid var(--border-card)', paddingBottom: '14px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{
+                          padding: '10px',
+                          borderRadius: '8px',
+                          background: getFeesBgColor(teamFees.status),
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}>
+                          {getFeesIcon(teamFees.status)}
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: 0, fontSize: '0.7rem' }}>Payment Status</h4>
+                          <span className="font-bold" style={{ fontSize: '1.15rem', color: getFeesTextColor(teamFees.status) }}>
+                            {teamFees.status}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: 0, fontSize: '0.7rem' }}>Payment Status</h4>
-                        <span className="font-bold" style={{ fontSize: '1.15rem', color: getFeesTextColor(teamFees.status) }}>
-                          {teamFees.status}
+                    </div>
+
+                    <div className="grid grid-3 gap-md">
+                      <div style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
+                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Total Tournament Fee</h4>
+                        <span className="font-bold text-primary" style={{ fontSize: '1.1rem' }}>
+                          {formatCurrency(totalFee)}
+                        </span>
+                      </div>
+
+                      <div style={{ padding: '12px', background: 'rgba(22,163,74,0.02)', border: '1px solid rgba(22,163,74,0.15)', borderRadius: '8px' }}>
+                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem', color: 'rgba(34,197,94,0.8)' }}>Total Paid Amount</h4>
+                        <span className="font-bold text-green" style={{ fontSize: '1.1rem', color: '#22c55e' }}>
+                          {formatCurrency(totalPaid)}
+                        </span>
+                      </div>
+
+                      <div style={{ padding: '12px', background: balance > 0 ? 'rgba(239,68,68,0.02)' : 'rgba(22,163,74,0.02)', border: balance > 0 ? '1px solid rgba(239,68,68,0.15)' : '1px solid rgba(22,163,74,0.15)', borderRadius: '8px' }}>
+                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem', color: balance > 0 ? 'rgba(239,68,68,0.8)' : 'rgba(34,197,94,0.8)' }}>Remaining Balance</h4>
+                        <span className="font-bold" style={{ fontSize: '1.1rem', color: balance > 0 ? '#ef4444' : '#22c55e' }}>
+                          {formatCurrency(balance)}
                         </span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Pricing grid */}
-                  <div className="grid grid-3 gap-md">
-                    <div style={{ padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
-                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Total Tournament Fee</h4>
-                      <span className="font-bold text-primary" style={{ fontSize: '1.1rem' }}>
-                        {formatCurrency(totalFee)}
-                      </span>
+                    <div className="grid grid-3 gap-md">
+                      <div>
+                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Last Payment Date</h4>
+                        <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
+                          {teamFees.receivingDate ? safeFormatDate(teamFees.receivingDate) : '—'}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Next Due Amount</h4>
+                        <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
+                          {teamFees.nextDueAmount ? formatCurrency(teamFees.nextDueAmount) : '—'}
+                        </span>
+                      </div>
+
+                      <div>
+                        <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Next Due Date</h4>
+                        <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
+                          {teamFees.nextDue ? safeFormatDate(teamFees.nextDue) : 'No due date set'}
+                        </span>
+                      </div>
                     </div>
 
-                    <div style={{ padding: '12px', background: 'rgba(22,163,74,0.02)', border: '1px solid rgba(22,163,74,0.15)', borderRadius: '8px' }}>
-                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem', color: 'rgba(34,197,94,0.8)' }}>Total Paid Amount</h4>
-                      <span className="font-bold text-green" style={{ fontSize: '1.1rem', color: '#22c55e' }}>
-                        {formatCurrency(totalPaid)}
-                      </span>
+                    {teamFees.message && (
+                      <div style={{
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        background: 'rgba(255,255,255,0.01)',
+                        border: '1px solid var(--border-card)',
+                        fontSize: '0.85rem',
+                        color: 'var(--text-secondary)'
+                      }}>
+                        <strong className="block text-xs uppercase tracking-wider text-gold" style={{ marginBottom: '4px', opacity: 0.8 }}>Message from Admin:</strong>
+                        {teamFees.message}
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border-card)', paddingTop: '10px', marginTop: '4px' }}>
+                      <span>Updated on: <strong>{safeFormatDateTime(teamFees.updatedAt)}</strong></span>
+                      <span className="text-gold" style={{ fontWeight: '500' }}>Admin Managed Only</span>
                     </div>
-
-                    <div style={{ padding: '12px', background: balance > 0 ? 'rgba(239,68,68,0.02)' : 'rgba(22,163,74,0.02)', border: balance > 0 ? '1px solid rgba(239,68,68,0.15)' : '1px solid rgba(22,163,74,0.15)', borderRadius: '8px' }}>
-                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem', color: balance > 0 ? 'rgba(239,68,68,0.8)' : 'rgba(34,197,94,0.8)' }}>Remaining Balance</h4>
-                      <span className="font-bold" style={{ fontSize: '1.1rem', color: balance > 0 ? '#ef4444' : '#22c55e' }}>
-                        {formatCurrency(balance)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Due amount & dates grid */}
-                  <div className="grid grid-3 gap-md">
-                    <div>
-                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Last Payment Date</h4>
-                      <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
-                        {teamFees.receivingDate ? safeFormatDate(teamFees.receivingDate) : '—'}
-                      </span>
-                    </div>
-
-                    <div>
-                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Next Due Amount</h4>
-                      <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
-                        {teamFees.nextDueAmount ? formatCurrency(teamFees.nextDueAmount) : '—'}
-                      </span>
-                    </div>
-
-                    <div>
-                      <h4 className="text-xs font-bold text-muted uppercase tracking-wider" style={{ margin: '0 0 4px', fontSize: '0.68rem' }}>Next Due Date</h4>
-                      <span className="font-semi text-primary" style={{ fontSize: '0.92rem' }}>
-                        {teamFees.nextDue ? safeFormatDate(teamFees.nextDue) : 'No due date set'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {teamFees.message && (
-                    <div style={{
-                      padding: '12px 16px',
-                      borderRadius: '8px',
-                      background: 'rgba(255,255,255,0.01)',
-                      border: '1px solid var(--border-card)',
-                      fontSize: '0.85rem',
-                      color: 'var(--text-secondary)'
-                    }}>
-                      <strong className="block text-xs uppercase tracking-wider text-gold" style={{ marginBottom: '4px', opacity: 0.8 }}>Message from Admin:</strong>
-                      {teamFees.message}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border-card)', paddingTop: '10px', marginTop: '4px' }}>
-                    <span>Updated on: <strong>{safeFormatDateTime(teamFees.updatedAt)}</strong></span>
-                    <span className="text-gold" style={{ fontWeight: '500' }}>Admin Managed Only</span>
-                  </div>
-                </div>
-              ) : (
-                <div style={{ padding: '20px 10px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--border-card)', borderRadius: '8px' }}>
-                  <Clock size={32} className="text-gold" style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-                  <h4 className="text-sm font-bold opacity-80" style={{ margin: '0 0 4px' }}>No Fee Record Found</h4>
-                  <p className="text-xs text-muted" style={{ margin: 0, maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
-                    Tournament fees for your team <strong>{team.teamName}</strong> have not been configured by the admin yet. Please check back later or contact support.
-                  </p>
-                </div>
-              )}
-
-              {/* PAYMENT HISTORY LOG TABLE */}
-              {paymentHistory && paymentHistory.length > 0 && (
-                <div style={{ marginTop: '24px', borderTop: '1px dashed var(--border-card)', paddingTop: '20px' }}>
-                  <h4 className="text-sm font-bold mb-md text-gradient-gold flex items-center gap-xs">
-                    <Calendar size={16} /> Payment Log &amp; Transaction History
-                  </h4>
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '1px solid var(--border-card)', color: 'var(--text-muted)' }}>
-                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Payment Date</th>
-                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Total Paid</th>
-                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Status</th>
-                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Next Due</th>
-                          <th style={{ padding: '8px 4px', fontWeight: 'bold' }}>Message / Notes</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paymentHistory.map((hist, idx) => (
-                          <tr key={hist.id || idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
-                            <td style={{ padding: '10px 4px', color: 'var(--text-primary)' }}>
-                              {hist.receivingDate ? safeFormatDate(hist.receivingDate) : safeFormatDate(hist.createdAt)}
-                            </td>
-                            <td style={{ padding: '10px 4px', fontWeight: 'bold', color: '#22c55e' }}>
-                              {formatCurrency(hist.totalPaidAmount)}
-                            </td>
-                            <td style={{ padding: '10px 4px' }}>
-                              <span style={{ 
-                                padding: '2px 8px', 
-                                borderRadius: '4px', 
-                                fontSize: '0.72rem', 
-                                fontWeight: 'bold',
-                                color: getFeesTextColor(hist.status),
-                                background: getFeesBgColor(hist.status)
-                              }}>
-                                {hist.status}
-                              </span>
-                            </td>
-                            <td style={{ padding: '10px 4px', color: 'var(--text-secondary)' }}>
-                              {hist.nextDue ? (
-                                <div>
-                                  <div style={{ fontWeight: '500' }}>{formatCurrency(hist.nextDueAmount)}</div>
-                                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{safeFormatDate(hist.nextDue)}</div>
-                                </div>
-                              ) : '—'}
-                            </td>
-                            <td style={{ padding: '10px 4px', color: 'var(--text-muted)', fontSize: '0.78rem', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={hist.message || ''}>
-                              {hist.message || '—'}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        {/* SECOND: Squad Distribution or Edit Mode Form */}
-        {editMode ? (
-          <div className="card card-gold edit-team-form">
-            <h3 className="text-lg font-bold mb-md text-gradient-gold">Edit Team Profile</h3>
-            <form onSubmit={handleSaveTeam} className="flex flex-col gap-md">
-              <div className="form-group">
-                <label className="form-label">Team Name</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  required
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  disabled={saving}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Team Logo</label>
-                {logoURL ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-secondary)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-card)' }}>
-                    <img src={logoURL} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-xs"
-                      onClick={() => setLogoURL('')}
-                    >
-                      Remove Logo
-                    </button>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        setUploadingLogo(true);
-                        try {
-                          const url = await uploadImageToCloudinary(file);
-                          setLogoURL(url);
-                          alert('Logo uploaded successfully!');
-                        } catch (err) {
-                          console.error(err);
-                          alert('Failed to upload logo.');
-                        } finally {
-                          setUploadingLogo(false);
-                        }
-                      }}
-                      disabled={uploadingLogo || saving}
-                      style={{ display: 'none' }}
-                      id="captain-team-logo-upload"
-                    />
-                    <label htmlFor="captain-team-logo-upload" className="btn btn-outline btn-sm" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Upload size={16} />
-                      {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
-                    </label>
+                  <div style={{ padding: '20px 10px', textAlign: 'center', background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--border-card)', borderRadius: '8px' }}>
+                    <Clock size={32} className="text-gold" style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+                    <h4 className="text-sm font-bold opacity-80" style={{ margin: '0 0 4px' }}>No Fee Record Found</h4>
+                    <p className="text-xs text-muted" style={{ margin: 0, maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+                      Tournament fees for your team <strong>{team.teamName}</strong> have not been configured by the admin yet. Please check back later or contact support.
+                    </p>
                   </div>
                 )}
               </div>
-              <button type="submit" className="btn btn-gold" disabled={saving || uploadingLogo}>
-                <Save size={18} /> {saving ? 'Saving...' : 'Save Settings'}
-              </button>
-            </form>
-          </div>
-        ) : (
-          <div className="card stats-panel-card" style={{ padding: '20px' }}>
-            <h3 className="text-lg font-bold mb-sm text-gradient-gold">Squad Distribution</h3>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(2, 1fr)', 
-              gap: '12px', 
-              marginTop: '12px' 
-            }}>
-              <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
-                <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Batsman').length}</span>
-                <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>BATSMEN</span>
-              </div>
-              <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
-                <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Bowler').length}</span>
-                <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>BOWLERS</span>
-              </div>
-              <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
-                <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Wicket Keeper').length}</span>
-                <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>KEEPERS</span>
-              </div>
-              <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
-                <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'All-Rounder').length}</span>
-                <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>ALL-ROUNDERS</span>
-              </div>
-            </div>
-          </div>
-        )}
+            );
+          })()}
 
-        {/* THIRD: Players List */}
-        <div className="card players-table-card">
-          <h3 className="text-lg font-bold mb-sm text-gradient-gold flex items-center gap-sm">
-            <Users size={20} /> Squad Players List ({players.length})
-          </h3>
-          <div className="alert alert-info flex gap-xs items-center mb-md" style={{ padding: '10px 14px', background: 'rgba(128, 0, 0, 0.15)', border: '1px solid rgba(128, 0, 0, 0.3)', color: 'var(--text-primary)', borderRadius: '6px', marginBottom: '16px' }}>
-            <ShieldAlert size={16} style={{ color: 'var(--gold)' }} />
-            <span style={{ fontSize: '0.8rem' }}><strong>Roster Management:</strong> Player additions/removals are restricted to Administrators. Captains have read-only access to squad records.</span>
-          </div>
-          <div className="table-responsive">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Player</th>
-                  <th>ID</th>
-                  <th>Style</th>
-                  <th>Jersey</th>
-                  <th>Contact</th>
-                </tr>
-              </thead>
-              <tbody>
-                {players.length === 0 ? (
+          {/* Squad Players List */}
+          <div className="card players-table-card">
+            <h3 className="text-lg font-bold mb-sm text-gradient-gold flex items-center gap-sm">
+              <Users size={20} /> Squad Players List ({players.length})
+            </h3>
+            <div className="alert alert-info flex gap-xs items-center mb-md" style={{ padding: '10px 14px', background: 'rgba(128, 0, 0, 0.15)', border: '1px solid rgba(128, 0, 0, 0.3)', color: 'var(--text-primary)', borderRadius: '6px', marginBottom: '16px' }}>
+              <ShieldAlert size={16} style={{ color: 'var(--gold)' }} />
+              <span style={{ fontSize: '0.8rem' }}><strong>Roster Management:</strong> Player additions/removals are restricted to Administrators. Captains have read-only access to squad records.</span>
+            </div>
+            <div className="table-responsive">
+              <table className="data-table">
+                <thead>
                   <tr>
-                    <td colSpan="5" className="text-center text-muted">No players have registered to this team yet.</td>
+                    <th>Player</th>
+                    <th>ID</th>
+                    <th>Style</th>
+                    <th>Jersey</th>
+                    <th>Contact</th>
                   </tr>
-                ) : (
-                  players.map((p) => (
-                    <tr key={p.playerId}>
-                      <td className="flex items-center gap-sm font-semi text-primary">
-                        <div className="avatar avatar-sm">
-                          {p.photoURL ? <img src={p.photoURL} alt={p.fullName} /> : p.fullName[0]}
-                        </div>
-                        {p.fullName}
-                      </td>
-                      <td>{p.playerId}</td>
-                      <td>
-                        <span className="badge badge-gold">{p.playingStyle}</span>
-                      </td>
-                      <td className="font-bold">#{p.jerseyNumber}</td>
-                      <td>{p.mobile}</td>
+                </thead>
+                <tbody>
+                  {players.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="text-center text-muted">No players have registered to this team yet.</td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    players.map((p) => (
+                      <tr key={p.playerId}>
+                        <td className="flex items-center gap-sm font-semi text-primary">
+                          <div className="avatar avatar-sm">
+                            {p.photoURL ? <img src={p.photoURL} alt={p.fullName} /> : p.fullName[0]}
+                          </div>
+                          {p.fullName}
+                        </td>
+                        <td>{p.playerId}</td>
+                        <td>
+                          <span className="badge badge-gold">{p.playingStyle}</span>
+                        </td>
+                        <td className="font-bold">#{p.jerseyNumber}</td>
+                        <td>{p.mobile}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
+
+        {/* ── RIGHT SIDEBAR COLUMN ── */}
+        <div className="captain-sidebar-col">
+
+          {/* Tournament Announcements & Notices (Compact Small Card) */}
+          <div className="announcement-sidebar-card animate-fade-in">
+            <h3 className="text-sm font-bold text-gradient-gold flex items-center gap-xs" style={{ margin: '0 0 14px 0' }}>
+              <Bell size={18} className="text-gold animate-bounce" />
+              <span>Announcements &amp; Notices</span>
+              <span className="badge badge-gold" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>{announcements.length}</span>
+            </h3>
+
+            {announcements.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '20px 10px', color: 'var(--text-muted)' }}>
+                <Newspaper size={28} style={{ opacity: 0.3, marginBottom: '6px' }} />
+                <p style={{ margin: 0, fontSize: '0.78rem' }}>No recent notices published.</p>
+              </div>
+            ) : (
+              <div className="announcement-sidebar-list">
+                {announcements.map((ann, idx) => (
+                  <div
+                    key={ann.id || idx}
+                    className="announcement-item-compact"
+                    onClick={() => setSelectedAnnouncementModal(ann)}
+                    title="Click to view full notice"
+                  >
+                    {ann.imageURL ? (
+                      <img src={ann.imageURL} alt="" className="announcement-thumb" />
+                    ) : (
+                      <div className="announcement-thumb-placeholder">
+                        <Newspaper size={20} />
+                      </div>
+                    )}
+                    <div className="announcement-details">
+                      <div className="announcement-meta">
+                        <span className="badge badge-gold" style={{ fontSize: '0.6rem', padding: '1px 6px' }}>
+                          {ann.tag || 'NOTICE'}
+                        </span>
+                        <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                          {safeFormatDate(ann.date)}
+                        </span>
+                      </div>
+                      <h4 className="announcement-title-sm">{ann.title}</h4>
+                      {ann.content && (
+                        <p className="announcement-snippet">{ann.content}</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Squad Distribution or Edit Mode Form */}
+          {editMode ? (
+            <div className="card card-gold edit-team-form">
+              <h3 className="text-lg font-bold mb-md text-gradient-gold">Edit Team Profile</h3>
+              <form onSubmit={handleSaveTeam} className="flex flex-col gap-md">
+                <div className="form-group">
+                  <label className="form-label">Team Name</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    required
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    disabled={saving}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Team Logo</label>
+                  {logoURL ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-secondary)', padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border-card)' }}>
+                      <img src={logoURL} alt="Preview" style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-xs"
+                        onClick={() => setLogoURL('')}
+                      >
+                        Remove Logo
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          setUploadingLogo(true);
+                          try {
+                            const url = await uploadImageToCloudinary(file);
+                            setLogoURL(url);
+                            alert('Logo uploaded successfully!');
+                          } catch (err) {
+                            console.error(err);
+                            alert('Failed to upload logo.');
+                          } finally {
+                            setUploadingLogo(false);
+                          }
+                        }}
+                        disabled={uploadingLogo || saving}
+                        style={{ display: 'none' }}
+                        id="captain-team-logo-upload"
+                      />
+                      <label htmlFor="captain-team-logo-upload" className="btn btn-outline btn-sm" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Upload size={16} />
+                        {uploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                      </label>
+                    </div>
+                  )}
+                </div>
+                <button type="submit" className="btn btn-gold" disabled={saving || uploadingLogo}>
+                  <Save size={18} /> {saving ? 'Saving...' : 'Save Settings'}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="card stats-panel-card" style={{ padding: '20px' }}>
+              <h3 className="text-lg font-bold mb-sm text-gradient-gold">Squad Distribution</h3>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(2, 1fr)', 
+                gap: '12px', 
+                marginTop: '12px' 
+              }}>
+                <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
+                  <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Batsman').length}</span>
+                  <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>BATSMEN</span>
+                </div>
+                <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
+                  <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Bowler').length}</span>
+                  <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>BOWLERS</span>
+                </div>
+                <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
+                  <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'Wicket Keeper').length}</span>
+                  <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>KEEPERS</span>
+                </div>
+                <div className="stat-box text-center" style={{ minWidth: 'auto', padding: '12px 8px' }}>
+                  <span className="stat-num text-gradient-gold" style={{ fontSize: '1.6rem', display: 'block', fontWeight: 800 }}>{players.filter(p => p.playingStyle === 'All-Rounder').length}</span>
+                  <span className="stat-lbl block text-xs" style={{ fontSize: '0.65rem', letterSpacing: '0.05em', color: 'var(--text-muted)', marginTop: '2px' }}>ALL-ROUNDERS</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
+
+      {/* Announcement Detail Modal */}
+      {selectedAnnouncementModal && createPortal(
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.75)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            zIndex: 999999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px',
+            boxSizing: 'border-box'
+          }}
+          onClick={() => setSelectedAnnouncementModal(null)}
+        >
+          <div 
+            style={{
+              background: 'var(--bg-card, #ffffff)',
+              color: 'var(--text-primary, #0f172a)',
+              border: '1px solid var(--border-card, #e2e8f0)',
+              borderRadius: '16px',
+              maxWidth: '560px',
+              width: '100%',
+              maxHeight: '85vh',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)',
+              overflow: 'hidden'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '16px 20px',
+              borderBottom: '1px solid var(--border-card, #e2e8f0)',
+              background: 'var(--bg-secondary, #f8fafc)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span className="badge badge-gold" style={{ fontSize: '0.72rem', letterSpacing: '0.05em', padding: '4px 10px' }}>
+                  {selectedAnnouncementModal.tag || 'ANNOUNCEMENT'}
+                </span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
+                  {safeFormatDate(selectedAnnouncementModal.date)}
+                </span>
+              </div>
+
+              <button
+                onClick={() => setSelectedAnnouncementModal(null)}
+                style={{
+                  background: 'var(--border-card, #e2e8f0)',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--text-primary, #1e293b)',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Scrollable Body */}
+            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1 }}>
+              {selectedAnnouncementModal.imageURL && (
+                <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', marginBottom: '18px', border: '1px solid var(--border-card, #e2e8f0)', background: '#0f172a' }}>
+                  <img
+                    src={selectedAnnouncementModal.imageURL}
+                    alt=""
+                    style={{ width: '100%', maxHeight: '300px', objectFit: 'contain', display: 'block' }}
+                  />
+                </div>
+              )}
+
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginBottom: '12px', lineHeight: 1.35 }}>
+                {selectedAnnouncementModal.title}
+              </h3>
+
+              <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary, #334155)', lineHeight: 1.65, whiteSpace: 'pre-line', margin: 0 }}>
+                {selectedAnnouncementModal.content}
+              </p>
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ padding: '14px 20px', borderTop: '1px solid var(--border-card, #e2e8f0)', background: 'var(--bg-secondary, #f8fafc)', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn btn-gold btn-sm" onClick={() => setSelectedAnnouncementModal(null)}>
+                Close Notice
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
     </div>
   );
 }

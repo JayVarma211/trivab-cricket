@@ -108,10 +108,10 @@
 }
 
 .founder-photo-container {
-  width: 140px;
-  height: 175px;
+  width: 150px;
+  height: 190px;
   border: 2px solid var(--gold);
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   margin-bottom: var(--space-sm);
@@ -123,6 +123,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: top center;
   transition: transform 0.4s ease;
 }
 
@@ -188,91 +189,78 @@
 }
 
 /* ============================================================
-   TEAM PHOTO BANNER — Leadership Tab
+   TEAM PHOTO CARD — Leadership Tab (Preserves Full Aspect Ratio)
    ============================================================ */
-.team-photo-banner {
+.team-photo-card {
   width: 100%;
   border-radius: 14px;
   overflow: hidden;
   margin-bottom: var(--space-2xl);
-  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
 }
 
-.team-photo-inner {
-  position: relative;
+.team-photo-img-wrap {
   width: 100%;
-  max-height: 420px;
+  background: rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 }
 
-.team-banner-img {
+.team-photo-img {
   width: 100%;
-  height: 420px;
-  object-fit: cover;
-  object-position: center top;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain; /* Preserves natural photo aspect ratio without cropping people */
   display: block;
-  transition: transform 0.6s ease;
 }
 
-.team-photo-banner:hover .team-banner-img {
-  transform: scale(1.03);
-}
-
-.team-banner-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0,0,0,0.05) 0%,
-    rgba(0,0,0,0.25) 40%,
-    rgba(0,0,0,0.78) 100%
-  );
+.team-photo-bar {
+  padding: 20px 24px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-card);
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
   align-items: center;
-  padding: 36px 24px;
-  text-align: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.team-banner-label {
+.team-photo-badge {
   display: inline-block;
-  background: rgba(212,175,55,0.18);
-  border: 1px solid rgba(212,175,55,0.45);
-  color: #D4AF37;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.22em;
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  padding: 5px 18px;
-  border-radius: 20px;
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
-.team-banner-title {
-  color: #ffffff;
-  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+.team-photo-title {
+  color: var(--text-primary);
+  font-size: 1.35rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
-  margin: 0 0 8px 0;
-  font-family: var(--font-display);
-  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
-}
-
-.team-banner-sub {
-  color: rgba(255,255,255,0.8);
-  font-size: 0.95rem;
-  font-weight: 500;
   margin: 0;
+  font-family: var(--font-display);
 }
 
-@media (max-width: 640px) {
-  .team-banner-img,
-  .team-photo-inner {
-    height: 260px;
-    max-height: 260px;
-  }
-  .team-banner-title {
-    font-size: 1.4rem;
+.team-photo-sub {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+  max-width: 500px;
+}
+
+@media (max-width: 768px) {
+  .team-photo-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }
+
