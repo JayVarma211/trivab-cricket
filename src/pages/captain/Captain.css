@@ -139,6 +139,28 @@
   margin-top: 2px;
 }
 
+.announcement-see-more {
+  display: block;
+  margin: 14px auto 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.announcement-see-more:hover {
+  text-decoration: underline;
+}
+
+.announcement-see-more:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
 .captain-grid {
   display: grid;
   grid-template-columns: 1fr;

@@ -17,6 +17,7 @@ export default function CaptainDashboard() {
   const [teamFees, setTeamFees] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [showAllAnnouncements, setShowAllAnnouncements] = useState(false);
   const [schedules, setSchedules] = useState([]);
   const [selectedAnnouncementModal, setSelectedAnnouncementModal] = useState(null);
 
@@ -991,7 +992,7 @@ export default function CaptainDashboard() {
               </div>
             ) : (
               <div className="announcement-sidebar-list">
-                {announcements.map((ann, idx) => (
+                {announcements.slice(0, showAllAnnouncements ? announcements.length : 1).map((ann, idx) => (
                   <div
                     key={ann.id || idx}
                     className="announcement-item-compact"
@@ -1022,6 +1023,16 @@ export default function CaptainDashboard() {
                   </div>
                 ))}
               </div>
+            )}
+            {announcements.length > 1 && (
+              <button
+                type="button"
+                className="announcement-see-more"
+                onClick={() => setShowAllAnnouncements((isShown) => !isShown)}
+                aria-expanded={showAllAnnouncements}
+              >
+                {showAllAnnouncements ? 'See less' : 'See more'}
+              </button>
             )}
           </div>
 
