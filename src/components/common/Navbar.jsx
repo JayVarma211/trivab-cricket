@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { logoutUser } from '../../firebase/auth';
@@ -7,9 +8,8 @@ import {
   Trophy, Users, Calendar, Star, Award, Newspaper,
   Sun, Moon, Menu, X, ChevronDown, ChevronRight, LogOut, User,
   LayoutDashboard, Shield, Zap, Globe, Briefcase, Heart, Building2,
-  Image, Mail, QrCode, Handshake, CalendarClock
+  Image, Mail
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import './Navbar.css';
 
 const TOURNAMENTS_MENU = [
@@ -33,7 +33,7 @@ const IndiaFlag = () => (
 );
 
 const CommunityIcon = () => (
-  <span style={{ display: 'inline-flex', alignItems: 'center', color: '#d4af37' }}>
+  <span style={{ display: 'inline-flex', alignItems: 'center', color: '#c5a12a' }}>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="6" cy="11" r="2.5" />
       <circle cx="12" cy="7" r="3" />
@@ -155,220 +155,167 @@ export default function Navbar() {
   };
 
   return (
-    <>
-      <header className={`navbar ${scrolled || menuOpen ? 'navbar-scrolled navbar-menu-open' : ''} ${!visible && !menuOpen ? 'navbar-hidden' : ''}`}>
-        <div className="navbar-inner container">
-          {/* Logo */}
-          <Link to="/" className="navbar-logo">
-            <img src="/logos/trivabsports.webp" className="logo-image" alt="TRIVAB SPORTS" />
-          </Link>
+    <header className={`navbar ${scrolled || menuOpen ? 'navbar-scrolled navbar-menu-open' : ''} ${!visible && !menuOpen ? 'navbar-hidden' : ''}`}>
+      <div className="navbar-inner container">
+        {/* Logo */}
+        <Link to="/" className="navbar-logo">
+          <img src="/logos/trivabsports.webp" className="logo-image" alt="TRIVAB SPORTS" />
+        </Link>
 
-          {/* Desktop Nav */}
-          <nav className="navbar-links">
-            <NavLink to="/" className="nav-link" end>Home</NavLink>
-            
-            {/* About Us Dropdown */}
-            <div className="nav-dropdown-wrapper" ref={aboutDropRef}>
-              <button 
-                className="nav-link dropdown-trigger"
-                onClick={() => {
-                  setAboutDropOpen(p => !p);
-                  setServicesDropOpen(false);
-                  setTournamentsDropOpen(false);
-                }}
-              >
-                About Us <ChevronDown size={14} />
-              </button>
-              
-              <AnimatePresence>
-                {aboutDropOpen && (
-                  <motion.div 
-                    className="tournaments-nav-dropdown"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {ABOUT_MENU.map((item) => (
-                      <Link 
-                        key={item.label} 
-                        to={item.to} 
-                        className="tournaments-nav-item"
-                        onClick={() => setAboutDropOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Our Services Dropdown */}
-            <div className="nav-dropdown-wrapper" ref={servicesDropRef}>
-              <button 
-                className="nav-link dropdown-trigger"
-                onClick={() => {
-                  setServicesDropOpen(p => !p);
-                  setAboutDropOpen(false);
-                  setTournamentsDropOpen(false);
-                }}
-              >
-                Our Services <ChevronDown size={14} />
-              </button>
-              
-              <AnimatePresence>
-                {servicesDropOpen && (
-                  <motion.div 
-                    className="services-nav-dropdown"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {SERVICES_MENU.map((item) => (
-                      <Link 
-                        key={item.label} 
-                        to={item.to} 
-                        className="services-nav-item"
-                        onClick={() => setServicesDropOpen(false)}
-                      >
-                        {item.icon}
-                        <span>{item.label}</span>
-                      </Link>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Tournaments Dropdown (BAPL) */}
-            <div className="nav-dropdown-wrapper" ref={tournamentsDropRef}>
-              <button 
-                className="nav-link dropdown-trigger"
-                onClick={() => {
-                  setTournamentsDropOpen(p => !p);
-                  setAboutDropOpen(false);
-                  setServicesDropOpen(false);
-                }}
-              >
-                BAPL <ChevronDown size={14} />
-              </button>
-              
-              <AnimatePresence>
-                {tournamentsDropOpen && (
-                  <motion.div 
-                    className="tournaments-nav-dropdown"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.15 }}
-                    style={{ width: '280px' }}
-                  >
-                    {TOURNAMENTS_MENU.map((item) => (
-                      <Link 
-                        key={item.label} 
-                        to={item.to} 
-                        className="tournaments-nav-item"
-                        onClick={() => setTournamentsDropOpen(false)}
-                      >
-                        <img src={item.logo} className={getLogoClass(item.logo)} style={{ width: '24px', height: '24px', objectFit: 'contain' }} alt={item.label} />
-                        <span>{item.label}</span>
-                      </Link>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <NavLink to="/news" className="nav-link">News &amp; Events</NavLink>
-            <NavLink to="/sponsors" className="nav-link">Sponsors</NavLink>
-            <NavLink to="/contact" className="nav-link">Contact Us</NavLink>
-          </nav>
-
-          {/* Right Actions */}
-          <div className="navbar-actions">
-
-
-
-            {/* Theme Toggle */}
-            <button className="theme-toggle btn-icon" onClick={toggleTheme} aria-label="Toggle theme">
-              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+        {/* Desktop Nav */}
+        <nav className="navbar-links">
+          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} end>Home</NavLink>
+          
+          {/* About Us Dropdown */}
+          <div className="nav-dropdown-wrapper" ref={aboutDropRef}>
+            <button
+              className={`nav-link dropdown-trigger ${location.pathname === '/about' ? 'active' : ''}`}
+              onClick={() => setAboutDropOpen(prev => !prev)}
+            >
+              About Us <ChevronDown size={14} className={`drop-caret ${aboutDropOpen ? 'open' : ''}`} />
             </button>
-
-            {/* User Session */}
-            {user ? (
-              <div className="user-menu" ref={dropRef}>
-                <button className="user-trigger" onClick={() => setDropOpen((p) => !p)}>
-                  <div className="user-avatar">
-                    {user.photoURL ? (
-                      <img src={user.photoURL} alt="avatar" />
-                    ) : (
-                      <span>{user.displayName?.[0]?.toUpperCase() || 'U'}</span>
-                    )}
-                  </div>
-                  <div className="user-info">
-                    <span className="user-name">{user.displayName?.split(' ')[0] || 'User'}</span>
-                    <span className={getRoleBadgeClass()}>
-                      {getRoleIcon()} {role}
-                    </span>
-                  </div>
-                  <ChevronDown size={16} className={`drop-caret ${dropOpen ? 'open' : ''}`} />
-                </button>
-
-                <AnimatePresence>
-                  {dropOpen && (
-                    <motion.div 
-                      className="user-dropdown animate-fade-in-down"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      <Link to={getDashboardLink()} className="drop-item" onClick={() => setDropOpen(false)}>
-                        <LayoutDashboard size={16} /> Dashboard
-                      </Link>
-                      <Link to="/player/profile" className="drop-item" onClick={() => setDropOpen(false)}>
-                        <User size={16} /> My Profile
-                      </Link>
-                      <Link to="/player/id-card" className="drop-item" onClick={() => setDropOpen(false)}>
-                        <Award size={16} /> My ID Card
-                      </Link>
-                      {role === 'captain' && (
-                        <Link to="/captain/schedule" className="drop-item" onClick={() => setDropOpen(false)}>
-                          <CalendarClock size={16} /> Schedule
-                        </Link>
-                      )}
-                      <div className="drop-divider" />
-                      <button className="drop-item drop-logout" onClick={() => { setDropOpen(false); handleLogout(); }}>
-                        <LogOut size={16} /> Sign Out
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <div className="auth-btns">
-                <Link to="/login" className="btn btn-outline btn-sm">Login</Link>
-                <Link to="/register" className="btn btn-crimson btn-sm">Register</Link>
+            {aboutDropOpen && (
+              <div className="services-nav-dropdown animate-fade-in-down">
+                {ABOUT_MENU.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className="services-nav-item"
+                    style={{ fontSize: '0.85rem' }}
+                    onClick={() => setAboutDropOpen(false)}
+                  >
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
               </div>
             )}
-
-            {/* Mobile hamburger */}
-            <button
-              className="theme-toggle btn-icon hamburger"
-              onClick={() => setMenuOpen((p) => !p)}
-              aria-label="Toggle menu"
-            >
-              {menuOpen ? (
-                <X size={22} style={{ stroke: 'var(--text-primary)', color: 'var(--text-primary)' }} />
-              ) : (
-                <Menu size={22} style={{ stroke: 'var(--text-primary)', color: 'var(--text-primary)' }} />
-              )}
-            </button>
           </div>
+
+          {/* Our Services Dropdown */}
+          <div className="nav-dropdown-wrapper" ref={servicesDropRef}>
+            <button
+              className={`nav-link dropdown-trigger`}
+              onClick={() => setServicesDropOpen(prev => !prev)}
+            >
+              Our Services <ChevronDown size={14} className={`drop-caret ${servicesDropOpen ? 'open' : ''}`} />
+            </button>
+            {servicesDropOpen && (
+              <div className="services-nav-dropdown animate-fade-in-down">
+                {SERVICES_MENU.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className="services-nav-item"
+                    onClick={() => setServicesDropOpen(false)}
+                  >
+                    <span className="service-icon">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Tournaments Dropdown (BAPL) */}
+          <div className="nav-dropdown-wrapper" ref={tournamentsDropRef}>
+            <button
+              className={`nav-link dropdown-trigger ${location.pathname.startsWith('/tournaments') ? 'active' : ''}`}
+              onClick={() => setTournamentsDropOpen(prev => !prev)}
+            >
+              BAPL <ChevronDown size={14} className={`drop-caret ${tournamentsDropOpen ? 'open' : ''}`} />
+            </button>
+            {tournamentsDropOpen && (
+              <div className="tournaments-nav-dropdown animate-fade-in-down">
+                {TOURNAMENTS_MENU.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className="tournaments-nav-item"
+                    onClick={() => setTournamentsDropOpen(false)}
+                  >
+                    <img src={item.logo} className={`nav-menu-logo ${getLogoClass(item.logo)}`} alt={item.label} />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* News & Events */}
+          <NavLink to="/news" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            News &amp; Events
+          </NavLink>
+          <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            Contact Us
+          </NavLink>
+        </nav>
+
+        {/* Right actions */}
+        <div className="navbar-actions">
+          {/* Theme toggle */}
+          <button className="btn btn-icon theme-toggle" onClick={toggleTheme} title="Toggle theme">
+            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+
+          {!user && (
+            <Link to="/register" className="btn btn-gold btn-sm mobile-register-btn">
+              Register
+            </Link>
+          )}
+
+          {user ? (
+            <div className="user-menu" ref={dropRef}>
+              <button className="user-trigger" onClick={() => setDropOpen((p) => !p)}>
+                <div className="user-avatar">
+                  {user.photoURL ? (
+                    <img src={user.photoURL} alt="avatar" />
+                  ) : (
+                    <span>{user.displayName?.[0]?.toUpperCase() || 'U'}</span>
+                  )}
+                </div>
+                <div className="user-info">
+                  <span className="user-name">{user.displayName?.split(' ')[0] || 'User'}</span>
+                  <span className={getRoleBadgeClass()}>
+                    {getRoleIcon()} {role}
+                  </span>
+                </div>
+                <ChevronDown size={16} className={`drop-caret ${dropOpen ? 'open' : ''}`} />
+              </button>
+
+              {dropOpen && (
+                <div className="user-dropdown animate-fade-in-down">
+                  <Link to={getDashboardLink()} className="drop-item">
+                    <LayoutDashboard size={16} /> Dashboard
+                  </Link>
+                  <Link to="/player/profile" className="drop-item">
+                    <User size={16} /> My Profile
+                  </Link>
+                  <Link to="/player/id-card" className="drop-item">
+                    <Award size={16} /> My ID Card
+                  </Link>
+                  <div className="drop-divider" />
+                  <button className="drop-item drop-logout" onClick={handleLogout}>
+                    <LogOut size={16} /> Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="auth-btns">
+              <Link to="/login" className="btn btn-outline btn-sm">Login</Link>
+              <Link to="/register" className="btn btn-gold btn-sm">Register</Link>
+            </div>
+          )}
+
+          {/* Mobile hamburger */}
+          <button
+            className="btn btn-icon hamburger"
+            onClick={() => setMenuOpen((p) => !p)}
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
-      </header>
+      </div>
 
       {/* Mobile drawer */}
       {menuOpen && (
@@ -472,11 +419,9 @@ export default function Navbar() {
               <Image size={18} /> Gallery
             </NavLink>
 
+            {/* News & Events */}
             <NavLink to="/news" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
               <Newspaper size={18} /> News &amp; Events
-            </NavLink>
-            <NavLink to="/sponsors" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
-              <Handshake size={18} /> Sponsors
             </NavLink>
             <NavLink to="/contact" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
               <Mail size={18} /> Contact Us
@@ -486,27 +431,21 @@ export default function Navbar() {
           <div className="mobile-auth">
             {user ? (
               <>
-                <Link to={getDashboardLink()} className="btn btn-gold" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setMenuOpen(false)}>
+                <Link to={getDashboardLink()} className="btn btn-gold" style={{ width: '100%', justifyContent: 'center' }}>
                   <LayoutDashboard size={16} /> Dashboard
                 </Link>
-                {role === 'captain' && (
-                  <Link to="/captain/schedule" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} onClick={() => setMenuOpen(false)}>
-                    <CalendarClock size={16} style={{ marginRight: '6px' }} /> Schedule
-                  </Link>
-                )}
-                <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} onClick={() => { setMenuOpen(false); handleLogout(); }}>
+                <button className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }} onClick={handleLogout}>
                   <LogOut size={16} /> Sign Out
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => setMenuOpen(false)}>Login</Link>
-                <Link to="/register" className="btn btn-crimson" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} onClick={() => setMenuOpen(false)}>Register</Link>
+                <Link to="/login" className="btn btn-outline" style={{ width: '100%', justifyContent: 'center' }}>Login</Link>
               </>
             )}
           </div>
         </div>
       )}
-    </>
+    </header>
   );
 }

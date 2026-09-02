@@ -26,15 +26,94 @@
   background: var(--bg-primary);
 }
 
-/* Hide background elements for a clean flat background style */
-.hero-bg-image,
+/* ============================================================
+   HERO SLIDESHOW
+   ============================================================ */
+.hero-slideshow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-slide-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hero-slide-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  /* Dark overlay baked in via filter for dark theme */
+  filter: brightness(0.38) saturate(1.1);
+}
+
+/* Lighter for light theme — keep text readable */
+[data-theme="light"] .hero-slide-img img {
+  filter: brightness(0.45) saturate(1.0);
+}
+
+/* Slide nav arrows */
+.hero-slide-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 15;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.25s;
+  backdrop-filter: blur(6px);
+}
+.hero-slide-btn:hover { background: rgba(157, 28, 28, 0.6); }
+.hero-slide-btn--prev { left: 24px; }
+.hero-slide-btn--next { right: 24px; }
+
+/* Slide dots */
+.hero-slide-dots {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  gap: 10px;
+}
+.hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: background 0.25s, transform 0.25s;
+  padding: 0;
+}
+.hero-dot.active {
+  background: #C44040;
+  transform: scale(1.35);
+}
+
+/* Restore overlay / vignette / particles so they render above slideshow */
 .hero-overlay,
 .hero-vignette,
 .hero-light-leak,
 .hero-light-leak-2,
 .hero-particles {
-  display: none !important;
+  display: block;
 }
+
 
 .hero-bg-image img {
   width: 100%;
@@ -1120,4 +1199,174 @@
   .stat-card {
     padding: var(--space-lg) var(--space-md);
   }
+}
+
+/* ============================================================
+   ACTION PHOTO GALLERY
+   ============================================================ */
+.action-gallery-section {
+  padding: 120px 0;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-card);
+}
+
+.action-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 48px;
+}
+
+@media (max-width: 900px) {
+  .action-gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+.action-photo-card {
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  border: 1px solid var(--border-card);
+  transition: box-shadow 0.3s ease;
+}
+.action-photo-card:hover {
+  box-shadow: 0 12px 40px rgba(128,0,0,0.18);
+}
+
+.action-photo-img-wrap {
+  position: relative;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+}
+
+.action-photo-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.action-photo-card:hover .action-photo-img-wrap img {
+  transform: scale(1.07);
+}
+
+.action-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.72) 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.action-photo-card:hover .action-photo-overlay {
+  opacity: 1;
+}
+
+.action-photo-caption {
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.action-photo-zoom {
+  color: rgba(255,255,255,0.65);
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+
+/* ---- Lightbox ---- */
+.photo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0,0,0,0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  cursor: zoom-out;
+}
+
+.lightbox-img-wrap {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: default;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+
+.lightbox-img-wrap img {
+  display: block;
+  max-width: 90vw;
+  max-height: 85vh;
+  object-fit: contain;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.5);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.lightbox-close:hover { background: rgba(196,64,64,0.8); }
+
+.lightbox-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  text-align: center;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Hero title text always white over slideshow */
+.hero-section .hero-title,
+.hero-section .hero-subtitle {
+  color: #ffffff !important;
+}
+
+[data-theme=\"light\"] .hero-section .hero-title {
+  color: #ffffff !important;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.6) !important;
+}
+[data-theme=\"light\"] .hero-section .hero-subtitle {
+  color: rgba(255,255,255,0.92) !important;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.7) !important;
+}
+
+.hero-section .hero-label-badge {
+  color: #FF9090;
+  border-color: rgba(239,68,68,0.5);
+  background: rgba(0,0,0,0.3);
+}
+
+/* Hero scroll indicator always white */
+.hero-scroll-indicator {
+  color: rgba(255,255,255,0.5) !important;
 }
