@@ -302,7 +302,11 @@
   }
 
   .captain-schedule-scroll-list {
-    max-height: 380px;
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+    overscroll-behavior: auto;
+    touch-action: pan-y;
   }
 
   .announcement-sidebar-list {
