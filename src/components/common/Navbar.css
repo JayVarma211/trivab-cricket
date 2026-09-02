@@ -25,6 +25,8 @@
 }
 
 .navbar-inner {
+  position: relative;
+  z-index: 901;
   height: 100%;
   display: flex;
   align-items: center;
@@ -287,7 +289,7 @@
   flex-direction: column;
   gap: var(--space-lg);
   box-shadow: var(--shadow-lg);
-  z-index: 850;
+  z-index: 900;
   max-height: calc(100vh - var(--navbar-height));
   overflow-y: auto;
 }

@@ -166,7 +166,7 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    z-index: 850;
+    z-index: 900;
     /* Full-screen drawer instead of partial dropdown */
     max-height: none;
     box-shadow: none;

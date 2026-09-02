@@ -121,6 +121,13 @@ export default function Navbar() {
   }, [location.pathname, location.search]);
 
   useEffect(() => {
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
     const handler = (e) => {
       if (dropRef.current && !dropRef.current.contains(e.target)) setDropOpen(false);
       if (tournamentsDropRef.current && !tournamentsDropRef.current.contains(e.target)) setTournamentsDropOpen(false);
@@ -311,6 +318,8 @@ export default function Navbar() {
             className="btn btn-icon hamburger"
             onClick={() => setMenuOpen((p) => !p)}
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-navigation"
           >
             {menuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -319,7 +328,7 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       {menuOpen && (
-        <div className="mobile-menu animate-fade-in-down">
+        <div id="mobile-navigation" className="mobile-menu animate-fade-in-down">
           <div className="mobile-nav-links">
             <NavLink to="/" className="mobile-nav-link" end onClick={() => setMenuOpen(false)}>Home</NavLink>
             
