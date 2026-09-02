@@ -265,14 +265,21 @@
     overflow-wrap: anywhere;
   }
 
+  .players-table-card .data-table th:nth-child(n + 3),
+  .players-table-card .data-table td:nth-child(n + 3) {
+    display: none;
+  }
+
   .players-table-card .data-table th:first-child,
   .players-table-card .data-table td:first-child {
-    width: 34%;
+    width: 65%;
+    overflow-wrap: normal;
+    word-break: normal;
   }
 
   .players-table-card .data-table th:nth-child(2),
   .players-table-card .data-table td:nth-child(2) {
-    width: 23%;
+    width: 35%;
   }
 
   .captain-schedule-scroll-list {
