@@ -152,11 +152,11 @@
 
   /* ---- Mobile drawer ---- */
   .mobile-menu {
-    position: fixed;
-    top: var(--navbar-height);
+    position: absolute;
+    top: 100%;
     left: 0;
     right: 0;
-    bottom: 0;
+    height: calc(100dvh - var(--navbar-height));
     background: var(--bg-card);
     border-top: 1px solid var(--border-card);
     padding: 16px 20px 32px;
