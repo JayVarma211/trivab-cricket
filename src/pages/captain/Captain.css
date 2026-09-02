@@ -241,6 +241,10 @@
     max-height: 360px;
   }
 
+  .stats-panel-card {
+    display: none !important;
+  }
+
   .stats-row {
     flex-wrap: wrap;
     gap: var(--space-md);
