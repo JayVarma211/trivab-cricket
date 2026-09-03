@@ -176,7 +176,7 @@ export default function Home() {
           ================================================================ */}
       <section className="hero-section">
         {/* Slideshow background */}
-        <div className="hero-slideshow" aria-hidden="true">
+        <div className="hero-slideshow" aria-label="TRIVAB Sports event photos">
           <AnimatePresence mode="sync">
             <motion.div
               key={heroSlide}
@@ -189,22 +189,16 @@ export default function Home() {
               <img src={HERO_SLIDES[heroSlide].src} alt={HERO_SLIDES[heroSlide].alt} />
             </motion.div>
           </AnimatePresence>
+
+          <button className="hero-slide-btn hero-slide-btn--prev" onClick={() => goSlide(-1)} aria-label="Previous slide">
+            <ChevronLeft size={22} />
+          </button>
+          <button className="hero-slide-btn hero-slide-btn--next" onClick={() => goSlide(1)} aria-label="Next slide">
+            <ChevronRight size={22} />
+          </button>
         </div>
 
-        {/* Layered overlays */}
-        <div className="hero-overlay" aria-hidden="true" />
-        <div className="hero-vignette" aria-hidden="true" />
-        <div className="hero-light-leak" aria-hidden="true" />
-        <div className="hero-light-leak-2" aria-hidden="true" />
-
-        {/* Floating dust particles */}
-        <div className="hero-particles" aria-hidden="true">
-          <div className="dust" /><div className="dust" /><div className="dust" />
-          <div className="dust" /><div className="dust" /><div className="dust" />
-          <div className="dust" /><div className="dust" />
-        </div>
-
-        <div className="container hero-container centered">
+        <div className="container hero-container centered hero-copy">
           <motion.div
             className="hero-content"
             initial="hidden"
@@ -232,26 +226,6 @@ export default function Home() {
               </motion.div>
             </motion.div>
           </motion.div>
-        </div>
-
-        {/* Slideshow navigation arrows */}
-        <button className="hero-slide-btn hero-slide-btn--prev" onClick={() => goSlide(-1)} aria-label="Previous slide">
-          <ChevronLeft size={22} />
-        </button>
-        <button className="hero-slide-btn hero-slide-btn--next" onClick={() => goSlide(1)} aria-label="Next slide">
-          <ChevronRight size={22} />
-        </button>
-
-        {/* Slide dots */}
-        <div className="hero-slide-dots" aria-label="Slide indicators">
-          {HERO_SLIDES.map((_, i) => (
-            <button
-              key={i}
-              className={`hero-dot${heroSlide === i ? ' active' : ''}`}
-              onClick={() => { clearInterval(slideTimerRef.current); setHeroSlide(i); }}
-              aria-label={`Slide ${i + 1}`}
-            />
-          ))}
         </div>
 
         {/* Scroll indicator */}
