@@ -226,6 +226,12 @@
   border-radius: 4px;
 }
 
+.captain-schedule-card-title-copy,
+.captain-schedule-detail-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 /* Mobile Responsive Boundaries & Layout Reordering */
 @media (max-width: 1023px) {
   .captain-dashboard-layout {
@@ -240,6 +246,68 @@
 }
 
 @media (max-width: 768px) {
+  .captain-schedule-filters {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px !important;
+    margin-bottom: 20px;
+  }
+
+  .captain-schedule-status-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .captain-schedule-status-filters button {
+    min-height: 40px;
+    padding-inline: 8px !important;
+    white-space: normal;
+  }
+
+  .captain-schedule-select {
+    width: 100% !important;
+    min-height: 44px;
+    border-radius: 12px !important;
+  }
+
+  .captain-schedule-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  .captain-schedule-card {
+    gap: 14px !important;
+    padding: 14px !important;
+  }
+
+  .captain-schedule-card-header {
+    align-items: flex-start;
+  }
+
+  .captain-schedule-card-title {
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .captain-schedule-card-title-copy {
+    flex: 1;
+  }
+
+  .captain-schedule-card-title-copy h3 {
+    overflow-wrap: anywhere;
+  }
+
+  .captain-schedule-detail-row {
+    align-items: flex-start !important;
+  }
+
+  .captain-schedule-detail-row svg {
+    flex: 0 0 auto;
+    margin-top: 2px;
+  }
+
   .captain-dashboard .dashboard-header {
     align-items: flex-start;
     gap: 12px;

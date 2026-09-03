@@ -173,9 +173,9 @@ export default function CaptainSchedule() {
         </div>
 
         {/* Filters */}
-        <div className="flex gap-md flex-wrap items-center mb-xl" style={{ gap: '12px' }}>
+        <div className="captain-schedule-filters flex gap-md flex-wrap items-center mb-xl" style={{ gap: '12px' }}>
           {/* Status Filter */}
-          <div className="flex gap-xs flex-wrap">
+          <div className="captain-schedule-status-filters flex gap-xs flex-wrap">
             {['All', 'Upcoming', 'In Progress', 'Completed', 'Cancelled'].map((st) => {
               const count = st === 'All' ? relevantSchedules.length : relevantSchedules.filter((s) => s.status === st).length;
               return (
@@ -202,7 +202,7 @@ export default function CaptainSchedule() {
 
           {/* Tournament Filter */}
           <select
-            className="form-select"
+            className="captain-schedule-select form-select"
             value={filterTournament}
             onChange={(e) => setFilterTournament(e.target.value)}
             style={{ padding: '6px 16px', fontSize: '0.82rem', width: 'auto', borderRadius: '999px' }}
@@ -215,7 +215,7 @@ export default function CaptainSchedule() {
 
           {/* Type Filter */}
           <select
-            className="form-select"
+            className="captain-schedule-select form-select"
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
             style={{ padding: '6px 16px', fontSize: '0.82rem', width: 'auto', borderRadius: '999px' }}
@@ -242,7 +242,7 @@ export default function CaptainSchedule() {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px' }}>
+          <div className="captain-schedule-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px' }}>
             {filtered.map((sch) => {
               const typeColor = TYPE_COLORS[sch.type] || '#800000';
               const statusStyle = STATUS_STYLES[sch.status] || STATUS_STYLES.Upcoming;
@@ -252,7 +252,7 @@ export default function CaptainSchedule() {
               return (
                 <div
                   key={sch.id}
-                  className="card card-hover"
+                  className="captain-schedule-card card card-hover"
                   style={{
                     borderLeft: `4px solid ${typeColor}`,
                     display: 'flex',
@@ -265,7 +265,7 @@ export default function CaptainSchedule() {
                 >
                   <div>
                     {/* Header badges */}
-                    <div className="flex justify-between items-center mb-sm flex-wrap" style={{ gap: '8px' }}>
+                    <div className="captain-schedule-card-header flex justify-between items-center mb-sm flex-wrap" style={{ gap: '8px' }}>
                       <span
                         style={{
                           background: typeColor + '22',
@@ -293,7 +293,7 @@ export default function CaptainSchedule() {
                     </div>
 
                     {/* Date Block & Title */}
-                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '12px' }}>
+                    <div className="captain-schedule-card-title" style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '12px' }}>
                       {dateObj && (
                         <div
                           style={{
@@ -313,7 +313,7 @@ export default function CaptainSchedule() {
                           </span>
                         </div>
                       )}
-                      <div>
+                      <div className="captain-schedule-card-title-copy">
                         <h3 className="text-md font-bold" style={{ margin: 0, lineHeight: 1.3, color: 'var(--text-primary)' }}>
                           {displayTitle}
                         </h3>
@@ -326,27 +326,27 @@ export default function CaptainSchedule() {
                     </div>
 
                     {/* Details list */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.83rem', color: 'var(--text-secondary)' }}>
+                    <div className="captain-schedule-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.83rem', color: 'var(--text-secondary)' }}>
                       {sch.time && (
-                        <div className="flex items-center gap-xs">
+                        <div className="captain-schedule-detail-row flex items-center gap-xs">
                           <Clock size={14} className="text-gold" />
                           <span>Time: <strong className="text-primary">{formatTimeAMPM(sch.time)}</strong></span>
                         </div>
                       )}
                       {sch.venue && (
-                        <div className="flex items-center gap-xs">
+                        <div className="captain-schedule-detail-row flex items-center gap-xs">
                           <MapPin size={14} className="text-gold" />
                           <span>Venue: <strong className="text-primary">{sch.venue}</strong></span>
                         </div>
                       )}
                       {(sch.teamA || sch.teamB || sch.targetTeamName) && (
-                        <div className="flex items-center gap-xs">
+                        <div className="captain-schedule-detail-row flex items-center gap-xs">
                           <Shield size={14} className="text-gold" />
                           <span>Teams: <strong className="text-primary">{sch.teamA && sch.teamB ? `${sch.teamA} vs ${sch.teamB}` : (sch.targetTeamName || 'All Teams')}</strong></span>
                         </div>
                       )}
                       {sch.format && (
-                        <div className="flex items-center gap-xs">
+                        <div className="captain-schedule-detail-row flex items-center gap-xs">
                           <Tag size={14} className="text-gold" />
                           <span>Format: <strong className="text-primary">{sch.format}</strong></span>
                         </div>

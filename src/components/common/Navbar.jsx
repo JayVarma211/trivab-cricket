@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { logoutUser } from '../../firebase/auth';
 import {
-  Trophy, Users, Calendar, Star, Award, Newspaper,
+  Trophy, Users, Star, Award, Newspaper,
   Sun, Moon, Menu, X, ChevronDown, ChevronRight, LogOut, User,
   LayoutDashboard, Shield, Zap, Globe, Briefcase, Heart, Building2,
   Image, Mail
@@ -421,9 +421,6 @@ export default function Navbar() {
               )}
             </div>
 
-            <NavLink to="/schedule" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
-              <Calendar size={18} /> Matches
-            </NavLink>
             <NavLink to="/gallery" className="mobile-nav-link" onClick={() => setMenuOpen(false)}>
               <Image size={18} /> Gallery
             </NavLink>

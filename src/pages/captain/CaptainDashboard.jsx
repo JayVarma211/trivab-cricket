@@ -19,6 +19,7 @@ export default function CaptainDashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [showAllAnnouncements, setShowAllAnnouncements] = useState(false);
   const [schedules, setSchedules] = useState([]);
+  const [showAllSchedules, setShowAllSchedules] = useState(false);
   const [selectedAnnouncementModal, setSelectedAnnouncementModal] = useState(null);
 
   // Tournament & Status Schedule Filters
@@ -467,6 +468,7 @@ export default function CaptainDashboard() {
     }
     return matchTourn && matchStatus;
   });
+  const visibleScheduleItems = showAllSchedules ? filteredScheduleItems : filteredScheduleItems.slice(0, 3);
 
   return (
     <div className="captain-dashboard page-enter container section-padding">
@@ -594,7 +596,7 @@ export default function CaptainDashboard() {
               </div>
             ) : (
               <div className="captain-schedule-scroll-list">
-                {filteredScheduleItems.map((sch) => {
+                {visibleScheduleItems.map((sch) => {
                   const TYPE_COLORS = { Practice: '#3B82F6', Match: '#EF4444', Meeting: '#F59E0B', Event: '#8B5CF6', Training: '#10B981', 'Selection Trial': '#EC4899' };
                   const STATUS_STYLES = {
                     Upcoming: { background: 'rgba(59,130,246,0.12)', color: '#60A5FA', border: '1px solid rgba(59,130,246,0.25)' },
@@ -679,6 +681,16 @@ export default function CaptainDashboard() {
                   );
                 })}
               </div>
+            )}
+            {filteredScheduleItems.length > 3 && (
+              <button
+                type="button"
+                className="announcement-see-more schedule-see-more"
+                onClick={() => setShowAllSchedules((isShown) => !isShown)}
+                aria-expanded={showAllSchedules}
+              >
+                {showAllSchedules ? 'See less' : 'See more'}
+              </button>
             )}
           </div>
 
