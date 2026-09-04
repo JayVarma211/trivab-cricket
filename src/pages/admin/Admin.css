@@ -993,6 +993,18 @@
   background: var(--admin-card-hover);
 }
 
+.admin-tournament-actions {
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 440px;
+}
+
+.admin-tournament-actions .btn,
+.admin-tournament-actions .btn-table-action {
+  white-space: nowrap;
+}
+
 .admin-tournament-logo {
   width: 44px;
   height: 44px;
@@ -1012,6 +1024,92 @@
   object-fit: contain;
   background: transparent;
   flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .admin-tournament-list {
+    border-radius: 10px;
+  }
+
+  .admin-tournament-item {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    padding: 16px 12px;
+  }
+
+  .admin-tournament-logo-badge-wrapper {
+    width: 58px !important;
+    height: 58px !important;
+    padding: 3px !important;
+  }
+
+  .admin-tournament-info {
+    min-width: 0 !important;
+  }
+
+  .admin-tournament-info > div:first-child {
+    align-items: flex-start !important;
+    flex-direction: column;
+    gap: 6px !important;
+  }
+
+  .admin-tournament-info h3 {
+    max-width: 100%;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    overflow-wrap: anywhere;
+    line-height: 1.3;
+  }
+
+  .admin-tournament-info > div:nth-child(2) {
+    gap: 8px !important;
+  }
+
+  .admin-tournament-info p {
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    line-height: 1.45;
+  }
+
+  .admin-tournament-actions {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: none;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px !important;
+    padding-top: 4px;
+  }
+
+  .admin-tournament-actions .btn,
+  .admin-tournament-actions .btn-table-action {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+    padding: 8px 6px !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .admin-tournament-item {
+    grid-template-columns: 50px minmax(0, 1fr);
+    padding-inline: 10px;
+  }
+
+  .admin-tournament-logo-badge-wrapper {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .admin-tournament-actions {
+    grid-template-columns: 1fr;
+  }
 }
 
 [data-theme="light"] .admin-logo-clean {

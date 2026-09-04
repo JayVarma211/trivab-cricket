@@ -793,7 +793,7 @@ export default function AdminTournaments() {
               )}
 
               {/* Info */}
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="admin-tournament-info" style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
                   <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: 'var(--admin-text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {displayTourn.name}
@@ -827,7 +827,7 @@ export default function AdminTournaments() {
               </div>
 
               {/* Actions */}
-              <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+              <div className="admin-tournament-actions" style={{ display: 'flex', gap: '8px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
                 {isActive ? (
                   <>
                     <button
