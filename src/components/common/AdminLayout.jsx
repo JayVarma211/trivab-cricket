@@ -57,7 +57,7 @@ export default function AdminLayout({ children }) {
         <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 20px 16px', width: '100%' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', width: '100%', paddingRight: '20px' }}>
             <img 
-              src="/logos/trivabsports.webp" 
+              src="/logos/trivabsports.jpg"
               style={{ 
                 height: '75px', 
                 width: 'auto', 

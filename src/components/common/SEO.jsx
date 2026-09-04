@@ -56,13 +56,13 @@ export default function SEO({
     updateMetaTag('meta[property="og:description"]', 'content', ogDescription || description || defaultDesc);
     updateMetaTag('meta[property="og:url"]', 'content', `${siteUrl}${currentPath}`);
     updateMetaTag('meta[property="og:type"]', 'content', ogType);
-    updateMetaTag('meta[property="og:image"]', 'content', ogImage || `${siteUrl}/logos/trivabsports.webp`);
+    updateMetaTag('meta[property="og:image"]', 'content', ogImage || `${siteUrl}/logos/trivabsports.jpg`);
 
     // 5. Twitter Card Tags
     updateMetaTag('meta[name="twitter:card"]', 'content', 'summary_large_image');
     updateMetaTag('meta[name="twitter:title"]', 'content', ogTitle || title || 'TRIVAB Sports — Premium Cricket Management');
     updateMetaTag('meta[name="twitter:description"]', 'content', ogDescription || description || defaultDesc);
-    updateMetaTag('meta[name="twitter:image"]', 'content', ogImage || `${siteUrl}/logos/trivabsports.webp`);
+    updateMetaTag('meta[name="twitter:image"]', 'content', ogImage || `${siteUrl}/logos/trivabsports.jpg`);
 
     // 6. Canonical Link Tag
     let canonicalLink = document.querySelector('link[rel="canonical"]');

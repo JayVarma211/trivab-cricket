@@ -23,8 +23,7 @@ const PREDEFINED_TOURNAMENTS = [
   { id: 'bapl-north', name: 'BAPL 3.0 - North Mumbai Edition', logo: '/logos/baplt20north.png', description: 'North Mumbai Edition of the premier BAPL 3.0 League.' },
   { id: 'baplxpress-south', name: 'BAPL XPRESS - South Mumbai Edition', logo: '/logos/baplxpresst20south.png', description: 'South Mumbai Edition of the fast-paced BAPL XPRESS League.' },
   { id: 'baplxpress-north', name: 'BAPL XPRESS - North Mumbai Edition', logo: '/logos/baplxpresst20north.png', description: 'North Mumbai Edition of the fast-paced BAPL XPRESS League.' },
-  { id: 'baplcorporate-south', name: 'BAPL Corporate CUP - South Mumbai Edition', logo: '/logos/baplcorporate.png', description: 'South Mumbai Edition of the BAPL Corporate Cup.' },
-  { id: 'baplcorporate-north', name: 'BAPL Corporate CUP - North Mumbai Edition', logo: '/logos/baplcorporate.png', description: 'North Mumbai Edition of the BAPL Corporate Cup.' },
+  { id: 'baplcorporate-north', name: 'BAPL Corporate Cup', logo: '/logos/baplcorporate.png', description: 'North Mumbai corporate edition of the BAPL Corporate Cup.' },
   { id: 'trivab-monsoon', name: 'Trivab Monsoon Championship', logo: '/logos/trivabmonsoon.jpg', description: 'The grand Trivab Monsoon Championship tournament.' },
   { id: 'bapldads-south', name: 'BAPL DADS T20 - South Mumbai Edition', logo: '/logos/bapldadst20.png', description: 'South Mumbai Edition of the BAPL DADS T20 League.' },
   { id: 'bapldads-north', name: 'BAPL DADS T20 - North Mumbai Edition', logo: '/logos/bapldadst20.png', description: 'North Mumbai Edition of the BAPL DADS T20 League.' },
@@ -76,7 +75,7 @@ export default function AdminTournaments() {
     try {
       const dbTourn = tournaments.find(t => t.id === pred.id);
       if (dbTourn) {
-        await updateDocument('tournaments', pred.id, { isActivated: true });
+        await updateDocument('tournaments', pred.id, { isActivated: true, joinEnabled: false });
       } else {
         const tournamentData = {
           name: pred.name,
@@ -88,6 +87,7 @@ export default function AdminTournaments() {
           winner: 'TBD',
           runnerUp: 'TBD',
           isActivated: true,
+          joinEnabled: false,
           createdAt: new Date().toISOString()
         };
         await setDocument('tournaments', pred.id, tournamentData);
@@ -104,12 +104,24 @@ export default function AdminTournaments() {
     if (!window.confirm(`Are you sure you want to deactivate "${name}"? This will stop people from joining and registering.`)) return;
     setError('');
     try {
-      await updateDocument('tournaments', id, { isActivated: false });
+      await updateDocument('tournaments', id, { isActivated: false, joinEnabled: false });
       fetchData();
       alert(`Tournament "${name}" deactivated successfully.`);
     } catch (err) {
       console.error(err);
       setError('Failed to deactivate tournament');
+    }
+  };
+
+  const handleToggleJoining = async (id, name, enabled) => {
+    setError('');
+    try {
+      await updateDocument('tournaments', id, { joinEnabled: !enabled });
+      await fetchData();
+      alert(`Joining ${!enabled ? 'enabled' : 'disabled'} for "${name}".`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to update tournament joining access');
     }
   };
   const exportToCSV = (data, headers, filename) => {
@@ -410,7 +422,10 @@ export default function AdminTournaments() {
 
       await setDocument('tournaments', targetId, {
         ...tournamentData,
-        isActivated: true
+        isActivated: true,
+        joinEnabled: editingId
+          ? tournaments.find(t => t.id === targetId)?.joinEnabled === true
+          : false
       });
 
       fetchData();
@@ -469,6 +484,8 @@ export default function AdminTournaments() {
     t.status?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const REMOVED_TOURNAMENT_IDS = new Set(['baplcorporate-south', 'baplcorporate-pune']);
+
   const getStatusClass = (status) => {
     if (status === 'Live') return 'badge-red';
     if (status === 'Completed') return 'badge-green';
@@ -492,7 +509,7 @@ export default function AdminTournaments() {
       };
     }),
     ...tournaments
-      .filter(t => !PREDEFINED_TOURNAMENTS.some(p => p.id === t.id))
+      .filter(t => !PREDEFINED_TOURNAMENTS.some(p => p.id === t.id) && !REMOVED_TOURNAMENT_IDS.has(t.id))
       .map(t => ({
         id: t.id,
         name: t.name,
@@ -507,10 +524,10 @@ export default function AdminTournaments() {
       }))
   ];
 
-  const filteredItems = allItems.filter(item => 
+  const filteredItems = allItems.filter(item => !REMOVED_TOURNAMENT_IDS.has(item.id) && (
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ));
 
   if (loading) return <div className="container section-padding"><p>Loading...</p></div>;
 
@@ -836,15 +853,44 @@ export default function AdminTournaments() {
                     >
                       Deactivate
                     </button>
+                    {dbTourn && (
+                      <button
+                        onClick={() => handleToggleJoining(item.id, item.name, dbTourn.joinEnabled === true)}
+                        className={`btn btn-xs ${dbTourn.joinEnabled === true ? 'btn-outline text-red' : 'btn-gold'}`}
+                        style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
+                      >
+                        {dbTourn.joinEnabled === true ? 'Disable Joining' : 'Enable Joining'}
+                      </button>
+                    )}
+                    {dbTourn && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="btn btn-outline text-red btn-xs"
+                        style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
+                      >
+                        Delete
+                      </button>
+                    )}
                   </>
                 ) : (
-                  <button
-                    onClick={() => handleActivate(item)}
-                    className="btn btn-gold btn-xs"
-                    style={{ padding: '4px 12px', fontSize: '0.75rem', height: 'auto' }}
-                  >
-                    Activate
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleActivate(item)}
+                      className="btn btn-gold btn-xs"
+                      style={{ padding: '4px 12px', fontSize: '0.75rem', height: 'auto' }}
+                    >
+                      Activate
+                    </button>
+                    {dbTourn && (
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="btn btn-outline text-red btn-xs"
+                        style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>

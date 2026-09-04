@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, deleteDocument, updateDocument } from '../../firebase/firestore';
 import { safeParseDate, safeFormatDate } from '../../utils/dateFormatter';
-import { Mail, Trash2, Calendar, User, Search, MessageSquare, AlertCircle } from 'lucide-react';
+import { Mail, Trash2, Calendar, User, Search, MessageSquare, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import './Admin.css';
 
 export default function AdminInquiries() {
@@ -14,6 +14,7 @@ export default function AdminInquiries() {
   const [searchTerm, setSearchTerm] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [expandedInquiry, setExpandedInquiry] = useState(null);
 
   useEffect(() => {
     if (role !== 'admin') {
@@ -68,6 +69,103 @@ export default function AdminInquiries() {
     i.contactNumber?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const corporateSections = [
+    {
+      title: 'Company Information',
+      fields: [
+        ['Company Name', 'companyName'],
+        ['Role in Company', 'companyRole'],
+        ['Company Size', 'companySize'],
+        ['Event Type', 'eventType'],
+        ['Tournament', 'tournamentName']
+      ]
+    },
+    {
+      title: 'Contact Information',
+      fields: [
+        ['Full Name', 'name'],
+        ['Email Address', 'email'],
+        ['Contact Number', 'contactNumber']
+      ]
+    },
+    {
+      title: 'Team Details',
+      fields: [
+        ['Team Name', 'teamName'],
+        ['Players Interested', 'playersInterested'],
+        ['Cricket Experience', 'cricketExperience'],
+        ['Played in BAPL Before', 'playedInBapl']
+      ]
+    },
+    {
+      title: 'Event Planning',
+      fields: [
+        ['Preferred Timing', 'preferredTiming'],
+        ['Budget Approved', 'budgetApproved']
+      ]
+    },
+    {
+      title: 'Additional Information',
+      fields: [
+        ['How They Heard About Us', 'heardAboutUs'],
+        ['Updates Consent', 'consent']
+      ]
+    }
+  ];
+
+  const generalSections = [
+    {
+      title: 'Contact Information',
+      fields: [
+        ['Full Name', 'name'],
+        ['Email Address', 'email'],
+        ['Contact Number', 'contactNumber'],
+        ['Topic / Subject', 'subject'],
+        ['Tournament', 'tournamentName']
+      ]
+    }
+  ];
+
+  const getCorporateSections = (inq) => corporateSections.filter(section => (
+    section.title !== 'Team Details' || inq.eventType === 'Cricket Event'
+  ));
+
+  const topicFieldLabels = {
+    organization: 'Organization / Company',
+    role: 'Your Role',
+    eventType: 'Event Type',
+    expectedTeams: 'Expected Teams',
+    proposedDate: 'Preferred Event Date',
+    venue: 'Venue / Location',
+    timeline: 'Timeline',
+    budget: 'Budget',
+    sponsorshipType: 'Sponsorship Interest',
+    audience: 'Target Audience',
+    deliverables: 'Deliverables',
+    jobRole: 'Position Applied For',
+    experience: 'Experience',
+    availability: 'Availability to Join',
+    linkedinUrl: 'LinkedIn / Portfolio',
+    resumeName: 'Resume / CV',
+    issueType: 'Issue Type',
+    pageUrl: 'Affected Page / URL',
+    device: 'Device / Browser',
+    urgency: 'Urgency'
+  };
+
+  const getTopicSections = (inq) => {
+    const excludedFields = new Set([
+      'name', 'email', 'contactNumber', 'subject', 'message', 'read', 'createdAt', 'id',
+      'companyName', 'companyRole', 'companySize', 'teamName', 'playersInterested',
+      'cricketExperience', 'playedInBapl', 'preferredTiming', 'budgetApproved', 'heardAboutUs', 'consent'
+    ]);
+    const fields = Object.entries(topicFieldLabels)
+      .filter(([key]) => !excludedFields.has(key) && inq[key])
+      .map(([key, label]) => [label, key]);
+
+    return fields.length > 0 ? [{ title: 'Request Details', fields }] : [];
+  };
+
   if (loading) return <div className="container section-padding"><p>Loading inquiries...</p></div>;
 
   return (
@@ -109,7 +207,7 @@ export default function AdminInquiries() {
       ) : (
         <div className="grid grid-2 gap-lg">
           {filteredInquiries.map((inq) => (
-            <div key={inq.id} className="card card-gold flex flex-col justify-between" style={{ height: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-card)' }}>
+            <div key={inq.id} className="card card-gold admin-inquiry-card flex flex-col justify-between" style={{ height: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-card)' }}>
               <div>
                 <div className="flex justify-between items-start mb-md pb-xs" style={{ borderBottom: '1px solid var(--border-card)' }}>
                   <div>
@@ -128,9 +226,37 @@ export default function AdminInquiries() {
                   </span>
                 </div>
 
-                <div className="message-content text-sm text-secondary" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, marginBottom: '16px' }}>
-                  {inq.message}
-                </div>
+                <button
+                  type="button"
+                  className="admin-inquiry-toggle"
+                  onClick={() => setExpandedInquiry(expandedInquiry === inq.id ? null : inq.id)}
+                  aria-expanded={expandedInquiry === inq.id}
+                >
+                  <span>{expandedInquiry === inq.id ? 'Hide full form' : 'View full form'}</span>
+                  {expandedInquiry === inq.id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+
+                {expandedInquiry === inq.id && (
+                  <div className="admin-inquiry-details">
+                    {(inq.companyName ? getCorporateSections(inq) : [...generalSections, ...getTopicSections(inq)]).map((section) => (
+                      <section key={section.title} className="admin-inquiry-section">
+                        <h4>{section.title}</h4>
+                        <div className="admin-inquiry-fields">
+                          {section.fields.map(([label, key]) => (
+                            <div key={key} className="admin-inquiry-field">
+                              <span>{label}</span>
+                              <strong>{key === 'consent' ? (inq[key] ? 'Yes' : 'No') : (inq[key] || 'Not provided')}</strong>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                    <section className="admin-inquiry-section admin-inquiry-message">
+                      <h4>Message</h4>
+                      <p>{inq.message || 'No additional message provided.'}</p>
+                    </section>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end pt-sm border-top" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>

@@ -29,6 +29,20 @@
   align-items: flex-start;
 }
 
+.tournament-details-grid--teams-only {
+  grid-template-columns: 1fr;
+}
+
+.teams-show-more {
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--space-md);
+}
+
+.tournament-enquiry-button {
+  margin-top: var(--space-sm);
+}
+
 .match-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border-card);

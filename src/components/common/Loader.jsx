@@ -6,7 +6,7 @@ export default function Loader({ fullscreen = false, size = 40 }) {
       <div className="loader-fullscreen">
         <div className="loader-content">
           <div className="loader-logo">
-            <img src="/logos/trivabsports.webp" className="loader-logo-img" alt="TRIVAB SPORTS" />
+            <img src="/logos/trivabsports.jpg" className="loader-logo-img" alt="TRIVAB SPORTS" />
           </div>
           <div className="loader-spinner" />
           <p className="loader-text">Loading TRIVAB...</p>

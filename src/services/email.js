@@ -3,6 +3,7 @@ import emailjs from '@emailjs/browser';
 const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
 const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
 const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'trivabsports@gmail.com';
 
 /**
  * Send an OTP code to a registering user's email.
@@ -34,23 +35,12 @@ export const sendContactEmail = async (name, email, contactNumber, subject, mess
   }
 
   const templateParams = {
-    // Verified sender address (prevents DMARC/spam filter rejections)
-    from_email: 'trivabsports@gmail.com',
     from_name: name || 'TRIVAB Contact Form',
-    
-    // Reply-To header allows admin to reply to the sender directly
     reply_to: email,
-    
-    // Recipient address
-    to_email: 'trivabsports@gmail.com',
-    
-    // Subject line
+    to_email: ADMIN_EMAIL,
+    to_name: 'TRIVAB Sports Admin',
     subject: `[TRIVAB Inquiry] - ${subject}`,
-    
-    // Message details
     message: `Sender Name: ${name}\nSender Email: ${email}\nSender Phone: ${contactNumber}\n\nMessage Details:\n${message}`,
-    
-    // Mapping variations to match template variable configurations in EmailJS dashboard
     user_name: name || 'TRIVAB Contact Form',
     user_email: email,
     sender_email: email,
@@ -60,7 +50,16 @@ export const sendContactEmail = async (name, email, contactNumber, subject, mess
     message_html: `Sender Name: ${name}<br>Sender Email: ${email}<br>Sender Phone: ${contactNumber}<br><br>Message Details:<br>${message.replace(/\n/g, '<br>')}`
   };
 
-  return emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+  try {
+    return await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+  } catch (error) {
+    console.error('EmailJS contact notification failed:', {
+      status: error?.status,
+      text: error?.text,
+      subject
+    });
+    throw error;
+  }
 };
 
 /**

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import { getDocument, getCollection, where, updateDocument, setDocument, addDocument, getPlayerByUIDOrEmail, syncTeamRosterCountAndNotify } from '../../firebase/firestore';
 import { useAuth } from '../../context/AuthContext';
-import { Trophy, Calendar, MapPin, Users, Award, Shield, Upload } from 'lucide-react';
+import { Trophy, Users, Award, Shield, Upload } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import { sendCaptainRosterNotification } from '../../services/email';
@@ -109,28 +109,8 @@ BAPL XPRESS delivers the complete TRIVAB experience—just faster, sharper, and 
     ]
   },
   {
-    id: 'baplcorporate-south',
-    name: 'BAPL Corporate CUP - South Mumbai Edition',
-    logo: '/logos/baplcorporate.jpg',
-    description: `The BAPL Corporate Cup is TRIVAB’s premier corporate-only cricket tournament, designed exclusively for teams representing individual companies. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity competitive sport.
-
-Built on the same professional structure as the BAPL ecosystem, the Corporate Cup delivers a premium matchday experience where corporates engage, compete, and strengthen workplace camaraderie beyond office walls.
-
-BAPL Corporate Cup transforms corporate cricket into a professional sporting experience—where business meets competition on the field.`,
-    highlights: [
-      'Exclusive participation for corporate teams only (company-based entries)',
-      'Professional T20 tournament format',
-      'Matches conducted across 5–6 premium quality cricket grounds',
-      'HD live streaming with YouTube broadcasting of all matches',
-      'Dedicated match officials and certified scorers',
-      'On-ground meals and refreshments for all players',
-      'Dedicated team managers assigned to each corporate team',
-      'Fully structured and professionally managed tournament operations'
-    ]
-  },
-  {
     id: 'baplcorporate-north',
-    name: 'BAPL Corporate CUP - North Mumbai Edition',
+    name: 'BAPL Corporate Cup',
     logo: '/logos/baplcorporate.jpg',
     description: `The BAPL Corporate Cup is TRIVAB’s premier corporate-only cricket tournament, designed exclusively for teams representing individual companies. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity competitive sport.
 
@@ -268,6 +248,7 @@ export default function TournamentDetails() {
   const [tournament, setTournament] = useState(null);
   const [matches, setMatches] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [showAllTeams, setShowAllTeams] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Team Details Modal States
@@ -409,7 +390,7 @@ export default function TournamentDetails() {
       try {
         let tourn = await getDocument('tournaments', id);
         const fallback = PREDEFINED_TOURNAMENTS.find(p => p.id === id);
-        let isActivated = true;
+        let isActivated = Boolean(tourn && tourn.isActivated === true);
         
         if (!tourn) {
           isActivated = false;
@@ -435,6 +416,7 @@ export default function TournamentDetails() {
         
         if (tourn) {
           tourn.isActivated = isActivated;
+          tourn.joinEnabled = isActivated && tourn.joinEnabled === true;
         }
         
         setTournament(tourn);
@@ -456,7 +438,8 @@ export default function TournamentDetails() {
           status: 'Inactive',
           winner: 'TBD',
           runnerUp: 'TBD',
-          isActivated: false
+          isActivated: false,
+          joinEnabled: false
         } : null);
         setMatches([]);
         setTeams([]);
@@ -498,6 +481,10 @@ export default function TournamentDetails() {
     if (e) e.preventDefault();
     if (tournament && tournament.isActivated === false) {
       alert('This tournament is currently deactivated/inactive and cannot be joined.');
+      return;
+    }
+    if (tournament && tournament.joinEnabled !== true) {
+      alert('Joining is currently closed for this tournament. Please check back soon.');
       return;
     }
     if (!user) {
@@ -709,6 +696,7 @@ export default function TournamentDetails() {
       "url": "https://trivabsports.com"
     }
   } : null;
+  const isCorporateTournament = tournament.name?.toLowerCase().includes('corporate');
 
   return (
     <div className="tournament-details-page page-enter container section-padding">
@@ -732,12 +720,25 @@ export default function TournamentDetails() {
             <span className="badge badge-red mb-xs">{tournament.status}</span>
             <h1 className="display-md text-gradient-gold tournament-page-title" style={{ wordBreak: 'break-word' }}>{tournament.name}</h1>
             <p className="text-secondary max-width-600 mt-xs" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>{tournament.description}</p>
+
+            <div className="mt-md tournament-enquiry-detail-action">
+              <Link
+                to={`/contact?subject=${isCorporateTournament ? 'Corporate%20Sports%20Tournament' : 'General%20Inquiry'}&tournament=${encodeURIComponent(tournament.name)}`}
+                className="btn btn-gold btn-sm join-btn-mobile"
+              >
+                {isCorporateTournament ? 'Enquire About Corporate Events' : 'Enquire About This Tournament'}
+              </Link>
+            </div>
             
             {tournament && tournament.isActivated === false ? (
               <div className="mt-md">
                 <span className="badge" style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'var(--accent-red)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
                   Tournament Inactive
                 </span>
+              </div>
+            ) : tournament && tournament.joinEnabled !== true ? (
+              <div className="mt-md">
+                <span className="badge badge-grey">Registration Closed</span>
               </div>
             ) : user ? (
               role === 'admin' ? (
@@ -791,76 +792,14 @@ export default function TournamentDetails() {
         </div>
       )}
 
-      <div className="tournament-details-grid">
-        {/* Left col: Match Fixtures */}
-        <div className="card matches-fixture-card">
-          <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
-            <Calendar size={20} /> Match Schedule & Fixtures
-          </h3>
-          <div className="matches-timeline">
-            {matches.length === 0 ? (
-              <p className="text-sm text-muted">No scheduled matches logged for this tournament.</p>
-            ) : (
-              matches.map((m) => {
-                const teamAObj = teams.find(t => t.teamName === m.teamA);
-                const teamBObj = teams.find(t => t.teamName === m.teamB);
-                const teamALogo = teamAObj?.logoURL;
-                const teamBLogo = teamBObj?.logoURL;
-
-                return (
-                  <div className="match-card border-top-gold mb-md" key={m.id}>
-                    <div className="match-card-header flex justify-between text-xs text-muted mb-xs">
-                      <span className="flex items-center gap-xs"><Calendar size={12} /> {m.date} at {m.time}</span>
-                      <span className="badge badge-blue">{m.status}</span>
-                    </div>
-                    <div className="match-teams-row flex justify-between items-center py-sm flex-wrap gap-xs">
-                      <div className="flex items-center gap-xs">
-                        <div className="avatar avatar-sm bg-secondary text-gold font-bold" style={{ width: '24px', height: '24px', overflow: 'hidden', borderRadius: '50%', border: '1px solid var(--border)' }}>
-                          {teamALogo ? <img src={teamALogo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : m.teamA[0]}
-                        </div>
-                        <span className="team-text font-bold" style={{ fontSize: '0.85rem' }}>{m.teamA}</span>
-                        {(m.status === 'Completed' || m.status === 'Live') && (
-                          <span className="text-xs font-bold text-gradient-gold ml-xxs">({m.teamAScore || '—'})</span>
-                        )}
-                      </div>
-                      
-                      <span className="vs-text text-muted text-xs font-bold">VS</span>
-
-                      <div className="flex items-center gap-xs">
-                        {(m.status === 'Completed' || m.status === 'Live') && (
-                          <span className="text-xs font-bold text-gradient-gold mr-xxs">({m.teamBScore || '—'})</span>
-                        )}
-                        <span className="team-text font-bold" style={{ fontSize: '0.85rem' }}>{m.teamB}</span>
-                        <div className="avatar avatar-sm bg-secondary text-gold font-bold" style={{ width: '24px', height: '24px', overflow: 'hidden', borderRadius: '50%', border: '1px solid var(--border)' }}>
-                          {teamBLogo ? <img src={teamBLogo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : m.teamB[0]}
-                        </div>
-                      </div>
-                    </div>
-
-                    {m.result && (
-                      <div className="match-result text-center mb-xs py-xxs px-sm rounded text-xs font-semi text-gold" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)', marginBottom: '8px' }}>
-                        🏆 {m.result}
-                      </div>
-                    )}
-
-                    <div className="match-card-footer flex justify-between items-center text-xs text-muted border-top pt-xs mt-xs">
-                      <span className="flex items-center gap-xs"><MapPin size={12} /> {m.venue}</span>
-                      <span className="text-gold font-semi">{m.format || 'T20'} League Match</span>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* Right col: Participating Teams */}
+      <div className="tournament-details-grid tournament-details-grid--teams-only">
+        {/* Participating Teams */}
         <div className="card participating-teams-card">
           <h3 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
             <Users size={20} /> Participating Teams ({teams.length})
           </h3>
           <ul className="flex flex-col gap-sm team-details-list">
-            {teams.map((t) => (
+            {teams.slice(0, showAllTeams ? teams.length : 4).map((t) => (
               <li className="team-item-row flex justify-between items-center" key={t.id} onClick={() => handleTeamClick(t)} style={{ cursor: 'pointer', transition: 'background-color 0.2s', padding: '10px 14px', borderRadius: '8px' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.04)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                 <div className="flex items-center gap-sm">
                   <div className="avatar avatar-sm bg-secondary text-gold font-bold" style={{ width: '32px', height: '32px', fontSize: '0.9rem', borderRadius: '6px', overflow: 'hidden' }}>
@@ -876,6 +815,15 @@ export default function TournamentDetails() {
               </li>
             ))}
           </ul>
+          {teams.length > 4 && (
+            <button
+              type="button"
+              className="btn btn-outline teams-show-more"
+              onClick={() => setShowAllTeams(prev => !prev)}
+            >
+              {showAllTeams ? 'Show Less' : `Show More Teams (${teams.length - 4})`}
+            </button>
+          )}
         </div>
       </div>
       {showJoinModal && createPortal(

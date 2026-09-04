@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { getCollection, limit } from '../firebase/firestore';
-import { Trophy, Calendar, ShieldCheck, Sparkles, ArrowRight, Star, Zap, CheckCircle, Target, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Trophy, Calendar, ShieldCheck, Sparkles, ArrowRight, Star, Zap, CheckCircle, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SEO from '../components/common/SEO';
 import './Home.css';
@@ -15,7 +15,7 @@ const HERO_SLIDES = [
 const TICKER_LOGOS = [
   { src: '/logos/baplt20north.png', alt: 'BAPL T20 North', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-north' },
   { src: '/logos/baplxpresst20south.png', alt: 'BAPL Xpress South', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/baplxpress-south' },
-  { src: '/logos/baplcorporate.png', alt: 'BAPL Corporate Cup', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/baplcorporate-south' },
+  { src: '/logos/baplcorporate.png', alt: 'BAPL Corporate Cup', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/type/baplcorporate' },
   { src: '/logos/baplt20south.png', alt: 'BAPL T20 South', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapl-south' },
   { src: '/logos/baplxpresst20north.png', alt: 'BAPL Xpress North', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/baplxpress-north' },
   { src: '/logos/bapldadst20.png', alt: 'BAPL Dads T20', imgClass: 'ticker-logo-silver', dark: false, link: '/tournaments/bapldads-south' },
@@ -39,14 +39,6 @@ export default function Home() {
     }, 5000);
     return () => clearInterval(slideTimerRef.current);
   }, []);
-
-  const goSlide = (dir) => {
-    clearInterval(slideTimerRef.current);
-    setHeroSlide(prev => (prev + dir + HERO_SLIDES.length) % HERO_SLIDES.length);
-    slideTimerRef.current = setInterval(() => {
-      setHeroSlide(prev => (prev + 1) % HERO_SLIDES.length);
-    }, 5000);
-  };
 
   // Parallax scroll for hero image (background only, no text fade)
   const heroImgY = 0; // disabled parallax fade
@@ -139,7 +131,7 @@ export default function Home() {
         "name": "TRIVAB Sports",
         "alternateName": "TRIVAB Sports & Events",
         "url": "https://trivabsports.com",
-        "logo": "https://trivabsports.com/logos/trivabsports.webp",
+        "logo": "https://trivabsports.com/logos/trivabsports.jpg",
         "sameAs": [
           "https://www.instagram.com/baplcricket",
           "https://www.youtube.com/@baplcricket"
@@ -190,12 +182,6 @@ export default function Home() {
             </motion.div>
           </AnimatePresence>
 
-          <button className="hero-slide-btn hero-slide-btn--prev" onClick={() => goSlide(-1)} aria-label="Previous slide">
-            <ChevronLeft size={22} />
-          </button>
-          <button className="hero-slide-btn hero-slide-btn--next" onClick={() => goSlide(1)} aria-label="Next slide">
-            <ChevronRight size={22} />
-          </button>
         </div>
 
         <div className="container hero-container centered hero-copy">

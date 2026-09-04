@@ -23,7 +23,7 @@ export default function Footer() {
       <div className="footer-top container">
         <div className="footer-brand">
           <Link to="/" className="footer-logo-container">
-            <img src="/logos/trivabsports.webp" className="footer-logo-img" alt="TRIVAB SPORTS" />
+            <img src="/logos/trivabsports.jpg" className="footer-logo-img" alt="TRIVAB SPORTS" />
           </Link>
           <div className="footer-socials">
             <a href="https://www.instagram.com/baplcricket?igsh=NHQ2dWM0Y3Z5dnBj" target="_blank" rel="noreferrer" className="social-btn" aria-label="Instagram"><Instagram size={18} /></a>

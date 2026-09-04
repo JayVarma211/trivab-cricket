@@ -26,6 +26,102 @@
   --admin-shadow-lg: 0 8px 48px rgba(0,0,0,0.6);
 }
 
+.admin-inquiry-card {
+  overflow: hidden;
+}
+
+.admin-inquiry-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 16px;
+  padding: 11px 13px;
+  border: 1px solid var(--admin-border-accent);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-gold-dim);
+  color: var(--admin-gold);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+
+.admin-inquiry-toggle:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--admin-gold);
+}
+
+.admin-inquiry-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-surface);
+}
+
+.admin-inquiry-section {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-inquiry-section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.admin-inquiry-section h4 {
+  margin: 0 0 10px;
+  color: var(--admin-gold);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-inquiry-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.admin-inquiry-field {
+  min-width: 0;
+}
+
+.admin-inquiry-field span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--admin-muted);
+  font-size: 0.68rem;
+}
+
+.admin-inquiry-field strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: var(--admin-text);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.admin-inquiry-message p {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 640px) {
+  .admin-inquiry-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
 [data-theme="light"] {
   --admin-bg: #f8f9fc;
   --admin-surface: #ffffff;

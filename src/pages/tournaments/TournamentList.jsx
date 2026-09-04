@@ -95,7 +95,7 @@ export default function TournamentList() {
     const fetchTournaments = async () => {
       try {
         const list = await getCollection('tournaments', [orderBy('createdAt', 'desc')]);
-        setTournaments(list || []);
+        setTournaments((list || []).filter(t => t.isActivated !== false));
       } catch (err) {
         console.log('Using database fallback for tournaments');
         setTournaments([]);

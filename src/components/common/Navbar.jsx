@@ -166,7 +166,7 @@ export default function Navbar() {
       <div className="navbar-inner container">
         {/* Logo */}
         <Link to="/" className="navbar-logo">
-          <img src="/logos/trivabsports.webp" className="logo-image" alt="TRIVAB SPORTS" />
+          <img src="/logos/trivabsports.jpg" className="logo-image" alt="TRIVAB SPORTS" />
         </Link>
 
         {/* Desktop Nav */}
