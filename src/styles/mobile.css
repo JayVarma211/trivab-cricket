@@ -125,7 +125,7 @@
 
   /* Logo — proportional to navbar */
   .logo-image {
-    height: calc(var(--navbar-height) - 4px);
+    height: 84px;
     width: auto;
     object-fit: contain;
   }
@@ -287,9 +287,9 @@
 
   .hero-slideshow {
     width: 100%;
-    height: calc(100svh - var(--navbar-height));
-    min-height: 420px;
-    max-height: none;
+    height: 50svh;
+    min-height: 260px;
+    max-height: 440px;
     margin: 0 0 44px;
     padding: 0;
     border-width: 6px;

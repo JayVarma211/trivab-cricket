@@ -102,8 +102,8 @@ async function createAndCaptureClone(el) {
   `;
 
   const clone = el.cloneNode(true);
-  // Remove the pdf-clone class if present to avoid any override styles
-  clone.classList.remove('pdf-clone');
+  // Keep a PDF marker so mobile-only display rules do not resize the print layout.
+  clone.classList.add('pdf-clone');
   clone.style.cssText = `
     width: ${CARD_W}px !important;
     height: ${CARD_H}px !important;
