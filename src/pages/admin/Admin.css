@@ -1663,7 +1663,11 @@
 [data-theme="light"] .data-table thead { background: rgba(0,0,0,0.02); }
 [data-theme="light"] .data-table th { color: rgba(0,0,0,0.45); }
 [data-theme="light"] .data-table td { color: #111; border-color: rgba(0,0,0,0.07); }
-[data-theme="light"] .btn-table-action { border-color: rgba(0,0,0,0.1); color: rgba(0,0,0,0.5); }
+[data-theme="light"] .btn-table-action {
+  border-color: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.025);
+}
+[data-theme="light"] .btn-table-action:hover { background: rgba(0,0,0,0.08); }
 [data-theme="light"] .admin-tournament-item { background: #fff; }
 [data-theme="light"] .admin-tournament-logo { border-color: rgba(0,0,0,0.12); }
 

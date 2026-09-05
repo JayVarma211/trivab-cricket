@@ -247,118 +247,48 @@ export default function CaptainSchedule() {
               const typeColor = TYPE_COLORS[sch.type] || '#800000';
               const statusStyle = STATUS_STYLES[sch.status] || STATUS_STYLES.Upcoming;
               const dateObj = sch.date ? new Date(sch.date + 'T00:00:00') : null;
-              const displayTitle = sch.title || (sch.teamA && sch.teamB ? `${sch.teamA} vs ${sch.teamB}` : `${sch.type || 'Match'} Fixture`);
 
               return (
                 <div
                   key={sch.id}
                   className="captain-schedule-card card card-hover"
                   style={{
-                    borderLeft: `4px solid ${typeColor}`,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    gap: '16px',
-                    position: 'relative',
-                    overflow: 'hidden',
+                    '--captain-card-accent': typeColor,
                   }}
                 >
-                  <div>
-                    {/* Header badges */}
-                    <div className="captain-schedule-card-header flex justify-between items-center mb-sm flex-wrap" style={{ gap: '8px' }}>
-                      <span
-                        style={{
-                          background: typeColor + '22',
-                          color: typeColor,
-                          border: `1px solid ${typeColor}44`,
-                          borderRadius: '6px',
-                          padding: '2px 10px',
-                          fontSize: '0.72rem',
-                          fontWeight: 700,
-                        }}
-                      >
-                        {sch.type || 'Match'}
-                      </span>
-                      <span
-                        style={{
-                          ...statusStyle,
-                          borderRadius: '6px',
-                          padding: '2px 10px',
-                          fontSize: '0.72rem',
-                          fontWeight: 700,
-                        }}
-                      >
-                        {sch.status || 'Upcoming'}
-                      </span>
+                  <div className="captain-schedule-date">
+                    <span>{dateObj ? dateObj.getDate() : '--'}</span>
+                    <strong>{dateObj ? dateObj.toLocaleString('en-IN', { month: 'short' }).toUpperCase() : ''}</strong>
+                    <small>{dateObj ? dateObj.getFullYear() : ''}</small>
+                  </div>
+
+                  <div className="captain-schedule-card-body">
+                    <div className="captain-schedule-card-header">
+                      <div className="captain-schedule-card-badges">
+                        <span className="captain-schedule-type">{sch.type || 'Match'}</span>
+                        <span className="captain-schedule-status" style={statusStyle}>{sch.status || 'Upcoming'}</span>
+                      </div>
+                      {sch.time && <span className="captain-schedule-time"><Clock size={13} /> {formatTimeAMPM(sch.time)}</span>}
                     </div>
 
-                    {/* Date Block & Title */}
-                    <div className="captain-schedule-card-title" style={{ display: 'flex', gap: '14px', alignItems: 'center', marginBottom: '12px' }}>
-                      {dateObj && (
-                        <div
-                          style={{
-                            background: 'var(--bg-secondary)',
-                            border: '1px solid var(--border-card)',
-                            borderRadius: '10px',
-                            padding: '8px 14px',
-                            textAlign: 'center',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <span style={{ display: 'block', fontSize: '1.4rem', fontWeight: 900, lineHeight: 1, color: 'var(--text-primary)' }}>
-                            {dateObj.getDate()}
-                          </span>
-                          <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase' }}>
-                            {dateObj.toLocaleString('en-IN', { month: 'short' })}
-                          </span>
-                        </div>
-                      )}
-                      <div className="captain-schedule-card-title-copy">
-                        <h3 className="text-md font-bold" style={{ margin: 0, lineHeight: 1.3, color: 'var(--text-primary)' }}>
-                          {displayTitle}
-                        </h3>
-                        {dateObj && (
-                          <span className="text-xs text-muted">
-                            {dateObj.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric' })}
-                          </span>
-                        )}
+                    <div className="captain-schedule-tournament">{sch.tournamentName || 'TRIVAB Sports Fixture'}</div>
+                    <div className="captain-schedule-matchup">
+                      <div className="captain-schedule-team">
+                        <span className="captain-schedule-team-mark">{sch.teamA?.[0] || '?'}</span>
+                        <strong title={sch.teamA}>{sch.teamA || sch.targetTeamName || 'All Teams'}</strong>
+                      </div>
+                      <span className="captain-schedule-vs">VS</span>
+                      <div className="captain-schedule-team captain-schedule-team-right">
+                        <span className="captain-schedule-team-mark">{sch.teamB?.[0] || '?'}</span>
+                        <strong title={sch.teamB}>{sch.teamB || 'Team B'}</strong>
                       </div>
                     </div>
 
-                    {/* Details list */}
-                    <div className="captain-schedule-details" style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.83rem', color: 'var(--text-secondary)' }}>
-                      {sch.time && (
-                        <div className="captain-schedule-detail-row flex items-center gap-xs">
-                          <Clock size={14} className="text-gold" />
-                          <span>Time: <strong className="text-primary">{formatTimeAMPM(sch.time)}</strong></span>
-                        </div>
-                      )}
-                      {sch.venue && (
-                        <div className="captain-schedule-detail-row flex items-center gap-xs">
-                          <MapPin size={14} className="text-gold" />
-                          <span>Venue: <strong className="text-primary">{sch.venue}</strong></span>
-                        </div>
-                      )}
-                      {(sch.teamA || sch.teamB || sch.targetTeamName) && (
-                        <div className="captain-schedule-detail-row flex items-center gap-xs">
-                          <Shield size={14} className="text-gold" />
-                          <span>Teams: <strong className="text-primary">{sch.teamA && sch.teamB ? `${sch.teamA} vs ${sch.teamB}` : (sch.targetTeamName || 'All Teams')}</strong></span>
-                        </div>
-                      )}
-                      {sch.format && (
-                        <div className="captain-schedule-detail-row flex items-center gap-xs">
-                          <Tag size={14} className="text-gold" />
-                          <span>Format: <strong className="text-primary">{sch.format}</strong></span>
-                        </div>
-                      )}
+                    <div className="captain-schedule-footer">
+                      <span><MapPin size={13} /> {sch.venue || 'Venue to be announced'}</span>
+                      {sch.format && <span><Tag size={13} /> {sch.format}</span>}
                     </div>
-
-                    {/* Description */}
-                    {sch.description && (
-                      <p className="text-xs text-muted" style={{ marginTop: '12px', lineHeight: 1.5, borderTop: '1px solid var(--border-card)', paddingTop: '10px', whiteSpace: 'pre-line' }}>
-                        {sch.description}
-                      </p>
-                    )}
+                    {sch.description && <p className="captain-schedule-description">{sch.description}</p>}
                   </div>
                 </div>
               );

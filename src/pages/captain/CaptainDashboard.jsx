@@ -12,6 +12,7 @@ export default function CaptainDashboard() {
   const { user } = useAuth();
   const [captain, setCaptain] = useState(null);
   const [team, setTeam] = useState(null);
+  const [allTeams, setAllTeams] = useState([]);
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [teamFees, setTeamFees] = useState(null);
@@ -59,7 +60,11 @@ export default function CaptainDashboard() {
         const captData = await getDocument('captains', user.uid);
         setCaptain(captData);
 
-        const tournamentsList = await getCollection('tournaments', [orderBy('createdAt', 'desc')]);
+        const [tournamentsList, allTeamsList] = await Promise.all([
+          getCollection('tournaments', [orderBy('createdAt', 'desc')]),
+          getCollection('teams')
+        ]);
+        setAllTeams(allTeamsList || []);
 
         // Fetch all teams managed by this captain
         let captainTeams = await getCollection('teams', [
@@ -608,74 +613,56 @@ export default function CaptainDashboard() {
                   const statusStyle = STATUS_STYLES[sch.status] || STATUS_STYLES.Upcoming;
                   const tournObj = allTournaments.find(t => t.id === sch.tournamentId);
                   const tournName = tournObj?.name || sch.tournamentName || 'Trivab League';
+                  const teamNames = sch.teamA && sch.teamB
+                    ? [sch.teamA, sch.teamB]
+                    : (sch.targetTeamName || '').split(/\s+vs\s+/i);
+                  const teamAName = teamNames[0] || 'Team A';
+                  const teamBName = teamNames[1] || 'Team B';
+                  const teamALogo = allTeams.find(t => t.teamName?.toLowerCase() === teamAName.toLowerCase())?.logoURL;
+                  const teamBLogo = allTeams.find(t => t.teamName?.toLowerCase() === teamBName.toLowerCase())?.logoURL;
 
                   return (
                     <div
                       key={sch.id}
-                      style={{
-                        background: 'var(--bg-secondary)',
-                        border: '1px solid var(--border-card)',
-                        borderLeft: `4px solid ${typeColor}`,
-                        borderRadius: '10px',
-                        padding: '16px 20px',
-                        display: 'flex',
-                        gap: '16px',
-                        alignItems: 'flex-start',
-                        flexWrap: 'wrap',
-                      }}
+                      className="captain-dashboard-match-card"
+                      style={{ '--captain-card-accent': typeColor }}
                     >
-                      {/* Date block */}
-                      <div style={{ textAlign: 'center', minWidth: '52px', flexShrink: 0 }}>
-                        <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>
-                          {sch.date ? new Date(sch.date + 'T00:00:00').getDate() : '—'}
-                        </div>
-                        <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                          {sch.date ? new Date(sch.date + 'T00:00:00').toLocaleString('en-IN', { month: 'short' }) : ''}
-                        </div>
-                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
-                          {sch.date ? new Date(sch.date + 'T00:00:00').getFullYear() : ''}
-                        </div>
+                      <div className="captain-dashboard-match-date">
+                        <span className="captain-dashboard-match-weekday">{sch.date ? new Date(sch.date + 'T00:00:00').toLocaleString('en-IN', { weekday: 'short' }).toUpperCase() : ''}</span>
+                        <span className="captain-dashboard-match-day">{sch.date ? new Date(sch.date + 'T00:00:00').getDate() : '--'}</span>
+                        <span className="captain-dashboard-match-month">{sch.date ? new Date(sch.date + 'T00:00:00').toLocaleString('en-IN', { month: 'short' }).toUpperCase() : ''}</span>
+                        <span className="captain-dashboard-match-divider" />
+                        <span className="captain-dashboard-match-year">{sch.date ? new Date(sch.date + 'T00:00:00').getFullYear() : ''}</span>
                       </div>
-
-                      {/* Divider */}
-                      <div style={{ width: '1px', height: '48px', background: 'var(--border-card)', flexShrink: 0, alignSelf: 'center' }} />
-
-                      {/* Info */}
-                      <div style={{ flex: 1, minWidth: '180px' }}>
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px', alignItems: 'center' }}>
-                          <span style={{ background: typeColor + '22', color: typeColor, border: `1px solid ${typeColor}44`, borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 700 }}>
-                            {sch.type}
-                          </span>
-                          <span style={{ ...statusStyle, borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 700 }}>
-                            {sch.status}
-                          </span>
-                          <span style={{ background: 'rgba(212,175,55,0.12)', color: 'var(--gold)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '6px', padding: '2px 10px', fontSize: '0.7rem', fontWeight: 600 }}>
-                            🏆 {tournName}
-                          </span>
+                      <div className="captain-dashboard-match-content">
+                        <div className="captain-dashboard-match-top-row">
+                          <div className="captain-dashboard-match-badges">
+                            <span className="captain-dashboard-match-status captain-dashboard-match-status-type">{sch.type || 'Match'}</span>
+                            <span className="captain-dashboard-match-status" style={statusStyle}>{sch.status || 'Upcoming'}</span>
+                          </div>
+                          {sch.time && <span className="captain-dashboard-match-time"><Clock size={13} /> {sch.time}</span>}
                         </div>
-                        <p style={{ margin: '0 0 6px', fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{sch.title}</p>
-                        <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                          {sch.time && (
-                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Clock size={11} /> {sch.time}
+                        <div className="captain-dashboard-match-tournament">{tournName}</div>
+                        <h4 className="captain-dashboard-match-heading">{sch.title || `${sch.type || 'Match'} Fixture`}</h4>
+                        <div className="captain-dashboard-match-teams">
+                          <div className="captain-dashboard-match-team">
+                            <span className="captain-dashboard-match-team-logo">
+                              {teamALogo ? <img src={teamALogo} alt={`${teamAName} logo`} /> : teamAName[0] || '?'}
                             </span>
-                          )}
-                          {sch.venue && (
-                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <MapPin size={11} /> {sch.venue}
+                            <strong title={teamAName}>{teamAName}</strong>
+                          </div>
+                          <span className="captain-dashboard-match-vs">VS</span>
+                          <div className="captain-dashboard-match-team captain-dashboard-match-team-right">
+                            <span className="captain-dashboard-match-team-logo">
+                              {teamBLogo ? <img src={teamBLogo} alt={`${teamBName} logo`} /> : teamBName[0] || '?'}
                             </span>
-                          )}
-                          {sch.targetTeamName && (
-                            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                              <Users size={11} /> {sch.targetTeamName}
-                            </span>
-                          )}
+                            <strong title={teamBName}>{teamBName}</strong>
+                          </div>
                         </div>
-                        {sch.description && (
-                          <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                            {sch.description}
-                          </p>
-                        )}
+                        <div className="captain-dashboard-match-details">
+                          {sch.venue && <span><MapPin size={13} /> {sch.venue}</span>}
+                          {sch.time && <span><Clock size={13} /> {sch.time}</span>}
+                        </div>
                       </div>
                     </div>
                   );

@@ -6,6 +6,16 @@ import Loader from '../components/common/Loader';
 import SEO from '../components/common/SEO';
 import './tournaments/Tournaments.css';
 
+const getDateParts = (dateValue) => {
+  const date = new Date(`${dateValue}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return { day: dateValue || '--', month: '', year: '' };
+  return {
+    day: date.toLocaleDateString('en-IN', { day: '2-digit' }),
+    month: date.toLocaleDateString('en-IN', { month: 'short' }).toUpperCase(),
+    year: date.toLocaleDateString('en-IN', { year: 'numeric' })
+  };
+};
+
 export default function MatchSchedule() {
   const [matches, setMatches] = useState([]);
   const [teams, setTeams] = useState([]);
@@ -105,6 +115,7 @@ export default function MatchSchedule() {
             const teamBObj = teams.find(t => t.teamName === m.teamB);
             const teamALogo = teamAObj?.logoURL;
             const teamBLogo = teamBObj?.logoURL;
+            const dateParts = getDateParts(m.date);
 
             return (
               <div 
@@ -121,66 +132,56 @@ export default function MatchSchedule() {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <div className="flex justify-between items-center mb-md flex-wrap gap-xs">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="match-card-date">
+                  <span className="match-card-day">{dateParts.day}</span>
+                  <span className="match-card-month">{dateParts.month}</span>
+                  <span className="match-card-year">{dateParts.year}</span>
+                </div>
+
+                <div className="match-card-content">
+                  <div className="match-card-topline">
+                    <div className="match-card-badges">
                     <span className={`badge ${m.status === 'Live' ? 'badge-red' : m.status === 'Upcoming' ? 'badge-gold' : 'badge-green'}`}>
                       {m.status}
                     </span>
-                    <span className="text-xs font-bold text-gold uppercase tracking-wider" style={{ fontSize: '0.75rem' }}>
-                      {tournament ? tournament.name : 'Trivab Match'}
-                    </span>
-                  </div>
-                  <span className="text-xs text-muted font-semi flex items-center gap-xs">
-                    <Calendar size={14} /> {m.date} - {m.time} IST
-                  </span>
-                </div>
-
-                <div className="match-scores-grid flex justify-between items-center py-md">
-                  <div className="score-team flex flex-col items-center">
-                    <div className="avatar avatar-md bg-secondary text-gold font-bold mb-xs" style={{ overflow: 'hidden', border: '1px solid var(--border)' }}>
-                      {teamALogo ? (
-                        <img src={teamALogo} alt={m.teamA} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        m.teamA[0]
-                      )}
+                    <span className="match-card-type">{m.type || 'Match'}</span>
                     </div>
-                    <span className="font-semi text-sm text-primary">{m.teamA}</span>
-                    {(m.status === 'Completed' || m.status === 'Live') && (
-                      <span className="text-lg font-bold text-gradient-gold mt-xs">{m.teamAScore || '—'}</span>
-                    )}
+                    <span className="match-card-date-time"><Calendar size={13} /> {m.time} IST</span>
                   </div>
+                  <div className="match-card-tournament">{tournament ? tournament.name : 'Trivab Match'}</div>
 
-                  <div className="score-vs text-center">
-                    <span className="text-xs font-bold text-muted block">VS</span>
-                    {m.status === 'Live' && <span className="live-dot text-xs text-red font-bold animate-pulse">LIVE MATCH</span>}
-                  </div>
-
-                  <div className="score-team flex flex-col items-center">
-                    <div className="avatar avatar-md bg-secondary text-gold font-bold mb-xs" style={{ overflow: 'hidden', border: '1px solid var(--border)' }}>
-                      {teamBLogo ? (
-                        <img src={teamBLogo} alt={m.teamB} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        m.teamB[0]
-                      )}
+                  <div className="match-card-matchup">
+                    <div className="match-card-team">
+                      <div className="match-card-logo">
+                        {teamALogo ? <img src={teamALogo} alt="" /> : m.teamA?.[0] || '?'}
+                      </div>
+                      <span title={m.teamA}>{m.teamA || 'Team A'}</span>
                     </div>
-                    <span className="font-semi text-sm text-primary">{m.teamB}</span>
-                    {(m.status === 'Completed' || m.status === 'Live') && (
-                      <span className="text-lg font-bold text-gradient-gold mt-xs">{m.teamBScore || '—'}</span>
-                    )}
+                    <span className="match-card-vs">VS</span>
+                    <div className="match-card-team match-card-team-right">
+                      <div className="match-card-logo">
+                        {teamBLogo ? <img src={teamBLogo} alt="" /> : m.teamB?.[0] || '?'}
+                      </div>
+                      <span title={m.teamB}>{m.teamB || 'Team B'}</span>
+                    </div>
                   </div>
-                </div>
 
-                {m.result && (
-                  <div className="match-result text-center mb-md py-xxs px-sm rounded text-xs font-semi text-gold" style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.1)' }}>
-                    🏆 {m.result}
+                  {(m.status === 'Completed' || m.status === 'Live') && (
+                    <div className="match-card-scores">
+                      <span>{m.teamAScore || '—'}</span><span>{m.teamBScore || '—'}</span>
+                    </div>
+                  )}
+
+                  {m.result && (
+                    <div className="match-result text-center mb-md py-xxs px-sm rounded text-xs font-semi text-gold">
+                      {m.result}
+                    </div>
+                  )}
+
+                  <div className="match-card-footer">
+                    <span><MapPin size={13} /> {m.venue || 'Venue to be announced'}</span>
+                    <span className="match-card-details">View squads</span>
                   </div>
-                )}
-
-                <div className="divider mb-md" />
-
-                <div className="flex justify-between items-center text-xs text-muted">
-                  <span className="flex items-center gap-xs"><MapPin size={12} /> {m.venue}</span>
-                  <span className="text-gold font-semi" style={{ textTransform: 'uppercase', fontSize: '0.65rem', letterSpacing: '0.5px' }}>Click to view Squads</span>
                 </div>
               </div>
             );

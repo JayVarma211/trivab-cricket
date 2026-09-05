@@ -1126,7 +1126,7 @@
   }
 
   .thank-you-content {
-    padding: 28px 8px;
+    padding: 24px 0;
   }
 
   .thank-you-check {
@@ -1140,9 +1140,40 @@
     height: 40px;
   }
 
+  .thank-you-content h1 {
+    font-size: 2.65rem;
+  }
+
+  .thank-you-message {
+    font-size: 0.9rem;
+  }
+
+  .thank-you-next {
+    padding: 14px 8px 16px;
+  }
+
+  .thank-you-step {
+    padding: 0 6px;
+  }
+
+  .thank-you-step h3 {
+    font-size: 0.64rem;
+  }
+
+  .thank-you-step p {
+    font-size: 0.62rem;
+  }
+
+  .thank-you-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-sm);
+  }
+
   .thank-you-button {
     width: 100%;
     justify-content: center;
+    min-width: 0;
   }
 
   /* Auth / Register */
@@ -1259,6 +1290,17 @@
     width: 100% !important;
     min-width: 650px !important;
   }
+
+  .data-table .btn-table-action {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+  }
+
+  .data-table .btn-table-action svg {
+    width: 17px;
+    height: 17px;
+  }
 }
 
 
@@ -1334,7 +1376,8 @@
   .footer-top {
     grid-template-columns: 1fr !important;
     gap: 24px;
-    padding: 32px 0 24px;
+    padding: 32px var(--space-lg) 24px !important;
+    width: 100%;
   }
 
   .footer-brand {
@@ -1372,6 +1415,8 @@
     min-height: 32px;
     display: inline-flex;
     align-items: center;
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 
   .footer-badge {

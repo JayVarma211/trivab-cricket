@@ -226,9 +226,358 @@
   border-radius: 4px;
 }
 
+.captain-dashboard-schedule-card {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  border-left: 4px solid var(--captain-card-accent, var(--accent-red));
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.captain-dashboard-schedule-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-right: 1px solid var(--border-card);
+  background: var(--gradient-gold-subtle);
+  text-align: center;
+}
+
+.captain-dashboard-schedule-date span {
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.captain-dashboard-schedule-date strong {
+  color: var(--gold-light);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.captain-dashboard-schedule-date small {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.captain-dashboard-schedule-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 10px 14px;
+}
+
+.captain-dashboard-schedule-header,
+.captain-dashboard-schedule-badges,
+.captain-dashboard-schedule-time,
+.captain-dashboard-schedule-meta {
+  display: flex;
+  align-items: center;
+}
+
+.captain-dashboard-schedule-header {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.captain-dashboard-schedule-badges { gap: 6px; }
+.captain-dashboard-schedule-type,
+.captain-dashboard-schedule-status {
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.captain-dashboard-schedule-type {
+  color: var(--captain-card-accent, var(--gold-light));
+  border: 1px solid color-mix(in srgb, var(--captain-card-accent, var(--gold-light)) 35%, transparent);
+  background: color-mix(in srgb, var(--captain-card-accent, var(--gold-light)) 10%, transparent);
+}
+.captain-dashboard-schedule-time {
+  flex-shrink: 0;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+}
+.captain-dashboard-schedule-tournament {
+  margin: 6px 0;
+  overflow: hidden;
+  padding: 5px 8px;
+  color: var(--text-primary);
+  border: 1px solid rgba(212,175,55,0.22);
+  border-radius: 6px;
+  background: var(--gradient-gold-subtle);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.captain-dashboard-schedule-title {
+  margin: 0 0 6px;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+.captain-dashboard-schedule-meta {
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: auto;
+  padding-top: 6px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-card);
+  font-size: 0.68rem;
+}
+.captain-dashboard-schedule-meta span {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+  overflow-wrap: anywhere;
+}
+
+/* Professional compact match card used in the dashboard schedule. */
+.captain-dashboard-match-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  min-height: 218px;
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  border-left: 4px solid var(--captain-card-accent, var(--accent-red));
+  border-radius: 16px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+.captain-dashboard-match-date {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(160deg, #ed4545 0%, #9f1519 46%, #650b10 100%);
+  text-align: center;
+}
+.captain-dashboard-match-date::after {
+  position: absolute;
+  right: -52px;
+  bottom: -22px;
+  width: 130px;
+  height: 70px;
+  content: '';
+  transform: rotate(-30deg);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  box-shadow: 0 -18px 0 rgba(255,255,255,0.06), 0 -36px 0 rgba(255,255,255,0.04);
+}
+.captain-dashboard-match-date > span { position: relative; z-index: 1; }
+.captain-dashboard-match-weekday { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; }
+.captain-dashboard-match-day { font-size: 2.75rem; font-weight: 800; line-height: 0.95; }
+.captain-dashboard-match-month { font-size: 1rem; font-weight: 800; letter-spacing: 0.08em; }
+.captain-dashboard-match-divider { width: 42px; height: 2px; margin: 7px 0 4px; background: rgba(255,255,255,0.55); }
+.captain-dashboard-match-year { font-size: 0.8rem; opacity: 0.9; }
+.captain-dashboard-match-content { display: flex; min-width: 0; flex-direction: column; padding: 14px 18px 12px; }
+.captain-dashboard-match-top-row,
+.captain-dashboard-match-badges,
+.captain-dashboard-match-time,
+.captain-dashboard-match-details { display: flex; align-items: center; }
+.captain-dashboard-match-top-row { justify-content: space-between; gap: 8px; }
+.captain-dashboard-match-badges { gap: 7px; }
+.captain-dashboard-match-status { display: inline-flex; min-height: 30px; align-items: center; padding: 0 11px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; }
+.captain-dashboard-match-status-type { color: #e33232; border: 1px solid #ffc9c9; background: rgba(239,68,68,0.08); }
+.captain-dashboard-match-time { flex-shrink: 0; gap: 4px; color: var(--text-muted); font-size: 0.72rem; }
+.captain-dashboard-match-tournament { display: flex; min-width: 0; margin: 8px 0; overflow: hidden; padding: 7px 10px; color: var(--text-primary); border: 1px solid rgba(212,175,55,0.3); border-radius: 8px; background: var(--gradient-gold-subtle); font-size: 0.76rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.captain-dashboard-match-heading { margin: 0 0 8px; color: var(--text-primary); font-size: 1rem; line-height: 1.25; }
+.captain-dashboard-match-teams { display: grid; grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr); align-items: center; gap: 10px; flex: 1; }
+.captain-dashboard-match-team { display: flex; min-width: 0; align-items: center; gap: 8px; color: var(--text-primary); }
+.captain-dashboard-match-team-right { justify-content: flex-end; text-align: right; }
+.captain-dashboard-match-team strong { min-width: 0; font-size: 0.82rem; line-height: 1.2; overflow-wrap: anywhere; }
+.captain-dashboard-match-team-logo { display: grid; width: 38px; height: 38px; flex: 0 0 38px; place-items: center; color: var(--gold-light); border: 1px solid var(--border-card); border-radius: 50%; background: var(--bg-secondary); font-weight: 800; }
+.captain-dashboard-match-team-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.captain-dashboard-match-vs { display: grid; width: 42px; height: 34px; place-items: center; color: var(--gold-light); border: 1px solid var(--border-card); border-radius: 9px; background: var(--bg-secondary); font-size: 0.7rem; font-weight: 800; }
+.captain-dashboard-match-details { flex-wrap: wrap; gap: 8px 18px; padding-top: 9px; color: var(--text-secondary); border-top: 1px solid var(--border-card); font-size: 0.82rem; font-weight: 600; }
+.captain-dashboard-match-details span { display: flex; min-width: 0; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+.captain-dashboard-match-details svg { flex: 0 0 auto; color: var(--gold-light); stroke-width: 2.2; }
+
 .captain-schedule-card-title-copy,
 .captain-schedule-detail-row span {
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.captain-schedule-card {
+  display: grid !important;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 0 !important;
+  min-height: 260px;
+  padding: 0 !important;
+  overflow: hidden;
+  border-left: 4px solid var(--captain-card-accent, var(--accent-red)) !important;
+  background: var(--bg-card);
+}
+
+.captain-schedule-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 8px;
+  border-right: 1px solid var(--border-card);
+  background: var(--gradient-gold-subtle);
+  text-align: center;
+}
+
+.captain-schedule-date span {
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.captain-schedule-date strong {
+  color: var(--gold-light);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.captain-schedule-date small {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.captain-schedule-card-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 16px 18px;
+}
+
+.captain-schedule-card-header,
+.captain-schedule-card-badges,
+.captain-schedule-time,
+.captain-schedule-footer {
+  display: flex;
+  align-items: center;
+}
+
+.captain-schedule-card-header {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.captain-schedule-card-badges { gap: 7px; }
+.captain-schedule-type,
+.captain-schedule-status {
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.captain-schedule-type {
+  color: var(--captain-card-accent, var(--gold-light));
+  border: 1px solid color-mix(in srgb, var(--captain-card-accent, var(--gold-light)) 35%, transparent);
+  background: color-mix(in srgb, var(--captain-card-accent, var(--gold-light)) 10%, transparent);
+}
+.captain-schedule-time {
+  flex-shrink: 0;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+.captain-schedule-tournament {
+  margin: 8px 0;
+  overflow: hidden;
+  padding: 6px 10px;
+  color: var(--text-primary);
+  border: 1px solid rgba(212,175,55,0.25);
+  border-radius: 6px;
+  background: var(--gradient-gold-subtle);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.captain-schedule-matchup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-height: 86px;
+}
+.captain-schedule-team {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-primary);
+  text-align: center;
+}
+.captain-schedule-team strong {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.88rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.captain-schedule-team-mark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  color: var(--gold-light);
+  border: 1px solid var(--border-card);
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  font-size: 1rem;
+  font-weight: 800;
+}
+.captain-schedule-vs {
+  padding: 6px 9px;
+  color: var(--gold-light);
+  border: 1px solid var(--border-card);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+.captain-schedule-footer {
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 9px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-card);
+  font-size: 0.7rem;
+}
+.captain-schedule-footer span {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.captain-schedule-description {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
@@ -278,13 +627,43 @@
   }
 
   .captain-schedule-card {
-    gap: 14px !important;
-    padding: 14px !important;
+    grid-template-columns: 72px minmax(0, 1fr);
+    min-height: 230px;
   }
+
+  .captain-dashboard-schedule-card { grid-template-columns: 82px minmax(0, 1fr); }
+  .captain-dashboard-schedule-date span { font-size: 1.55rem; }
+  .captain-dashboard-schedule-body { padding: 9px 12px; }
+  .captain-dashboard-schedule-title { font-size: 0.86rem; }
+  .captain-dashboard-schedule-meta { font-size: 0.63rem; }
+
+  .captain-dashboard-match-card { grid-template-columns: 82px minmax(0, 1fr); min-height: 202px; }
+  .captain-dashboard-match-content { padding: 11px 12px 10px; }
+  .captain-dashboard-match-day { font-size: 2.2rem; }
+  .captain-dashboard-match-top-row { align-items: flex-start; }
+  .captain-dashboard-match-status { min-height: 28px; padding-inline: 9px; font-size: 0.68rem; }
+  .captain-dashboard-match-time { font-size: 0.65rem; }
+  .captain-dashboard-match-tournament { margin: 6px 0; padding: 6px 8px; font-size: 0.69rem; }
+  .captain-dashboard-match-heading { font-size: 0.9rem; }
+  .captain-dashboard-match-teams { grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr); gap: 5px; }
+  .captain-dashboard-match-team { gap: 6px; }
+  .captain-dashboard-match-team strong { font-size: 0.72rem; }
+  .captain-dashboard-match-team-logo { width: 32px; height: 32px; flex-basis: 32px; }
+  .captain-dashboard-match-vs { width: 38px; height: 31px; }
+  .captain-dashboard-match-details { gap: 7px 12px; font-size: 0.76rem; }
 
   .captain-schedule-card-header {
     align-items: flex-start;
   }
+
+  .captain-schedule-card-body { padding: 12px; }
+  .captain-schedule-date { padding: 10px 5px; }
+  .captain-schedule-date span { font-size: 1.7rem; }
+  .captain-schedule-tournament { margin: 7px 0; font-size: 0.7rem; }
+  .captain-schedule-matchup { gap: 5px; min-height: 78px; }
+  .captain-schedule-team strong { font-size: 0.76rem; }
+  .captain-schedule-team-mark { width: 34px; height: 34px; }
+  .captain-schedule-footer { font-size: 0.63rem; }
 
   .captain-schedule-card-title {
     align-items: flex-start !important;
