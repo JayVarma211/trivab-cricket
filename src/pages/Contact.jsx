@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Instagram, Youtube, Facebook, MessageCircle } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Mail, Phone, MapPin, Send, AlertCircle, Instagram, Youtube, Facebook, MessageCircle } from 'lucide-react';
 import { sendContactEmail } from '../services/email';
 import { addDocument } from '../firebase/firestore';
 import SEO from '../components/common/SEO';
 
 export default function Contact() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const initialSubject = searchParams.get('subject') || 'General Inquiry';
   const tournamentName = searchParams.get('tournament') || '';
 
@@ -53,7 +54,6 @@ export default function Contact() {
   });
   const [resumeFile, setResumeFile] = useState(null);
   const [message, setMessage] = useState('');
-  const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isMockEmail, setIsMockEmail] = useState(false);
   const [emailFailed, setEmailFailed] = useState(false);
@@ -76,7 +76,6 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setSubmitted(false);
     setEmailFailed(false);
 
     let dbSuccess = false;
@@ -122,23 +121,25 @@ export default function Contact() {
       }
 
       if (dbSuccess || (result && !result.mock)) {
-        setSubmitted(true);
+        setError('');
         setName('');
         setEmail('');
         setContactNumber('');
         setMessage('');
+        navigate('/thank-you');
       }
     } catch (err) {
       console.error("Failed to send email:", err);
       setIsMockEmail(false);
 
       if (dbSuccess) {
-        setSubmitted(true);
+        setError('');
         setEmailFailed(true);
         setName('');
         setEmail('');
         setContactNumber('');
         setMessage('');
+        navigate('/thank-you');
       } else {
         setError('Your inquiry could not be saved or emailed. Please check your connection and try again.');
       }
@@ -273,25 +274,6 @@ export default function Contact() {
         <div className="animate-fade-in-right">
           <div className="card card-gold">
             <h2 className="text-lg font-bold mb-md text-gradient-gold">Send Message</h2>
-
-            {submitted && (
-              <div className="alert alert-success mb-md" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <CheckCircle2 size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
-                <div>
-                  <p style={{ margin: 0, fontWeight: 600 }}>Thank you! Your inquiry has been saved in our system.</p>
-                  {emailFailed && (
-                    <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', lineHeight: 1.4, color: '#9a3412' }}>
-                      The email notification could not be delivered right now, but the admin can view your complete inquiry in the Admin Panel.
-                    </p>
-                  )}
-                  {isMockEmail && (
-                    <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', lineHeight: 1.4, color: 'var(--text-secondary)' }}>
-                      We saved your details in our Admin Panel. EmailJS is not configured, so no email notification was sent.
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
 
             {error && (
               <div className="alert alert-error mb-md" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>

@@ -14,6 +14,7 @@ import AdminLayout from './components/common/AdminLayout';
 import Home from './pages/Home';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import ThankYou from './pages/ThankYou';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdminLogin from './pages/admin/AdminLogin';
@@ -55,17 +56,19 @@ export default function App() {
   if (loading) return <Loader fullscreen />;
 
   const isAdminPath = location.pathname.startsWith('/admin') && location.pathname !== '/admin/login';
+  const isThankYouPath = location.pathname === '/thank-you';
 
   return (
     <>
       <ScrollToTop />
-      {!isAdminPath && <Navbar />}
-      <main className={isAdminPath ? "admin-page-wrapper" : "page-wrapper"}>
+      {!isAdminPath && !isThankYouPath && <Navbar />}
+      <main className={isAdminPath ? "admin-page-wrapper" : isThankYouPath ? "thank-you-page-wrapper" : "page-wrapper"}>
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -179,7 +182,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      {!isAdminPath && <Footer />}
+      {!isAdminPath && !isThankYouPath && <Footer />}
     </>
   );
 }

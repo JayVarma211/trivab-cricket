@@ -699,6 +699,59 @@ ul, ol {
 .alert-info    { background: rgba(30,77,183,0.1); border: 1px solid rgba(30,77,183,0.3); color: #93C5FD; }
 .alert-warning { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #FCD34D; }
 
+.thank-you-page-wrapper { min-height: 100vh; }
+.thank-you-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: var(--space-xl);
+  background: var(--bg-primary);
+}
+.thank-you-content {
+  width: min(100%, 620px);
+  padding: clamp(32px, 7vw, 72px) 24px;
+  text-align: center;
+}
+.thank-you-check {
+  display: grid;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto var(--space-xl);
+  place-items: center;
+  color: #4CAF50;
+  border-radius: 50%;
+  background: rgba(76,175,80,0.12);
+}
+.thank-you-eyebrow {
+  margin: 0 0 var(--space-sm);
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.thank-you-content h1 {
+  margin: 0 0 var(--space-md);
+  color: var(--text-primary);
+  font-size: clamp(2.4rem, 7vw, 4.25rem);
+  line-height: 1.1;
+}
+.thank-you-message {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+.thank-you-note {
+  margin: var(--space-sm) 0 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.thank-you-button {
+  margin-top: var(--space-xl);
+}
+
 /* ============================================================
    16. AVATAR
    ============================================================ */
