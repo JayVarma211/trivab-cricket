@@ -103,85 +103,130 @@ export default function AdminMatchDay() {
   };
 
   // QR Code camera handler
-  const startCameraScanner = async (targetTeam) => {
-    setIsCameraLoading(true);
+  const startCameraScanner = (targetTeam) => {
     setScannerTarget(targetTeam);
     setCameraModalError('');
     setError('');
+    setScannerActive(true);
+    // Attempt auto-start camera
+    setTimeout(() => {
+      handleStartLiveCamera();
+    }, 150);
+  };
 
-    if (!cameraSupported) {
-      setCameraModalError('Camera access is not supported in this browser context (requires HTTPS).');
+  const handleStartLiveCamera = async () => {
+    setIsCameraLoading(true);
+    setCameraModalError('');
+
+    // Check secure context / HTTPS
+    const isSecure = window.isSecureContext || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isSecure) {
+      setCameraModalError('Camera stream requires HTTPS (Secure Connection). Please open the site via HTTPS, or use Image Photo Upload / Manual Player ID entry below.');
       setIsCameraLoading(false);
-      setScannerActive(true);
       return;
     }
 
-    setScannerActive(true);
-
-    // Brief pause to allow the DOM node to mount inside modal
-    setTimeout(async () => {
-      try {
-        if (scannerRef.current) {
-          try {
-            await scannerRef.current.stop();
-            await scannerRef.current.clear();
-          } catch (e) {}
-          scannerRef.current = null;
-        }
-
-        const container = document.getElementById('matchday-camera-viewport');
-        if (!container) {
-          setIsCameraLoading(false);
-          return;
-        }
-
-        const html5QrCode = new Html5Qrcode('matchday-camera-viewport');
-        scannerRef.current = html5QrCode;
-
-        let cameraConstraint = { facingMode: 'environment' };
+    try {
+      if (scannerRef.current) {
         try {
-          const devices = await Html5Qrcode.getCameras();
-          if (devices && devices.length > 0) {
-            const backCam = devices.find(d => 
-              /back|rear|environment|main/i.test(d.label)
-            );
-            if (backCam) {
-              cameraConstraint = { deviceId: { exact: backCam.id } };
-            } else {
-              cameraConstraint = { deviceId: devices[0].id };
-            }
-          }
-        } catch (e) {
-          console.log('Camera enumeration notice:', e);
-        }
+          await scannerRef.current.stop();
+          await scannerRef.current.clear();
+        } catch (e) {}
+        scannerRef.current = null;
+      }
 
-        const config = {
-          fps: 10,
-          qrbox: (width, height) => {
-            const minDim = Math.min(width, height);
-            const boxSize = Math.max(120, Math.floor(minDim * 0.75));
-            return { width: boxSize, height: boxSize };
-          },
-          aspectRatio: 1.0
-        };
+      const viewport = document.getElementById('matchday-camera-viewport');
+      if (!viewport) {
+        setIsCameraLoading(false);
+        return;
+      }
 
+      const html5QrCode = new Html5Qrcode('matchday-camera-viewport');
+      scannerRef.current = html5QrCode;
+
+      const config = {
+        fps: 10,
+        qrbox: (width, height) => {
+          const minDim = Math.min(width, height);
+          const boxSize = Math.max(120, Math.floor(minDim * 0.75));
+          return { width: boxSize, height: boxSize };
+        },
+        aspectRatio: 1.0
+      };
+
+      // Camera strategy 1: facingMode environment
+      try {
         await html5QrCode.start(
-          cameraConstraint,
+          { facingMode: 'environment' },
           config,
           async (decodedText) => {
             await stopCameraScanner();
-            handleAddPlayerById(decodedText, targetTeam);
+            handleAddPlayerById(decodedText, scannerTarget);
           },
           () => {}
         );
-
-        setIsCameraLoading(false);
-      } catch (err) {
-        console.error('Camera initialization error:', err);
-        setCameraModalError('Could not open camera stream. Please check camera permissions in browser settings.');
-        setIsCameraLoading(false);
+      } catch (err1) {
+        console.warn('facingMode environment failed, trying device enumeration:', err1);
+        // Strategy 2: Get cameras and pick first available
+        try {
+          const devices = await Html5Qrcode.getCameras();
+          if (devices && devices.length > 0) {
+            const backCam = devices.find(d => /back|rear|environment/i.test(d.label)) || devices[0];
+            await html5QrCode.start(
+              backCam.id,
+              config,
+              async (decodedText) => {
+                await stopCameraScanner();
+                handleAddPlayerById(decodedText, scannerTarget);
+              },
+              () => {}
+            );
+          } else {
+            // Strategy 3: facingMode user
+            await html5QrCode.start(
+              { facingMode: 'user' },
+              config,
+              async (decodedText) => {
+                await stopCameraScanner();
+                handleAddPlayerById(decodedText, scannerTarget);
+              },
+              () => {}
+            );
+          }
+        } catch (err2) {
+          throw err1;
+        }
       }
-    }, 300);
+
+      setIsCameraLoading(false);
+    } catch (err) {
+      console.error('Camera startup error:', err);
+      setCameraModalError('Camera stream could not open. Ensure camera permissions are allowed in browser settings, or use Image Upload / Manual ID below.');
+      setIsCameraLoading(false);
+    }
+  };
+
+  const handleFileUploadScan = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsCameraLoading(true);
+    setCameraModalError('');
+
+    try {
+      let html5QrCode = scannerRef.current;
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode('matchday-camera-viewport');
+        scannerRef.current = html5QrCode;
+      }
+      const decodedText = await html5QrCode.scanFile(file, true);
+      await stopCameraScanner();
+      handleAddPlayerById(decodedText, scannerTarget);
+    } catch (err) {
+      console.error('File scan error:', err);
+      setCameraModalError('No QR code detected in the selected image. Please upload a clear photo or use manual Player ID entry.');
+    } finally {
+      setIsCameraLoading(false);
+    }
   };
 
   const stopCameraScanner = async () => {
@@ -793,38 +838,48 @@ export default function AdminMatchDay() {
               {cameraModalError && (
                 <div style={{ padding: '16px', color: '#f87171', textAlign: 'center', zIndex: 10 }}>
                   <AlertCircle size={32} style={{ margin: '0 auto 8px', color: '#ef4444' }} />
-                  <p style={{ margin: '0 0 12px', fontSize: '0.85rem' }}>{cameraModalError}</p>
-                  <button onClick={() => startCameraScanner(scannerTarget)} className="btn btn-gold btn-sm" style={{ margin: '0 auto' }}>
-                    Retry Camera
+                  <p style={{ margin: '0 0 12px', fontSize: '0.82rem', lineHeight: 1.4 }}>{cameraModalError}</p>
+                  <button onClick={handleStartLiveCamera} className="btn btn-gold btn-sm" style={{ margin: '0 auto' }}>
+                    <Camera size={14} /> Tap to Retry Camera
                   </button>
                 </div>
               )}
             </div>
 
-            <p style={{ margin: '14px 0 0', fontSize: '0.8rem', color: 'var(--admin-muted, #888)' }}>Align the QR code within the frame to read the profile.</p>
+            <p style={{ margin: '12px 0 0', fontSize: '0.8rem', color: 'var(--admin-muted, #888)' }}>Align the QR code within the frame to read the profile.</p>
 
-            <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--admin-border, #333)' }}>
-              <span style={{ fontSize: '0.75rem', color: '#aaa', display: 'block', marginBottom: '8px' }}>Or enter Player ID manually:</span>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  placeholder="TRIVAB-MUM-2026-9812"
-                  value={manualPlayerId}
-                  onChange={(e) => setManualPlayerId(e.target.value)}
-                  className="form-input"
-                  style={{ fontSize: '0.85rem', flex: 1 }}
-                />
-                <button
-                  onClick={() => {
-                    if (manualPlayerId.trim()) {
-                      handleAddPlayerById(manualPlayerId, scannerTarget);
-                      stopCameraScanner();
-                    }
-                  }}
-                  className="btn btn-gold btn-sm"
-                >
-                  Add
-                </button>
+            {/* Redundant options: Photo Capture/Upload & Manual ID */}
+            <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid var(--admin-border, #333)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div>
+                <label className="btn btn-outline btn-xs" style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', fontSize: '0.8rem' }}>
+                  <Camera size={14} /> Upload or Capture QR Photo
+                  <input type="file" accept="image/*" capture="environment" onChange={handleFileUploadScan} style={{ display: 'none' }} />
+                </label>
+              </div>
+
+              <div>
+                <span style={{ fontSize: '0.75rem', color: '#aaa', display: 'block', marginBottom: '6px' }}>Or enter Player ID manually:</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    placeholder="TRIVAB-MUM-2026-9812"
+                    value={manualPlayerId}
+                    onChange={(e) => setManualPlayerId(e.target.value)}
+                    className="form-input"
+                    style={{ fontSize: '0.85rem', flex: 1 }}
+                  />
+                  <button
+                    onClick={() => {
+                      if (manualPlayerId.trim()) {
+                        handleAddPlayerById(manualPlayerId, scannerTarget);
+                        stopCameraScanner();
+                      }
+                    }}
+                    className="btn btn-gold btn-sm"
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
             </div>
           </div>
