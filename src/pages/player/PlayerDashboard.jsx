@@ -1,0 +1,219 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { getPlayerByUIDOrEmail, getCollection, where } from '../../firebase/firestore';
+import { ShieldCheck, User, Award, Settings, Bell, Calendar, Trophy, Filter } from 'lucide-react';
+import Loader from '../../components/common/Loader';
+import './Player.css';
+
+export default function PlayerDashboard() {
+  const { user } = useAuth();
+  const [player, setPlayer] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [matches, setMatches] = useState([]);
+  const [matchTournamentFilter, setMatchTournamentFilter] = useState('All');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user) return;
+      try {
+        const playerProfile = await getPlayerByUIDOrEmail(user.uid, user.email);
+        setPlayer(playerProfile);
+
+        if (playerProfile) {
+          // Fetch notifications
+          const notifs = await getCollection('notifications', [
+            where('userId', '==', user.uid),
+            where('read', '==', false)
+          ]);
+          setNotifications(notifs);
+
+          // Fetch matches for all their teams across joined tournaments
+          const joined = playerProfile.joinedTournaments || [];
+          const teamNames = joined.map(j => j.teamName).filter(Boolean);
+          if (playerProfile.teamName && !teamNames.includes(playerProfile.teamName)) {
+            teamNames.push(playerProfile.teamName);
+          }
+
+          if (teamNames.length > 0) {
+            const allMatches = await getCollection('matches');
+            const userMatches = allMatches.filter(m => 
+              teamNames.includes(m.teamA) || teamNames.includes(m.teamB)
+            );
+            userMatches.sort((a, b) => new Date(a.date) - new Date(b.date));
+            setMatches(userMatches);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, [user]);
+
+  if (loading) return <Loader />;
+
+  if (!player) {
+    return (
+      <div className="container section-padding text-center">
+        <h2 className="display-sm text-red">Profile Action Required</h2>
+        <p className="text-secondary mb-md">Your user account is not linked to a player profile yet.</p>
+        <Link to="/register" className="btn btn-gold">Complete Registration</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="player-dashboard page-enter container section-padding">
+      <div className="dashboard-header flex justify-between items-center mb-xl">
+        <div>
+          <span className="text-gold text-sm font-bold uppercase tracking-wider">Dashboard</span>
+          <h1 className="display-md">Welcome, {player.fullName}</h1>
+        </div>
+        <div className="flex gap-md">
+          <Link to="/player/profile" className="btn btn-outline btn-sm">
+            <Settings size={16} /> Edit Profile
+          </Link>
+          <Link to="/player/id-card" className="btn btn-gold btn-sm">
+            <Award size={16} /> View ID Card
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid grid-3 gap-xl">
+        {/* Col 1: Profile Summary Card */}
+        <div className="card player-summary-panel">
+          <div className="profile-badge-pic mb-md">
+            {player.photoURL ? (
+              <img src={player.photoURL} alt={player.fullName} className="avatar-xl" />
+            ) : (
+              <div className="avatar-xl text-center flex items-center justify-center bg-secondary font-bold text-gold">
+                {player.fullName[0]}
+              </div>
+            )}
+          </div>
+          <h2 className="text-lg font-bold text-center">{player.fullName}</h2>
+          <span className="badge badge-gold text-center block mb-md" style={{ display: 'inline-block', margin: '0 auto' }}>
+            {player.playingStyle}
+          </span>
+          <div className="divider mb-md" />
+          <ul className="flex flex-col gap-sm">
+            <li className="flex justify-between text-sm">
+              <span className="text-muted">Player ID</span>
+              <span className="font-semi">{player.playerId}</span>
+            </li>
+            <li className="flex justify-between text-sm">
+              <span className="text-muted">Team</span>
+              <span className="font-semi text-gold">{player.teamName}</span>
+            </li>
+            <li className="flex justify-between text-sm">
+              <span className="text-muted">Jersey No.</span>
+              <span className="font-semi">#{player.jerseyNumber}</span>
+            </li>
+            <li className="flex justify-between text-sm">
+              <span className="text-muted">Mobile</span>
+              <span className="font-semi">{player.mobile}</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Col 2: Match Schedule Widget */}
+        <div className="card">
+          <div className="flex justify-between items-center mb-md flex-wrap gap-sm">
+            <h2 className="text-lg font-bold text-gradient-gold flex items-center gap-sm" style={{ margin: 0 }}>
+              <Calendar size={20} /> My Matches
+            </h2>
+            {(player.joinedTournaments && player.joinedTournaments.length > 1) && (
+              <select
+                className="form-select"
+                value={matchTournamentFilter}
+                onChange={(e) => setMatchTournamentFilter(e.target.value)}
+                style={{ padding: '5px 12px', fontSize: '0.78rem', width: 'auto', borderRadius: '999px', border: '1px solid var(--border-card)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
+              >
+                <option value="All">All Tournaments</option>
+                {player.joinedTournaments.map((t, idx) => (
+                  <option key={t.id || idx} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+          {(() => {
+            const displayMatches = matchTournamentFilter === 'All'
+              ? matches
+              : matches.filter(m => m.tournamentId === matchTournamentFilter);
+            if (displayMatches.length === 0) {
+              return <p className="text-sm text-muted">No matches scheduled{matchTournamentFilter !== 'All' ? ' for this tournament' : ` for team ${player.teamName}`} yet.</p>;
+            }
+            return (
+              <div className="flex flex-col gap-md">
+                {displayMatches.map((m) => (
+                  <div className="match-mini-card" key={m.id}>
+                    <div className="flex justify-between text-xs text-muted">
+                      <span>{m.date} - {m.time}</span>
+                      <span className="badge badge-blue">{m.status}</span>
+                    </div>
+                    <h4 className="text-sm font-bold mt-xs">{m.teamA} vs {m.teamB}</h4>
+                    <div className="flex justify-between items-center mt-xs">
+                      <p className="text-xs text-muted">Venue: {m.venue}</p>
+                      {m.tournamentName && <span className="text-xs text-gold" style={{ opacity: 0.7 }}>🏆 {m.tournamentName}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Col 3: Notifications Feed */}
+        <div className="card">
+          <h2 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
+            <Bell size={20} /> Notifications
+          </h2>
+          {notifications.length === 0 ? (
+            <div className="empty-notif text-center">
+              <ShieldCheck className="text-gold mb-sm" size={32} style={{ margin: '0 auto' }} />
+              <p className="text-sm text-secondary">All caught up! Roster verification email sent upon sign up.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-md">
+              {notifications.map((n) => (
+                <div className="alert alert-info py-sm" key={n.id}>
+                  <span className="text-xs">{n.message}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Tournaments Enrollment Section */}
+      <div className="card mt-xl">
+        <h2 className="text-lg font-bold mb-md text-gradient-gold flex items-center gap-sm">
+          <Trophy size={20} /> My Tournament Enrollments
+        </h2>
+
+        <div>
+          <h3 className="text-sm font-bold mb-sm opacity-80 font-semi">Active Registrations</h3>
+          {player.joinedTournaments && player.joinedTournaments.length > 0 ? (
+            <div className="flex flex-col gap-sm">
+              {player.joinedTournaments.map((t, idx) => (
+                <div key={t.id || idx} className="flex justify-between items-center p-sm" style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-card)', borderRadius: '8px' }}>
+                  <div>
+                    <h4 className="text-sm font-bold text-primary">{t.name}</h4>
+                    <p className="text-xs text-muted">Representing: <strong className="text-gold">{t.teamName}</strong></p>
+                  </div>
+                  <span className="badge badge-gold">{t.matchesPlayed || 0} Matches Played</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted">You have not joined any tournaments yet. Join a tournament directly from the Tournaments page.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

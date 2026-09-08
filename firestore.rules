@@ -1,0 +1,136 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'trivabsports@gmail.com' ||
+        request.auth.token.email == 'trivabsportsandevents@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+    
+    // User collection
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+    }
+    
+    // Players collection
+    match /players/{playerId} {
+      allow read: if true; // Publicly scan-able & readable for stats
+      allow write: if request.auth != null;
+    }
+    
+    // Registrations collection
+    match /registrations/{regId} {
+      allow read: if true; // Publicly readable for rosters and stats
+      allow write: if request.auth != null;
+    }
+    
+    // Captains collection
+    match /captains/{captainId} {
+      allow read: if true;
+      allow write: if request.auth != null && (request.auth.uid == captainId || isAdmin());
+    }
+    
+    // Teams collection
+    match /teams/{teamId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Tournaments collection
+    match /tournaments/{tournamentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Matches collection
+    match /matches/{matchId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Schedules collection
+    match /schedules/{scheduleId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Sponsors collection
+    match /sponsors/{sponsorId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Notifications collection
+    match /notifications/{notifId} {
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || isAdmin());
+      allow write: if request.auth != null;
+    }
+    
+    // QR Scan logs
+    match /qr_scan_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if true; // Anyone scanning logs a verification attempt
+    }
+
+    // Gallery collection
+    match /gallery/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Player stats collection
+    match /player_stats/{statId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Team stats collection
+    match /team_stats/{statId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admin logs collection
+    match /admin_logs/{logId} {
+      allow read: if isAdmin();
+      allow write: if request.auth != null;
+    }
+
+    // News events collection — writable by any authenticated admin user
+    match /news_events/{newsId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Admin notifications collection
+    match /admin_notifications/{notifId} {
+      allow read: if isAdmin();
+      allow write: if request.auth != null;
+    }
+
+    // Contact inquiries collection
+    match /contact_inquiries/{inquiryId} {
+      allow read: if isAdmin();
+      allow write: if true;
+    }
+
+    // Team fees collection
+    match /team_fees/{feeId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    // Payment history collection
+    match /payment_history/{historyId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+  }
+}

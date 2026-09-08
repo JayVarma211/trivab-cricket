@@ -1,0 +1,142 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { loginUser } from '../../firebase/auth';
+import { getDocument } from '../../firebase/firestore';
+import { Mail, Lock, Eye, EyeOff, Trophy, AlertCircle, Shield } from 'lucide-react';
+import './Auth.css';
+
+export default function Login() {
+  const { setUserProfile } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const user = await loginUser(email, password);
+      const profile = await getDocument('users', user.uid);
+      if (profile) {
+        setUserProfile(profile);
+        if (profile.role === 'admin') navigate('/admin/dashboard');
+        else if (profile.role === 'captain') navigate('/captain/dashboard');
+        else navigate('/player/dashboard');
+      } else {
+        navigate('/player/dashboard');
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      if (err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found' || err.code === 'auth/invalid-credential') {
+        setError('Incorrect email or password. Please check your credentials and try again.');
+      } else if (err.code === 'auth/invalid-email') {
+        setError('Invalid email format. Please enter a valid email address.');
+      } else if (err.code === 'auth/user-disabled') {
+        setError('This account has been disabled. Please contact support.');
+      } else {
+        setError('Incorrect email or password. Please check your credentials and try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="auth-page page-enter">
+      <div className="orb orb-gold spline-float-1" style={{ top: '10%', left: '5%', width: '400px', height: '400px' }} />
+      <div className="orb orb-navy spline-float-2" style={{ bottom: '10%', right: '5%', width: '500px', height: '500px' }} />
+
+      <div className="container auth-container">
+        <div className="auth-card card-gold">
+          <div className="auth-header">
+            <div className="auth-logo">
+              <img src="/logos/trivabsports.jpg" alt="TRIVAB SPORTS" />
+            </div>
+            <h2 className="display-sm text-gradient-gold">Welcome Back</h2>
+            <p className="text-secondary text-sm">Access your TRIVAB platform dashboard</p>
+          </div>
+
+          {error && (
+            <div className="alert alert-error">
+              <AlertCircle size={18} />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <form className="auth-form" onSubmit={handleSubmit} autoComplete="off">
+            {/* Dummy hidden inputs to prevent browser autofill */}
+            <input type="text" name="dummy-email" style={{ display: 'none' }} autoComplete="new-username" />
+            <input type="password" name="dummy-password" style={{ display: 'none' }} autoComplete="new-password" />
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <div className="input-wrapper">
+                <Mail className="input-icon-left" size={18} />
+                <input
+                  type="email"
+                  className="form-input"
+                  placeholder="name@example.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <div className="flex justify-between items-center">
+                <label className="form-label">Password</label>
+                <Link to="/forgot-password" className="auth-link text-xs">Forgot Password?</Link>
+              </div>
+              <div className="input-wrapper">
+                <Lock className="input-icon-left" size={18} />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="form-input"
+                  placeholder="Enter your password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  className="input-icon-right"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" className="btn btn-gold btn-lg auth-submit-btn" disabled={loading}>
+              {loading ? 'Logging In...' : 'Log In'}
+            </button>
+
+            <div className="admin-login-divider">
+              <span>or</span>
+            </div>
+
+            <Link to="/admin/login" className="btn btn-outline btn-sm admin-login-alt-btn">
+              <Shield size={15} /> Admin Login
+            </Link>
+          </form>
+
+          <div className="auth-footer text-center">
+            <span className="text-muted text-sm">Don't have an account? </span>
+            <Link to="/register" className="auth-link text-sm font-semi">Register Here</Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

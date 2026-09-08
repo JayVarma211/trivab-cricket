@@ -1,0 +1,266 @@
+.about-tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  border-bottom: 2px solid var(--border-card);
+  padding-bottom: 14px;
+  flex-wrap: wrap;
+  margin-top: var(--space-md);
+}
+
+.about-tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 22px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-family: var(--font-display);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-radius: 20px;
+  border: 1px solid transparent;
+}
+
+.about-tab-btn:hover {
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.04);
+}
+
+.about-tab-btn.active {
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.08);
+  border-color: rgba(212, 175, 55, 0.25);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.08);
+}
+
+/* Logos IP layout */
+.logo-badge-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.logo-badge-card:hover {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold-sm);
+  transform: translateY(-4px);
+}
+
+.logo-badge-card img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  filter: brightness(0.95) contrast(1.05);
+  transition: filter var(--transition-base);
+}
+
+.logo-badge-card:hover img {
+  filter: brightness(1) contrast(1.1);
+}
+
+/* Founders Stack */
+.founders-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  margin-top: var(--space-xl);
+}
+
+.founder-card-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.founder-card-layout:hover {
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold-sm);
+  transform: translateY(-4px);
+}
+
+.founder-card-photo-col {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.02), rgba(128, 0, 0, 0.06));
+  border-right: 1px solid var(--border-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  text-align: center;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.founder-photo-container {
+  width: 150px;
+  height: 190px;
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin-bottom: var(--space-sm);
+  background: var(--bg-secondary);
+  transition: all 0.4s ease;
+}
+
+.founder-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.4s ease;
+}
+
+.founder-card-layout:hover .founder-photo-img {
+  transform: scale(1.05);
+}
+
+.founder-photo-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  text-align: center;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Animations on Hover */
+.founder-card-layout:hover .founder-card-photo-col {
+  background: linear-gradient(135deg, rgba(128, 0, 0, 0.05), rgba(128, 0, 0, 0.1));
+}
+
+.founder-card-layout:hover .founder-photo-container {
+  box-shadow: 0 6px 16px var(--gold-glow);
+  border-color: var(--gold-light);
+}
+
+.founder-card-bio-col {
+  padding: var(--space-xl) var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.005);
+  opacity: 0.95;
+  transition: all 0.4s ease;
+}
+
+.founder-card-layout:hover .founder-card-bio-col {
+  opacity: 1;
+  background: rgba(128, 0, 0, 0.015);
+}
+
+/* Responsive adjust */
+@media (max-width: 768px) {
+  .founder-card-layout {
+    grid-template-columns: 1fr;
+  }
+  .founder-card-photo-col {
+    border-right: none;
+    border-bottom: 1px solid var(--border-card);
+    padding: var(--space-xl) 20px;
+  }
+  .founder-card-bio-col {
+    padding: var(--space-lg) var(--space-xl);
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================
+   TEAM PHOTO CARD — Leadership Tab (Preserves Full Aspect Ratio)
+   ============================================================ */
+.team-photo-card {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: var(--space-2xl);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-card);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.team-photo-img-wrap {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.team-photo-img {
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain; /* Preserves natural photo aspect ratio without cropping people */
+  display: block;
+}
+
+.team-photo-bar {
+  padding: 20px 24px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.team-photo-badge {
+  display: inline-block;
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.team-photo-title {
+  color: var(--text-primary);
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.team-photo-sub {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+  max-width: 500px;
+}
+
+@media (max-width: 768px) {
+  .team-photo-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+

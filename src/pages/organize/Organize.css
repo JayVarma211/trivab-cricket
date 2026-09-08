@@ -1,0 +1,256 @@
+/* ============================================================
+   ORGANIZE / SERVICES PAGE STYLES
+   ============================================================ */
+
+.organize-hero {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: var(--space-lg);
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.letter-spacing-04 {
+  letter-spacing: 0.04em;
+}
+
+/* Image Carousel */
+.organize-carousel-container {
+  position: relative;
+  height: 420px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-lg);
+  background-color: #0b0b14;
+}
+
+.carousel-slide-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity 0.8s ease-in-out;
+  display: flex;
+  align-items: flex-end;
+  padding: var(--space-xl) var(--space-2xl);
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.carousel-slide.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+.slide-content {
+  max-width: 650px;
+  background: rgba(15, 15, 30, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: var(--space-lg) var(--space-xl);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: slideContentUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideContentUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Navigation controls */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  z-index: 10;
+}
+
+.carousel-arrow:hover {
+  background: var(--gradient-gold);
+  color: #fff;
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold-strong);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.carousel-arrow.prev {
+  left: 20px;
+}
+
+.carousel-arrow.next {
+  right: 20px;
+}
+
+/* Indicators */
+.carousel-indicators {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.indicator-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition-base);
+}
+
+.indicator-dot.active {
+  background: var(--gold);
+  width: 24px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-gold-soft);
+}
+
+/* Service Inclusion Cards */
+.service-card {
+  padding: var(--space-xl);
+  text-align: center;
+  transition: all var(--transition-smooth);
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--gold);
+  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.12);
+}
+
+.service-icon-box {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  transition: all var(--transition-base);
+}
+
+.service-card:hover .service-icon-box {
+  background: var(--gradient-gold);
+  color: #fff;
+  box-shadow: var(--shadow-gold);
+}
+
+.service-card:hover .service-icon-box svg {
+  color: #fff !important;
+}
+
+/* Statistics Panel Callout */
+.stats-callout {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, rgba(15, 15, 30, 0.5) 100%);
+  backdrop-filter: blur(10px);
+}
+
+/* Inquiry Form */
+.booking-form-card {
+  background-color: var(--bg-card);
+}
+
+.booking-form-card .form-group input:focus,
+.booking-form-card .form-group select:focus,
+.booking-form-card .form-group textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.booking-form-card .form-label svg {
+  color: var(--gold);
+}
+
+/* Success Confirmation animations */
+.booking-success-wrapper {
+  padding: var(--space-xl) 0;
+}
+
+.success-icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.1);
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive Overrides */
+@media (max-width: 960px) {
+  .organize-carousel-container {
+    height: 340px;
+  }
+  
+  .carousel-slide {
+    padding: var(--space-lg);
+  }
+
+  .carousel-arrow {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 768px) {
+  .organize-carousel-container {
+    height: 280px;
+  }
+  
+  .carousel-arrow {
+    display: none; /* Hide arrow navigation on tiny screens to avoid layout squeeze */
+  }
+
+  .stats-callout {
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+  
+  .stats-callout div {
+    border-left: none !important;
+    border-right: none !important;
+    padding: 0 !important;
+  }
+}
