@@ -26,6 +26,11 @@ export default function AdminMatchDay() {
   const [rosterB, setRosterB] = useState([]); // All registered players for Team B
   const [playing13A, setPlaying13A] = useState([]); // Playing squad for Team A (max 13)
   const [playing13B, setPlaying13B] = useState([]); // Playing squad for Team B (max 13)
+  const [allPlayersList, setAllPlayersList] = useState([]); // All registered players in DB
+  const [searchRosterA, setSearchRosterA] = useState('');
+  const [searchRosterB, setSearchRosterB] = useState('');
+  const [showAllPlayersA, setShowAllPlayersA] = useState(false);
+  const [showAllPlayersB, setShowAllPlayersB] = useState(false);
 
   // Scanner & manual input states
   const [scannerActive, setScannerActive] = useState(false);
@@ -88,11 +93,26 @@ export default function AdminMatchDay() {
         setTournament(tournDoc);
       }
 
-      // Fetch all players for Team A and Team B
-      const playersA = await getCollection('players', [where('teamName', '==', matchDoc.teamA)]);
-      const playersB = await getCollection('players', [where('teamName', '==', matchDoc.teamB)]);
-      setRosterA(playersA || []);
-      setRosterB(playersB || []);
+      // Fetch all registered players in system
+      const allPlayers = await getCollection('players');
+      setAllPlayersList(allPlayers || []);
+
+      const cleanStr = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const targetA = cleanStr(matchDoc.teamA);
+      const targetB = cleanStr(matchDoc.teamB);
+
+      const isMatch = (p, target) => {
+        if (!target) return false;
+        const pTeam = cleanStr(p.teamName || p.teamId || p.team);
+        if (!pTeam) return false;
+        return pTeam === target || pTeam.includes(target) || target.includes(pTeam);
+      };
+
+      const playersA = (allPlayers || []).filter(p => isMatch(p, targetA));
+      const playersB = (allPlayers || []).filter(p => isMatch(p, targetB));
+
+      setRosterA(playersA);
+      setRosterB(playersB);
 
     } catch (err) {
       console.error('Error fetching match details:', err);
@@ -278,24 +298,35 @@ export default function AdminMatchDay() {
 
   const handleAddPlayerById = (idOrValue, targetTeam) => {
     setError('');
-    let val = idOrValue.trim();
-    // Try to parse if it is JSON from QR
+    let val = (idOrValue || '').trim().toLowerCase();
     try {
       const parsed = JSON.parse(idOrValue);
-      if (parsed.playerId) val = parsed.playerId;
-    } catch (e) {
-      // Use raw text value
-    }
+      if (parsed.playerId) val = parsed.playerId.trim().toLowerCase();
+    } catch (e) {}
 
     const roster = targetTeam === 'A' ? rosterA : rosterB;
-    const matchedPlayer = roster.find(p => p.playerId === val || p.id === val || p.qrValue === val);
+    let matchedPlayer = roster.find(p => 
+      (p.playerId && p.playerId.toLowerCase() === val) || 
+      (p.id && p.id.toLowerCase() === val) || 
+      (p.qrValue && p.qrValue.toLowerCase() === val) ||
+      (p.fullName && p.fullName.toLowerCase() === val)
+    );
+
+    // Fallback search across all registered players in system
+    if (!matchedPlayer) {
+      matchedPlayer = allPlayersList.find(p => 
+        (p.playerId && p.playerId.toLowerCase() === val) || 
+        (p.id && p.id.toLowerCase() === val) || 
+        (p.qrValue && p.qrValue.toLowerCase() === val) ||
+        (p.fullName && p.fullName.toLowerCase() === val)
+      );
+    }
 
     if (matchedPlayer) {
       handleAddPlayer(matchedPlayer, targetTeam);
       setManualPlayerId('');
     } else {
-      // Check if player exists in general database but assigned to another team
-      setError(`Player ID "${val}" not found in registered roster of Team ${targetTeam === 'A' ? match.teamA : match.teamB}.`);
+      setError(`Player "${idOrValue}" not found in database.`);
     }
   };
 
@@ -590,27 +621,60 @@ export default function AdminMatchDay() {
             <UserPlus size={16} /> Add
           </button>
         </div>
-      </div>
-
-      {/* 4. Team Squads — Side by Side */}
+      </di      {/* 4. Team Squads — Side by Side */}
       <div className="matchday-squads-grid" style={{ marginBottom: '24px' }}>
         {/* Team A */}
         <div style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--admin-gold)', margin: 0 }}>{match.teamA}</h3>
             <span style={{ fontSize: '0.85rem', color: 'var(--admin-muted)', fontWeight: 600 }}>{playing13A.length} / 13</span>
           </div>
           
           <div style={{ marginBottom: '16px' }}>
-            <h4 style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--admin-muted)', marginBottom: '12px' }}>Select From Registered Players</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h4 style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--admin-muted)', margin: 0 }}>
+                Select Registered Players ({showAllPlayersA ? allPlayersList.length : rosterA.length})
+              </h4>
+              {allPlayersList.length > 0 && (
+                <button
+                  onClick={() => setShowAllPlayersA(!showAllPlayersA)}
+                  style={{ background: 'none', border: 'none', color: 'var(--admin-gold)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
+                >
+                  {showAllPlayersA ? 'Show Team Only' : 'Show All DB Players'}
+                </button>
+              )}
+            </div>
+
+            <input
+              type="text"
+              placeholder="Search by player name or ID..."
+              value={searchRosterA}
+              onChange={(e) => setSearchRosterA(e.target.value)}
+              className="form-input"
+              style={{ fontSize: '0.8rem', padding: '6px 10px', marginBottom: '8px' }}
+            />
+
             <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
-              {rosterA.length === 0 ? (
-                <div style={{ textAlign: 'center', color: 'var(--admin-muted)', padding: '24px 0', opacity: 0.7 }}>
-                  <ShieldAlert size={24} style={{ margin: '0 auto 8px' }} />
-                  <p style={{ margin: 0, fontSize: '0.85rem' }}>No players registered</p>
-                </div>
-              ) : (
-                rosterA.map(p => {
+              {(() => {
+                const listToFilter = showAllPlayersA || rosterA.length === 0 ? allPlayersList : rosterA;
+                const filtered = listToFilter.filter(p => 
+                  !searchRosterA.trim() || 
+                  p.fullName?.toLowerCase().includes(searchRosterA.toLowerCase()) || 
+                  p.playerId?.toLowerCase().includes(searchRosterA.toLowerCase())
+                );
+
+                if (filtered.length === 0) {
+                  return (
+                    <div style={{ textAlign: 'center', color: 'var(--admin-muted)', padding: '16px 0', opacity: 0.7 }}>
+                      <ShieldAlert size={20} style={{ margin: '0 auto 6px' }} />
+                      <p style={{ margin: 0, fontSize: '0.8rem' }}>
+                        {rosterA.length === 0 && !showAllPlayersA ? 'No direct team matches found. Click "Show All DB Players" above.' : 'No matching players found.'}
+                      </p>
+                    </div>
+                  );
+                }
+
+                return filtered.map(p => {
                   const isSelected = playing13A.some(s => s.id === p.id);
                   return (
                     <button
@@ -618,7 +682,7 @@ export default function AdminMatchDay() {
                       onClick={() => isSelected ? handleRemovePlayer(p.id, 'A') : handleAddPlayer(p, 'A')}
                       style={{ 
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '10px 12px', borderRadius: '8px',
+                        padding: '8px 10px', borderRadius: '8px',
                         background: isSelected ? 'var(--admin-gold-dim)' : 'var(--bg-secondary)',
                         border: isSelected ? '1px solid var(--admin-border-accent)' : '1px solid var(--border-card)',
                         color: isSelected ? 'var(--gold)' : 'var(--text-secondary)',
@@ -626,12 +690,14 @@ export default function AdminMatchDay() {
                         textAlign: 'left', width: '100%'
                       }}
                     >
-                      <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{p.fullName} <span style={{ opacity: 0.7 }}>(#{p.jerseyNumber || '—'})</span></span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>{isSelected ? '✓ Added' : '+ Add'}</span>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>
+                        {p.fullName} <span style={{ opacity: 0.65, fontSize: '0.75rem' }}>({p.teamName || 'Unassigned'})</span>
+                      </span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700 }}>{isSelected ? '✓ Added' : '+ Add'}</span>
                     </button>
                   );
-                })
-              )}
+                });
+              })()}
             </div>
           </div>
           
@@ -651,7 +717,7 @@ export default function AdminMatchDay() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--admin-muted)', width: '20px' }}>{idx + 1}.</span>
                       <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--admin-border-accent)', color: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, overflow: 'hidden', flexShrink: 0 }}>
-                        {p.photoURL ? <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : p.fullName[0]}
+                        {p.photoURL ? <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (p.fullName ? p.fullName[0] : 'P')}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--admin-text)', lineHeight: 1.2 }}>{p.fullName}</span>
@@ -670,21 +736,56 @@ export default function AdminMatchDay() {
 
         {/* Team B */}
         <div style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--admin-gold)', margin: 0 }}>{match.teamB}</h3>
             <span style={{ fontSize: '0.85rem', color: 'var(--admin-muted)', fontWeight: 600 }}>{playing13B.length} / 13</span>
           </div>
           
           <div style={{ marginBottom: '16px' }}>
-            <h4 style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--admin-muted)', marginBottom: '12px' }}>Select From Registered Players</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h4 style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--admin-muted)', margin: 0 }}>
+                Select Registered Players ({showAllPlayersB ? allPlayersList.length : rosterB.length})
+              </h4>
+              {allPlayersList.length > 0 && (
+                <button
+                  onClick={() => setShowAllPlayersB(!showAllPlayersB)}
+                  style={{ background: 'none', border: 'none', color: 'var(--admin-gold)', fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer' }}
+                >
+                  {showAllPlayersB ? 'Show Team Only' : 'Show All DB Players'}
+                </button>
+              )}
+            </div>
+
+            <input
+              type="text"
+              placeholder="Search by player name or ID..."
+              value={searchRosterB}
+              onChange={(e) => setSearchRosterB(e.target.value)}
+              className="form-input"
+              style={{ fontSize: '0.8rem', padding: '6px 10px', marginBottom: '8px' }}
+            />
+
             <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
-              {rosterB.length === 0 ? (
-                <div style={{ textAlign: 'center', color: 'var(--admin-muted)', padding: '24px 0', opacity: 0.7 }}>
-                  <ShieldAlert size={24} style={{ margin: '0 auto 8px' }} />
-                  <p style={{ margin: 0, fontSize: '0.85rem' }}>No players registered</p>
-                </div>
-              ) : (
-                rosterB.map(p => {
+              {(() => {
+                const listToFilter = showAllPlayersB || rosterB.length === 0 ? allPlayersList : rosterB;
+                const filtered = listToFilter.filter(p => 
+                  !searchRosterB.trim() || 
+                  p.fullName?.toLowerCase().includes(searchRosterB.toLowerCase()) || 
+                  p.playerId?.toLowerCase().includes(searchRosterB.toLowerCase())
+                );
+
+                if (filtered.length === 0) {
+                  return (
+                    <div style={{ textAlign: 'center', color: 'var(--admin-muted)', padding: '16px 0', opacity: 0.7 }}>
+                      <ShieldAlert size={20} style={{ margin: '0 auto 6px' }} />
+                      <p style={{ margin: 0, fontSize: '0.8rem' }}>
+                        {rosterB.length === 0 && !showAllPlayersB ? 'No direct team matches found. Click "Show All DB Players" above.' : 'No matching players found.'}
+                      </p>
+                    </div>
+                  );
+                }
+
+                return filtered.map(p => {
                   const isSelected = playing13B.some(s => s.id === p.id);
                   return (
                     <button
@@ -692,7 +793,7 @@ export default function AdminMatchDay() {
                       onClick={() => isSelected ? handleRemovePlayer(p.id, 'B') : handleAddPlayer(p, 'B')}
                       style={{ 
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        padding: '10px 12px', borderRadius: '8px',
+                        padding: '8px 10px', borderRadius: '8px',
                         background: isSelected ? 'var(--admin-gold-dim)' : 'var(--bg-secondary)',
                         border: isSelected ? '1px solid var(--admin-border-accent)' : '1px solid var(--border-card)',
                         color: isSelected ? 'var(--gold)' : 'var(--text-secondary)',
@@ -700,12 +801,14 @@ export default function AdminMatchDay() {
                         textAlign: 'left', width: '100%'
                       }}
                     >
-                      <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{p.fullName} <span style={{ opacity: 0.7 }}>(#{p.jerseyNumber || '—'})</span></span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>{isSelected ? '✓ Added' : '+ Add'}</span>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>
+                        {p.fullName} <span style={{ opacity: 0.65, fontSize: '0.75rem' }}>({p.teamName || 'Unassigned'})</span>
+                      </span>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 700 }}>{isSelected ? '✓ Added' : '+ Add'}</span>
                     </button>
                   );
-                })
-              )}
+                });
+              })()}
             </div>
           </div>
           
@@ -725,7 +828,7 @@ export default function AdminMatchDay() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--admin-muted)', width: '20px' }}>{idx + 1}.</span>
                       <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--admin-border-accent)', color: 'var(--gold)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, overflow: 'hidden', flexShrink: 0 }}>
-                        {p.photoURL ? <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : p.fullName[0]}
+                        {p.photoURL ? <img src={p.photoURL} alt="photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (p.fullName ? p.fullName[0] : 'P')}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--admin-text)', lineHeight: 1.2 }}>{p.fullName}</span>
@@ -741,6 +844,7 @@ export default function AdminMatchDay() {
             </div>
           </div>
         </div>
+      </div>    </div>
       </div>
 
       {/* 5. Score Sheet Section */}
