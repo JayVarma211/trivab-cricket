@@ -93,9 +93,51 @@ export default function AdminMatchDay() {
         setTournament(tournDoc);
       }
 
-      // Fetch all registered players in system
-      const allPlayers = await getCollection('players');
-      setAllPlayersList(allPlayers || []);
+      // Fetch all teams to map teamId -> teamName
+      const allTeams = (await getCollection('teams')) || [];
+      const teamIdMap = {};
+      allTeams.forEach(t => {
+        if (t.id && t.teamName) teamIdMap[t.id] = t.teamName;
+      });
+
+      // Fetch all registered players across players, captains, and registrations collections
+      const rawPlayers = (await getCollection('players')) || [];
+      const rawCaptains = (await getCollection('captains')) || [];
+      const rawRegistrations = (await getCollection('registrations')) || [];
+
+      const combined = [];
+      const seenIds = new Set();
+
+      const addPlayer = (item, defaultRole = 'Player') => {
+        if (!item) return;
+        const fullName = item.fullName || item.playerName || item.name || '';
+        if (!fullName) return;
+
+        const playerId = item.playerId || item.id || `PL-${fullName.replace(/\s+/g, '').toUpperCase()}`;
+        const key = playerId.toLowerCase();
+        if (seenIds.has(key)) return;
+        seenIds.add(key);
+
+        const resolvedTeamName = item.teamName || item.team || (item.teamId ? teamIdMap[item.teamId] : '') || '';
+
+        combined.push({
+          id: item.id || playerId,
+          playerId: playerId,
+          fullName: fullName,
+          teamName: resolvedTeamName,
+          teamId: item.teamId || '',
+          playingStyle: item.playingStyle || item.role || defaultRole,
+          jerseyNumber: item.jerseyNumber || item.jersey || '—',
+          mobile: item.mobile || item.playerPhone || item.phone || 'N/A',
+          photoURL: item.photoURL || item.photo || '',
+        });
+      };
+
+      rawPlayers.forEach(p => addPlayer(p, 'Player'));
+      rawCaptains.forEach(c => addPlayer(c, 'Captain'));
+      rawRegistrations.forEach(r => addPlayer(r, 'Player'));
+
+      setAllPlayersList(combined);
 
       const cleanStr = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
       const targetA = cleanStr(matchDoc.teamA);
@@ -103,13 +145,16 @@ export default function AdminMatchDay() {
 
       const isMatch = (p, target) => {
         if (!target) return false;
-        const pTeam = cleanStr(p.teamName || p.teamId || p.team);
-        if (!pTeam) return false;
-        return pTeam === target || pTeam.includes(target) || target.includes(pTeam);
+        const pTeam = cleanStr(p.teamName);
+        const pId = cleanStr(p.teamId);
+        return (
+          (pTeam && (pTeam === target || pTeam.includes(target) || target.includes(pTeam))) ||
+          (pId && (pId === target || pId.includes(target) || target.includes(pId)))
+        );
       };
 
-      const playersA = (allPlayers || []).filter(p => isMatch(p, targetA));
-      const playersB = (allPlayers || []).filter(p => isMatch(p, targetB));
+      const playersA = combined.filter(p => isMatch(p, targetA));
+      const playersB = combined.filter(p => isMatch(p, targetB));
 
       setRosterA(playersA);
       setRosterB(playersB);
