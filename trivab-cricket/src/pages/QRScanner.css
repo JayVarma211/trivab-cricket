@@ -20,6 +20,100 @@
   margin-bottom: var(--space-md);
 }
 
+/* Team Scanner Mode Selector */
+.team-scan-selector {
+  padding: 16px;
+  background: var(--bg-card, #161616);
+  border: 1px solid var(--gold, #d4af37);
+  border-radius: 12px;
+}
+
+.team-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.team-pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border-card, #333);
+  background: var(--bg-secondary, #222);
+  color: #ccc;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.team-pill:hover {
+  border-color: var(--gold, #d4af37);
+  color: #fff;
+}
+
+.team-pill.active {
+  background: var(--gold, #d4af37);
+  color: #000;
+  border-color: var(--gold, #d4af37);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+.team-names-row {
+  display: flex;
+  gap: 12px;
+}
+
+/* HTML5 QRCODE CAMERA CONTAINER FIXES */
+#qr-scanner-camera-box {
+  width: 100% !important;
+  min-height: 280px;
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  border: 1px dashed rgba(212, 175, 55, 0.3);
+}
+
+#qr-scanner-camera-box video {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 360px !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+}
+
+#qr-scanner-camera-box img[alt="Info icon"] {
+  display: none !important;
+}
+
+#qr-scanner-camera-box button {
+  background: var(--gold, #d4af37) !important;
+  color: #000 !important;
+  border: none !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  margin: 8px auto !important;
+  display: block !important;
+}
+
+#qr-scanner-camera-box select {
+  background: #222 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  margin-bottom: 8px !important;
+}
+
+#qr-scanner-camera-box a {
+  color: var(--gold, #d4af37) !important;
+  font-size: 12px !important;
+}
+
 .manual-search-form {
   margin-top: var(--space-sm);
 }
@@ -74,5 +168,10 @@
 @media (max-width: 768px) {
   .scanner-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .team-names-row {
+    flex-direction: column;
+    gap: 8px;
   }
 }
