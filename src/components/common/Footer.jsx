@@ -5,7 +5,6 @@ import './Footer.css';
 const QUICK_LINKS = [
   { to: '/', label: 'Home' },
   { to: '/tournaments', label: 'Tournaments' },
-  { to: '/schedule', label: 'Match Schedule' },
   { to: '/gallery', label: 'Gallery' },
 ];
 

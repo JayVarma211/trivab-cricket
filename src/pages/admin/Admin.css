@@ -1695,3 +1695,30 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* MatchDay Camera Viewport Responsive CSS */
+#matchday-camera-viewport {
+  width: 100% !important;
+  max-width: 360px !important;
+  height: 280px !important;
+  margin: 0 auto !important;
+  background: #000 !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#matchday-camera-viewport video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 12px !important;
+}
+
+#matchday-camera-viewport img[alt="Info icon"] {
+  display: none !important;
+}
+

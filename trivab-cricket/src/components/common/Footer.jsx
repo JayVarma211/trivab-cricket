@@ -5,14 +5,13 @@ import './Footer.css';
 const QUICK_LINKS = [
   { to: '/', label: 'Home' },
   { to: '/tournaments', label: 'Tournaments' },
-  { to: '/mvp-stats', label: 'MVP & Stats' },
-  { to: '/sponsors', label: 'Sponsors' },
+  { to: '/gallery', label: 'Gallery' },
 ];
 
 const PLAYER_LINKS = [
   { to: '/register', label: 'Register as Player' },
   { to: '/login', label: 'Player Login' },
-  { to: '/scanner', label: 'Scan QR Code' },
+  { to: '/news', label: 'News & Events' },
   { to: '/about', label: 'About Us' },
   { to: '/contact', label: 'Contact Us' },
 ];
@@ -22,20 +21,12 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-top container">
         <div className="footer-brand">
-          <Link to="/" className="footer-logo">
-            <div className="footer-logo-icon">
-              <Trophy size={20} />
-            </div>
-            <span>TRIVAB<span style={{ color: 'var(--gold)' }}>.</span></span>
+          <Link to="/" className="footer-logo-container">
+            <img src="/logos/trivabsports.jpg" className="footer-logo-img" alt="TRIVAB SPORTS" />
           </Link>
-          <p className="footer-tagline">
-            The ultimate cricket management platform for teams, players, captains, and administrators.
-          </p>
           <div className="footer-socials">
-            <a href="#" className="social-btn" aria-label="Instagram"><Instagram size={18} /></a>
-            <a href="#" className="social-btn" aria-label="Twitter"><Twitter size={18} /></a>
-            <a href="#" className="social-btn" aria-label="YouTube"><Youtube size={18} /></a>
-            <a href="#" className="social-btn" aria-label="Facebook"><Facebook size={18} /></a>
+            <a href="https://www.instagram.com/baplcricket?igsh=NHQ2dWM0Y3Z5dnBj" target="_blank" rel="noreferrer" className="social-btn" aria-label="Instagram"><Instagram size={18} /></a>
+            <a href="https://www.youtube.com/@baplcricket?si=dVnUedGn8K7gAmtP" target="_blank" rel="noreferrer" className="social-btn" aria-label="YouTube"><Youtube size={18} /></a>
           </div>
         </div>
 
@@ -62,19 +53,23 @@ export default function Footer() {
           <ul className="contact-list">
             <li>
               <Mail size={16} />
-              <a href="mailto:info@trivab.com" className="footer-link">info@trivab.com</a>
+              <a href="mailto:trivabsports@gmail.com" className="footer-link">trivabsports@gmail.com</a>
             </li>
-            <li>
-              <Phone size={16} />
-              <a href="tel:+919876543210" className="footer-link">+91 98765 43210</a>
+            <li style={{ alignItems: 'flex-start' }}>
+              <Phone size={16} style={{ marginTop: '3px' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <a href="tel:+919930344130" className="footer-link">+91 99303 44130</a>
+                <a href="tel:+919867423131" className="footer-link">+91 98674 23131</a>
+                <a href="tel:+918779187691" className="footer-link">+91 87791 87691</a>
+              </div>
             </li>
             <li>
               <MapPin size={16} />
-              <span className="footer-link">Mumbai, Maharashtra, India</span>
+              <span className="footer-link">B202, Raj Heights, MG Road<br />Kandivali West, Mumbai 400067,<br />Maharashtra, India</span>
             </li>
           </ul>
           <div className="footer-badge">
-            <span>🏏</span> Powered by TRIVAB Platform
+            <span>🏏</span> Powered by HSJV Tech
           </div>
         </div>
       </div>
@@ -82,7 +77,7 @@ export default function Footer() {
       <div className="footer-bottom">
         <div className="container footer-bottom-inner">
           <p className="footer-copy">
-            &copy; {new Date().getFullYear()} TRIVAB Cricket Management Platform. All rights reserved.
+            &copy; 2026 TRIVAB SPORTS AND EVENTS. All rights reserved.
           </p>
           <div className="footer-bottom-links">
             <a href="#" className="footer-link">Privacy Policy</a>
