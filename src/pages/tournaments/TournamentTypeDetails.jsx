@@ -249,7 +249,7 @@ export default function TournamentTypeDetails() {
           {isCorporateCategory && (
             <div className="mt-lg">
               <Link
-                to="/contact?subject=Corporate%20Sports%20Tournament&tournament=BAPL%20Corporate%20Cup"
+                to="/contact?subject=Corporate%20Sports%20Tournament"
                 className="btn"
                 style={{
                   background: 'linear-gradient(135deg, #800000 0%, #4a0000 100%)',
@@ -267,7 +267,7 @@ export default function TournamentTypeDetails() {
                   transition: 'all 0.2s ease-in-out'
                 }}
               >
-                Enquire About Corporate Events
+                Register Your Interest
               </Link>
             </div>
           )}

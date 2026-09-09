@@ -17,17 +17,7 @@ export default function Contact() {
   const [subject, setSubject] = useState(initialSubject);
   const [corporateForm, setCorporateForm] = useState({
     companyName: '',
-    companyRole: '',
-    companySize: '',
-    eventType: '',
-    teamName: '',
-    playersInterested: '',
-    cricketExperience: '',
-    playedInBapl: '',
-    preferredTiming: '',
-    budgetApproved: '',
-    heardAboutUs: '',
-    consent: false
+    companyRole: ''
   });
   const [topicForm, setTopicForm] = useState({
     organization: '',
@@ -80,7 +70,7 @@ export default function Contact() {
 
     let dbSuccess = false;
     const corporateDetails = subject === 'Corporate Sports Tournament'
-      ? `Company Name: ${corporateForm.companyName}\nCompany Role: ${corporateForm.companyRole}\nCompany Size: ${corporateForm.companySize}\nEvent Type: ${corporateForm.eventType}\n${corporateForm.eventType === 'Cricket Event' ? `Team Name: ${corporateForm.teamName}\nPlayers Interested: ${corporateForm.playersInterested}\nCricket Experience: ${corporateForm.cricketExperience}\nPlayed in BAPL Before: ${corporateForm.playedInBapl}\n` : ''}Preferred Timing: ${corporateForm.preferredTiming}\nBudget Approved: ${corporateForm.budgetApproved}\nHow They Heard About Us: ${corporateForm.heardAboutUs}\nUpdates Consent: ${corporateForm.consent ? 'Yes' : 'No'}\n\n`
+      ? `Company Name: ${corporateForm.companyName}\nRole: ${corporateForm.companyRole}\n`
       : '';
     const topicDetails = subject === 'Corporate Sports Tournament'
       ? corporateDetails
@@ -330,145 +320,44 @@ export default function Contact() {
 
               {subject === 'Corporate Sports Tournament' ? (
                 <>
-                  <fieldset className="contact-form-section">
-                    <legend>Company Information</legend>
-                    <div className="form-group">
-                      <label className="form-label">Company Name *</label>
-                      <input name="companyName" className="form-input" placeholder="e.g., Tech Solutions Private Ltd" value={corporateForm.companyName} onChange={handleCorporateChange} required disabled={loading} />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Your Role in Company *</label>
-                      <select name="companyRole" className="form-select" value={corporateForm.companyRole} onChange={handleCorporateChange} required disabled={loading}>
-                        <option value="">Select your role</option>
-                        <option value="HR/Admin">HR/Admin</option>
-                        <option value="Finance/CFO">Finance/CFO</option>
-                        <option value="Sports Committee Lead">Sports Committee Lead</option>
-                        <option value="Cricket Captain">Cricket Captain</option>
-                        <option value="CEO/Executive">CEO/Executive</option>
-                        <option value="Employee">Employee</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Company Size *</label>
-                      <select name="companySize" className="form-select" value={corporateForm.companySize} onChange={handleCorporateChange} required disabled={loading}>
-                        <option value="">Select company size</option>
-                        <option value="1-50">1-50 employees</option>
-                        <option value="51-200">51-200 employees</option>
-                        <option value="201-500">201-500 employees</option>
-                        <option value="501-1000">501-1000 employees</option>
-                        <option value="1000+">1000+ employees</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">What Type of Event Are You Planning? *</label>
-                      <select name="eventType" className="form-select" value={corporateForm.eventType} onChange={handleCorporateChange} required disabled={loading}>
-                        <option value="">Select event type</option>
-                        <option value="Cricket Event">Cricket Event</option>
-                        <option value="Corporate Event">Corporate Event</option>
-                        <option value="Sports Event">Sports Event</option>
-                        <option value="Annual Event">Annual Event</option>
-                        <option value="Team Building Event">Team Building Event</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                  </fieldset>
+                  <div className="corporate-interest-header">
+                    <span className="corporate-interest-badge">Corporate Cricket</span>
+                    <p className="corporate-interest-sub">Fill in your details and our team will reach out with tournament details, pricing and registration information.</p>
+                  </div>
 
-                  <fieldset className="contact-form-section">
-                    <legend>Contact Information</legend>
+                  <div className="corporate-interest-grid">
                     <div className="form-group">
-                      <label className="form-label">Full Name *</label>
-                      <input type="text" className="form-input" placeholder="Rohan Sharma" required value={name} onChange={(e) => setName(e.target.value)} disabled={loading} />
+                      <label className="form-label">Full Name <span className="form-required">*</span></label>
+                      <input type="text" className="form-input" placeholder="e.g. Rahul Sharma" required value={name} onChange={(e) => setName(e.target.value)} disabled={loading} />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">Email Address *</label>
-                      <input type="email" className="form-input" placeholder="rohan@company.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
+                      <label className="form-label">Company Name <span className="form-required">*</span></label>
+                      <input name="companyName" className="form-input" placeholder="e.g. Infosys Ltd." required value={corporateForm.companyName} onChange={handleCorporateChange} disabled={loading} />
+                    </div>
+                  </div>
+
+                  <div className="corporate-interest-grid">
+                    <div className="form-group">
+                      <label className="form-label">Work Email <span className="form-required">*</span></label>
+                      <input type="email" className="form-input" placeholder="you@company.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
                     </div>
                     <div className="form-group">
-                      <label className="form-label">Contact Number *</label>
+                      <label className="form-label">Phone Number <span className="form-required">*</span></label>
                       <input type="tel" className="form-input" placeholder="+91 98765 43210" required value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} disabled={loading} />
                     </div>
-                  </fieldset>
+                  </div>
 
-                  {corporateForm.eventType === 'Cricket Event' && (
-                  <fieldset className="contact-form-section">
-                    <legend>Team Details</legend>
-                    <div className="form-group">
-                      <label className="form-label">Team Name *</label>
-                      <input name="teamName" className="form-input" placeholder="e.g., Tech Titans or Code Warriors" value={corporateForm.teamName} onChange={handleCorporateChange} required disabled={loading} />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Number of Players Interested *</label>
-                      <input name="playersInterested" className="form-input" placeholder="11-50" value={corporateForm.playersInterested} onChange={handleCorporateChange} required disabled={loading} />
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Cricket Experience Level *</label>
-                      <select name="cricketExperience" className="form-select" value={corporateForm.cricketExperience} onChange={handleCorporateChange} required disabled={loading}>
-                        <option value="">Select experience level</option>
-                        <option value="Beginner">Beginner</option>
-                        <option value="Intermediate">Intermediate</option>
-                        <option value="Advanced">Advanced</option>
-                        <option value="Mixed">Mixed team</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Have You Played in BAPL Before? *</label>
-                      <select name="playedInBapl" className="form-select" value={corporateForm.playedInBapl} onChange={handleCorporateChange} required disabled={loading}>
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                      </select>
-                    </div>
-                  </fieldset>
-                  )}
-
-                  <fieldset className="contact-form-section">
-                    <legend>Event Planning</legend>
-                    <div className="form-group">
-                      <label className="form-label">Preferred Timing *</label>
-                      <select name="preferredTiming" className="form-select" value={corporateForm.preferredTiming} onChange={handleCorporateChange} required disabled={loading}>
-                        <option value="">Select timing</option>
-                        <option value="Weekday">Weekday</option>
-                        <option value="Weekend">Weekend</option>
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
-                        <option value="Flexible">Flexible</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Budget Approved? *</label>
-                      <select name="budgetApproved" className="form-select" value={corporateForm.budgetApproved} onChange={handleCorporateChange} required disabled={loading}>
-                        <option value="">Select status</option>
-                        <option value="Yes">Yes</option>
-                        <option value="Under Discussion">Under discussion</option>
-                        <option value="Not Yet">Not yet</option>
-                      </select>
-                    </div>
-                  </fieldset>
-
-                  <fieldset className="contact-form-section">
-                    <legend>Additional Information</legend>
-                    <div className="form-group">
-                      <label className="form-label">How Did You Hear About Us? *</label>
-                      <select name="heardAboutUs" className="form-select" value={corporateForm.heardAboutUs} onChange={handleCorporateChange} required disabled={loading}>
-                        <option value="">Select</option>
-                        <option value="Google Search">Google Search</option>
-                        <option value="Social Media">Social Media</option>
-                        <option value="Referral">Referral</option>
-                        <option value="Existing BAPL Member">Existing BAPL member</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="form-label">Message (Optional)</label>
-                      <textarea className="form-textarea" placeholder="Any questions or special requirements?" value={message} onChange={(e) => setMessage(e.target.value)} disabled={loading} />
-                    </div>
-                  </fieldset>
-
-                  <label className="contact-consent">
-                    <input type="checkbox" name="consent" checked={corporateForm.consent} onChange={handleCorporateChange} disabled={loading} />
-                    <span>I agree to receive updates via email &amp; WhatsApp</span>
-                  </label>
+                  <div className="form-group">
+                    <label className="form-label">Your Role <span className="form-required">*</span></label>
+                    <select name="companyRole" className="form-select" value={corporateForm.companyRole} onChange={handleCorporateChange} required disabled={loading}>
+                      <option value="">Select your role…</option>
+                      <option value="HR">HR</option>
+                      <option value="Admin">Admin</option>
+                      <option value="Founder/Owner">Founder / Owner</option>
+                      <option value="Team/Employee">Team / Employee</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
                 </>
               ) : subject === 'Careers' ? (
                 <>
@@ -652,7 +541,7 @@ export default function Contact() {
               )}
 
               <button type="submit" className="btn btn-gold btn-lg" disabled={loading}>
-                {loading ? 'Sending...' : <><Send size={18} /> Send Inquiry</>}
+                {loading ? 'Sending...' : subject === 'Corporate Sports Tournament' ? <><Send size={18} /> Register Your Interest</> : <><Send size={18} /> Send Inquiry</>}
               </button>
             </form>
           </div>
@@ -725,6 +614,41 @@ export default function Contact() {
           margin-top: 6px;
           color: var(--text-secondary);
           font-size: 0.78rem;
+        }
+        .corporate-interest-header {
+          margin-bottom: 4px;
+        }
+        .corporate-interest-badge {
+          display: inline-block;
+          background: linear-gradient(90deg, #800000, #d4af37);
+          color: #fff;
+          font-size: 0.65rem;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          padding: 4px 12px;
+          border-radius: 999px;
+          margin-bottom: 8px;
+        }
+        .corporate-interest-sub {
+          font-size: 0.85rem;
+          color: var(--text-secondary);
+          margin: 0 0 16px;
+          line-height: 1.55;
+        }
+        .corporate-interest-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+        }
+        @media (max-width: 560px) {
+          .corporate-interest-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .form-required {
+          color: var(--gold);
+          margin-left: 2px;
         }
       `}</style>
     </div>
