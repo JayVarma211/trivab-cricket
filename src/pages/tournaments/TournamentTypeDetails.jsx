@@ -246,6 +246,31 @@ export default function TournamentTypeDetails() {
           <span className="badge badge-gold mb-xs">Tournament Category</span>
           <h1 className="display-sm text-gradient-gold">{parentData.name}</h1>
           <p className="text-secondary mt-xs max-width-700" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>{parentData.description}</p>
+          {isCorporateCategory && (
+            <div className="mt-lg">
+              <Link
+                to="/contact?subject=Corporate%20Sports%20Tournament&tournament=BAPL%20Corporate%20Cup"
+                className="btn"
+                style={{
+                  background: 'linear-gradient(135deg, #800000 0%, #4a0000 100%)',
+                  color: '#ffffff',
+                  borderRadius: '999px',
+                  padding: '12px 28px',
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 20px rgba(128, 0, 0, 0.4)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s ease-in-out'
+                }}
+              >
+                Enquire About Corporate Events
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 

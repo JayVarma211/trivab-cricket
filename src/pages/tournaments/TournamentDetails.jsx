@@ -723,10 +723,10 @@ export default function TournamentDetails() {
 
             <div className="mt-md tournament-enquiry-detail-action">
               <Link
-                to={`/contact?subject=${isCorporateTournament ? 'Corporate%20Sports%20Tournament' : 'General%20Inquiry'}&tournament=${encodeURIComponent(tournament.name)}`}
+                to={`/contact?subject=General%20Inquiry&tournament=${encodeURIComponent(tournament.name)}`}
                 className="btn btn-gold btn-sm join-btn-mobile"
               >
-                {isCorporateTournament ? 'Enquire About Corporate Events' : 'Enquire About This Tournament'}
+                Enquire About This Tournament
               </Link>
             </div>
             
