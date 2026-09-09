@@ -95,28 +95,62 @@ export default function Navbar() {
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
-    const unsub = subscribeCollection('tournamentCategories', [], (docs) => {
-      if (!docs) return;
+    let catDocs = [];
+    let tournDocs = [];
+
+    const getParentCategoryKeys = (id) => {
+      if (!id) return [];
+      const keys = [id];
+      if (id.startsWith('baplcorporate')) keys.push('baplcorporate');
+      if (id.startsWith('baplxpress')) keys.push('baplxpress');
+      if (id.startsWith('bapldads')) keys.push('bapldads');
+      if (id.startsWith('bapl-')) keys.push('bapl');
+      if (id.startsWith('trivab-monsoon')) keys.push('trivab-monsoon');
+      if (id.startsWith('baplkids')) keys.push('baplkids');
+      return keys;
+    };
+
+    const processMenu = () => {
       const itemsMap = new Map();
       DEFAULT_TOURNAMENTS_MENU.forEach(item => itemsMap.set(item.id, item));
 
-      docs.forEach(doc => {
+      const allDocs = [...catDocs, ...tournDocs];
+      allDocs.forEach(doc => {
+        if (!doc) return;
+        const keys = getParentCategoryKeys(doc.id);
         if (doc.isDeleted === true || doc.deleted === true) {
-          itemsMap.delete(doc.id);
-        } else {
+          keys.forEach(k => itemsMap.delete(k));
+        } else if (doc.isCategory || doc.isCustom) {
           itemsMap.set(doc.id, {
             id: doc.id,
             label: doc.label || doc.name,
-            to: doc.to || (doc.id.startsWith('bapl') ? `/tournaments/type/${doc.id}` : `/tournaments/${doc.id}`),
+            to: doc.to || `/tournaments/${doc.id}`,
             logo: doc.logo || '/logos/bapllogo.jpg'
           });
         }
       });
+
       setTournamentsMenu(Array.from(itemsMap.values()));
-    });
+    };
+
+    let unsubCat, unsubTourn;
+    try {
+      unsubCat = subscribeCollection('tournamentCategories', [], (docs) => {
+        catDocs = docs || [];
+        processMenu();
+      });
+    } catch (e) {}
+
+    try {
+      unsubTourn = subscribeCollection('tournaments', [], (docs) => {
+        tournDocs = docs || [];
+        processMenu();
+      });
+    } catch (e) {}
 
     return () => {
-      if (unsub) unsub();
+      if (unsubCat) unsubCat();
+      if (unsubTourn) unsubTourn();
     };
   }, []);
 

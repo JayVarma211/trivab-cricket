@@ -106,30 +106,64 @@ export default function TournamentList() {
     };
     fetchTournaments();
 
-    const unsub = subscribeCollection('tournamentCategories', [], (docs) => {
-      if (!docs) return;
+    let catDocs = [];
+    let tournDocs = [];
+
+    const getParentCategoryKeys = (id) => {
+      if (!id) return [];
+      const keys = [id];
+      if (id.startsWith('baplcorporate')) keys.push('baplcorporate');
+      if (id.startsWith('baplxpress')) keys.push('baplxpress');
+      if (id.startsWith('bapldads')) keys.push('bapldads');
+      if (id.startsWith('bapl-')) keys.push('bapl');
+      if (id.startsWith('trivab-monsoon')) keys.push('trivab-monsoon');
+      if (id.startsWith('baplkids')) keys.push('baplkids');
+      return keys;
+    };
+
+    const processCategories = () => {
       const itemsMap = new Map();
       TRIVAB_TOURNAMENT_CATEGORIES.forEach(cat => itemsMap.set(cat.id, cat));
 
-      docs.forEach(doc => {
+      const allDocs = [...catDocs, ...tournDocs];
+      allDocs.forEach(doc => {
+        if (!doc) return;
+        const keys = getParentCategoryKeys(doc.id);
         if (doc.isDeleted === true || doc.deleted === true) {
-          itemsMap.delete(doc.id);
-        } else {
+          keys.forEach(k => itemsMap.delete(k));
+        } else if (doc.isCategory || doc.isCustom) {
           itemsMap.set(doc.id, {
             id: doc.id,
             name: doc.name || doc.label,
             logo: doc.logo || '/logos/bapllogo.jpg',
             description: doc.description || '',
-            to: doc.to || (doc.id.startsWith('bapl') ? `/tournaments/type/${doc.id}` : `/tournaments/${doc.id}`),
+            to: doc.to || `/tournaments/${doc.id}`,
             badge: doc.badge || 'Tournament'
           });
         }
       });
+
       setCategories(Array.from(itemsMap.values()));
-    });
+    };
+
+    let unsubCat, unsubTourn;
+    try {
+      unsubCat = subscribeCollection('tournamentCategories', [], (docs) => {
+        catDocs = docs || [];
+        processCategories();
+      });
+    } catch (e) {}
+
+    try {
+      unsubTourn = subscribeCollection('tournaments', [], (docs) => {
+        tournDocs = docs || [];
+        processCategories();
+      });
+    } catch (e) {}
 
     return () => {
-      if (unsub) unsub();
+      if (unsubCat) unsubCat();
+      if (unsubTourn) unsubTourn();
     };
   }, []);
 
