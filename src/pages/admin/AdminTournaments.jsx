@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, setDocument, deleteDocument, where, addDocument, updateDocument } from '../../firebase/firestore';
-import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, Calendar, Users, Eye, ArrowLeft, Loader2, Upload } from 'lucide-react';
+import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, Calendar, Users, Eye, ArrowLeft, Loader2, Upload, ChevronRight } from 'lucide-react';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import './Admin.css';
 
@@ -830,7 +830,7 @@ export default function AdminTournaments() {
             <div 
               key={item.id} 
               className={`admin-tournament-item ${!isActive ? 'inactive-item' : ''}`} 
-              onClick={() => isActive && handleTournamentClick(dbTourn)}
+              onClick={() => isActive && handleTournamentClick(dbTourn || displayTourn)}
               style={{
                 borderBottom: idx < arr.length - 1 ? '1px solid var(--admin-border)' : 'none',
                 cursor: isActive ? 'pointer' : 'default',
@@ -900,7 +900,7 @@ export default function AdminTournaments() {
                 {isActive ? (
                   <>
                     <button
-                      onClick={(e) => { e.stopPropagation(); handleTournamentClick(dbTourn); }}
+                      onClick={(e) => { e.stopPropagation(); handleTournamentClick(dbTourn || displayTourn); }}
                       className="btn-table-action"
                       title="View Details"
                       style={{ color: '#3b82f6' }}
