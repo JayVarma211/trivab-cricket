@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getCollection, orderBy } from '../../firebase/firestore';
+import { getCollection, subscribeCollection, orderBy } from '../../firebase/firestore';
 import { Trophy, Calendar, Users, Star, ArrowRight } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import SEO from '../../components/common/SEO';
@@ -88,6 +88,7 @@ const TRIVAB_TOURNAMENT_CATEGORIES = [
 ];
 
 export default function TournamentList() {
+  const [categories, setCategories] = useState(TRIVAB_TOURNAMENT_CATEGORIES);
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -104,6 +105,32 @@ export default function TournamentList() {
       }
     };
     fetchTournaments();
+
+    const unsub = subscribeCollection('tournamentCategories', [], (docs) => {
+      if (!docs) return;
+      const itemsMap = new Map();
+      TRIVAB_TOURNAMENT_CATEGORIES.forEach(cat => itemsMap.set(cat.id, cat));
+
+      docs.forEach(doc => {
+        if (doc.isDeleted === true || doc.deleted === true) {
+          itemsMap.delete(doc.id);
+        } else {
+          itemsMap.set(doc.id, {
+            id: doc.id,
+            name: doc.name || doc.label,
+            logo: doc.logo || '/logos/bapllogo.jpg',
+            description: doc.description || '',
+            to: doc.to || (doc.id.startsWith('bapl') ? `/tournaments/type/${doc.id}` : `/tournaments/${doc.id}`),
+            badge: doc.badge || 'Tournament'
+          });
+        }
+      });
+      setCategories(Array.from(itemsMap.values()));
+    });
+
+    return () => {
+      if (unsub) unsub();
+    };
   }, []);
 
   const tournamentsListSchema = {
@@ -171,7 +198,7 @@ export default function TournamentList() {
       <div className="mb-2xl">
         <h2 className="display-sm text-gradient-gold mb-xl text-center">Our Tournament Series</h2>
         <div className="grid grid-3 gap-xl">
-          {TRIVAB_TOURNAMENT_CATEGORIES.map((item) => (
+          {categories.map((item) => (
             <div className="card tournament-card-main border-top-gold" key={item.id}>
               <div className="flex justify-between items-start mb-md w-full">
                 <span className="badge badge-gold">{item.badge}</span>

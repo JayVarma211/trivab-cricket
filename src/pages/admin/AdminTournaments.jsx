@@ -252,6 +252,8 @@ export default function AdminTournaments() {
     exportToCSV(data, headers, `${viewingTeamSquad.teamName.replace(/\s+/g, '_')}_Squad.csv`);
   };
 
+  const [deletedIds, setDeletedIds] = useState(new Set());
+
   useEffect(() => {
     if (role !== 'admin') navigate('/admin/login');
     fetchData();
@@ -262,7 +264,14 @@ export default function AdminTournaments() {
       const tournData = await getCollection('tournaments', []);
       const teamsData = await getCollection('teams', []);
       const matchesData = await getCollection('matches', []);
-      setTournaments(tournData);
+      const catData = await getCollection('tournamentCategories', []);
+
+      const deletedSet = new Set(
+        catData.filter(c => c.isDeleted === true || c.deleted === true).map(c => c.id)
+      );
+      setDeletedIds(deletedSet);
+
+      setTournaments(tournData || []);
       setTeams(teamsData || []);
       setMatches(matchesData || []);
     } catch (err) {
@@ -428,6 +437,19 @@ export default function AdminTournaments() {
           : false
       });
 
+      // Sync to tournamentCategories so it appears dynamically in Navbar & TournamentList
+      await setDocument('tournamentCategories', targetId, {
+        id: targetId,
+        label: tournamentData.name,
+        name: tournamentData.name,
+        logo: tournamentData.logo,
+        description: tournamentData.description,
+        to: `/tournaments/${targetId}`,
+        badge: 'Tournament',
+        isDeleted: false,
+        updatedAt: new Date().toISOString()
+      });
+
       fetchData();
       setShowForm(false);
       setEditingId(null);
@@ -437,13 +459,21 @@ export default function AdminTournaments() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this tournament? This will remove it from database logs.')) return;
+  const handleDelete = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to delete "${name || id}"? This will permanently remove it from the Navbar menu, tournament listings, and database.`)) return;
     
     try {
       await deleteDocument('tournaments', id);
+      await setDocument('tournamentCategories', id, {
+        id,
+        isDeleted: true,
+        deleted: true,
+        updatedAt: new Date().toISOString()
+      });
       fetchData();
+      alert(`Tournament "${name || id}" deleted successfully.`);
     } catch (err) {
+      console.error('Error deleting tournament:', err);
       setError('Failed to delete tournament');
     }
   };
@@ -524,10 +554,13 @@ export default function AdminTournaments() {
       }))
   ];
 
-  const filteredItems = allItems.filter(item => !REMOVED_TOURNAMENT_IDS.has(item.id) && (
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.status.toLowerCase().includes(searchTerm.toLowerCase())
-  ));
+  const filteredItems = allItems.filter(item => 
+    !deletedIds.has(item.id) && 
+    !REMOVED_TOURNAMENT_IDS.has(item.id) && (
+      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.status.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
 
   if (loading) return <div className="container section-padding"><p>Loading...</p></div>;
 
@@ -862,15 +895,17 @@ export default function AdminTournaments() {
                         {dbTourn.joinEnabled === true ? 'Disable Joining' : 'Enable Joining'}
                       </button>
                     )}
-                    {dbTourn && (
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="btn btn-outline text-red btn-xs"
-                        style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
-                      >
-                        Delete
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(item.id, item.name);
+                      }}
+                      className="btn btn-outline text-red btn-xs"
+                      style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      title="Permanently Delete Tournament"
+                    >
+                      <Trash2 size={13} /> Delete
+                    </button>
                   </>
                 ) : (
                   <>
@@ -881,15 +916,17 @@ export default function AdminTournaments() {
                     >
                       Activate
                     </button>
-                    {dbTourn && (
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className="btn btn-outline text-red btn-xs"
-                        style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
-                      >
-                        Delete
-                      </button>
-                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(item.id, item.name);
+                      }}
+                      className="btn btn-outline text-red btn-xs"
+                      style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      title="Permanently Delete Tournament"
+                    >
+                      <Trash2 size={13} /> Delete
+                    </button>
                   </>
                 )}
               </div>
