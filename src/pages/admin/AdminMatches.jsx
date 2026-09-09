@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import jsPDF from 'jspdf';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, addDocument, setDocument, deleteDocument } from '../../firebase/firestore';
 import { Calendar, Trash2, Plus, AlertCircle, Edit2, Search, Activity, Download, X, Play, Clock, MapPin, Tag } from 'lucide-react';
@@ -114,6 +115,22 @@ export const formatDateForInput = (dateStr) => {
   }
 
   return new Date().toISOString().split('T')[0];
+};
+
+export const getMatchMonthYear = (dateStr) => {
+  if (!dateStr) return '';
+  const inputDateStr = formatDateForInput(dateStr);
+  if (!inputDateStr) return '';
+  const parts = inputDateStr.split('-');
+  if (parts.length === 3) {
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const d = new Date(year, month, 1);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+    }
+  }
+  return '';
 };
 
 export default function AdminMatches() {
@@ -347,17 +364,24 @@ export default function AdminMatches() {
     const matchesDetail = detailFilter === 'All' || !detailFilterValue || (
       detailFilter === 'Date'
         ? formatDateForInput(m.date) === detailFilterValue
-        : detailFilter === 'Team'
-          ? [m.teamA, m.teamB, m.targetTeamName].some(team => getStringVal(team).toLowerCase().includes(filterValue))
-          : detailFilter === 'Tournament'
-            ? getStringVal(m.tournamentId).toLowerCase() === filterValue || getStringVal(tournament?.name).toLowerCase() === filterValue
-            : getStringVal(m.venue).toLowerCase().includes(filterValue)
+        : detailFilter === 'Month'
+          ? getMatchMonthYear(m.date) === detailFilterValue
+          : detailFilter === 'Team'
+            ? [m.teamA, m.teamB, m.targetTeamName].some(team => getStringVal(team).toLowerCase().includes(filterValue))
+            : detailFilter === 'Tournament'
+              ? getStringVal(m.tournamentId).toLowerCase() === filterValue || getStringVal(tournament?.name).toLowerCase() === filterValue
+              : getStringVal(m.venue).toLowerCase().includes(filterValue)
     );
 
     return matchesSearch && matchesStatus && matchesDetail;
   });
 
+  const monthOptions = [...new Set(matches.map(match => getMatchMonthYear(match.date)).filter(Boolean))].sort((a, b) => {
+    return new Date(`01 ${a}`) - new Date(`01 ${b}`);
+  });
+
   const filterOptions = {
+    Month: monthOptions,
     Team: [...new Set(teams.map(team => getStringVal(team.teamName)).filter(Boolean))].sort(),
     Tournament: [...new Set(tournaments.map(tournament => getStringVal(tournament.name)).filter(Boolean))].sort(),
     Ground: [...new Set(matches.map(match => getStringVal(match.venue)).filter(Boolean))].sort(),
@@ -368,64 +392,162 @@ export default function AdminMatches() {
     ? teams.filter(t => getStringVal(t.tournamentId) === selectedTournId || getStringVal(t.tournamentName) === selectedTournId)
     : teams;
 
-  const escapeCSV = (val) => {
-    if (val === undefined || val === null) return '';
-    let str = String(val);
-    str = str.replace(/"/g, '""');
-    if (str.includes(',') || str.includes('\n') || str.includes('\r') || str.includes('"')) {
-      return `"${str}"`;
+  const exportMatchesToPDF = () => {
+    if (!filteredMatches || filteredMatches.length === 0) {
+      alert('No matches found to export based on the current filter.');
+      return;
     }
-    return str;
-  };
 
-  const exportMatchesToCSV = () => {
-    const headers = [
-      'Match ID',
-      'Title / Type',
-      'Tournament ID',
-      'Tournament Name',
-      'Team A',
-      'Team B',
-      'Venue',
-      'Format',
-      'Date',
-      'Time',
-      'Status',
-      'Result'
-    ];
-
-    const rows = matches.map(m => {
-      const tournament = tournaments.find(t => t.id === m.tournamentId);
-      return [
-        m.id || '',
-        m.title || m.type || 'Match',
-        m.tournamentId || '',
-        tournament ? tournament.name : 'General',
-        m.teamA || '',
-        m.teamB || '',
-        m.venue || '',
-        m.format || 'T20',
-        m.date || '',
-        m.time || '',
-        m.status || '',
-        m.result || ''
-      ];
+    const doc = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4',
     });
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.map(escapeCSV).join(','))
-    ].join('\r\n');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 12;
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `trivab_matches_schedule_${new Date().toISOString().slice(0,10)}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Header Banner
+    doc.setFillColor(15, 23, 42); // #0f172a
+    doc.rect(0, 0, pageWidth, 28, 'F');
+
+    // Title
+    doc.setTextColor(234, 179, 8); // #eab308
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('TRIVAB CRICKET CLUB - MATCHES & SCHEDULE REPORT', margin, 12);
+
+    // Filter Info Subtitle
+    doc.setTextColor(226, 232, 240);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+
+    let filterSummary = `Export Date: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    filterSummary += ` | Total Matches: ${filteredMatches.length}`;
+    if (searchTerm) filterSummary += ` | Search: "${searchTerm}"`;
+    if (statusFilter !== 'All') filterSummary += ` | Status: ${statusFilter}`;
+    if (detailFilter !== 'All' && detailFilterValue) filterSummary += ` | ${detailFilter}: ${detailFilterValue}`;
+
+    doc.text(filterSummary, margin, 20);
+
+    // Table Setup
+    const columns = [
+      { header: '#', width: 10 },
+      { header: 'Fixture / Event Title', width: 68 },
+      { header: 'Type', width: 25 },
+      { header: 'Tournament', width: 45 },
+      { header: 'Date & Time', width: 45 },
+      { header: 'Venue', width: 50 },
+      { header: 'Status', width: 30 },
+    ];
+
+    let currentY = 32;
+
+    const drawHeaderRow = (y) => {
+      doc.setFillColor(30, 41, 59); // #1e293b
+      doc.rect(margin, y, pageWidth - (margin * 2), 9, 'F');
+
+      doc.setTextColor(234, 179, 8); // Gold header text
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+
+      let x = margin + 3;
+      columns.forEach(col => {
+        doc.text(col.header, x, y + 6);
+        x += col.width;
+      });
+
+      return y + 9;
+    };
+
+    currentY = drawHeaderRow(currentY);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+
+    filteredMatches.forEach((m, idx) => {
+      if (currentY + 10 > pageHeight - 15) {
+        doc.addPage();
+        currentY = 15;
+        currentY = drawHeaderRow(currentY);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+      }
+
+      const isEven = idx % 2 === 0;
+      doc.setFillColor(isEven ? 248 : 255, isEven ? 250 : 255, isEven ? 252 : 255);
+      doc.rect(margin, currentY, pageWidth - (margin * 2), 9, 'F');
+
+      doc.setDrawColor(226, 232, 240);
+      doc.line(margin, currentY + 9, pageWidth - margin, currentY + 9);
+
+      const tournId = getStringVal(m.tournamentId);
+      const tournament = tournaments.find(t => t.id === tournId || t.name === tournId);
+      const tAStr = getStringVal(m.teamA);
+      const tBStr = getStringVal(m.teamB);
+      const displayTitle = getStringVal(m.title) || (tAStr && tBStr ? `${tAStr} vs ${tBStr}` : getStringVal(m.type) || 'Match');
+      const displayTourn = tournament ? tournament.name : 'General / All';
+      const dateTimeStr = `${formatDateSafe(m.date)}${m.time ? ' @ ' + formatTimeAMPM(m.time) : ''}`;
+      const venueStr = getStringVal(m.venue) || '—';
+      const statusStr = getStringVal(m.status) || 'Upcoming';
+
+      doc.setTextColor(30, 41, 59);
+
+      let x = margin + 3;
+
+      // #
+      doc.text(String(idx + 1), x, currentY + 6);
+      x += columns[0].width;
+
+      // Fixture
+      const titleLines = doc.splitTextToSize(displayTitle, columns[1].width - 4);
+      doc.text(titleLines[0] || '', x, currentY + 6);
+      x += columns[1].width;
+
+      // Type
+      doc.text(getStringVal(m.type) || 'Match', x, currentY + 6);
+      x += columns[2].width;
+
+      // Tournament
+      const tournLines = doc.splitTextToSize(displayTourn, columns[3].width - 4);
+      doc.text(tournLines[0] || '', x, currentY + 6);
+      x += columns[3].width;
+
+      // Date & Time
+      doc.text(dateTimeStr, x, currentY + 6);
+      x += columns[4].width;
+
+      // Venue
+      const venueLines = doc.splitTextToSize(venueStr, columns[5].width - 4);
+      doc.text(venueLines[0] || '', x, currentY + 6);
+      x += columns[5].width;
+
+      // Status
+      if (statusStr === 'In Progress' || statusStr === 'Live') {
+        doc.setTextColor(220, 38, 38);
+      } else if (statusStr === 'Completed') {
+        doc.setTextColor(22, 163, 74);
+      } else {
+        doc.setTextColor(202, 138, 4);
+      }
+      doc.setFont('helvetica', 'bold');
+      doc.text(statusStr, x, currentY + 6);
+      doc.setFont('helvetica', 'normal');
+
+      currentY += 9;
+    });
+
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 22, pageHeight - 8);
+      doc.text('Trivab Cricket Management System', margin, pageHeight - 8);
+    }
+
+    doc.save(`Trivab_Matches_Schedule_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   const getStatusBadgeClass = (status) => {
@@ -500,6 +622,7 @@ export default function AdminMatches() {
         >
           <option value="All">Filter: All</option>
           <option value="Date">Filter: Date</option>
+          <option value="Month">Filter: Month</option>
           <option value="Team">Filter: Team</option>
           <option value="Tournament">Filter: Tournament</option>
           <option value="Ground">Filter: Ground</option>
@@ -525,7 +648,7 @@ export default function AdminMatches() {
             style={{ minWidth: '170px', width: 'auto' }}
           >
             <option value="">All {detailFilter}s</option>
-            {filterOptions[detailFilter].map(option => (
+            {filterOptions[detailFilter]?.map(option => (
               <option key={option} value={option}>{option}</option>
             ))}
           </select>
@@ -555,12 +678,12 @@ export default function AdminMatches() {
         </div>
 
         <button
-          onClick={exportMatchesToCSV}
+          onClick={exportMatchesToPDF}
           className="btn btn-outline"
           style={{ display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid var(--admin-border)', color: 'var(--admin-text)', padding: '8px 14px', fontSize: '0.85rem' }}
-          title="Export CSV"
+          title="Download PDF"
         >
-          <Download size={16} /> Export CSV
+          <Download size={16} /> Download PDF
         </button>
       </div>
 
