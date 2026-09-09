@@ -48,8 +48,8 @@
 }
 
 .logo-image {
-  height: 65px;
-  max-height: 65px;
+  height: 72px;
+  max-height: 72px;
   width: auto;
   object-fit: contain;
 }
@@ -96,15 +96,22 @@
 }
 
 .nav-link-contact {
-  background: #FCE8E8;
-  color: #800000 !important;
-  font-weight: 700;
   border-radius: 999px;
   padding: 8px 20px;
   margin-left: 4px;
+  font-weight: 600;
+  transition: color var(--transition-base), background var(--transition-base);
 }
 
-[data-theme="dark"] .nav-link-contact {
+.nav-link-contact:hover,
+.nav-link-contact.active {
+  background: #FCE8E8;
+  color: #800000 !important;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .nav-link-contact:hover,
+[data-theme="dark"] .nav-link-contact.active {
   background: #3A0808;
   color: #FF6B6B !important;
 }
