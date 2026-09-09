@@ -54,12 +54,12 @@ export default function AdminLayout({ children }) {
       {/* Sidebar */}
       <aside className={`admin-sidebar-new ${sidebarOpen ? 'sidebar-open' : ''}`}>
         {/* Sidebar Header */}
-        <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 20px 16px', width: '100%' }}>
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', width: '100%', paddingRight: '20px' }}>
+        <div className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 16px 12px', width: '100%' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', width: '100%' }}>
             <img 
               src="/logos/trivabsports.jpg"
               style={{ 
-                height: '75px', 
+                height: '105px', 
                 width: 'auto', 
                 maxWidth: '100%',
                 objectFit: 'contain',
