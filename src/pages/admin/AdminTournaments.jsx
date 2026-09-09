@@ -7,7 +7,7 @@ import uploadImageToCloudinary from '../../services/cloudinary';
 import './Admin.css';
 
 const getCleanLogoUrl = (url) => {
-  if (!url) return '';
+  if (!url || typeof url !== 'string') return '';
   const u = url.toLowerCase();
   if (u.startsWith('/logos/') && (u.endsWith('.jpg') || u.endsWith('.jpeg'))) {
     if (u.includes('trivabmonsoon') || u.includes('bapllogo') || u.includes('trivabsports')) {
@@ -546,8 +546,10 @@ export default function AdminTournaments() {
   };
 
   const filteredTournaments = tournaments.filter(t =>
-    t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.status?.toLowerCase().includes(searchTerm.toLowerCase())
+    t && (
+      (t.name || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+      (t.status || '').toLowerCase().includes((searchTerm || '').toLowerCase())
+    )
   );
 
   const REMOVED_TOURNAMENT_IDS = new Set(['baplcorporate-south', 'baplcorporate-pune']);
@@ -575,12 +577,12 @@ export default function AdminTournaments() {
       };
     }),
     ...tournaments
-      .filter(t => !PREDEFINED_TOURNAMENTS.some(p => p.id === t.id) && !REMOVED_TOURNAMENT_IDS.has(t.id))
+      .filter(t => t && t.id && !t.isDeleted && !t.deleted && !PREDEFINED_TOURNAMENTS.some(p => p.id === t.id) && !REMOVED_TOURNAMENT_IDS.has(t.id))
       .map(t => ({
         id: t.id,
-        name: t.name,
-        logo: t.logo,
-        status: t.isActivated !== false ? t.status : 'Inactive',
+        name: t.name || 'Unnamed Tournament',
+        logo: t.logo || '/logos/bapllogo.jpg',
+        status: t.status ? (t.isActivated !== false ? t.status : 'Inactive') : 'Inactive',
         date: t.date || 'TBD',
         teamCount: t.teamCount || 12,
         description: t.description || '',
@@ -591,10 +593,12 @@ export default function AdminTournaments() {
   ];
 
   const filteredItems = allItems.filter(item => 
+    item &&
+    item.id &&
     !deletedIds.has(item.id) && 
     !REMOVED_TOURNAMENT_IDS.has(item.id) && (
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.status.toLowerCase().includes(searchTerm.toLowerCase())
+      (item.name || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+      (item.status || '').toLowerCase().includes((searchTerm || '').toLowerCase())
     )
   );
 
