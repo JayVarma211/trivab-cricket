@@ -25,7 +25,7 @@
     --space-4xl: 64px;
 
     /* Navbar */
-    --navbar-height: 64px;
+    --navbar-height: 56px;
 
     /* Border radius — softer on mobile */
     --radius-card: 16px;
@@ -38,7 +38,7 @@
   :root {
     --space-3xl: 40px;
     --space-4xl: 56px;
-    --navbar-height: 60px;
+    --navbar-height: 52px;
   }
 }
 
@@ -46,7 +46,7 @@
   :root {
     --space-3xl: 32px;
     --space-4xl: 48px;
-    --navbar-height: 56px;
+    --navbar-height: 48px;
   }
 }
 
