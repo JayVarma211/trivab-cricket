@@ -301,7 +301,7 @@ export default function TournamentTypeDetails() {
       <div className="edition-grid">
         {parentData.editions.map((edition) => {
           const stats = editionStats[edition.id] || { teamCount: 0, matchCount: 0, status: 'Inactive', isActivated: false };
-          const isComingSoon = stats.isActivated !== true;
+          const isComingSoon = edition.comingSoon === true;
           
           return (
             <div key={edition.id} className={`card edition-hub-card border-top-gold page-enter ${isCorporateCategory ? 'corporate-edition-card' : ''}`}>
@@ -319,8 +319,8 @@ export default function TournamentTypeDetails() {
                     </div>
                   )}
                   <div>
-                    <span className={`badge ${stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : stats.status === 'Inactive' ? 'badge-grey' : 'badge-gold'} mb-xs`}>
-                      {isComingSoon ? 'Coming Soon' : stats.status}
+                    <span className={`badge ${isComingSoon ? 'badge-grey' : stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : isCorporateCategory ? 'badge-gold' : stats.status === 'Inactive' ? 'badge-grey' : 'badge-gold'} mb-xs`}>
+                      {isComingSoon ? 'Coming Soon' : isCorporateCategory ? 'Open' : stats.status}
                     </span>
                     <h3 className="text-md font-bold text-gradient-gold">{isCorporateCategory ? 'BAPL Corporate Cup' : edition.name}</h3>
                   </div>
@@ -362,14 +362,14 @@ export default function TournamentTypeDetails() {
 
                 {/* Action CTA Button */}
                 <Link
-                  to={isComingSoon ? '#' : `/tournaments/${edition.id}`}
+                  to={isCorporateCategory ? '/contact?subject=Corporate%20Sports%20Tournament' : isComingSoon ? '#' : `/tournaments/${edition.id}`}
                   aria-disabled={isComingSoon}
                   onClick={(event) => {
                     if (isComingSoon) event.preventDefault();
                   }}
                   className={`btn btn-gold w-full text-center flex items-center justify-center gap-sm btn-arena ${isComingSoon ? 'edition-view-disabled' : ''}`}
                 >
-                  View Tournament <ArrowRight size={16} className="arrow-icon" />
+                  {isCorporateCategory ? 'Register Your Interest' : 'View Tournament'} <ArrowRight size={16} className="arrow-icon" />
                 </Link>
               </div>
             </div>
