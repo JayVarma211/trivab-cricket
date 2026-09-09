@@ -445,18 +445,22 @@ export default function AdminTournaments() {
           : false
       });
 
-      // Sync to tournamentCategories so it appears dynamically in Navbar & TournamentList
-      await setDocument('tournamentCategories', targetId, {
-        id: targetId,
-        label: tournamentData.name,
-        name: tournamentData.name,
-        logo: tournamentData.logo,
-        description: tournamentData.description,
-        to: `/tournaments/${targetId}`,
-        badge: 'Tournament',
-        isDeleted: false,
-        updatedAt: new Date().toISOString()
-      });
+      // Soft-sync to tournamentCategories if permitted
+      try {
+        await setDocument('tournamentCategories', targetId, {
+          id: targetId,
+          label: tournamentData.name,
+          name: tournamentData.name,
+          logo: tournamentData.logo,
+          description: tournamentData.description,
+          to: `/tournaments/${targetId}`,
+          badge: 'Tournament',
+          isDeleted: false,
+          updatedAt: new Date().toISOString()
+        });
+      } catch (catErr) {
+        console.warn('Soft-caught category sync permission notice:', catErr);
+      }
 
       fetchData();
       setShowForm(false);
