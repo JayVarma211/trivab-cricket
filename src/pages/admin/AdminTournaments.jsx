@@ -260,20 +260,28 @@ export default function AdminTournaments() {
   }, [role, navigate]);
 
   const fetchData = async () => {
+    setError('');
     try {
-      const tournData = await getCollection('tournaments', []);
-      const teamsData = await getCollection('teams', []);
-      const matchesData = await getCollection('matches', []);
-      const catData = await getCollection('tournamentCategories', []);
-
-      const deletedSet = new Set(
-        catData.filter(c => c.isDeleted === true || c.deleted === true).map(c => c.id)
-      );
-      setDeletedIds(deletedSet);
-
+      const [tournData, teamsData, matchesData] = await Promise.all([
+        getCollection('tournaments', []),
+        getCollection('teams', []),
+        getCollection('matches', [])
+      ]);
       setTournaments(tournData || []);
       setTeams(teamsData || []);
       setMatches(matchesData || []);
+
+      try {
+        const catData = await getCollection('tournamentCategories', []);
+        if (catData && Array.isArray(catData)) {
+          const deletedSet = new Set(
+            catData.filter(c => c.isDeleted === true || c.deleted === true).map(c => c.id)
+          );
+          setDeletedIds(deletedSet);
+        }
+      } catch (catErr) {
+        console.warn('Soft-caught category fetch notice:', catErr);
+      }
     } catch (err) {
       console.error('Error fetching tournaments:', err);
       setError('Failed to load tournaments');
@@ -464,12 +472,18 @@ export default function AdminTournaments() {
     
     try {
       await deleteDocument('tournaments', id);
-      await setDocument('tournamentCategories', id, {
-        id,
-        isDeleted: true,
-        deleted: true,
-        updatedAt: new Date().toISOString()
-      });
+      try {
+        await setDocument('tournamentCategories', id, {
+          id,
+          isDeleted: true,
+          deleted: true,
+          updatedAt: new Date().toISOString()
+        });
+      } catch (catErr) {
+        console.warn('Soft-caught category delete error:', catErr);
+      }
+
+      setDeletedIds(prev => new Set([...prev, id]));
       fetchData();
       alert(`Tournament "${name || id}" deleted successfully.`);
     } catch (err) {
@@ -860,11 +874,11 @@ export default function AdminTournaments() {
               </div>
 
               {/* Actions */}
-              <div className="admin-tournament-actions" style={{ display: 'flex', gap: '8px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+              <div className="admin-tournament-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }} onClick={e => e.stopPropagation()}>
                 {isActive ? (
                   <>
                     <button
-                      onClick={() => handleTournamentClick(dbTourn)}
+                      onClick={(e) => { e.stopPropagation(); handleTournamentClick(dbTourn); }}
                       className="btn-table-action"
                       title="View Details"
                       style={{ color: '#3b82f6' }}
@@ -872,7 +886,7 @@ export default function AdminTournaments() {
                       <Eye size={15} />
                     </button>
                     <button
-                      onClick={() => handleEdit(dbTourn)}
+                      onClick={(e) => { e.stopPropagation(); handleEdit(dbTourn); }}
                       className="btn-table-action"
                       title="Edit Settings"
                       style={{ color: 'var(--admin-gold)' }}
@@ -880,17 +894,17 @@ export default function AdminTournaments() {
                       <Edit2 size={15} />
                     </button>
                     <button
-                      onClick={() => handleDeactivate(item.id, item.name)}
+                      onClick={(e) => { e.stopPropagation(); handleDeactivate(item.id, item.name); }}
                       className="btn btn-outline text-red btn-xs"
-                      style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
+                      style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '20px', fontWeight: 600 }}
                     >
                       Deactivate
                     </button>
                     {dbTourn && (
                       <button
-                        onClick={() => handleToggleJoining(item.id, item.name, dbTourn.joinEnabled === true)}
+                        onClick={(e) => { e.stopPropagation(); handleToggleJoining(item.id, item.name, dbTourn.joinEnabled === true); }}
                         className={`btn btn-xs ${dbTourn.joinEnabled === true ? 'btn-outline text-red' : 'btn-gold'}`}
-                        style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto' }}
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', borderRadius: '20px', fontWeight: 600 }}
                       >
                         {dbTourn.joinEnabled === true ? 'Disable Joining' : 'Enable Joining'}
                       </button>
@@ -900,8 +914,20 @@ export default function AdminTournaments() {
                         e.stopPropagation();
                         handleDelete(item.id, item.name);
                       }}
-                      className="btn btn-outline text-red btn-xs"
-                      style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      style={{
+                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '20px',
+                        padding: '6px 14px',
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        boxShadow: '0 2px 8px rgba(220, 38, 38, 0.4)'
+                      }}
                       title="Permanently Delete Tournament"
                     >
                       <Trash2 size={13} /> Delete
@@ -910,9 +936,9 @@ export default function AdminTournaments() {
                 ) : (
                   <>
                     <button
-                      onClick={() => handleActivate(item)}
+                      onClick={(e) => { e.stopPropagation(); handleActivate(item); }}
                       className="btn btn-gold btn-xs"
-                      style={{ padding: '4px 12px', fontSize: '0.75rem', height: 'auto' }}
+                      style={{ padding: '6px 16px', fontSize: '0.75rem', borderRadius: '20px', fontWeight: 700 }}
                     >
                       Activate
                     </button>
@@ -921,8 +947,20 @@ export default function AdminTournaments() {
                         e.stopPropagation();
                         handleDelete(item.id, item.name);
                       }}
-                      className="btn btn-outline text-red btn-xs"
-                      style={{ padding: '4px 8px', fontSize: '0.75rem', height: 'auto', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      style={{
+                        background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '20px',
+                        padding: '6px 14px',
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        boxShadow: '0 2px 8px rgba(220, 38, 38, 0.4)'
+                      }}
                       title="Permanently Delete Tournament"
                     >
                       <Trash2 size={13} /> Delete
