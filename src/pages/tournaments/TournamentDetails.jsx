@@ -721,14 +721,6 @@ export default function TournamentDetails() {
             <h1 className="display-md text-gradient-gold tournament-page-title" style={{ wordBreak: 'break-word' }}>{tournament.name}</h1>
             <p className="text-secondary max-width-600 mt-xs" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>{tournament.description}</p>
 
-            <div className="mt-md tournament-enquiry-detail-action">
-              <Link
-                to={`/contact?subject=General%20Inquiry&tournament=${encodeURIComponent(tournament.name)}`}
-                className="btn btn-gold btn-sm join-btn-mobile"
-              >
-                Enquire About This Tournament
-              </Link>
-            </div>
             
             {tournament && tournament.isActivated === false ? (
               <div className="mt-md">
