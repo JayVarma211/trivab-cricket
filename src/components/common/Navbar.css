@@ -49,8 +49,8 @@
 }
 
 .logo-image {
-  height: 85px;
-  max-height: 85px;
+  height: 80px;
+  max-height: 80px;
   width: auto;
   object-fit: contain;
 }
@@ -381,16 +381,16 @@
     font-weight: 600;
   }
   .logo-image {
-    height: 50px;
-    max-height: 50px;
+    height: 62px;
+    max-height: 62px;
   }
 }
 
 @media (max-width: 480px) {
   .logo-text    { font-size: 1.2rem; }
   .logo-image {
-    height: 44px;
-    max-height: 44px;
+    height: 55px;
+    max-height: 55px;
   }
 }
 
