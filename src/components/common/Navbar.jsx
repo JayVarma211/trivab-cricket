@@ -189,33 +189,34 @@ export default function Navbar() {
   };
 
   return (
-    <header className={`navbar ${scrolled ? 'scrolled' : ''} ${visible ? 'nav-visible' : 'nav-hidden'}`}>
-      <div className="navbar-container container">
+    <header className={`navbar ${scrolled || menuOpen ? 'navbar-scrolled navbar-menu-open' : ''} ${!visible && !menuOpen ? 'navbar-hidden' : ''}`}>
+      <div className="navbar-inner container">
         {/* Logo */}
         <Link to="/" className="navbar-logo">
-          <img src="/logos/trivabsportsheader.jpg" alt="TRIVAB Sports" className="logo-img" />
+          <img src="/logos/trivabsports.jpg" className="logo-image" alt="TRIVAB SPORTS" />
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="nav-links desktop-only">
-          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+        <nav className="navbar-links">
+          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} end>
             Home
           </NavLink>
-          {/* About Dropdown */}
+          {/* About Us Dropdown */}
           <div className="nav-dropdown-wrapper" ref={aboutDropRef}>
             <button
-              className="nav-link dropdown-trigger"
+              className={`nav-link dropdown-trigger ${location.pathname === '/about' ? 'active' : ''}`}
               onClick={() => setAboutDropOpen(prev => !prev)}
             >
               About Us <ChevronDown size={14} className={`drop-caret ${aboutDropOpen ? 'open' : ''}`} />
             </button>
             {aboutDropOpen && (
-              <div className="tournaments-nav-dropdown animate-fade-in-down" style={{ minWidth: '220px' }}>
+              <div className="services-nav-dropdown animate-fade-in-down">
                 {ABOUT_MENU.map((item) => (
                   <Link
                     key={item.label}
                     to={item.to}
-                    className="tournaments-nav-item"
+                    className="services-nav-item"
+                    style={{ fontSize: '0.85rem' }}
                     onClick={() => setAboutDropOpen(false)}
                   >
                     <span>{item.label}</span>
@@ -233,25 +234,25 @@ export default function Navbar() {
               Our Services <ChevronDown size={14} className={`drop-caret ${servicesDropOpen ? 'open' : ''}`} />
             </button>
             {servicesDropOpen && (
-              <div className="tournaments-nav-dropdown animate-fade-in-down" style={{ minWidth: '240px' }}>
+              <div className="services-nav-dropdown animate-fade-in-down">
                 {SERVICES_MENU.map((item) => (
                   <Link
                     key={item.label}
                     to={item.to}
-                    className="tournaments-nav-item"
+                    className="services-nav-item"
                     onClick={() => setServicesDropOpen(false)}
                   >
-                    {item.icon}
+                    <span className="service-icon">{item.icon}</span>
                     <span>{item.label}</span>
                   </Link>
                 ))}
               </div>
             )}
           </div>
-          {/* Tournaments Dropdown */}
+          {/* Tournaments Dropdown (BAPL) */}
           <div className="nav-dropdown-wrapper" ref={tournamentsDropRef}>
             <button
-              className="nav-link dropdown-trigger"
+              className={`nav-link dropdown-trigger ${location.pathname.startsWith('/tournaments') ? 'active' : ''}`}
               onClick={() => setTournamentsDropOpen(prev => !prev)}
             >
               BAPL <ChevronDown size={14} className={`drop-caret ${tournamentsDropOpen ? 'open' : ''}`} />
