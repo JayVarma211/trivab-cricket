@@ -666,7 +666,9 @@ export default function AdminMatchDay() {
             <UserPlus size={16} /> Add
           </button>
         </div>
-      </di      {/* 4. Team Squads — Side by Side */}
+      </div>
+
+      {/* 4. Team Squads — Side by Side */}
       <div className="matchday-squads-grid" style={{ marginBottom: '24px' }}>
         {/* Team A */}
         <div style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column' }}>
@@ -889,7 +891,6 @@ export default function AdminMatchDay() {
             </div>
           </div>
         </div>
-      </div>    </div>
       </div>
 
       {/* 5. Score Sheet Section */}
