@@ -10,6 +10,7 @@
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background var(--transition-slow), box-shadow var(--transition-slow), border-color var(--transition-slow);
   border-bottom: 1px solid transparent;
   transform: translateY(0);
+  overflow: visible;
 }
 
 .navbar-hidden {
@@ -48,8 +49,8 @@
 }
 
 .logo-image {
-  height: 72px;
-  max-height: 72px;
+  height: 85px;
+  max-height: 85px;
   width: auto;
   object-fit: contain;
 }
