@@ -304,7 +304,7 @@ export default function TournamentTypeDetails() {
           const isComingSoon = edition.comingSoon === true;
           
           return (
-            <div key={edition.id} className={`card edition-hub-card border-top-gold page-enter ${isCorporateCategory ? 'corporate-edition-card' : ''}`}>
+            <div key={edition.id} className="card edition-hub-card border-top-gold page-enter">
               {isComingSoon && (
                 <div className="edition-card-overlay">
                   <div className="coming-soon-badge">Coming Soon</div>
@@ -319,10 +319,10 @@ export default function TournamentTypeDetails() {
                     </div>
                   )}
                   <div>
-                    <span className={`badge ${isComingSoon ? 'badge-grey' : stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : isCorporateCategory ? 'badge-gold' : stats.status === 'Inactive' ? 'badge-grey' : 'badge-gold'} mb-xs`}>
-                      {isComingSoon ? 'Coming Soon' : isCorporateCategory ? 'Open' : stats.status}
+                    <span className={`badge ${isComingSoon ? 'badge-grey' : stats.status === 'Live' ? 'badge-red animate-pulse' : stats.status === 'Completed' ? 'badge-green' : stats.status === 'Inactive' ? 'badge-grey' : 'badge-gold'} mb-xs`}>
+                      {isComingSoon ? 'Coming Soon' : stats.status}
                     </span>
-                    <h3 className="text-md font-bold text-gradient-gold">{isCorporateCategory ? 'BAPL Corporate Cup' : edition.name}</h3>
+                    <h3 className="text-md font-bold text-gradient-gold">{edition.name}</h3>
                   </div>
                 </div>
               </div>
@@ -331,27 +331,25 @@ export default function TournamentTypeDetails() {
               <div className="edition-card-body p-lg">
                 <p className="text-sm text-secondary mb-md">{edition.description}</p>
                 
-                {!isCorporateCategory && (
-                  <div className="edition-stats-box grid grid-3 gap-md mb-md">
-                    <div className="stat-unit text-center">
-                      <Users size={16} className="text-gold mx-auto mb-xs" />
-                      <span className="value font-bold block">{stats.teamCount}</span>
-                      <span className="label block uppercase">Teams</span>
-                    </div>
-                    <div className="stat-unit text-center">
-                      <Calendar size={16} className="text-gold mx-auto mb-xs" />
-                      <span className="value font-bold block">{stats.matchCount}</span>
-                      <span className="label block uppercase">Fixtures</span>
-                    </div>
-                    <div className="stat-unit text-center">
-                      <MapPin size={16} className="text-gold mx-auto mb-xs" />
-                      <span className="value font-bold block truncate" style={{ fontSize: '0.8rem', lineHeight: '1.2' }} title={edition.location}>
-                        {edition.location.split(' ')[0]}
-                      </span>
-                      <span className="label block uppercase">Venue</span>
-                    </div>
+                <div className="edition-stats-box grid grid-3 gap-md mb-md">
+                  <div className="stat-unit text-center">
+                    <Users size={16} className="text-gold mx-auto mb-xs" />
+                    <span className="value font-bold block">{stats.teamCount}</span>
+                    <span className="label block uppercase">Teams</span>
                   </div>
-                )}
+                  <div className="stat-unit text-center">
+                    <Calendar size={16} className="text-gold mx-auto mb-xs" />
+                    <span className="value font-bold block">{stats.matchCount}</span>
+                    <span className="label block uppercase">Fixtures</span>
+                  </div>
+                  <div className="stat-unit text-center">
+                    <MapPin size={16} className="text-gold mx-auto mb-xs" />
+                    <span className="value font-bold block truncate" style={{ fontSize: '0.8rem', lineHeight: '1.2' }} title={edition.location}>
+                      {edition.location.split(' ')[0]}
+                    </span>
+                    <span className="label block uppercase">Venue</span>
+                  </div>
+                </div>
 
                 {/* Features checklist */}
                 <ul className="edition-features-list mb-lg text-sm text-secondary">
@@ -362,14 +360,14 @@ export default function TournamentTypeDetails() {
 
                 {/* Action CTA Button */}
                 <Link
-                  to={isCorporateCategory ? '/contact?subject=Corporate%20Sports%20Tournament' : isComingSoon ? '#' : `/tournaments/${edition.id}`}
+                  to={isComingSoon ? '#' : `/tournaments/${edition.id}`}
                   aria-disabled={isComingSoon}
                   onClick={(event) => {
                     if (isComingSoon) event.preventDefault();
                   }}
                   className={`btn btn-gold w-full text-center flex items-center justify-center gap-sm btn-arena ${isComingSoon ? 'edition-view-disabled' : ''}`}
                 >
-                  {isCorporateCategory ? 'Register Your Interest' : 'View Tournament'} <ArrowRight size={16} className="arrow-icon" />
+                  View Tournament <ArrowRight size={16} className="arrow-icon" />
                 </Link>
               </div>
             </div>
