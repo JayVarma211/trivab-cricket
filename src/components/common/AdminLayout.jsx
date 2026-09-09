@@ -59,7 +59,7 @@ export default function AdminLayout({ children }) {
             <img 
               src="/logos/trivabsports.jpg"
               style={{ 
-                height: '105px', 
+                height: '160px', 
                 width: 'auto', 
                 maxWidth: '100%',
                 objectFit: 'contain',
