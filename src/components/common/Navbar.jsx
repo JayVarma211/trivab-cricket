@@ -277,7 +277,7 @@ export default function Navbar() {
           <NavLink to="/news" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             News &amp; Events
           </NavLink>
-          <NavLink to="/contact" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+          <NavLink to="/contact" className={({ isActive }) => `nav-link nav-link-contact ${isActive ? 'active' : ''}`}>
             Contact Us
           </NavLink>
         </nav>

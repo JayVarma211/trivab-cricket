@@ -48,7 +48,9 @@
 }
 
 .logo-image {
-  height: 200px;
+  height: 48px;
+  max-height: 48px;
+  width: auto;
   object-fit: contain;
 }
 
@@ -56,7 +58,8 @@
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  flex-wrap: nowrap;
 }
 
 .nav-link {
@@ -90,6 +93,20 @@
 .nav-link.active {
   color: #FF6B6B;
   background: #3A0808;
+}
+
+.nav-link-contact {
+  background: #FCE8E8;
+  color: #800000 !important;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 8px 20px;
+  margin-left: 4px;
+}
+
+[data-theme="dark"] .nav-link-contact {
+  background: #3A0808;
+  color: #FF6B6B !important;
 }
 
 /* ---- Right actions ---- */
@@ -356,14 +373,16 @@
     font-weight: 600;
   }
   .logo-image {
-    height: 145px;
+    height: 40px;
+    max-height: 40px;
   }
 }
 
 @media (max-width: 480px) {
   .logo-text    { font-size: 1.2rem; }
   .logo-image {
-    height: 120px;
+    height: 34px;
+    max-height: 34px;
   }
 }
 
