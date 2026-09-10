@@ -105,6 +105,21 @@ export default function AdminMatchDay() {
       const rawCaptains = (await getCollection('captains')) || [];
       const rawRegistrations = (await getCollection('registrations')) || [];
 
+      // Map registrations by player key
+      const regsByPlayerKey = {};
+      rawRegistrations.forEach(r => {
+        const key1 = (r.playerId || '').toLowerCase();
+        const key2 = (r.id || '').toLowerCase();
+        if (key1) {
+          if (!regsByPlayerKey[key1]) regsByPlayerKey[key1] = [];
+          regsByPlayerKey[key1].push(r);
+        }
+        if (key2 && key2 !== key1) {
+          if (!regsByPlayerKey[key2]) regsByPlayerKey[key2] = [];
+          regsByPlayerKey[key2].push(r);
+        }
+      });
+
       const combined = [];
       const seenIds = new Set();
 
@@ -115,17 +130,34 @@ export default function AdminMatchDay() {
 
         const playerId = item.playerId || item.id || `PL-${fullName.replace(/\s+/g, '').toUpperCase()}`;
         const key = playerId.toLowerCase();
-        if (seenIds.has(key)) return;
+
+        const playerRegs = regsByPlayerKey[key] || regsByPlayerKey[item.id?.toLowerCase()] || [];
+
+        if (seenIds.has(key)) {
+          // Merge joinedTournaments/registrations onto existing player record
+          const existing = combined.find(x => (x.playerId && x.playerId.toLowerCase() === key) || (x.id && x.id.toLowerCase() === key));
+          if (existing) {
+            if (item.joinedTournaments) {
+              existing.joinedTournaments = [...(existing.joinedTournaments || []), ...item.joinedTournaments];
+            }
+            if (playerRegs.length > 0) {
+              existing.registrations = [...(existing.registrations || []), ...playerRegs];
+            }
+          }
+          return;
+        }
         seenIds.add(key);
 
-        const resolvedTeamName = item.teamName || item.team || (item.teamId ? teamIdMap[item.teamId] : '') || '';
+        const resolvedTeamName = item.teamName || item.team || (item.teamId ? teamIdMap[item.teamId] : '') || (playerRegs[0]?.teamName || '');
 
         combined.push({
           id: item.id || playerId,
           playerId: playerId,
           fullName: fullName,
           teamName: resolvedTeamName,
-          teamId: item.teamId || '',
+          teamId: item.teamId || (playerRegs[0]?.teamId || ''),
+          joinedTournaments: item.joinedTournaments || [],
+          registrations: playerRegs,
           playingStyle: item.playingStyle || item.role || defaultRole,
           jerseyNumber: item.jerseyNumber || item.jersey || '—',
           mobile: item.mobile || item.playerPhone || item.phone || 'N/A',
@@ -142,19 +174,43 @@ export default function AdminMatchDay() {
       const cleanStr = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
       const targetA = cleanStr(matchDoc.teamA);
       const targetB = cleanStr(matchDoc.teamB);
+      const targetAId = cleanStr(matchDoc.teamAId);
+      const targetBId = cleanStr(matchDoc.teamBId);
 
-      const isMatch = (p, target) => {
-        if (!target) return false;
+      const isMatch = (p, targetName, targetId) => {
+        if (!targetName && !targetId) return false;
+
+        // 1. Direct primary team check
         const pTeam = cleanStr(p.teamName);
         const pId = cleanStr(p.teamId);
-        return (
-          (pTeam && (pTeam === target || pTeam.includes(target) || target.includes(pTeam))) ||
-          (pId && (pId === target || pId.includes(target) || target.includes(pId)))
-        );
+        if (targetName && pTeam && (pTeam === targetName || pTeam.includes(targetName) || targetName.includes(pTeam))) return true;
+        if (targetId && pId && pId === targetId) return true;
+
+        // 2. joinedTournaments check
+        if (Array.isArray(p.joinedTournaments)) {
+          for (const jt of p.joinedTournaments) {
+            const jtName = typeof jt === 'string' ? cleanStr(jt) : cleanStr(jt.teamName || jt.name);
+            const jtTeamId = typeof jt === 'object' ? cleanStr(jt.teamId) : '';
+            if (targetName && jtName && (jtName === targetName || jtName.includes(targetName) || targetName.includes(jtName))) return true;
+            if (targetId && jtTeamId && jtTeamId === targetId) return true;
+          }
+        }
+
+        // 3. registrations check
+        if (Array.isArray(p.registrations)) {
+          for (const reg of p.registrations) {
+            const regTeam = cleanStr(reg.teamName);
+            const regId = cleanStr(reg.teamId);
+            if (targetName && regTeam && (regTeam === targetName || regTeam.includes(targetName) || targetName.includes(regTeam))) return true;
+            if (targetId && regId && regId === targetId) return true;
+          }
+        }
+
+        return false;
       };
 
-      const playersA = combined.filter(p => isMatch(p, targetA));
-      const playersB = combined.filter(p => isMatch(p, targetB));
+      const playersA = combined.filter(p => isMatch(p, targetA, targetAId));
+      const playersB = combined.filter(p => isMatch(p, targetB, targetBId));
 
       setRosterA(playersA);
       setRosterB(playersB);
@@ -440,16 +496,84 @@ export default function AdminMatchDay() {
 
     try {
       const updateData = {
-        status: 'Live',
+        status: 'In Progress',
         playing13A,
         playing13B,
         tossWinner,
         tossDecision,
+        statsUpdated: true,
       };
 
       await updateDocument('matches', matchId, updateData);
       setMatch(prev => ({ ...prev, ...updateData }));
-      setSuccess('Match has started! Status is now LIVE.');
+
+      // Automatically add 1 match count to all scanned playing members
+      const allPlayingPlayers = [...playing13A, ...playing13B];
+      let updatedCount = 0;
+
+      for (const player of allPlayingPlayers) {
+        try {
+          const profile = await getDocument('players', player.id);
+          const targetPlayerId = profile ? player.id : (allPlayersList.find(p => p.id === player.id || p.playerId === player.playerId)?.id || player.id);
+          const playerDoc = profile || (await getDocument('players', targetPlayerId));
+
+          if (!playerDoc) continue;
+
+          const overallMatches = (playerDoc.matchesPlayed || 0) + 1;
+          const currentJoined = playerDoc.joinedTournaments || [];
+          let updatedJoined = [];
+
+          if (match.tournamentId) {
+            let found = false;
+            updatedJoined = currentJoined.map(t => {
+              const jtId = typeof t === 'string' ? t : t.id;
+              if (jtId === match.tournamentId) {
+                found = true;
+                const mPlayed = (t.matchesPlayed || 0) + 1;
+                return { ...t, matchesPlayed: mPlayed };
+              }
+              return t;
+            });
+
+            if (!found) {
+              updatedJoined.push({
+                id: match.tournamentId,
+                name: tournament ? tournament.name : 'Tournament Edition',
+                teamId: playerDoc.teamId || '',
+                teamName: playerDoc.teamName || '',
+                role: playerDoc.role || 'player',
+                matchesPlayed: 1,
+                joinedAt: new Date().toISOString()
+              });
+            }
+
+            // Also update registrations doc
+            const regId = `${targetPlayerId}_${match.tournamentId}`;
+            try {
+              const regDoc = await getDocument('registrations', regId);
+              if (regDoc) {
+                await updateDocument('registrations', regId, {
+                  matchesPlayed: (regDoc.matchesPlayed || 0) + 1
+                });
+              }
+            } catch (e) {
+              console.warn("Reg doc update warning:", e);
+            }
+          } else {
+            updatedJoined = currentJoined;
+          }
+
+          await updateDocument('players', targetPlayerId, {
+            matchesPlayed: overallMatches,
+            joinedTournaments: updatedJoined
+          });
+          updatedCount++;
+        } catch (e) {
+          console.error(`Failed to update match count for player ${player.fullName}:`, e);
+        }
+      }
+
+      setSuccess(`Match Day begun! Status is now IN PROGRESS. Added 1 match count to all ${updatedCount} playing squad members.`);
     } catch (err) {
       console.error(err);
       setError('Failed to start the match.');
@@ -469,7 +593,7 @@ export default function AdminMatchDay() {
       return;
     }
 
-    if (!window.confirm('Completing the match will update statistics (matches played) for all playing roster members. Proceed?')) {
+    if (!window.confirm('Completing the match will save final scores and result. Proceed?')) {
       return;
     }
 
@@ -492,58 +616,59 @@ export default function AdminMatchDay() {
       await updateDocument('matches', matchId, updateData);
       setMatch(prev => ({ ...prev, ...updateData }));
 
-      // 2. Increment stats for playing squad players (playing13A & playing13B)
-      const allPlayingPlayers = [...playing13A, ...playing13B];
-      let updatedCount = 0;
+      // 2. Increment stats for playing squad players if not already incremented
+      if (!match.statsUpdated) {
+        const allPlayingPlayers = [...playing13A, ...playing13B];
+        let updatedCount = 0;
 
-      for (const player of allPlayingPlayers) {
-        try {
-          const profile = await getDocument('players', player.id);
-          if (!profile) continue;
+        for (const player of allPlayingPlayers) {
+          try {
+            const profile = await getDocument('players', player.id);
+            if (!profile) continue;
 
-          const overallMatches = (profile.matchesPlayed || 0) + 1;
-          const currentJoined = profile.joinedTournaments || [];
-          let updatedJoined = [];
+            const overallMatches = (profile.matchesPlayed || 0) + 1;
+            const currentJoined = profile.joinedTournaments || [];
+            let updatedJoined = [];
 
-          if (match.tournamentId) {
-            let found = false;
-            updatedJoined = currentJoined.map(t => {
-              const jtId = typeof t === 'string' ? t : t.id;
-              if (jtId === match.tournamentId) {
-                found = true;
-                const mPlayed = (t.matchesPlayed || 0) + 1;
-                return { ...t, matchesPlayed: mPlayed };
-              }
-              return t;
-            });
-
-            if (!found) {
-              updatedJoined.push({
-                id: match.tournamentId,
-                name: tournament ? tournament.name : 'Tournament Edition',
-                teamId: profile.teamId || '',
-                teamName: profile.teamName || '',
-                role: profile.role || 'player',
-                matchesPlayed: 1,
-                joinedAt: new Date().toISOString()
+            if (match.tournamentId) {
+              let found = false;
+              updatedJoined = currentJoined.map(t => {
+                const jtId = typeof t === 'string' ? t : t.id;
+                if (jtId === match.tournamentId) {
+                  found = true;
+                  const mPlayed = (t.matchesPlayed || 0) + 1;
+                  return { ...t, matchesPlayed: mPlayed };
+                }
+                return t;
               });
-            }
-          } else {
-            updatedJoined = currentJoined;
-          }
 
-          // Write stats update back to player profile
-          await updateDocument('players', player.id, {
-            matchesPlayed: overallMatches,
-            joinedTournaments: updatedJoined
-          });
-          updatedCount++;
-        } catch (e) {
-          console.error(`Failed to update stats for player ${player.fullName}:`, e);
+              if (!found) {
+                updatedJoined.push({
+                  id: match.tournamentId,
+                  name: tournament ? tournament.name : 'Tournament Edition',
+                  teamId: profile.teamId || '',
+                  teamName: profile.teamName || '',
+                  role: profile.role || 'player',
+                  matchesPlayed: 1,
+                  joinedAt: new Date().toISOString()
+                });
+              }
+            } else {
+              updatedJoined = currentJoined;
+            }
+
+            await updateDocument('players', player.id, {
+              matchesPlayed: overallMatches,
+              joinedTournaments: updatedJoined
+            });
+            updatedCount++;
+          } catch (e) {
+            console.error(`Failed to update stats for player ${player.fullName}:`, e);
+          }
         }
       }
 
-      setSuccess(`Match Completed successfully! Automatically updated stats for ${updatedCount} players.`);
+      setSuccess(`Match Completed successfully!`);
     } catch (err) {
       console.error(err);
       setError('Failed to complete the match.');
@@ -592,7 +717,9 @@ export default function AdminMatchDay() {
       <div style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: '16px', padding: '24px', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
           <h2 style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--admin-muted)', marginBottom: '12px' }}>Match Status</h2>
-          <span className="badge badge-gold" style={{ fontSize: '0.85rem', padding: '6px 12px' }}>{match.status}</span>
+          <span className={`badge ${match.status === 'In Progress' || match.status === 'Live' ? 'badge-gold' : match.status === 'Upcoming' ? 'badge-red' : 'badge-green'}`} style={{ fontSize: '0.85rem', padding: '6px 12px' }}>
+            {match.status}
+          </span>
         </div>
         
         {match.status === 'Upcoming' && (
@@ -605,10 +732,10 @@ export default function AdminMatchDay() {
             {actionLoading ? <Loader2 size={18} className="spin" /> : <Play size={18} />} Begin Match Day
           </button>
         )}
-        {match.status === 'Live' && (
+        {(match.status === 'In Progress' || match.status === 'Live') && (
           <div style={{ display: 'flex', gap: '12px', padding: '16px', background: 'rgba(212,175,55,0.08)', border: '1px solid var(--admin-border)', borderRadius: '12px', alignItems: 'center' }}>
             <Play size={20} className="text-gold animate-pulse" />
-            <span style={{ fontSize: '0.9rem', color: 'var(--admin-text)' }}>Match is currently Live! Update scores and complete the match below.</span>
+            <span style={{ fontSize: '0.9rem', color: 'var(--admin-text)' }}>Match is currently In Progress! Update scores and complete the match below.</span>
           </div>
         )}
         {match.status === 'Completed' && (
@@ -894,7 +1021,7 @@ export default function AdminMatchDay() {
       </div>
 
       {/* 5. Score Sheet Section */}
-      {(match.status === 'Live' || match.status === 'Completed') && (
+      {(match.status === 'In Progress' || match.status === 'Live' || match.status === 'Completed') && (
         <div style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--admin-muted)', marginBottom: '16px' }}>Score Sheet</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '20px' }}>
