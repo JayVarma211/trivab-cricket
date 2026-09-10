@@ -186,55 +186,100 @@ export default function AdminMatchDay() {
       const combined = Array.from(combinedMap.values());
       setAllPlayersList(combined);
 
-      const cleanStr = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
-      const targetA = cleanStr(matchDoc.teamA);
-      const targetB = cleanStr(matchDoc.teamB);
-      const targetAId = cleanStr(matchDoc.teamAId);
-      const targetBId = cleanStr(matchDoc.teamBId);
+      const getPlayerTeamForMatch = (p, targetName, targetId, matchTournamentId) => {
+        const clean = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+        const tName = clean(targetName);
+        const tId = clean(targetId);
+        const mTournId = clean(matchTournamentId);
 
-      const isMatch = (p, targetName, targetId) => {
-        if (!targetName && !targetId) return false;
+        if (!tName && !tId) return null;
 
-        // 1. Direct primary team check
-        const pTeam = cleanStr(p.teamName);
-        const pId = cleanStr(p.teamId);
+        const isTeamValid = (name) => {
+          const c = clean(name);
+          return c.length > 1 && c !== 'freeagent' && c !== 'unassigned' && c !== 'none';
+        };
 
-        if (targetId && pId && pId === targetId) return true;
-        if (targetName && pTeam && pTeam.length > 1 && pTeam !== 'freeagent' && pTeam !== 'unassigned') {
-          if (pTeam === targetName || pTeam.includes(targetName) || targetName.includes(pTeam)) return true;
-        }
-
-        // 2. joinedTournaments check
+        // 1. Check joinedTournaments first (tournament-specific registration)
         if (Array.isArray(p.joinedTournaments)) {
           for (const jt of p.joinedTournaments) {
-            const jtTeamName = typeof jt === 'object' ? cleanStr(jt.teamName) : '';
-            const jtTeamId = typeof jt === 'object' ? cleanStr(jt.teamId) : '';
+            if (typeof jt === 'object') {
+              const jtTournId = clean(jt.id);
+              const jtTeamId = clean(jt.teamId);
+              const jtTeamName = jt.teamName || '';
 
-            if (targetId && jtTeamId && jtTeamId === targetId) return true;
-            if (targetName && jtTeamName && jtTeamName.length > 1 && jtTeamName !== 'freeagent' && jtTeamName !== 'unassigned') {
-              if (jtTeamName === targetName || jtTeamName.includes(targetName) || targetName.includes(jtTeamName)) return true;
+              if (!mTournId || !jtTournId || jtTournId === mTournId) {
+                if (tId && jtTeamId && jtTeamId === tId) {
+                  return jtTeamName || targetName;
+                }
+                if (tName && isTeamValid(jtTeamName)) {
+                  const cleanJtTeam = clean(jtTeamName);
+                  if (cleanJtTeam === tName || cleanJtTeam.includes(tName) || tName.includes(cleanJtTeam)) {
+                    return jtTeamName;
+                  }
+                }
+              }
             }
           }
         }
 
-        // 3. registrations check
+        // 2. Check registrations collection documents for this player
         if (Array.isArray(p.registrations)) {
           for (const reg of p.registrations) {
-            const regTeam = cleanStr(reg.teamName);
-            const regId = cleanStr(reg.teamId);
+            const regTournId = clean(reg.tournamentId);
+            const regTeamId = clean(reg.teamId);
+            const regTeamName = reg.teamName || '';
 
-            if (targetId && regId && regId === targetId) return true;
-            if (targetName && regTeam && regTeam.length > 1 && regTeam !== 'freeagent' && regTeam !== 'unassigned') {
-              if (regTeam === targetName || regTeam.includes(targetName) || targetName.includes(regTeam)) return true;
+            if (!mTournId || !regTournId || regTournId === mTournId) {
+              if (tId && regTeamId && regTeamId === tId) {
+                return regTeamName || targetName;
+              }
+              if (tName && isTeamValid(regTeamName)) {
+                const cleanRegTeam = clean(regTeamName);
+                if (cleanRegTeam === tName || cleanRegTeam.includes(tName) || tName.includes(cleanRegTeam)) {
+                  return regTeamName;
+                }
+              }
             }
           }
         }
 
-        return false;
+        // 3. Check primary profile teamId / teamName
+        const pTeamId = clean(p.teamId);
+        const pTeamName = p.teamName || '';
+
+        if (tId && pTeamId && pTeamId === tId) {
+          return pTeamName || targetName;
+        }
+        if (tName && isTeamValid(pTeamName)) {
+          const cleanPTeam = clean(pTeamName);
+          if (cleanPTeam === tName || cleanPTeam.includes(tName) || tName.includes(cleanPTeam)) {
+            return pTeamName;
+          }
+        }
+
+        return null;
       };
 
-      const playersA = combined.filter(p => isMatch(p, targetA, targetAId));
-      const playersB = combined.filter(p => isMatch(p, targetB, targetBId));
+      const playersA = [];
+      const playersB = [];
+
+      combined.forEach(p => {
+        const teamForA = getPlayerTeamForMatch(p, matchDoc.teamA, matchDoc.teamAId, matchDoc.tournamentId);
+        if (teamForA) {
+          playersA.push({
+            ...p,
+            displayTeamName: teamForA
+          });
+        }
+
+        const teamForB = getPlayerTeamForMatch(p, matchDoc.teamB, matchDoc.teamBId, matchDoc.tournamentId);
+        if (teamForB) {
+          playersB.push({
+            ...p,
+            displayTeamName: teamForB
+          });
+        }
+      });
 
       setRosterA(playersA);
       setRosterB(playersB);
@@ -854,7 +899,7 @@ export default function AdminMatchDay() {
 
             <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
               {(() => {
-                const listToFilter = showAllPlayersA || rosterA.length === 0 ? allPlayersList : rosterA;
+                const listToFilter = showAllPlayersA ? allPlayersList : rosterA;
                 const filtered = listToFilter.filter(p => 
                   !searchRosterA.trim() || 
                   p.fullName?.toLowerCase().includes(searchRosterA.toLowerCase()) || 
@@ -889,7 +934,7 @@ export default function AdminMatchDay() {
                       }}
                     >
                       <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>
-                        {p.fullName} <span style={{ opacity: 0.65, fontSize: '0.75rem' }}>({p.teamName || 'Unassigned'})</span>
+                        {p.fullName} <span style={{ opacity: 0.65, fontSize: '0.75rem' }}>({p.displayTeamName || p.teamName || 'Unassigned'})</span>
                       </span>
                       <span style={{ fontSize: '0.72rem', fontWeight: 700 }}>{isSelected ? '✓ Added' : '+ Add'}</span>
                     </button>
@@ -965,7 +1010,7 @@ export default function AdminMatchDay() {
 
             <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px', paddingRight: '4px' }}>
               {(() => {
-                const listToFilter = showAllPlayersB || rosterB.length === 0 ? allPlayersList : rosterB;
+                const listToFilter = showAllPlayersB ? allPlayersList : rosterB;
                 const filtered = listToFilter.filter(p => 
                   !searchRosterB.trim() || 
                   p.fullName?.toLowerCase().includes(searchRosterB.toLowerCase()) || 
@@ -1000,7 +1045,7 @@ export default function AdminMatchDay() {
                       }}
                     >
                       <span style={{ fontSize: '0.82rem', fontWeight: 500 }}>
-                        {p.fullName} <span style={{ opacity: 0.65, fontSize: '0.75rem' }}>({p.teamName || 'Unassigned'})</span>
+                        {p.fullName} <span style={{ opacity: 0.65, fontSize: '0.75rem' }}>({p.displayTeamName || p.teamName || 'Unassigned'})</span>
                       </span>
                       <span style={{ fontSize: '0.72rem', fontWeight: 700 }}>{isSelected ? '✓ Added' : '+ Add'}</span>
                     </button>
