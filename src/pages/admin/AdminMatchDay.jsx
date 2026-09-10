@@ -105,54 +105,68 @@ export default function AdminMatchDay() {
       const rawCaptains = (await getCollection('captains')) || [];
       const rawRegistrations = (await getCollection('registrations')) || [];
 
-      // Map registrations by player key
+      // Map registrations by player key/ID/email
       const regsByPlayerKey = {};
       rawRegistrations.forEach(r => {
-        const key1 = (r.playerId || '').toLowerCase();
-        const key2 = (r.id || '').toLowerCase();
-        if (key1) {
-          if (!regsByPlayerKey[key1]) regsByPlayerKey[key1] = [];
-          regsByPlayerKey[key1].push(r);
-        }
-        if (key2 && key2 !== key1) {
-          if (!regsByPlayerKey[key2]) regsByPlayerKey[key2] = [];
-          regsByPlayerKey[key2].push(r);
-        }
+        const keys = [
+          r.playerId?.toLowerCase(),
+          r.id?.toLowerCase(),
+          r.playerEmail?.toLowerCase(),
+          r.playerName?.trim().toLowerCase()
+        ].filter(Boolean);
+
+        keys.forEach(k => {
+          if (!regsByPlayerKey[k]) regsByPlayerKey[k] = [];
+          regsByPlayerKey[k].push(r);
+        });
       });
 
-      const combined = [];
-      const seenIds = new Set();
+      const combinedMap = new Map();
+
+      const getPlayerKey = (item) => {
+        if (item.uid && item.uid.trim()) return `uid:${item.uid.trim().toLowerCase()}`;
+        if (item.email && item.email.trim()) return `email:${item.email.trim().toLowerCase()}`;
+        const name = (item.fullName || item.playerName || item.name || '').trim().toLowerCase();
+        if (name) return `name:${name}`;
+        return `id:${item.id || item.playerId}`;
+      };
 
       const addPlayer = (item, defaultRole = 'Player') => {
         if (!item) return;
         const fullName = item.fullName || item.playerName || item.name || '';
-        if (!fullName) return;
+        if (!fullName.trim()) return;
 
-        const playerId = item.playerId || item.id || `PL-${fullName.replace(/\s+/g, '').toUpperCase()}`;
-        const key = playerId.toLowerCase();
+        const key = getPlayerKey(item);
+        const itemPlayerId = item.playerId || item.id || key;
+        
+        const playerRegs = [
+          ...(regsByPlayerKey[key] || []),
+          ...(item.email ? (regsByPlayerKey[item.email.toLowerCase()] || []) : []),
+          ...(itemPlayerId ? (regsByPlayerKey[itemPlayerId.toLowerCase()] || []) : [])
+        ];
 
-        const playerRegs = regsByPlayerKey[key] || regsByPlayerKey[item.id?.toLowerCase()] || [];
-
-        if (seenIds.has(key)) {
-          // Merge joinedTournaments/registrations onto existing player record
-          const existing = combined.find(x => (x.playerId && x.playerId.toLowerCase() === key) || (x.id && x.id.toLowerCase() === key));
-          if (existing) {
-            if (item.joinedTournaments) {
-              existing.joinedTournaments = [...(existing.joinedTournaments || []), ...item.joinedTournaments];
-            }
-            if (playerRegs.length > 0) {
-              existing.registrations = [...(existing.registrations || []), ...playerRegs];
-            }
+        if (combinedMap.has(key)) {
+          const existing = combinedMap.get(key);
+          if (!existing.teamId && item.teamId) existing.teamId = item.teamId;
+          if (!existing.teamName || existing.teamName === 'Free Agent' || existing.teamName === 'Unassigned') {
+            if (item.teamName && item.teamName !== 'Free Agent') existing.teamName = item.teamName;
+          }
+          if (item.joinedTournaments && item.joinedTournaments.length > 0) {
+            existing.joinedTournaments = [...(existing.joinedTournaments || []), ...item.joinedTournaments];
+          }
+          if (playerRegs.length > 0) {
+            existing.registrations = [...(existing.registrations || []), ...playerRegs];
           }
           return;
         }
-        seenIds.add(key);
 
-        const resolvedTeamName = item.teamName || item.team || (item.teamId ? teamIdMap[item.teamId] : '') || (playerRegs[0]?.teamName || '');
+        const resolvedTeamName = item.teamName || item.team || (item.teamId ? teamIdMap[item.teamId] : '') || (playerRegs[0]?.teamName || '') || 'Unassigned';
 
-        combined.push({
-          id: item.id || playerId,
-          playerId: playerId,
+        combinedMap.set(key, {
+          id: item.id || itemPlayerId,
+          playerId: itemPlayerId,
+          uid: item.uid || '',
+          email: item.email || '',
           fullName: fullName,
           teamName: resolvedTeamName,
           teamId: item.teamId || (playerRegs[0]?.teamId || ''),
@@ -169,6 +183,7 @@ export default function AdminMatchDay() {
       rawCaptains.forEach(c => addPlayer(c, 'Captain'));
       rawRegistrations.forEach(r => addPlayer(r, 'Player'));
 
+      const combined = Array.from(combinedMap.values());
       setAllPlayersList(combined);
 
       const cleanStr = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -183,16 +198,22 @@ export default function AdminMatchDay() {
         // 1. Direct primary team check
         const pTeam = cleanStr(p.teamName);
         const pId = cleanStr(p.teamId);
-        if (targetName && pTeam && (pTeam === targetName || pTeam.includes(targetName) || targetName.includes(pTeam))) return true;
+
         if (targetId && pId && pId === targetId) return true;
+        if (targetName && pTeam && pTeam.length > 1 && pTeam !== 'freeagent' && pTeam !== 'unassigned') {
+          if (pTeam === targetName || pTeam.includes(targetName) || targetName.includes(pTeam)) return true;
+        }
 
         // 2. joinedTournaments check
         if (Array.isArray(p.joinedTournaments)) {
           for (const jt of p.joinedTournaments) {
-            const jtName = typeof jt === 'string' ? cleanStr(jt) : cleanStr(jt.teamName || jt.name);
+            const jtTeamName = typeof jt === 'object' ? cleanStr(jt.teamName) : '';
             const jtTeamId = typeof jt === 'object' ? cleanStr(jt.teamId) : '';
-            if (targetName && jtName && (jtName === targetName || jtName.includes(targetName) || targetName.includes(jtName))) return true;
+
             if (targetId && jtTeamId && jtTeamId === targetId) return true;
+            if (targetName && jtTeamName && jtTeamName.length > 1 && jtTeamName !== 'freeagent' && jtTeamName !== 'unassigned') {
+              if (jtTeamName === targetName || jtTeamName.includes(targetName) || targetName.includes(jtTeamName)) return true;
+            }
           }
         }
 
@@ -201,8 +222,11 @@ export default function AdminMatchDay() {
           for (const reg of p.registrations) {
             const regTeam = cleanStr(reg.teamName);
             const regId = cleanStr(reg.teamId);
-            if (targetName && regTeam && (regTeam === targetName || regTeam.includes(targetName) || targetName.includes(regTeam))) return true;
+
             if (targetId && regId && regId === targetId) return true;
+            if (targetName && regTeam && regTeam.length > 1 && regTeam !== 'freeagent' && regTeam !== 'unassigned') {
+              if (regTeam === targetName || regTeam.includes(targetName) || targetName.includes(regTeam)) return true;
+            }
           }
         }
 
