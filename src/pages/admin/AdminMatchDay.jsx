@@ -186,100 +186,168 @@ export default function AdminMatchDay() {
       const combined = Array.from(combinedMap.values());
       setAllPlayersList(combined);
 
-      const getPlayerTeamForMatch = (p, targetName, targetId, matchTournamentId) => {
-        const clean = (s) => (s || '').toString().toLowerCase().replace(/[^a-z0-9]/g, '');
-        const tName = clean(targetName);
-        const tId = clean(targetId);
-        const mTournId = clean(matchTournamentId);
+      const getTeamRoster = (targetTeamName, targetTeamId, matchTournId) => {
+        const clean = (s) => (s || '').toString().toLowerCase().trim();
+        const cleanTargetName = clean(targetTeamName);
+        const cleanTargetId = clean(targetTeamId);
+        const cleanTournId = clean(matchTournId);
 
-        if (!tName && !tId) return null;
+        // Find target team object if exists
+        const teamObj = (allTeams || []).find(t => 
+          (cleanTargetId && clean(t.id) === cleanTargetId) || 
+          (cleanTargetName && clean(t.teamName) === cleanTargetName)
+        );
 
-        const isTeamValid = (name) => {
-          const c = clean(name);
-          return c.length > 1 && c !== 'freeagent' && c !== 'unassigned' && c !== 'none';
+        const resolvedTeamId = teamObj?.id || targetTeamId || '';
+        const resolvedTeamName = teamObj?.teamName || targetTeamName || '';
+
+        const cleanResolvedId = clean(resolvedTeamId);
+        const cleanResolvedName = clean(resolvedTeamName);
+
+        if (!cleanResolvedName && !cleanResolvedId) return [];
+
+        const isMatchTeam = (tId, tName) => {
+          const cId = clean(tId);
+          const cName = clean(tName);
+          if (cId && cleanResolvedId && cId === cleanResolvedId) return true;
+          if (cName && cleanResolvedName && cName.length > 1 && cName !== 'freeagent' && cName !== 'unassigned') {
+            if (cName === cleanResolvedName) return true;
+          }
+          return false;
         };
 
-        // 1. Check joinedTournaments first (tournament-specific registration)
-        if (Array.isArray(p.joinedTournaments)) {
-          for (const jt of p.joinedTournaments) {
-            if (typeof jt === 'object') {
-              const jtTournId = clean(jt.id);
-              const jtTeamId = clean(jt.teamId);
-              const jtTeamName = jt.teamName || '';
+        // 1. Gather player IDs from registrations for this team & tournament
+        const matchingRegs = (rawRegistrations || []).filter(r => {
+          if (cleanTournId && clean(r.tournamentId) && clean(r.tournamentId) !== cleanTournId) {
+            return false;
+          }
+          return isMatchTeam(r.teamId, r.teamName);
+        });
 
-              if (!mTournId || !jtTournId || jtTournId === mTournId) {
-                if (tId && jtTeamId && jtTeamId === tId) {
-                  return jtTeamName || targetName;
-                }
-                if (tName && isTeamValid(jtTeamName)) {
-                  const cleanJtTeam = clean(jtTeamName);
-                  if (cleanJtTeam === tName || cleanJtTeam.includes(tName) || tName.includes(cleanJtTeam)) {
-                    return jtTeamName;
+        const regPlayerIds = new Set(matchingRegs.map(r => clean(r.playerId || r.id)));
+        const regEmails = new Set(matchingRegs.map(r => clean(r.playerEmail || r.email)));
+
+        const playerMap = new Map();
+
+        const getIdentityKey = (p) => {
+          const email = clean(p.email || p.playerEmail);
+          if (email) return `email:${email}`;
+          const uid = clean(p.uid);
+          if (uid) return `uid:${uid}`;
+          const name = clean(p.fullName || p.playerName || p.name);
+          if (name) return `name:${name}`;
+          return `id:${clean(p.id || p.playerId)}`;
+        };
+
+        const addOrMergePlayer = (p, defaultRole = 'Player') => {
+          if (!p) return;
+          const fullName = (p.fullName || p.playerName || p.name || '').trim();
+          if (!fullName) return;
+
+          const key = getIdentityKey(p);
+
+          if (playerMap.has(key)) {
+            const existing = playerMap.get(key);
+            if (!existing.photoURL && p.photoURL) existing.photoURL = p.photoURL;
+            if ((!existing.jerseyNumber || existing.jerseyNumber === '—') && p.jerseyNumber) existing.jerseyNumber = p.jerseyNumber;
+            if (!existing.playingStyle && p.playingStyle) existing.playingStyle = p.playingStyle;
+            return;
+          }
+
+          playerMap.set(key, {
+            id: p.id || p.playerId || key,
+            playerId: p.playerId || p.id || key,
+            uid: p.uid || '',
+            email: p.email || p.playerEmail || '',
+            fullName: fullName,
+            teamName: resolvedTeamName,
+            teamId: resolvedTeamId,
+            displayTeamName: resolvedTeamName,
+            playingStyle: p.playingStyle || p.role || defaultRole,
+            jerseyNumber: p.jerseyNumber || p.jersey || '—',
+            mobile: p.mobile || p.playerPhone || p.phone || 'N/A',
+            photoURL: p.photoURL || p.photo || '',
+          });
+        };
+
+        // Filter rawPlayers
+        (rawPlayers || []).forEach(p => {
+          const pId = clean(p.id || p.playerId);
+          const pEmail = clean(p.email);
+
+          let isMember = false;
+
+          // Check primary team
+          if (isMatchTeam(p.teamId, p.teamName)) {
+            isMember = true;
+          }
+
+          // Check joinedTournaments
+          if (!isMember && Array.isArray(p.joinedTournaments)) {
+            for (const jt of p.joinedTournaments) {
+              if (typeof jt === 'object') {
+                const jtTournId = clean(jt.id);
+                if (!cleanTournId || !jtTournId || jtTournId === cleanTournId) {
+                  if (isMatchTeam(jt.teamId, jt.teamName)) {
+                    isMember = true;
+                    break;
                   }
                 }
               }
             }
           }
-        }
 
-        // 2. Check registrations collection documents for this player
-        if (Array.isArray(p.registrations)) {
-          for (const reg of p.registrations) {
-            const regTournId = clean(reg.tournamentId);
-            const regTeamId = clean(reg.teamId);
-            const regTeamName = reg.teamName || '';
+          // Check registrations
+          if (!isMember && (regPlayerIds.has(pId) || regEmails.has(pEmail))) {
+            isMember = true;
+          }
 
-            if (!mTournId || !regTournId || regTournId === mTournId) {
-              if (tId && regTeamId && regTeamId === tId) {
-                return regTeamName || targetName;
-              }
-              if (tName && isTeamValid(regTeamName)) {
-                const cleanRegTeam = clean(regTeamName);
-                if (cleanRegTeam === tName || cleanRegTeam.includes(tName) || tName.includes(cleanRegTeam)) {
-                  return regTeamName;
-                }
-              }
+          if (isMember) {
+            addOrMergePlayer(p, 'Player');
+          }
+        });
+
+        // Check rawCaptains
+        (rawCaptains || []).forEach(c => {
+          const cTeamId = clean(c.teamId);
+          const cTeamName = clean(c.teamName);
+          const cUid = clean(c.uid);
+          const teamCaptId = clean(teamObj?.captainId);
+
+          let isCapForTeam = false;
+          if (cUid && teamCaptId && cUid === teamCaptId) isCapForTeam = true;
+          if (isMatchTeam(cTeamId, cTeamName)) isCapForTeam = true;
+
+          if (isCapForTeam) {
+            const captainPlayer = (rawPlayers || []).find(p => 
+              (cUid && clean(p.uid) === cUid) || 
+              (c.email && clean(p.email) === clean(c.email))
+            );
+
+            if (captainPlayer) {
+              addOrMergePlayer(captainPlayer, 'Captain');
+            } else {
+              addOrMergePlayer({
+                id: c.id || `cap_${cUid || c.email}`,
+                playerId: c.captainId || c.id,
+                fullName: c.fullName || teamObj?.captainName || 'Team Captain',
+                email: c.email || '',
+                mobile: c.mobile || '',
+                photoURL: c.photoURL || '',
+                playingStyle: 'Captain',
+                jerseyNumber: 'C',
+                teamName: resolvedTeamName,
+                teamId: resolvedTeamId
+              }, 'Captain');
             }
           }
-        }
+        });
 
-        // 3. Check primary profile teamId / teamName
-        const pTeamId = clean(p.teamId);
-        const pTeamName = p.teamName || '';
-
-        if (tId && pTeamId && pTeamId === tId) {
-          return pTeamName || targetName;
-        }
-        if (tName && isTeamValid(pTeamName)) {
-          const cleanPTeam = clean(pTeamName);
-          if (cleanPTeam === tName || cleanPTeam.includes(tName) || tName.includes(cleanPTeam)) {
-            return pTeamName;
-          }
-        }
-
-        return null;
+        return Array.from(playerMap.values());
       };
 
-      const playersA = [];
-      const playersB = [];
-
-      combined.forEach(p => {
-        const teamForA = getPlayerTeamForMatch(p, matchDoc.teamA, matchDoc.teamAId, matchDoc.tournamentId);
-        if (teamForA) {
-          playersA.push({
-            ...p,
-            displayTeamName: teamForA
-          });
-        }
-
-        const teamForB = getPlayerTeamForMatch(p, matchDoc.teamB, matchDoc.teamBId, matchDoc.tournamentId);
-        if (teamForB) {
-          playersB.push({
-            ...p,
-            displayTeamName: teamForB
-          });
-        }
-      });
+      const playersA = getTeamRoster(matchDoc.teamA, matchDoc.teamAId, matchDoc.tournamentId);
+      const playersB = getTeamRoster(matchDoc.teamB, matchDoc.teamBId, matchDoc.tournamentId);
 
       setRosterA(playersA);
       setRosterB(playersB);
