@@ -342,6 +342,273 @@ export default function AdminPlayers() {
     }
   };
 
+  const handleUpdatePlayerTournamentTeam = async (playerId, tournamentId, newTeamId) => {
+    try {
+      const playerDoc = players.find(p => p.id === playerId);
+      if (!playerDoc) return;
+      
+      const newTeamObj = teams.find(t => t.id === newTeamId);
+      if (!newTeamObj) return;
+
+      let oldTeamId = null;
+      const currentJoined = playerDoc.joinedTournaments || [];
+      
+      const updatedJoined = currentJoined.map(t => {
+        const idToCompare = typeof t === 'string' ? t : t.id;
+        if (idToCompare === tournamentId) {
+          if (typeof t === 'object') {
+            oldTeamId = t.teamId;
+          }
+          return {
+            ...(typeof t === 'string' ? { id: t, name: t } : t),
+            teamId: newTeamId,
+            teamName: newTeamObj.teamName
+          };
+        }
+        return t;
+      });
+
+      let updatedPrimaryTeamId = playerDoc.teamId;
+      let updatedPrimaryTeamName = playerDoc.teamName;
+
+      if (!playerDoc.teamId || playerDoc.teamId === oldTeamId) {
+        updatedPrimaryTeamId = newTeamId;
+        updatedPrimaryTeamName = newTeamObj.teamName;
+      }
+
+      const updatedFields = {
+        joinedTournaments: updatedJoined,
+        teamId: updatedPrimaryTeamId,
+        teamName: updatedPrimaryTeamName
+      };
+
+      await updateDocument('players', playerId, updatedFields);
+
+      // Update registration doc if exists
+      const regId = `${playerId}_${tournamentId}`;
+      try {
+        await updateDocument('registrations', regId, {
+          teamId: newTeamId,
+          teamName: newTeamObj.teamName
+        });
+      } catch (e) {
+        console.warn("Registration doc update warning:", e);
+      }
+
+      // Sync old and new team roster counts
+      if (oldTeamId && oldTeamId !== newTeamId) {
+        await syncTeamRosterCountAndNotify(oldTeamId);
+      }
+      if (newTeamId) {
+        await syncTeamRosterCountAndNotify(newTeamId);
+      }
+
+      // Update local state
+      setPlayers(prev => prev.map(p => {
+        if (p.id === playerId) {
+          return { ...p, ...updatedFields };
+        }
+        return p;
+      }));
+
+      setSelectedPlayerForDetails(prev => {
+        if (prev && prev.id === playerId) {
+          return { ...prev, ...updatedFields };
+        }
+        return prev;
+      });
+
+    } catch (err) {
+      console.error("Error updating player tournament team:", err);
+      alert("Failed to update player's team");
+    }
+  };
+
+  const handleRemovePlayerFromTournament = async (playerId, tournamentId, tournamentName) => {
+    const playerDoc = players.find(p => p.id === playerId);
+    if (!playerDoc) return;
+
+    if (!window.confirm(`Are you sure you want to remove ${playerDoc.fullName} from ${tournamentName || 'this tournament'}?`)) {
+      return;
+    }
+
+    try {
+      const currentJoined = playerDoc.joinedTournaments || [];
+      let removedTeamId = null;
+
+      const updatedJoined = currentJoined.filter(t => {
+        const idToCompare = typeof t === 'string' ? t : t.id;
+        if (idToCompare === tournamentId) {
+          if (typeof t === 'object') {
+            removedTeamId = t.teamId;
+          }
+          return false;
+        }
+        return true;
+      });
+
+      let updatedPrimaryTeamId = playerDoc.teamId;
+      let updatedPrimaryTeamName = playerDoc.teamName;
+
+      if (playerDoc.teamId === removedTeamId) {
+        const remainingTeam = updatedJoined.find(t => typeof t === 'object' && t.teamId);
+        updatedPrimaryTeamId = remainingTeam ? remainingTeam.teamId : '';
+        updatedPrimaryTeamName = remainingTeam ? remainingTeam.teamName : '';
+      }
+
+      const updatedFields = {
+        joinedTournaments: updatedJoined,
+        teamId: updatedPrimaryTeamId,
+        teamName: updatedPrimaryTeamName
+      };
+
+      await updateDocument('players', playerId, updatedFields);
+
+      // Delete registration doc if exists
+      const regId = `${playerId}_${tournamentId}`;
+      try {
+        await deleteDocument('registrations', regId);
+      } catch (e) {
+        console.warn("Registration delete warning:", e);
+      }
+
+      // Sync roster count for removed team
+      if (removedTeamId) {
+        await syncTeamRosterCountAndNotify(removedTeamId);
+      }
+
+      // Update local state
+      setPlayers(prev => prev.map(p => {
+        if (p.id === playerId) {
+          return { ...p, ...updatedFields };
+        }
+        return p;
+      }));
+
+      setSelectedPlayerForDetails(prev => {
+        if (prev && prev.id === playerId) {
+          return { ...prev, ...updatedFields };
+        }
+        return prev;
+      });
+
+    } catch (err) {
+      console.error("Error removing player from tournament:", err);
+      alert("Failed to remove player from tournament");
+    }
+  };
+
+  const renderJoinedTournamentsList = (playerObj) => {
+    const joined = playerObj?.joinedTournaments || [];
+
+    if (!joined || joined.length === 0) {
+      return <span className="text-xs text-muted">No active tournament rosters.</span>;
+    }
+
+    return (
+      <div className="flex flex-col gap-sm">
+        {joined.map((t, idx) => {
+          const tName = typeof t === 'string' ? t : t.name || t.id;
+          const tId = typeof t === 'string' ? t : t.id;
+          const currentTeamId = typeof t === 'object' ? (t.teamId || '') : '';
+          const roleLabel = (typeof t === 'object' && t.role) ? t.role.charAt(0).toUpperCase() + t.role.slice(1) : 'Player';
+          const matchesPlayed = (typeof t === 'object' && t.matchesPlayed !== undefined) ? t.matchesPlayed : 0;
+
+          // Filter teams belonging to this tournament if tournamentId is present on teams, else all teams
+          const matchingTeams = teams.filter(tm => tm.tournamentId === tId);
+          const teamOptions = matchingTeams.length > 0 ? matchingTeams : teams;
+
+          return (
+            <div 
+              key={tId || idx} 
+              className="flex flex-col gap-xs p-sm rounded-md" 
+              style={{ 
+                background: 'rgba(128, 0, 0, 0.08)', 
+                border: '1px solid rgba(128, 0, 0, 0.25)', 
+                padding: '12px 14px' 
+              }}
+            >
+              <div className="flex justify-between items-center flex-wrap gap-xs">
+                <span className="font-bold text-sm text-gradient-gold truncate" style={{ maxWidth: '280px' }}>
+                  {tName}
+                </span>
+                <span className="badge badge-gold" style={{ fontSize: '0.75rem', padding: '2px 10px' }}>
+                  {matchesPlayed} Matches
+                </span>
+              </div>
+
+              <div className="flex items-center gap-xs text-xs mt-xs flex-wrap">
+                <span className="text-muted font-medium">Representing:</span>
+                <select
+                  value={currentTeamId}
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleUpdatePlayerTournamentTeam(playerObj.id, tId, e.target.value);
+                    }
+                  }}
+                  className="form-select"
+                  style={{ 
+                    padding: '4px 8px', 
+                    fontSize: '0.8rem', 
+                    height: 'auto', 
+                    width: 'auto', 
+                    minWidth: '160px',
+                    maxWidth: '220px', 
+                    background: 'rgba(0, 0, 0, 0.5)', 
+                    borderColor: 'var(--admin-border)',
+                    color: '#fff'
+                  }}
+                >
+                  <option value="">-- Select Team --</option>
+                  {teamOptions.map(tm => (
+                    <option key={tm.id} value={tm.id}>
+                      {tm.teamName}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-muted">({roleLabel})</span>
+              </div>
+
+              <div className="flex justify-end items-center gap-xs mt-xs pt-xs" style={{ borderTop: '1px dashed rgba(255,255,255,0.1)' }}>
+                <button 
+                  type="button"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const newValStr = prompt(`Enter matches played for ${playerObj.fullName} in ${tName}:`, matchesPlayed);
+                    if (newValStr !== null) {
+                      const newVal = parseInt(newValStr, 10);
+                      if (!isNaN(newVal)) {
+                        await updateMatchesPlayed(playerObj.id, tId, newVal);
+                      }
+                    }
+                  }}
+                  className="btn btn-outline"
+                  style={{ padding: '3px 10px', fontSize: '0.75rem', borderRadius: '4px', height: 'auto', border: '1px solid var(--admin-accent)' }}
+                >
+                  Edit Matches
+                </button>
+
+                <button 
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemovePlayerFromTournament(playerObj.id, tId, tName);
+                  }}
+                  className="btn btn-outline"
+                  style={{ padding: '3px 10px', fontSize: '0.75rem', borderRadius: '4px', height: 'auto', border: '1px solid #ef4444', color: '#ef4444', background: 'rgba(239,68,68,0.1)' }}
+                  title="Remove player from this tournament"
+                >
+                  <Trash2 size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                  Remove
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this player?')) return;
     
@@ -988,6 +1255,15 @@ export default function AdminPlayers() {
               </div>
             </div>
 
+            {editingId && (
+              <div className="col-span-2 mt-xs mb-sm p-sm rounded-md" style={{ background: 'rgba(0,0,0,0.25)', border: '1px solid var(--admin-border)', gridColumn: '1 / -1' }}>
+                <h4 className="text-xs font-bold text-gradient-gold uppercase tracking-wider mb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingBottom: '4px' }}>
+                  Joined Tournaments & Roster Management
+                </h4>
+                {renderJoinedTournamentsList(players.find(p => p.id === editingId) || { id: editingId, fullName: formData.fullName, joinedTournaments: [] })}
+              </div>
+            )}
+
             <div className="flex gap-md col-2">
               <button type="submit" className="btn btn-gold flex-1">
                 {editingId ? 'Update Player' : 'Add Player'}
@@ -1396,56 +1672,7 @@ export default function AdminPlayers() {
                 {/* Section: Joined Tournaments Roster */}
                 <div>
                   <h4 className="text-xs font-bold text-gradient-gold uppercase tracking-wider mb-sm" style={{ borderBottom: '1px solid var(--admin-border)', paddingBottom: '4px' }}>Joined Tournaments & Matches</h4>
-                  
-                  <div className="flex flex-col gap-sm">
-                    {selectedPlayerForDetails.joinedTournaments && selectedPlayerForDetails.joinedTournaments.length > 0 ? (
-                      selectedPlayerForDetails.joinedTournaments.map((t, idx) => {
-                        const tName = typeof t === 'string' ? t : t.name || t.id;
-                        const tId = typeof t === 'string' ? t : t.id;
-                        const teamName = t.teamName || 'N/A';
-                        const roleLabel = t.role ? t.role.charAt(0).toUpperCase() + t.role.slice(1) : 'Player';
-                        const matchesPlayed = t.matchesPlayed !== undefined ? t.matchesPlayed : 0;
-                        
-                        return (
-                          <div 
-                            key={tId || idx} 
-                            className="flex flex-col gap-xs p-xs rounded-md" 
-                            style={{ 
-                              background: 'rgba(128, 0, 0, 0.05)', 
-                              border: '1px solid rgba(128, 0, 0, 0.2)', 
-                              padding: '10px 14px' 
-                            }}
-                          >
-                            <div className="flex justify-between items-center">
-                              <span className="font-bold text-sm truncate" style={{ maxWidth: '240px' }}>{tName}</span>
-                              <span className="badge badge-gold" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>{matchesPlayed} Matches</span>
-                            </div>
-                            <div className="flex justify-between items-center text-xs opacity-95 mt-xs">
-                              <span>Representing: <strong className="text-gold">{teamName}</strong> ({roleLabel})</span>
-                              <button 
-                                onClick={async (e) => {
-                                  e.stopPropagation();
-                                  const newValStr = prompt(`Enter matches played for ${selectedPlayerForDetails.fullName} in ${tName}:`, matchesPlayed);
-                                  if (newValStr !== null) {
-                                    const newVal = parseInt(newValStr, 10);
-                                    if (!isNaN(newVal)) {
-                                      await updateMatchesPlayed(selectedPlayerForDetails.id, tId, newVal);
-                                    }
-                                  }
-                                }}
-                                className="btn btn-outline"
-                                style={{ padding: '2px 8px', fontSize: '0.7rem', borderRadius: '4px', height: 'auto', border: '1px solid var(--admin-accent)' }}
-                              >
-                                Edit Matches
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <span className="text-xs text-muted">No active tournament rosters.</span>
-                    )}
-                  </div>
+                  {renderJoinedTournamentsList(selectedPlayerForDetails)}
                 </div>
 
                 <div className="flex justify-between mt-sm" style={{ borderTop: '1px solid var(--admin-border)', paddingTop: '8px' }}>
