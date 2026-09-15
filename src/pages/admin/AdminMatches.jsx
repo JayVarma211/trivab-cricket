@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import { useAuth } from '../../context/AuthContext';
@@ -386,7 +386,7 @@ export default function AdminMatches() {
 
   const filterOptions = {
     Month: monthOptions,
-    Team: [...new Set(teams.map(team => getStringVal(team.teamName)).filter(Boolean))].sort(),
+    Team: [...new Set(matches.flatMap(m => [getStringVal(m.teamA), getStringVal(m.teamB)]).filter(Boolean))].sort(),
     Tournament: [...new Set(tournaments.map(tournament => getStringVal(tournament.name)).filter(Boolean))].sort(),
     Ground: [...new Set(matches.map(match => getStringVal(match.venue)).filter(Boolean))].sort(),
   };
