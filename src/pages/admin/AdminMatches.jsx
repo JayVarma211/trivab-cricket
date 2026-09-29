@@ -439,8 +439,7 @@ export default function AdminMatches() {
     const columns = [
       { header: '#', width: 10 },
       { header: 'Fixture / Event Title', width: 55 },
-      { header: 'Type', width: 20 },
-      { header: 'Teams / Target', width: 50 },
+      { header: 'Teams / Target', width: 70 },
       { header: 'Tournament', width: 38 },
       { header: 'Date & Time', width: 40 },
       { header: 'Venue', width: 38 },
@@ -511,28 +510,24 @@ export default function AdminMatches() {
       doc.text(titleLines[0] || '', x, currentY + 6);
       x += columns[1].width;
 
-      // Type
-      doc.text(getStringVal(m.type) || 'Match', x, currentY + 6);
+      // Teams / Target
+      const teamsLines = doc.splitTextToSize(displayTeams, columns[2].width - 4);
+      doc.text(teamsLines[0] || '', x, currentY + 6);
       x += columns[2].width;
 
-      // Teams / Target
-      const teamsLines = doc.splitTextToSize(displayTeams, columns[3].width - 4);
-      doc.text(teamsLines[0] || '', x, currentY + 6);
-      x += columns[3].width;
-
       // Tournament
-      const tournLines = doc.splitTextToSize(displayTourn, columns[4].width - 4);
+      const tournLines = doc.splitTextToSize(displayTourn, columns[3].width - 4);
       doc.text(tournLines[0] || '', x, currentY + 6);
-      x += columns[4].width;
+      x += columns[3].width;
 
       // Date & Time
       doc.text(dateTimeStr, x, currentY + 6);
-      x += columns[5].width;
+      x += columns[4].width;
 
       // Venue
-      const venueLines = doc.splitTextToSize(venueStr, columns[6].width - 4);
+      const venueLines = doc.splitTextToSize(venueStr, columns[5].width - 4);
       doc.text(venueLines[0] || '', x, currentY + 6);
-      x += columns[6].width;
+      x += columns[5].width;
 
       // Status
       if (statusStr === 'In Progress' || statusStr === 'Live') {
