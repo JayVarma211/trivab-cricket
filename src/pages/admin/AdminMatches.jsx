@@ -438,8 +438,8 @@ export default function AdminMatches() {
     // Table Setup
     const columns = [
       { header: '#', width: 10 },
-      { header: 'Fixture / Event Title', width: 55 },
-      { header: 'Teams / Target', width: 70 },
+      { header: 'Fixture / Event Title', width: 40 },
+      { header: 'Teams / Target', width: 85 },
       { header: 'Tournament', width: 38 },
       { header: 'Date & Time', width: 40 },
       { header: 'Venue', width: 38 },
