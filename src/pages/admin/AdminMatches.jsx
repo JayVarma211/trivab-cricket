@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import { useAuth } from '../../context/AuthContext';
@@ -438,12 +438,13 @@ export default function AdminMatches() {
     // Table Setup
     const columns = [
       { header: '#', width: 10 },
-      { header: 'Fixture / Event Title', width: 68 },
-      { header: 'Type', width: 25 },
-      { header: 'Tournament', width: 45 },
-      { header: 'Date & Time', width: 45 },
-      { header: 'Venue', width: 50 },
-      { header: 'Status', width: 30 },
+      { header: 'Fixture / Event Title', width: 55 },
+      { header: 'Type', width: 20 },
+      { header: 'Teams / Target', width: 50 },
+      { header: 'Tournament', width: 38 },
+      { header: 'Date & Time', width: 40 },
+      { header: 'Venue', width: 38 },
+      { header: 'Status', width: 22 },
     ];
 
     let currentY = 32;
@@ -491,6 +492,7 @@ export default function AdminMatches() {
       const tAStr = getStringVal(m.teamA);
       const tBStr = getStringVal(m.teamB);
       const displayTitle = getStringVal(m.title) || (tAStr && tBStr ? `${tAStr} vs ${tBStr}` : getStringVal(m.type) || 'Match');
+      const displayTeams = tAStr && tBStr ? `${tAStr} vs ${tBStr}` : (getStringVal(m.targetTeamName) || 'All Teams');
       const displayTourn = tournament ? tournament.name : 'General / All';
       const dateTimeStr = `${formatDateSafe(m.date)}${m.time ? ' @ ' + formatTimeAMPM(m.time) : ''}`;
       const venueStr = getStringVal(m.venue) || '—';
@@ -513,19 +515,24 @@ export default function AdminMatches() {
       doc.text(getStringVal(m.type) || 'Match', x, currentY + 6);
       x += columns[2].width;
 
-      // Tournament
-      const tournLines = doc.splitTextToSize(displayTourn, columns[3].width - 4);
-      doc.text(tournLines[0] || '', x, currentY + 6);
+      // Teams / Target
+      const teamsLines = doc.splitTextToSize(displayTeams, columns[3].width - 4);
+      doc.text(teamsLines[0] || '', x, currentY + 6);
       x += columns[3].width;
+
+      // Tournament
+      const tournLines = doc.splitTextToSize(displayTourn, columns[4].width - 4);
+      doc.text(tournLines[0] || '', x, currentY + 6);
+      x += columns[4].width;
 
       // Date & Time
       doc.text(dateTimeStr, x, currentY + 6);
-      x += columns[4].width;
+      x += columns[5].width;
 
       // Venue
-      const venueLines = doc.splitTextToSize(venueStr, columns[5].width - 4);
+      const venueLines = doc.splitTextToSize(venueStr, columns[6].width - 4);
       doc.text(venueLines[0] || '', x, currentY + 6);
-      x += columns[5].width;
+      x += columns[6].width;
 
       // Status
       if (statusStr === 'In Progress' || statusStr === 'Live') {
