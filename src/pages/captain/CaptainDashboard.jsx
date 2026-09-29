@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, getDocument, setDocument, addDocument, getPlayerByUIDOrEmail, where, orderBy, updateDocument } from '../../firebase/firestore';
-import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload, CreditCard, Clock, Calendar, AlertCircle, CalendarClock, MapPin, Filter, Newspaper, X, Trophy } from 'lucide-react';
+import { Users, User, Award, ShieldAlert, Edit, Save, Bell, Plus, CheckCircle, Shield, Upload, CreditCard, Clock, Calendar, AlertCircle, CalendarClock, MapPin, Filter, Newspaper, X, Trophy, History } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import { safeFormatDate, safeFormatDateTime, safeParseDate } from '../../utils/dateFormatter';
@@ -918,6 +918,91 @@ export default function CaptainDashboard() {
                     <p className="text-xs text-muted" style={{ margin: 0, maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
                       Tournament fees for your team <strong>{team.teamName}</strong> have not been configured by the admin yet. Please check back later or contact support.
                     </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Payment History Section */}
+          {team && paymentHistory.length > 0 && (() => {
+            const [showHistory, setShowHistory] = useState(false);
+            const formatCurrencyH = (val) => {
+              if (!val || isNaN(val)) return '₹0';
+              return `₹${Number(val).toLocaleString('en-IN')}`;
+            };
+            return (
+              <div className="card animate-fade-in" style={{ borderLeft: '4px solid #3B82F6' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+                  onClick={() => setShowHistory(h => !h)}
+                >
+                  <h3 className="text-lg font-bold text-gradient-gold flex items-center gap-sm" style={{ margin: 0 }}>
+                    <History size={20} style={{ color: '#60A5FA' }} /> Payment History
+                    <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#60A5FA', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '999px', padding: '2px 8px', marginLeft: '6px' }}>
+                      {paymentHistory.length} record{paymentHistory.length !== 1 ? 's' : ''}
+                    </span>
+                  </h3>
+                  <button
+                    style={{ background: 'none', border: '1px solid var(--border-card)', borderRadius: '6px', color: 'var(--text-secondary)', padding: '4px 12px', fontSize: '0.78rem', cursor: 'pointer' }}
+                  >
+                    {showHistory ? 'Hide ▲' : 'Show ▼'}
+                  </button>
+                </div>
+
+                {showHistory && (
+                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {paymentHistory.map((rec, idx) => {
+                      const bal = Number(rec.totalTournamentFee || 0) - Number(rec.totalPaidAmount || 0);
+                      const statusColor = rec.status === 'Paid' ? '#22c55e' : rec.status === 'Overdue' ? '#ef4444' : '#d4af37';
+                      return (
+                        <div key={idx} style={{
+                          background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-card)',
+                          borderRadius: '10px', padding: '12px 16px', borderLeft: `3px solid ${statusColor}`
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <Calendar size={11} /> {rec.createdAt ? safeFormatDateTime(rec.createdAt) : '—'}
+                            </span>
+                            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: statusColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                              {rec.status || 'Pending'}
+                            </span>
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '10px' }}>
+                            <div>
+                              <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Total Fee</div>
+                              <div style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{formatCurrencyH(rec.totalTournamentFee)}</div>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.62rem', color: 'rgba(34,197,94,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Amount Paid</div>
+                              <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#22c55e' }}>{formatCurrencyH(rec.totalPaidAmount)}</div>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.62rem', color: bal > 0 ? 'rgba(239,68,68,0.8)' : 'rgba(34,197,94,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Balance</div>
+                              <div style={{ fontWeight: 700, fontSize: '0.88rem', color: bal > 0 ? '#ef4444' : '#22c55e' }}>{formatCurrencyH(bal)}</div>
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Payment Date</div>
+                              <div style={{ fontWeight: 600, fontSize: '0.82rem', color: 'var(--text-primary)' }}>{rec.receivingDate ? safeFormatDate(rec.receivingDate) : '—'}</div>
+                            </div>
+                            {rec.nextDue && (
+                              <div>
+                                <div style={{ fontSize: '0.62rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Next Due</div>
+                                <div style={{ fontWeight: 600, fontSize: '0.82rem', color: '#d4af37' }}>
+                                  {safeFormatDate(rec.nextDue)}
+                                  {rec.nextDueAmount ? ` (${formatCurrencyH(rec.nextDueAmount)})` : ''}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          {rec.message && (
+                            <div style={{ marginTop: '8px', fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic', borderTop: '1px solid var(--border-card)', paddingTop: '6px' }}>
+                              📝 {rec.message}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

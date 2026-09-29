@@ -74,72 +74,63 @@ export default function DigitalIDCard() {
       <div className="id-card-layout">
         {/* The Card Render Box — Landscape Format */}
         <div className="card-render-wrapper">
-          <div className="id-card-element" id="player-card-render">
-            {/* Gold top stripe */}
-            <div className="id-card-gold-accent" />
-
-            <div className="id-card-inner">
-              {/* LEFT: Photo */}
-              <div className="id-card-left">
-                <div className="id-player-photo">
-                  {player.photoURL ? (
-                    <img src={player.photoURL} alt={player.fullName} />
-                  ) : (
-                    <User size={36} />
-                  )}
-                </div>
-                {/* Jersey number badge */}
-                {player.jerseyNumber && (
-                  <div style={{
-                    background: 'rgba(212,175,55,0.15)',
-                    border: '1px solid rgba(212,175,55,0.3)',
-                    borderRadius: '6px',
-                    padding: '2px 10px',
-                    textAlign: 'center',
-                    width: '100%',
-                    boxSizing: 'border-box'
-                  }}>
-                    <div style={{ fontSize: '0.45rem', color: 'rgba(212,175,55,0.7)', letterSpacing: '0.1em', fontWeight: 700 }}>JERSEY</div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#d4af37', lineHeight: 1.1 }}>
-                      #{player.jerseyNumber}
-                    </div>
+          <div className="player-card" id="player-card-render">
+            <div className="player-photo-section">
+              <div className="player-photo-wrapper">
+                {player.photoURL ? (
+                  <img
+                    src={player.photoURL}
+                    className="player-photo"
+                    alt={player.fullName}
+                  />
+                ) : (
+                  <div className="player-photo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.06)' }}>
+                    <User size={64} style={{ color: 'rgba(255,255,255,0.4)' }} />
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* DIVIDER */}
-              <div className="id-card-divider" />
-
-              {/* RIGHT: Info */}
-              <div className="id-card-right">
-                {/* Header */}
-                <div className="id-card-header">
-                  <div className="id-card-logo">
-                    <img src="/logos/trivabsports.jpg" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
-                  </div>
-                  <div className="id-card-badge">VERIFIED PASS</div>
+            <div className="player-content">
+              <div className="player-header">
+                <div className="trivab-logo-pill">
+                  <img
+                    src="/logos/trivabsports.jpg"
+                    className="trivab-logo"
+                    alt="Trivab Sports & Events"
+                  />
                 </div>
 
-                {/* Name & Style */}
+                <div className="verified-pass">
+                  <span>VERIFIED PASS</span>
+                  <span className="verified-icon">✓</span>
+                </div>
+              </div>
+
+              <h1 className="player-name">
+                {player.fullName}
+              </h1>
+
+              <div className="player-role">
+                <span>{player.playingStyle || 'PLAYER'}</span>
+                <span className="role-icon">●</span>
+              </div>
+
+              <div className="player-info">
                 <div>
-                  <h3 className="id-player-name">{player.fullName}</h3>
-                  <span className="id-player-style">{player.playingStyle}</span>
+                  <div className="player-id-label">PLAYER ID</div>
+                  <div className="player-id">{player.playerId}</div>
                 </div>
 
-
-
-                {/* Footer: ID & QR */}
-                <div className="id-card-footer">
-                  <div className="id-code-group">
-                    <span className="id-stat-lbl">Player ID</span>
-                    <span className="id-code-text">{player.playerId}</span>
-                  </div>
-                  <div className="id-qr-box">
-                    <QRCodeSVG value={player.playerId} size={68} bgColor="#ffffff" fgColor="#000000" level="H" />
-                  </div>
+                <div className="player-qr">
+                  <QRCodeSVG value={player.playerId} size={126} bgColor="#ffffff" fgColor="#000000" level="H" />
                 </div>
               </div>
             </div>
+
+            <div className="stadium-background"></div>
+            <div className="cricket-silhouette"></div>
+            <div className="corner-decoration"></div>
           </div>
         </div>
 

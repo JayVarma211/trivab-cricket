@@ -1,10 +1,10 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-const CARD_W = 380;
-const CARD_H = 240;
-const PDF_W  = 85.6; // mm — standard CR80 card width
-const PDF_H  = 54;   // mm — standard CR80 card height
+const CARD_W = 1050;
+const CARD_H = 600;
+const PDF_W  = 105; // mm — standard pass dimensions (7:4 aspect ratio, 105mm x 60mm)
+const PDF_H  = 60;  // mm
 
 /**
  * Capture a DOM element as a properly-aligned canvas and return as a canvas element.
@@ -13,23 +13,20 @@ const PDF_H  = 54;   // mm — standard CR80 card height
  */
 async function captureElement(el) {
   return html2canvas(el, {
-    scale:           3,           // 3× pixel density — crisp at print resolution
+    scale:           2,           // 2× density on 1050x600 = 2100x1200 ultra-crisp resolution
     useCORS:         true,
     allowTaint:      true,
     logging:         false,
-    backgroundColor: '#0a0f1a',  // card background colour fallback
-    // Force the canvas to exactly match the card dimensions so nothing is cut off
+    backgroundColor: '#050608',  // card background colour fallback
     width:           CARD_W,
     height:          CARD_H,
-    // Scroll offsets must be 0 — we're using a fixed off-screen clone
     scrollX:         0,
     scrollY:         0,
-    // windowWidth/Height: match the actual browser viewport so rem/% units resolve correctly
-    windowWidth:     window.innerWidth,
-    windowHeight:    window.innerHeight,
+    windowWidth:     1200,
+    windowHeight:    800,
     x:               0,
     y:               0,
-    imageTimeout:    8000,
+    imageTimeout:    10000,
     onclone: (clonedDoc, clonedEl) => {
       // Reset any layout-shifting properties on the card itself
       clonedEl.style.transform    = 'none';
@@ -40,18 +37,16 @@ async function captureElement(el) {
       clonedEl.style.left         = '0';
       clonedEl.style.width        = `${CARD_W}px`;
       clonedEl.style.height       = `${CARD_H}px`;
-      clonedEl.style.borderRadius = '0';
+      clonedEl.style.borderRadius = '24px';
       clonedEl.style.overflow     = 'hidden';
 
-      // Copy all computed font-size and root CSS variables from the live document
-      // so that rem units resolve the same way in the clone
+      // Copy computed font-size from the live document root
       const liveRoot       = document.documentElement;
       const liveRootStyle  = getComputedStyle(liveRoot);
       const clonedRoot     = clonedDoc.documentElement;
-      const rootFontSize   = liveRootStyle.fontSize; // e.g. "16px"
-      clonedRoot.style.fontSize = rootFontSize;
+      clonedRoot.style.fontSize = liveRootStyle.fontSize || '16px';
 
-      // Inject all custom CSS variables (--gold, --font-body, etc.) into clone root
+      // Inject custom CSS variables into clone root
       const cssVarText = Array.from(document.styleSheets)
         .flatMap(sheet => {
           try {
@@ -88,12 +83,12 @@ async function createAndCaptureClone(el) {
       : new Promise(res => { img.onload = res; img.onerror = res; })
   ));
 
-  // Place clone off-screen but within the document flow so that CSS vars / rem resolve correctly
+  // Place clone off-screen but within the document flow
   const wrapper = document.createElement('div');
   wrapper.style.cssText = `
     position: fixed;
     top: 0;
-    left: -${CARD_W + 200}px;
+    left: -${CARD_W + 500}px;
     width: ${CARD_W}px;
     height: ${CARD_H}px;
     overflow: hidden;
@@ -102,18 +97,19 @@ async function createAndCaptureClone(el) {
   `;
 
   const clone = el.cloneNode(true);
-  // Keep a PDF marker so mobile-only display rules do not resize the print layout.
   clone.classList.add('pdf-clone');
   clone.style.cssText = `
     width: ${CARD_W}px !important;
     height: ${CARD_H}px !important;
+    min-width: ${CARD_W}px !important;
+    min-height: ${CARD_H}px !important;
     margin: 0 !important;
     padding: 0 !important;
     transform: none !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
-    border-radius: 12px !important;
+    border-radius: 24px !important;
     position: static !important;
     flex-shrink: 0 !important;
   `;
@@ -184,3 +180,4 @@ export const downloadIDCardPDF = async (
     throw err;
   }
 };
+

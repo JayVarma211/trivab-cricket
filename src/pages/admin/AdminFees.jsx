@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getCollection, setDocument, addDocument } from '../../firebase/firestore';
 import { safeFormatDate, safeFormatDateTime } from '../../utils/dateFormatter';
 import { 
-  CreditCard, Search, Plus, Edit2, AlertCircle, CheckCircle, Clock, X, Info, Calendar, DollarSign
+  CreditCard, Search, Plus, Edit2, AlertCircle, CheckCircle, Clock, X, Info, Calendar, DollarSign, History
 } from 'lucide-react';
 import Loader from '../../components/common/Loader';
 import './Admin.css';
@@ -33,6 +33,8 @@ export default function AdminFees() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [saving, setSaving] = useState(false);
+  const [historyModal, setHistoryModal] = useState(null); // { team, records }
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     if (role !== 'admin') {
@@ -201,6 +203,23 @@ export default function AdminFees() {
       case 'Pending':
       default:
         return <Clock size={14} className="text-gold" style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />;
+    }
+  };
+
+  const handleViewHistory = async (team) => {
+    setHistoryLoading(true);
+    setHistoryModal({ team, records: [] });
+    try {
+      const allHistory = await getCollection('payment_history') || [];
+      const teamHistory = allHistory
+        .filter(h => h.teamId === team.id)
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setHistoryModal({ team, records: teamHistory });
+    } catch (err) {
+      console.error('Failed to load payment history:', err);
+      setHistoryModal({ team, records: [] });
+    } finally {
+      setHistoryLoading(false);
     }
   };
 
@@ -559,13 +578,22 @@ export default function AdminFees() {
                         {feeInfo && feeInfo.receivingDate ? safeFormatDate(feeInfo.receivingDate) : '—'}
                       </td>
                       <td style={{ verticalAlign: 'middle' }}>
-                        <button
-                          onClick={() => handleEditClick(team.id, feeInfo)}
-                          className="btn btn-outline btn-xs flex items-center gap-xs"
-                          style={{ padding: '4px 8px', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center' }}
-                        >
-                          <Edit2 size={12} /> Configure
-                        </button>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => handleEditClick(team.id, feeInfo)}
+                            className="btn btn-outline btn-xs flex items-center gap-xs"
+                            style={{ padding: '4px 8px', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center' }}
+                          >
+                            <Edit2 size={12} /> Configure
+                          </button>
+                          <button
+                            onClick={() => handleViewHistory(team)}
+                            className="btn btn-outline btn-xs flex items-center gap-xs"
+                            style={{ padding: '4px 8px', fontSize: '0.75rem', display: 'inline-flex', alignItems: 'center', borderColor: '#3B82F6', color: '#60A5FA' }}
+                          >
+                            <History size={12} /> History
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -575,6 +603,107 @@ export default function AdminFees() {
           </table>
         </div>
       </div>
+
+      {/* ── Payment History Modal ── */}
+      {historyModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
+        }}>
+          <div style={{
+            background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)',
+            borderRadius: '16px', padding: '28px', width: '100%', maxWidth: '780px',
+            maxHeight: '88vh', overflowY: 'auto', position: 'relative'
+          }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid var(--admin-border)', paddingBottom: '16px' }}>
+              <div>
+                <h2 style={{ color: 'var(--admin-text)', margin: 0, fontSize: '1.15rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <History size={20} style={{ color: '#60A5FA' }} /> Payment History
+                </h2>
+                <p style={{ margin: '4px 0 0', fontSize: '0.82rem', color: 'var(--admin-muted)' }}>
+                  {historyModal.team.teamName} — {historyModal.team.tournamentName || 'All Tournaments'}
+                </p>
+              </div>
+              <button onClick={() => setHistoryModal(null)} style={{ background: 'none', border: 'none', color: 'var(--admin-text)', cursor: 'pointer' }}>
+                <X size={22} />
+              </button>
+            </div>
+
+            {/* Body */}
+            {historyLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--admin-muted)' }}>
+                <Clock size={32} style={{ opacity: 0.4, marginBottom: '10px', display: 'block', margin: '0 auto 10px' }} />
+                Loading history...
+              </div>
+            ) : historyModal.records.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--admin-muted)' }}>
+                <History size={36} style={{ opacity: 0.3, display: 'block', margin: '0 auto 12px' }} />
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>No payment history records found for this team.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {historyModal.records.map((rec, idx) => {
+                  const bal = Number(rec.totalTournamentFee || 0) - Number(rec.totalPaidAmount || 0);
+                  const statusColor = rec.status === 'Paid' ? '#22c55e' : rec.status === 'Overdue' ? '#ef4444' : '#d4af37';
+                  return (
+                    <div key={idx} style={{
+                      background: 'rgba(255,255,255,0.02)', border: '1px solid var(--admin-border)',
+                      borderRadius: '10px', padding: '14px 18px',
+                      borderLeft: `3px solid ${statusColor}`
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--admin-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Calendar size={12} /> {rec.createdAt ? safeFormatDateTime(rec.createdAt) : '—'}
+                        </span>
+                        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: statusColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          {rec.status || 'Pending'}
+                        </span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px' }}>
+                        <div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Total Fee</div>
+                          <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--admin-text)' }}>{formatCurrency(rec.totalTournamentFee)}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.65rem', color: 'rgba(34,197,94,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Amount Paid</div>
+                          <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#22c55e' }}>{formatCurrency(rec.totalPaidAmount)}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.65rem', color: bal > 0 ? 'rgba(239,68,68,0.8)' : 'rgba(34,197,94,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Balance</div>
+                          <div style={{ fontWeight: 700, fontSize: '0.95rem', color: bal > 0 ? '#ef4444' : '#22c55e' }}>{formatCurrency(bal)}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Payment Date</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--admin-text)' }}>{rec.receivingDate ? safeFormatDate(rec.receivingDate) : '—'}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>Next Due</div>
+                          <div style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--admin-text)' }}>
+                            {rec.nextDue ? safeFormatDate(rec.nextDue) : '—'}
+                            {rec.nextDueAmount ? <span style={{ color: '#d4af37', marginLeft: '4px' }}>({formatCurrency(rec.nextDueAmount)})</span> : ''}
+                          </div>
+                        </div>
+                      </div>
+                      {rec.message && (
+                        <div style={{ marginTop: '10px', fontSize: '0.78rem', color: 'var(--admin-muted)', fontStyle: 'italic', borderTop: '1px solid var(--admin-border)', paddingTop: '8px' }}>
+                          📝 {rec.message}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div style={{ marginTop: '20px', textAlign: 'right' }}>
+              <button onClick={() => setHistoryModal(null)} className="btn btn-outline" style={{ fontSize: '0.85rem' }}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

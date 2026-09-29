@@ -40,386 +40,698 @@
 .digital-id-page {}
 
 .id-card-layout {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-2xl);
-  align-items: flex-start;
-  justify-content: center;
-  max-width: 900px;
+  align-items: center;
+  max-width: 1100px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .card-render-wrapper {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-}
-
-/* ============================================================
-   THE ACTUAL ID CARD — CR80 Standard Proportions
-   85.6mm × 54mm scaled to ~360×227px
-   Horizontal / landscape cricket ID card
-   ============================================================ */
-.id-card-element {
-  width: 380px;
-  height: 240px;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, #0a0f1a 0%, #0d1830 40%, #07101f 100%);
-  border: 2px solid rgba(212,175,55,0.6);
-  border-radius: 16px;
-  position: relative;
-  overflow: hidden;
-  box-shadow:
-    0 0 0 1px rgba(212,175,55,0.12),
-    0 8px 40px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(255,255,255,0.06);
-  font-family: var(--font-body);
-  color: #fff;
-}
-
-/* Decorative elements */
-.id-card-element::before {
-  content: '';
-  position: absolute;
-  top: -60px;
-  right: -60px;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.id-card-element::after {
-  content: '';
-  position: absolute;
-  bottom: -40px;
-  left: -40px;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(139,0,0,0.12) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-/* Top gold stripe */
-.id-card-gold-accent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #8b0000, #d4af37, #8b0000);
-  z-index: 2;
-}
-
-.id-card-inner {
-  padding: 10px 14px;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  gap: 14px;
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-}
-
-/* ---- LEFT STRIP: Photo ---- */
-.id-card-left {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  height: 100%;
-  flex-shrink: 0;
-  padding: 6px 0;
-  box-sizing: border-box;
-  width: 90px;
+  width: 100%;
+  overflow-x: auto;
+  padding: 10px 0;
 }
 
-.id-player-photo {
-  width: 80px;
-  height: 105px;
-  border-radius: 8px;
-  border: 2px solid rgba(212,175,55,0.5);
+/* =========================================================
+   TRIVAB SPORTS & EVENTS
+   PREMIUM PLAYER VERIFIED PASS
+   ========================================================= */
+
+.player-card {
+  --gold: #d9ad3c;
+  --gold-light: #f4d477;
+  --maroon: #8b1018;
+  --maroon-dark: #3d0509;
+  --black: #050608;
+  --white: #ffffff;
+  --muted: #a9b0bd;
+
+  position: relative;
+  width: 1050px;
+  height: 600px;
   overflow: hidden;
-  background: rgba(255,255,255,0.06);
+
+  display: grid;
+  grid-template-columns: 320px 1fr;
+
+  background:
+    radial-gradient(
+      circle at 75% 55%,
+      rgba(126, 15, 25, 0.32),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #050608 0%,
+      #090a0d 45%,
+      #16090b 100%
+    );
+
+  border: 3px solid var(--gold);
+  border-radius: 24px;
+
+  box-shadow:
+    0 0 0 3px #171717,
+    0 15px 40px rgba(0, 0, 0, 0.55);
+
+  color: var(--white);
+  font-family: "Montserrat", "Arial", sans-serif;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   DECORATIVE BACKGROUND
+   ========================================================= */
+
+.player-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(139, 16, 24, 0.35),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 88% 18%,
+      rgba(217, 173, 60, 0.12),
+      transparent 22%
+    );
+
+  pointer-events: none;
+  z-index: 0;
+}
+
+.player-card::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+
+  right: -170px;
+  bottom: -260px;
+
+  border-radius: 50%;
+
+  border: 80px solid rgba(139, 16, 24, 0.13);
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   LEFT PHOTO SECTION
+   ========================================================= */
+
+.player-photo-section {
+  position: relative;
+  z-index: 2;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255,255,255,0.4);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+
+  padding: 40px 25px;
+
+  border-right: 2px solid rgba(217, 173, 60, 0.25);
 }
 
-.id-player-photo img {
+/* diagonal maroon decoration */
+
+.player-photo-section::before {
+  content: "";
+
+  position: absolute;
+  left: -80px;
+  bottom: -90px;
+
+  width: 360px;
+  height: 180px;
+
+  background: linear-gradient(
+    135deg,
+    var(--maroon),
+    #3b0508
+  );
+
+  transform: rotate(-28deg);
+
+  opacity: 0.9;
+}
+
+.player-photo-wrapper {
+  position: relative;
+  z-index: 3;
+
+  width: 250px;
+  height: 360px;
+
+  padding: 6px;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold-light),
+      var(--gold),
+      #75550e
+    );
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.player-photo {
   width: 100%;
   height: 100%;
+
+  display: block;
+
   object-fit: cover;
+
+  border-radius: 19px;
+
+  border: 2px solid #090909;
 }
 
-/* ---- CENTER DIVIDER ---- */
-.id-card-divider {
-  width: 1px;
-  background: rgba(212,175,55,0.15);
-  align-self: stretch;
-  margin: 6px 0;
-  flex-shrink: 0;
-}
+/* =========================================================
+   RIGHT CONTENT
+   ========================================================= */
 
-/* ---- RIGHT: Details ---- */
-.id-card-right {
-  flex: 1;
+.player-content {
+  position: relative;
+  z-index: 2;
+
+  padding: 38px 46px 32px;
+
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
-  min-width: 0;
-  padding: 4px 0;
   box-sizing: border-box;
 }
 
-.id-card-right > div {
-  flex-shrink: 0;
-}
+/* =========================================================
+   HEADER
+   ========================================================= */
 
-/* Header inside card */
-.id-card-header {
+.player-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
+
+  width: 100%;
 }
 
-.id-card-logo {
-  display: flex;
+.trivab-logo-pill {
+  background: #ffffff;
+  border-radius: 36px;
+  padding: 4px 18px;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  border: 2px solid var(--gold);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
-.id-card-brand-logo {
-  height: 70px;
-  margin-top: -12px;
-  margin-bottom: -12px;
+.trivab-logo {
+  height: 52px;
+  width: auto;
+  max-width: 230px;
   object-fit: contain;
-  filter: brightness(1.1);
+  display: block;
 }
 
-.id-card-badge {
-  font-size: 0.55rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  background: linear-gradient(135deg, #8b0000, #d4af37);
-  color: #fff;
-  padding: 3px 8px;
-  border-radius: 100px;
-  text-transform: uppercase;
-}
-
-/* Player name */
-.id-player-name {
-  font-family: var(--font-display);
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #fff;
-  margin: 0 0 4px;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  overflow: visible; /* Prevent vertical split/clipping */
-  text-overflow: ellipsis;
-  padding-bottom: 4px;
-  max-width: 100%;
-}
-
-.id-card-element .id-player-name { color: #fff !important; }
-
-.id-player-style {
-  display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #d4af37;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  background: rgba(212,175,55,0.14);
-  border: 1px solid rgba(212,175,55,0.22);
-  padding: 4px 10px;
-  border-radius: 100px;
-  margin-bottom: 4px;
-}
-
-.id-card-element .id-player-style {
-  color: #d4af37 !important;
-  background: rgba(212,175,55,0.14) !important;
-}
-
-/* Stats row */
-.id-player-stats-row {
+.verified-pass {
   display: flex;
+  align-items: center;
   gap: 12px;
-  margin-bottom: 4px;
-}
 
-.id-player-stats-row div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
+  min-width: 240px;
+  height: 56px;
 
-.id-stat-lbl {
-  font-size: 0.55rem;
-  font-weight: 700;
-  color: rgba(160,180,200,0.75);
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  line-height: 1.3;
-  margin-bottom: 2px;
-}
+  padding: 0 20px;
 
-.id-card-element .id-stat-lbl { color: rgba(160,180,200,0.75) !important; }
+  border: 2px solid var(--gold);
+  border-radius: 16px;
 
-.id-stat-val {
-  font-family: var(--font-display);
+  background:
+    linear-gradient(
+      90deg,
+      #58080d,
+      #9c111b,
+      #d19a27
+    );
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.35);
+
+  font-size: 22px;
   font-weight: 800;
-  font-size: 0.85rem;
-  color: #fff;
-  line-height: 1.2;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  color: #ffffff;
 }
 
-.id-card-element .id-stat-val { color: #fff !important; }
-
-/* Tournaments row */
-.id-player-tournaments-row {
+.verified-icon {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-bottom: 4px;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 50%;
+
+  background: var(--gold);
+  color: #181818;
+
+  font-size: 18px;
+  font-weight: 900;
 }
 
-.id-tournaments-val {
-  font-size: 0.58rem;
-  color: #d4af37;
-  font-weight: 600;
-  max-width: 200px;
+/* =========================================================
+   PLAYER NAME
+   ========================================================= */
+
+.player-name {
+  margin: 20px 0 0;
+
+  font-size: 50px;
+  line-height: 1.1;
+
+  font-weight: 900;
+
+  letter-spacing: -1px;
+
+  color: #ffffff !important;
+
+  text-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-top: 1px;
 }
 
-/* Footer inside card */
-.id-card-footer {
-  border-top: 1px solid rgba(212,175,55,0.12);
-  padding-top: 6px;
+/* gold underline */
+
+.player-name::after {
+  content: "";
+
+  display: block;
+
+  width: 220px;
+  height: 5px;
+
+  margin-top: 14px;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--gold-light),
+      var(--gold),
+      transparent
+    );
+}
+
+/* =========================================================
+   PLAYING ROLE
+   ========================================================= */
+
+.player-role {
+  width: fit-content;
+
+  min-width: 340px;
+
+  padding: 12px 28px;
+
+  margin-top: 16px;
+
+  border-radius: 35px;
+
+  border: 2px solid var(--gold);
+
+  background:
+    linear-gradient(
+      100deg,
+      #d9a72e,
+      #f1cb68 48%,
+      #8c6213
+    );
+
+  color: #151515 !important;
+
+  font-size: 24px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+
+  box-shadow:
+    0 7px 20px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
+.player-role .role-icon {
+  font-size: 18px;
+}
+
+/* =========================================================
+   INFORMATION DIVIDER
+   ========================================================= */
+
+.player-info {
+  position: relative;
+
+  margin-top: 20px;
+
+  padding-top: 18px;
+
+  border-top: 2px solid rgba(217, 173, 60, 0.25);
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-end;
 }
 
-.id-code-group {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-  justify-content: center;
+/* =========================================================
+   PLAYER ID
+   ========================================================= */
+
+.player-id-label {
+  margin-bottom: 6px;
+
+  color: #aeb8c8;
+
+  font-size: 16px;
+
+  font-weight: 800;
+
+  letter-spacing: 3px;
+  text-transform: uppercase;
 }
 
-.id-code-text {
-  display: block; /* Render as block element for html2canvas */
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #fff;
+.player-id {
+  font-size: 28px;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  color: #ffffff !important;
+
   white-space: nowrap;
-  overflow: visible; /* Prevent character cut-offs */
-  text-overflow: ellipsis;
-  max-width: 140px;
-  line-height: 1.4;
-  padding-bottom: 4px; /* Safe padding for descenders */
 }
 
-.id-card-element .id-code-text { color: #fff !important; }
+.player-id::after {
+  content: "";
+  display: block;
+  width: 140px;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: 4px;
+  background: var(--gold);
+}
 
-.id-qr-box {
-  background: #fff;
-  padding: 5px;
-  border-radius: 8px;
+/* =========================================================
+   QR CODE
+   ========================================================= */
+
+.player-qr {
+  width: 142px;
+  height: 142px;
+
+  padding: 8px;
+
+  background: #ffffff;
+
+  border: 3px solid var(--gold);
+
+  border-radius: 18px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 74px;
-  height: 74px;
-  box-sizing: border-box;
 }
 
-.id-qr-box svg {
+.player-qr img,
+.player-qr canvas,
+.player-qr svg {
   width: 100% !important;
   height: 100% !important;
+
   display: block;
+}
+
+/* =========================================================
+   SUBTLE STADIUM EFFECT
+   ========================================================= */
+
+.stadium-background {
+  position: absolute;
+
+  right: 0;
+  bottom: 0;
+
+  width: 65%;
+  height: 45%;
+
+  opacity: 0.12;
+
+  background:
+    linear-gradient(
+      transparent 45%,
+      #8d1018 45%,
+      #8d1018 48%,
+      transparent 48%
+    );
+
+  clip-path: polygon(
+    0 80%,
+    15% 55%,
+    30% 70%,
+    50% 40%,
+    70% 65%,
+    85% 45%,
+    100% 60%,
+    100% 100%,
+    0 100%
+  );
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   OPTIONAL CRICKET PLAYER SILHOUETTE
+   ========================================================= */
+
+.cricket-silhouette {
+  position: absolute;
+
+  right: 25px;
+  top: 145px;
+
+  width: 280px;
+  height: 280px;
+
+  opacity: 0.11;
+
+  background:
+    radial-gradient(
+      circle at 55% 25%,
+      #ffffff 0 12%,
+      transparent 13%
+    ),
+    linear-gradient(
+      110deg,
+      transparent 35%,
+      #ffffff 36% 44%,
+      transparent 45%
+    );
+
+  transform: rotate(-5deg);
+
+  pointer-events: none;
+}
+
+/* =========================================================
+   GOLD CORNER ACCENTS
+   ========================================================= */
+
+.corner-decoration {
+  position: absolute;
+
+  left: -20px;
+  bottom: -30px;
+
+  width: 330px;
+  height: 130px;
+
+  transform: rotate(-30deg);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(217, 173, 60, 0.9),
+      transparent
+    );
+
+  opacity: 0.7;
+
+  pointer-events: none;
 }
 
 /* ============================================================
    ACTIONS PANEL (right side of page)
    ============================================================ */
 .id-actions-panel {
-  min-height: 280px;
+  min-height: 200px;
+  width: 100%;
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-@media (max-width: 860px) {
-  .id-card-layout {
-    grid-template-columns: 1fr;
-    max-width: 480px;
+/* =========================================================
+   RESPONSIVE CARD
+   ========================================================= */
+
+@media (max-width: 1100px) and (min-width: 901px) {
+  .player-card:not(.pdf-clone) {
+    transform: scale(0.85);
+    transform-origin: top center;
+    margin-bottom: -90px;
   }
 }
 
-@media (max-width: 480px) {
-  .id-card-element:not(.pdf-clone) {
-    width: 320px;
-    height: 202px;
+@media (max-width: 900px) {
+  .player-card:not(.pdf-clone) {
+    width: 100%;
+    height: auto;
+    min-height: 520px;
+
+    grid-template-columns: 230px 1fr;
   }
-  .id-card-element:not(.pdf-clone) .id-card-inner {
-    padding: 8px 10px;
-    gap: 10px;
+
+  .player-card:not(.pdf-clone) .player-photo-wrapper {
+    width: 180px;
+    height: 260px;
   }
-  .id-card-element:not(.pdf-clone) .id-card-left {
-    width: 76px;
-    padding: 2px 0;
+
+  .player-card:not(.pdf-clone) .player-content {
+    padding: 35px 30px;
   }
-  .id-card-element:not(.pdf-clone) .id-player-photo {
-    width: 66px;
-    height: 86px;
+
+  .player-card:not(.pdf-clone) .trivab-logo {
+    height: 40px;
+    max-width: 170px;
   }
-  .id-card-element:not(.pdf-clone) .id-card-right {
-    padding: 2px 0;
-  }
-  .id-card-element:not(.pdf-clone) .id-card-brand-logo {
+
+  .player-card:not(.pdf-clone) .verified-pass {
+    min-width: auto;
     height: 48px;
-    margin-top: -8px;
-    margin-bottom: -8px;
+
+    padding: 0 14px;
+
+    font-size: 16px;
   }
-  .id-card-element:not(.pdf-clone) .id-player-name {
-    font-size: 0.95rem;
-    margin-bottom: 2px;
+
+  .player-card:not(.pdf-clone) .player-name {
+    margin-top: 24px;
+    font-size: 38px;
   }
-  .id-card-element:not(.pdf-clone) .id-player-style {
-    font-size: 0.65rem;
-    padding: 2px 8px;
+
+  .player-card:not(.pdf-clone) .player-role {
+    min-width: 260px;
+    font-size: 18px;
   }
-  .id-card-element:not(.pdf-clone) .id-card-footer {
-    padding-top: 6px;
-  }
-  .id-card-element:not(.pdf-clone) .id-qr-box {
-    width: 60px;
-    height: 60px;
-    padding: 4px;
-  }
-  .id-card-element:not(.pdf-clone) .id-code-text {
-    display: block;
-    font-size: 0.72rem;
-    max-width: 100px;
-    padding-bottom: 2px;
+
+  .player-card:not(.pdf-clone) .player-qr {
+    width: 115px;
+    height: 115px;
   }
 }
+
+@media (max-width: 600px) {
+  .player-card:not(.pdf-clone) {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+  }
+
+  .player-card:not(.pdf-clone) .player-photo-section {
+    border-right: none;
+    border-bottom: 2px solid rgba(217, 173, 60, 0.25);
+    padding: 25px 20px;
+  }
+
+  .player-card:not(.pdf-clone) .player-photo-wrapper {
+    width: 160px;
+    height: 220px;
+  }
+
+  .player-card:not(.pdf-clone) .player-content {
+    padding: 24px 18px;
+  }
+
+  .player-card:not(.pdf-clone) .player-name {
+    margin-top: 16px;
+    font-size: 28px;
+  }
+
+  .player-card:not(.pdf-clone) .player-role {
+    min-width: 200px;
+    font-size: 15px;
+    padding: 8px 16px;
+  }
+
+  .player-card:not(.pdf-clone) .player-id {
+    font-size: 20px;
+  }
+
+  .player-card:not(.pdf-clone) .player-qr {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+/* =========================================================
+   PRINT / ID CARD EXPORT
+   ========================================================= */
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  .player-card {
+    box-shadow: none;
+
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
