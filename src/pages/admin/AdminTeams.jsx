@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { getCollection, addDocument, updateDocument, deleteDocument, where } from '../../firebase/firestore';
-import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, X, Users, Loader2, Download, Upload } from 'lucide-react';
+import { getCollection, addDocument, updateDocument, deleteDocument, setDocument, getDocument, where } from '../../firebase/firestore';
+import { Trophy, Trash2, Plus, AlertCircle, Edit2, Search, X, Users, Loader2, Download, Upload, Crown } from 'lucide-react';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import './Admin.css';
 
@@ -14,11 +14,13 @@ export default function AdminTeams() {
   const [players, setPlayers] = useState([]);
   const [captains, setCaptains] = useState([]);
   const [registrations, setRegistrations] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -225,21 +227,186 @@ export default function AdminTeams() {
 
   const fetchData = async () => {
     try {
-      const teamsData = await getCollection('teams', []);
-      const tournamentsData = await getCollection('tournaments', []);
-      const playersData = await getCollection('players', []);
-      const captainsData = await getCollection('captains', []);
-      const registrationsData = await getCollection('registrations', []);
-      setTeams(teamsData);
+      const [teamsData, tournamentsData, playersData, captainsData, registrationsData, usersData] = await Promise.all([
+        getCollection('teams', []),
+        getCollection('tournaments', []),
+        getCollection('players', []),
+        getCollection('captains', []),
+        getCollection('registrations', []),
+        getCollection('users', []),
+      ]);
+      setTeams(teamsData || []);
       setTournaments(tournamentsData || []);
-      setPlayers(playersData);
+      setPlayers(playersData || []);
       setCaptains(captainsData || []);
       setRegistrations(registrationsData || []);
+      setUsers(usersData || []);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load teams');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const assignCaptainToTeam = async (targetTeamId, newCaptainPlayer, teamNameOverride = null) => {
+    const currentTeam = teams.find(t => t.id === targetTeamId) || (await getDocument('teams', targetTeamId));
+    if (!currentTeam) throw new Error('Target team could not be found');
+
+    const effectiveTeamName = teamNameOverride || currentTeam.teamName;
+    const oldCaptainId = currentTeam.captainId;
+
+    // Resolve new captain's Firebase user UID:
+    let newUid = newCaptainPlayer.uid;
+    if (!newUid) {
+      const matchedUser = users.find(u => u.email && newCaptainPlayer.email && u.email.toLowerCase() === newCaptainPlayer.email.toLowerCase());
+      if (matchedUser) {
+        newUid = matchedUser.id || matchedUser.uid;
+      }
+    }
+    if (!newUid) {
+      newUid = newCaptainPlayer.id || newCaptainPlayer.playerId;
+    }
+
+    const newFullName = newCaptainPlayer.fullName || newCaptainPlayer.name || 'Team Captain';
+    const newEmail = newCaptainPlayer.email || '';
+    const newMobile = newCaptainPlayer.mobile || '';
+    const newPhoto = newCaptainPlayer.photoURL || '';
+
+    // 1. Demote old captain if one exists and is different from new captain
+    if (oldCaptainId && oldCaptainId !== newUid) {
+      const otherTeams = teams.filter(t => t.id !== targetTeamId && t.captainId === oldCaptainId);
+      if (otherTeams.length === 0) {
+        // Demote in users collection
+        try {
+          await updateDocument('users', oldCaptainId, { role: 'player' });
+        } catch (e) {
+          console.warn('Demote old captain in users notice:', e);
+        }
+
+        // Delete from captains collection
+        try {
+          await deleteDocument('captains', oldCaptainId);
+        } catch (e) {
+          console.warn('Delete old captain doc notice:', e);
+        }
+      }
+
+      // Update old captain's player doc to regular player
+      const oldPlayerDoc = players.find(p => p.uid === oldCaptainId || p.id === oldCaptainId);
+      if (oldPlayerDoc) {
+        try {
+          await updateDocument('players', oldPlayerDoc.id, { role: 'player', isCaptain: false });
+        } catch (e) {}
+      }
+
+      // Update old captain's registrations for this team
+      const oldRegs = registrations.filter(r => r.teamId === targetTeamId && (r.playerId === oldCaptainId || r.uid === oldCaptainId || (oldPlayerDoc && r.playerId === oldPlayerDoc.id)));
+      for (const r of oldRegs) {
+        try {
+          await updateDocument('registrations', r.id, { role: 'player' });
+        } catch (e) {}
+      }
+    }
+
+    // 2. Promote new captain
+    if (newUid) {
+      // Update in users collection
+      try {
+        await updateDocument('users', newUid, {
+          role: 'captain',
+          teamId: targetTeamId,
+          teamName: effectiveTeamName
+        });
+      } catch (e) {
+        try {
+          await setDocument('users', newUid, {
+            uid: newUid,
+            name: newFullName,
+            email: newEmail,
+            mobile: newMobile,
+            role: 'captain',
+            teamId: targetTeamId,
+            teamName: effectiveTeamName
+          });
+        } catch (err2) {
+          console.warn('Upsert user doc for new captain notice:', err2);
+        }
+      }
+
+      // Upsert in captains collection
+      try {
+        await setDocument('captains', newUid, {
+          captainId: newCaptainPlayer.captainId || `CAPT-${Date.now().toString().slice(-6)}`,
+          uid: newUid,
+          fullName: newFullName,
+          email: newEmail,
+          mobile: newMobile,
+          photoURL: newPhoto,
+          teamId: targetTeamId,
+          teamName: effectiveTeamName,
+          updatedAt: new Date().toISOString()
+        });
+      } catch (e) {
+        console.warn('Upsert captain doc notice:', e);
+      }
+
+      // Update new captain's player doc
+      const newPlayerDoc = players.find(p => p.uid === newUid || p.id === newCaptainPlayer.id || p.id === newCaptainPlayer.playerId);
+      if (newPlayerDoc) {
+        try {
+          await updateDocument('players', newPlayerDoc.id, {
+            role: 'captain',
+            isCaptain: true,
+            teamId: targetTeamId,
+            teamName: effectiveTeamName
+          });
+        } catch (e) {}
+      }
+
+      // Update new captain's registrations for this team
+      const newRegs = registrations.filter(r => r.teamId === targetTeamId && (r.uid === newUid || r.playerId === newCaptainPlayer.id || r.playerId === newCaptainPlayer.playerId || (newPlayerDoc && r.playerId === newPlayerDoc.id)));
+      for (const r of newRegs) {
+        try {
+          await updateDocument('registrations', r.id, { role: 'captain' });
+        } catch (e) {}
+      }
+    }
+
+    // 3. Update team doc
+    await updateDocument('teams', targetTeamId, {
+      captainId: newUid,
+      captainName: newFullName
+    });
+
+    return { oldCaptainId, newUid, newFullName };
+  };
+
+  const handlePromotePlayerInModal = async (player) => {
+    if (!selectedTeamForModal) return;
+    const confirmMsg = `Are you sure you want to make "${player.fullName}" the Captain of "${selectedTeamForModal.teamName}"?\n\n• Previous captain will revert to a regular player.\n• ${player.fullName} will immediately be granted Captain role and access to the Captain Dashboard.`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoadingTeamModal(true);
+    setError('');
+    setSuccess('');
+    try {
+      await assignCaptainToTeam(selectedTeamForModal.id, player);
+      
+      const updatedTeam = {
+        ...selectedTeamForModal,
+        captainId: player.uid || player.id,
+        captainName: player.fullName
+      };
+      setSelectedTeamForModal(updatedTeam);
+
+      await fetchData();
+      setSuccess(`Successfully changed captain to ${player.fullName}! Their dashboard access has updated to Captain Dashboard.`);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to change captain: ' + (err.message || 'Unknown error'));
+    } finally {
+      setLoadingTeamModal(false);
     }
   };
 
@@ -281,13 +448,14 @@ export default function AdminTeams() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     try {
       const teamData = {
         teamName: formData.teamName,
         city: formData.city,
-        captainId: formData.captainId,
-        captainName: formData.captainName,
+        captainId: formData.captainId || '',
+        captainName: formData.captainName || '',
         wins: formData.wins || 0,
         losses: formData.losses || 0,
         playerCount: formData.playerCount || 0,
@@ -298,12 +466,40 @@ export default function AdminTeams() {
       };
 
       if (editingId) {
+        const originalTeam = teams.find(t => t.id === editingId);
         await updateDocument('teams', editingId, teamData);
+
+        // Check if captain changed
+        const captainChanged = formData.captainId !== originalTeam?.captainId || formData.captainName !== originalTeam?.captainName;
+
+        if (captainChanged && formData.captainId && formData.captainId !== 'custom') {
+          const selectedPlayer = players.find(p => (p.uid === formData.captainId || p.id === formData.captainId))
+            || users.find(u => (u.uid === formData.captainId || u.id === formData.captainId));
+
+          if (selectedPlayer) {
+            await assignCaptainToTeam(editingId, selectedPlayer, formData.teamName);
+          }
+        } else if (captainChanged && originalTeam?.captainId && (!formData.captainId || formData.captainId === 'custom')) {
+          // If captain was removed or changed to a custom manual name
+          const otherTeams = teams.filter(t => t.id !== editingId && t.captainId === originalTeam.captainId);
+          if (otherTeams.length === 0) {
+            try { await updateDocument('users', originalTeam.captainId, { role: 'player' }); } catch(e){}
+            try { await deleteDocument('captains', originalTeam.captainId); } catch(e){}
+          }
+        }
+        setSuccess('Team and captain details updated successfully!');
       } else {
-        await addDocument('teams', teamData);
+        const docRef = await addDocument('teams', teamData);
+        if (formData.captainId && formData.captainId !== 'custom') {
+          const selectedPlayer = players.find(p => (p.uid === formData.captainId || p.id === formData.captainId));
+          if (selectedPlayer) {
+            await assignCaptainToTeam(docRef.id, selectedPlayer, formData.teamName);
+          }
+        }
+        setSuccess('New team created successfully!');
       }
 
-      fetchData();
+      await fetchData();
       setShowForm(false);
       setEditingId(null);
       resetForm();
@@ -330,17 +526,21 @@ export default function AdminTeams() {
 
       // Update captain associated with this team if they exist
       if (teamToDelete && teamToDelete.captainId) {
-        try {
-          await updateDocument('captains', teamToDelete.captainId, {
-            teamId: '',
-            teamName: ''
-          });
-        } catch (captErr) {
-          console.warn("Failed to update captain team fields:", captErr);
+        const otherTeams = teams.filter(t => t.id !== id && t.captainId === teamToDelete.captainId);
+        if (otherTeams.length === 0) {
+          try {
+            await updateDocument('users', teamToDelete.captainId, { role: 'player' });
+          } catch (e) {}
+          try {
+            await deleteDocument('captains', teamToDelete.captainId);
+          } catch (captErr) {
+            console.warn("Failed to delete captain profile:", captErr);
+          }
         }
       }
       
       fetchData();
+      setSuccess('Team deleted.');
     } catch (err) {
       setError('Failed to delete team');
     }
@@ -361,6 +561,8 @@ export default function AdminTeams() {
     });
     setEditingId(team.id);
     setShowForm(true);
+    setError('');
+    setSuccess('');
   };
 
   const resetForm = () => {
@@ -384,6 +586,14 @@ export default function AdminTeams() {
     const matchesTournament = selectedTournamentFilter === 'All' || t.tournamentId === selectedTournamentFilter;
     return matchesSearch && matchesTournament;
   });
+
+  const squadPlayersForForm = editingId
+    ? players.filter(p => {
+        const inTeam = p.teamId === editingId;
+        const inRegs = registrations.some(r => r.teamId === editingId && (r.playerId === p.id || r.uid === p.uid));
+        return inTeam || inRegs;
+      })
+    : [];
 
   if (loading) return <div className="container section-padding"><p>Loading...</p></div>;
 
@@ -429,6 +639,12 @@ export default function AdminTeams() {
         <div className="alert alert-error mb-lg">
           <AlertCircle size={18} />
           <span>{error}</span>
+        </div>
+      )}
+
+      {success && (
+        <div className="alert alert-success mb-lg" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10b981', color: '#34d399', padding: '12px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>✓ {success}</span>
         </div>
       )}
 
@@ -509,16 +725,78 @@ export default function AdminTeams() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Captain Name</label>
-              <input
-                type="text"
-                name="captainName"
-                className="form-input"
-                placeholder="Captain name"
-                value={formData.captainName}
-                onChange={handleInputChange}
-              />
+            <div className="form-group col-2">
+              <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Crown size={15} color="#d4af37" /> Assign Team Captain
+                </span>
+                {formData.captainName && (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--gold)', fontWeight: 600 }}>
+                    Active: {formData.captainName}
+                  </span>
+                )}
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '10px' }}>
+                <div>
+                  <select
+                    className="form-select"
+                    value={formData.captainId || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) {
+                        setFormData(prev => ({ ...prev, captainId: '', captainName: '' }));
+                        return;
+                      }
+                      if (val === 'custom') {
+                        setFormData(prev => ({ ...prev, captainId: 'custom' }));
+                        return;
+                      }
+                      const player = players.find(p => (p.uid === val || p.id === val));
+                      if (player) {
+                        setFormData(prev => ({
+                          ...prev,
+                          captainId: player.uid || player.id,
+                          captainName: player.fullName
+                        }));
+                      }
+                    }}
+                  >
+                    <option value="">-- Choose from Registered Players --</option>
+                    {squadPlayersForForm.length > 0 && (
+                      <optgroup label={`Current Squad Players (${squadPlayersForForm.length})`}>
+                        {squadPlayersForForm.map(p => (
+                          <option key={p.id} value={p.uid || p.id}>
+                            {p.fullName} {p.playingStyle ? `(${p.playingStyle})` : ''}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    <optgroup label="All Registered Players">
+                      {players
+                        .filter(p => !squadPlayersForForm.some(sp => sp.id === p.id))
+                        .map(p => (
+                          <option key={p.id} value={p.uid || p.id}>
+                            {p.fullName} ({p.teamName || 'Free Agent'})
+                          </option>
+                        ))}
+                    </optgroup>
+                    <option value="custom">✏️ Enter Custom Name Manually...</option>
+                  </select>
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    name="captainName"
+                    className="form-input"
+                    placeholder="Captain Name"
+                    value={formData.captainName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, captainName: e.target.value, captainId: prev.captainId || 'custom' }))}
+                  />
+                </div>
+              </div>
+              <span style={{ fontSize: '0.72rem', color: 'var(--admin-muted)', marginTop: '4px', display: 'block' }}>
+                Selecting a registered player promotes them to Captain (giving them immediate Captain Dashboard access) and demotes previous captain to player.
+              </span>
             </div>
 
             <div className="form-group">
@@ -712,10 +990,22 @@ export default function AdminTeams() {
               </button>
             </div>
 
+            {error && (
+              <div className="alert alert-error mb-sm" style={{ padding: '8px 12px', fontSize: '0.78rem' }}>
+                <AlertCircle size={14} />
+                <span>{error}</span>
+              </div>
+            )}
+            {success && (
+              <div className="alert alert-success mb-sm" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid #10b981', color: '#34d399', padding: '8px 12px', fontSize: '0.78rem', borderRadius: '6px', marginBottom: '12px' }}>
+                <span>✓ {success}</span>
+              </div>
+            )}
+
             {loadingTeamModal ? (
               <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', color: 'var(--text-muted)' }}>
                 <Loader2 size={32} className="spin text-gold" style={{ margin: '0 auto var(--space-sm)' }} />
-                <p style={{ fontSize: '0.85rem' }}>Loading roster details...</p>
+                <p style={{ fontSize: '0.85rem' }}>Updating roster and captain status...</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -728,6 +1018,9 @@ export default function AdminTeams() {
                       {teamModalPlayers.map((p, idx) => {
                         const tournObj = p.joinedTournaments?.find(jt => (typeof jt === 'string' ? jt : jt.id) === selectedTeamForModal.tournamentId);
                         const tournMatches = tournObj?.matchesPlayed !== undefined ? tournObj.matchesPlayed : 0;
+                        const isCurrentCaptain = selectedTeamForModal.captainId === (p.uid || p.id) ||
+                          (selectedTeamForModal.captainName && p.fullName === selectedTeamForModal.captainName);
+
                         return (
                           <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 12px', background: 'var(--bg-secondary)', borderRadius: '6px', border: '1px solid var(--border-card)' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -743,6 +1036,21 @@ export default function AdminTeams() {
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                               <span className="badge badge-gold" style={{ fontSize: '0.65rem' }}>Matches: {tournMatches} (Total: {p.matchesPlayed || 0})</span>
                               <span className="badge badge-blue" style={{ fontSize: '0.65rem' }}>#{p.jerseyNumber || '—'}</span>
+                              {isCurrentCaptain ? (
+                                <span className="badge" style={{ fontSize: '0.68rem', background: 'rgba(212,175,55,0.2)', color: 'var(--gold)', border: '1px solid var(--gold)', display: 'inline-flex', alignItems: 'center', gap: '4px', fontWeight: 700, padding: '2px 8px' }}>
+                                  <Crown size={12} /> Captain
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handlePromotePlayerInModal(p)}
+                                  className="btn btn-outline"
+                                  style={{ padding: '2px 8px', fontSize: '0.68rem', height: 'auto', display: 'inline-flex', alignItems: 'center', gap: '4px', borderColor: 'var(--gold)', color: 'var(--gold)', cursor: 'pointer' }}
+                                  title={`Promote ${p.fullName} to Team Captain`}
+                                >
+                                  <Crown size={12} /> Make Captain
+                                </button>
+                              )}
                             </div>
                           </div>
                         );

@@ -7,7 +7,7 @@ import Loader from '../../components/common/Loader';
 import './Player.css';
 
 export default function PlayerDashboard() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [player, setPlayer] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [matches, setMatches] = useState([]);
@@ -68,6 +68,32 @@ export default function PlayerDashboard() {
 
   return (
     <div className="player-dashboard page-enter container section-padding">
+      {role === 'captain' && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(212,175,55,0.2) 0%, rgba(128,0,0,0.25) 100%)',
+          border: '1px solid var(--gold)',
+          borderRadius: '12px',
+          padding: '14px 20px',
+          marginBottom: '24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Award className="text-gold" size={24} />
+            <div>
+              <strong style={{ color: 'var(--gold)', display: 'block', fontSize: '0.95rem' }}>👑 You are assigned as Team Captain!</strong>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>You have access to manage squads, review registrations, track fees, and view fixtures in the Captain Dashboard.</span>
+            </div>
+          </div>
+          <Link to="/captain/dashboard" className="btn btn-gold btn-sm" style={{ whiteSpace: 'nowrap', fontWeight: 700 }}>
+            Go to Captain Dashboard →
+          </Link>
+        </div>
+      )}
+
       <div className="dashboard-header flex justify-between items-center mb-xl">
         <div>
           <span className="text-gold text-sm font-bold uppercase tracking-wider">Dashboard</span>

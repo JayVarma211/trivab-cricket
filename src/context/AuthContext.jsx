@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthChange } from '../firebase/auth';
-import { getDocument } from '../firebase/firestore';
+import { getDocument, subscribeDocument } from '../firebase/firestore';
 
 const AuthContext = createContext(null);
 
@@ -12,25 +12,49 @@ export const AuthProvider = ({ children }) => {
   const [adminMode, setAdminMode] = useState(false);
 
   useEffect(() => {
+    let unsubUserDoc = null;
     const unsub = onAuthChange(async (firebaseUser) => {
+      if (unsubUserDoc) {
+        unsubUserDoc();
+        unsubUserDoc = null;
+      }
+
       if (firebaseUser) {
         setUser(firebaseUser);
         try {
-          const profile = await getDocument('users', firebaseUser.uid);
-          setUserProfile(profile);
-          setRole(profile?.role || 'player');
-        } catch {
-          setRole('player');
+          unsubUserDoc = subscribeDocument('users', firebaseUser.uid, (profile) => {
+            if (profile) {
+              setUserProfile(profile);
+              setRole(profile.role || 'player');
+            } else {
+              setRole('player');
+            }
+            setLoading(false);
+          });
+        } catch (err) {
+          console.warn('Real-time subscription to user doc fallback to getDocument:', err);
+          try {
+            const profile = await getDocument('users', firebaseUser.uid);
+            setUserProfile(profile);
+            setRole(profile?.role || 'player');
+          } catch {
+            setRole('player');
+          }
+          setLoading(false);
         }
       } else {
         setUser(null);
         setUserProfile(null);
         setRole(null);
         setAdminMode(false);
+        setLoading(false);
       }
-      setLoading(false);
     });
-    return unsub;
+
+    return () => {
+      if (unsubUserDoc) unsubUserDoc();
+      unsub();
+    };
   }, []);
 
   const updateUserProfile = (profile) => {

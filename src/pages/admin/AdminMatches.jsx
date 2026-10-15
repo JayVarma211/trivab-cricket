@@ -71,8 +71,9 @@ export const timeTo24h = (timeStr) => {
 };
 
 export const formatDateSafe = (dateStr) => {
-  if (!dateStr) return '—';
-  const str = typeof dateStr === 'string' ? dateStr : (dateStr?.seconds ? new Date(dateStr.seconds * 1000).toISOString() : String(dateStr));
+  if (!dateStr) return 'TBD';
+  const str = typeof dateStr === 'string' ? dateStr.trim() : (dateStr?.seconds ? new Date(dateStr.seconds * 1000).toISOString() : String(dateStr).trim());
+  if (!str || str.toUpperCase() === 'TBD') return 'TBD';
   try {
     let d = new Date(str);
     if (isNaN(d.getTime())) {
@@ -90,7 +91,9 @@ export const formatDateSafe = (dateStr) => {
 };
 
 export const formatDateForInput = (dateStr) => {
-  if (!dateStr) return new Date().toISOString().split('T')[0];
+  if (!dateStr) return '';
+  const str = String(dateStr).trim();
+  if (str.toUpperCase() === 'TBD') return 'TBD';
 
   if (typeof dateStr === 'object' && dateStr?.seconds) {
     const d = new Date(dateStr.seconds * 1000);
@@ -100,7 +103,6 @@ export const formatDateForInput = (dateStr) => {
     return `${year}-${month}-${day}`;
   }
 
-  const str = String(dateStr).trim();
   const ymdMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (ymdMatch) {
     return `${ymdMatch[1]}-${ymdMatch[2]}-${ymdMatch[3]}`;
@@ -114,11 +116,11 @@ export const formatDateForInput = (dateStr) => {
     return `${year}-${month}-${day}`;
   }
 
-  return new Date().toISOString().split('T')[0];
+  return str;
 };
 
 export const getMatchDateYMD = (dateStr) => {
-  if (!dateStr) return '';
+  if (!dateStr || String(dateStr).trim().toUpperCase() === 'TBD') return '';
 
   if (typeof dateStr === 'object' && dateStr?.seconds) {
     const d = new Date(dateStr.seconds * 1000);
@@ -212,8 +214,15 @@ export default function AdminMatches() {
       const teamsData = await getCollection('teams', []);
       const tournamentsData = await getCollection('tournaments', []);
       
-      // Sort matches by date asc
-      matchesData.sort((a, b) => new Date(a.date || '2099-01-01') - new Date(b.date || '2099-01-01'));
+      // Sort matches by date asc, placing TBD at the end
+      matchesData.sort((a, b) => {
+        const parseTime = (d) => {
+          if (!d || String(d).trim().toUpperCase() === 'TBD') return Infinity;
+          const t = new Date(d).getTime();
+          return isNaN(t) ? Infinity : t;
+        };
+        return parseTime(a.date) - parseTime(b.date);
+      });
 
       setMatches(matchesData);
       setTeams(teamsData);
@@ -280,9 +289,9 @@ export default function AdminMatches() {
         teamAId: teamAObj?.id || '',
         teamBId: teamBObj?.id || '',
         targetTeamName: targetAudience,
-        venue: formData.venue || '',
-        date: formData.date || '',
-        time: formattedTime,
+        venue: formData.venue || 'TBD',
+        date: formData.date || 'TBD',
+        time: formattedTime || '',
         status: formData.status || 'Upcoming',
         format: formData.format || 'T20',
         tournamentId: formData.tournamentId || '',
@@ -352,14 +361,15 @@ export default function AdminMatches() {
     const tDesc = getStringVal(match.description);
     const rawDate = match.date;
     const rawTime = getStringVal(match.time);
+    const isDateTBD = typeof rawDate === 'string' && rawDate.trim().toUpperCase() === 'TBD';
 
     setFormData({
       title: tTitle,
       type: tType,
       teamA: tA,
       teamB: tB,
-      venue: tVenue,
-      date: formatDateForInput(rawDate),
+      venue: tVenue || '',
+      date: isDateTBD ? 'TBD' : formatDateForInput(rawDate),
       time: timeTo24h(rawTime),
       status: tStatus,
       format: tFormat,
@@ -945,19 +955,40 @@ export default function AdminMatches() {
               {/* Date & Time */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
                 <div className="form-group">
-                  <label className="form-label">DATE *</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label className="form-label" style={{ margin: 0 }}>DATE (Optional / TBD)</label>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(p => ({ ...p, date: p.date === 'TBD' ? '' : 'TBD' }))}
+                      style={{
+                        background: formData.date === 'TBD' ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.06)',
+                        border: '1px solid ' + (formData.date === 'TBD' ? 'var(--gold)' : 'var(--admin-border)'),
+                        color: formData.date === 'TBD' ? 'var(--gold)' : 'var(--admin-muted)',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.72rem',
+                        cursor: 'pointer',
+                        fontWeight: 600
+                      }}
+                    >
+                      {formData.date === 'TBD' ? '✓ TBD Set' : 'Set as TBD'}
+                    </button>
+                  </div>
                   <input
                     className="form-input"
-                    type="date"
+                    type={formData.date === 'TBD' || (formData.date && !/^\d{4}-\d{2}-\d{2}$/.test(formData.date)) ? 'text' : 'date'}
                     name="date"
-                    required
+                    placeholder="YYYY-MM-DD or TBD"
                     value={formData.date}
                     onChange={handleInputChange}
                   />
+                  <span style={{ fontSize: '0.73rem', color: 'var(--admin-muted)', marginTop: '4px' }}>
+                    Optional. Enter date, leave blank, or type TBD to schedule later.
+                  </span>
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">TIME</label>
+                  <label className="form-label">TIME (Optional)</label>
                   <input
                     className="form-input"
                     type="time"
@@ -976,15 +1007,18 @@ export default function AdminMatches() {
               {/* Venue & Format */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
                 <div className="form-group">
-                  <label className="form-label">VENUE / LOCATION</label>
+                  <label className="form-label">VENUE / LOCATION (Optional / TBD)</label>
                   <input
                     className="form-input"
                     type="text"
                     name="venue"
-                    placeholder="e.g. Kandivali Ground, Mumbai"
+                    placeholder="e.g. Kandivali Ground, Mumbai (or TBD)"
                     value={formData.venue}
                     onChange={handleInputChange}
                   />
+                  <span style={{ fontSize: '0.73rem', color: 'var(--admin-muted)', marginTop: '4px' }}>
+                    Optional. Leave blank or type TBD to set location later.
+                  </span>
                 </div>
 
                 <div className="form-group">

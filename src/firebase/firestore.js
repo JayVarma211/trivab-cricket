@@ -47,6 +47,12 @@ export const subscribeCollection = (col, constraints, callback) => {
   );
 };
 
+export const subscribeDocument = (col, id, callback) => {
+  return onSnapshot(doc(db, col, id), (snap) =>
+    callback(snap.exists() ? { id: snap.id, ...snap.data() } : null)
+  );
+};
+
 // ── Players ──────────────────────────────────────────────────
 export const getPlayerByUID = async (uid) => {
   const players = await getCollection('players', [where('uid', '==', uid), limit(1)]);

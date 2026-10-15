@@ -246,7 +246,8 @@ export default function CaptainSchedule() {
             {filtered.map((sch) => {
               const typeColor = TYPE_COLORS[sch.type] || '#800000';
               const statusStyle = STATUS_STYLES[sch.status] || STATUS_STYLES.Upcoming;
-              const dateObj = sch.date ? new Date(sch.date + 'T00:00:00') : null;
+              const isValidDate = sch.date && String(sch.date).trim().toUpperCase() !== 'TBD' && !isNaN(new Date(sch.date + 'T00:00:00').getTime());
+              const dateObj = isValidDate ? new Date(sch.date + 'T00:00:00') : null;
 
               return (
                 <div
@@ -257,7 +258,7 @@ export default function CaptainSchedule() {
                   }}
                 >
                   <div className="captain-schedule-date">
-                    <span>{dateObj ? dateObj.getDate() : '--'}</span>
+                    <span style={{ fontSize: dateObj ? '1.5rem' : '1.1rem' }}>{dateObj ? dateObj.getDate() : (sch.date || 'TBD')}</span>
                     <strong>{dateObj ? dateObj.toLocaleString('en-IN', { month: 'short' }).toUpperCase() : ''}</strong>
                     <small>{dateObj ? dateObj.getFullYear() : ''}</small>
                   </div>

@@ -325,6 +325,9 @@ export default function AdminTournaments() {
     try {
       const matchData = {
         ...matchFormData,
+        date: matchFormData.date || 'TBD',
+        venue: matchFormData.venue || 'TBD',
+        time: matchFormData.time || '',
         tournamentId: selectedTournamentForModal.id,
         tossWinner: '',
         tossDecision: '',
@@ -1264,10 +1267,19 @@ export default function AdminTournaments() {
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                         <div>
-                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Date</label>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                            <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', margin: 0 }}>Date (Optional / TBD)</label>
+                            <button
+                              type="button"
+                              onClick={() => setMatchFormData(p => ({ ...p, date: p.date === 'TBD' ? '' : 'TBD' }))}
+                              style={{ background: 'none', border: 'none', color: matchFormData.date === 'TBD' ? 'var(--gold)' : 'var(--admin-muted)', fontSize: '0.65rem', cursor: 'pointer', padding: 0 }}
+                            >
+                              {matchFormData.date === 'TBD' ? '✓ TBD Set' : 'Set TBD'}
+                            </button>
+                          </div>
                           <input 
-                            type="date" 
-                            required 
+                            type={matchFormData.date === 'TBD' || (matchFormData.date && !/^\d{4}-\d{2}-\d{2}$/.test(matchFormData.date)) ? 'text' : 'date'} 
+                            placeholder="YYYY-MM-DD or TBD"
                             className="form-input" 
                             style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
                             value={matchFormData.date} 
@@ -1275,10 +1287,9 @@ export default function AdminTournaments() {
                           />
                         </div>
                         <div>
-                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Time</label>
+                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Time (Optional)</label>
                           <input 
                             type="time" 
-                            required 
                             className="form-input" 
                             style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
                             value={matchFormData.time} 
@@ -1289,11 +1300,10 @@ export default function AdminTournaments() {
 
                       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '8px' }}>
                         <div>
-                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Venue</label>
+                          <label style={{ fontSize: '0.65rem', color: 'var(--admin-muted)', display: 'block', marginBottom: '2px' }}>Venue (Optional / TBD)</label>
                           <input 
                             type="text" 
-                            required 
-                            placeholder="Venue name"
+                            placeholder="Venue name (or TBD)"
                             className="form-input" 
                             style={{ padding: '4px 8px', fontSize: '0.75rem', height: '30px' }}
                             value={matchFormData.venue} 
