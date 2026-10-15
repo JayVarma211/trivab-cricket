@@ -53,6 +53,9 @@ export default function CaptainDashboard() {
   const [enrollMessage, setEnrollMessage] = useState('');
   const [enrollError, setEnrollError] = useState('');
 
+  // Payment history toggle
+  const [showHistory, setShowHistory] = useState(false);
+
   useEffect(() => {
     const fetchCaptainData = async () => {
       if (!user) return;
@@ -926,7 +929,6 @@ export default function CaptainDashboard() {
 
           {/* Payment History Section */}
           {team && paymentHistory.length > 0 && (() => {
-            const [showHistory, setShowHistory] = useState(false);
             const formatCurrencyH = (val) => {
               if (!val || isNaN(val)) return '₹0';
               return `₹${Number(val).toLocaleString('en-IN')}`;
