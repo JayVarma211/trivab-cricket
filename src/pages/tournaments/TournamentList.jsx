@@ -36,7 +36,65 @@ const needsDarkContainer = (logoUrl) => {
   return url.includes('xpress');
 };
 
-const TRIVAB_TOURNAMENT_CATEGORIES = [
+const PREDEFINED_GROUPS = [
+  {
+    id: 'bapl',
+    name: 'BAPL 3.0 (BAPL T20)',
+    logo: '/logos/baplt20north.png',
+    description: 'BAPL is the flagship season-long cricket league designed to deliver a true season-long competitive experience, running from October to May and redefining amateur cricket in India.',
+    to: '/tournaments/type/bapl',
+    badge: 'Flagship League',
+    isEdition: (id) => id === 'bapl' || (id.startsWith('bapl-') && !id.startsWith('baplxpress') && !id.startsWith('baplcorporate') && !id.startsWith('bapldads') && !id.startsWith('custom-'))
+  },
+  {
+    id: 'baplxpress',
+    name: 'BAPL XPRESS',
+    logo: '/logos/baplxpresst20north.png',
+    description: 'A compact, high-intensity version of our flagship BAPL league—designed to deliver the same professional playing experience in a shorter, more flexible format.',
+    to: '/tournaments/type/baplxpress',
+    badge: 'Compact T20',
+    isEdition: (id) => id === 'baplxpress' || (id.startsWith('baplxpress-') && !id.startsWith('custom-'))
+  },
+  {
+    id: 'baplcorporate',
+    name: 'BAPL Corporate CUP',
+    logo: '/logos/baplcorporate.png',
+    description: 'TRIVAB’s premier corporate-only cricket tournament. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity sport.',
+    to: '/tournaments/type/baplcorporate',
+    badge: 'Corporate Only',
+    isEdition: (id) => id === 'baplcorporate' || (id.startsWith('baplcorporate-') && !id.startsWith('custom-'))
+  },
+  {
+    id: 'bapldads',
+    name: 'BAPL 40+ DADS T20',
+    logo: '/logos/bapldadst20.png',
+    description: 'A specially curated cricketing format designed exclusively for players aged 40 and above, bringing fathers and seasoned cricket lovers back onto the field.',
+    to: '/tournaments/type/bapldads',
+    badge: 'Aged 40+',
+    isEdition: (id) => id === 'bapldads' || (id.startsWith('bapldads-') && !id.startsWith('custom-'))
+  }
+];
+
+const PREDEFINED_STANDALONES = [
+  {
+    id: 'trivab-monsoon',
+    name: 'Trivab Monsoon Championship',
+    logo: '/logos/trivabmonsoon.jpg',
+    description: 'One of TRIVAB’s most unique formats, played in a single-day Test match format with red leather balls and white playing attire, reviving the purest form of cricket.',
+    to: '/tournaments/trivab-monsoon',
+    badge: 'Red-Ball Test'
+  },
+  {
+    id: 'baplkids',
+    name: 'BAPL KIDS',
+    logo: '/logos/bapllogo.jpg',
+    description: 'TRIVAB’s junior cricket platform, designed to provide young cricketers across age groups U-10 to U-19 with a structured, high-quality, and developmental pathway.',
+    to: '/tournaments/baplkids',
+    badge: 'Junior Pathway'
+  }
+];
+
+const DEFAULT_CATEGORIES = [
   {
     id: 'bapl',
     name: 'BAPL 3.0 (BAPL T20)',
@@ -60,90 +118,131 @@ const TRIVAB_TOURNAMENT_CATEGORIES = [
     description: 'TRIVAB’s premier corporate-only cricket tournament. This closed-format competition brings organizations together through cricket, teamwork, and high-intensity sport.',
     to: '/tournaments/type/baplcorporate',
     badge: 'Corporate Only'
-  },
-  {
-    id: 'trivab-monsoon',
-    name: 'Trivab Monsoon Championship',
-    logo: '/logos/trivabmonsoon.jpg',
-    description: 'One of TRIVAB’s most unique formats, played in a single-day Test match format with red leather balls and white playing attire, reviving the purest form of cricket.',
-    to: '/tournaments/trivab-monsoon',
-    badge: 'Red-Ball Test'
-  },
-  {
-    id: 'bapldads',
-    name: 'BAPL 40+ DADS T20',
-    logo: '/logos/bapldadst20.png',
-    description: 'A specially curated cricketing format designed exclusively for players aged 40 and above, bringing fathers and seasoned cricket lovers back onto the field.',
-    to: '/tournaments/type/bapldads',
-    badge: 'Aged 40+'
-  },
-  {
-    id: 'baplkids',
-    name: 'BAPL KIDS',
-    logo: '/logos/bapllogo.jpg',
-    description: 'TRIVAB’s junior cricket platform, designed to provide young cricketers across age groups U-10 to U-19 with a structured, high-quality, and competitive developmental pathway.',
-    to: '/tournaments/baplkids',
-    badge: 'Junior Pathway'
   }
 ];
 
 export default function TournamentList() {
-  const [categories, setCategories] = useState(TRIVAB_TOURNAMENT_CATEGORIES);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let catDocs = [];
     let tournDocs = [];
+    let hasReceivedCatSnapshot = false;
+    let hasReceivedTournSnapshot = false;
 
     const processCategories = () => {
-      const itemsMap = new Map();
-      TRIVAB_TOURNAMENT_CATEGORIES.forEach(cat => itemsMap.set(cat.id, cat));
+      if (!hasReceivedTournSnapshot && !hasReceivedCatSnapshot) return;
 
-      // 1. Process category docs from tournamentCategories
-      catDocs.forEach(doc => {
-        if (!doc) return;
-        if (doc.isDeleted === true || doc.deleted === true) {
-          itemsMap.delete(doc.id);
-        } else if (doc.isCategory || doc.isCustom) {
-          itemsMap.set(doc.id, {
-            id: doc.id,
-            name: doc.name || doc.label,
-            logo: doc.logo || '/logos/bapllogo.jpg',
-            description: doc.description || '',
-            to: doc.to || `/tournaments/${doc.id}`,
-            badge: doc.badge || 'Tournament'
+      const activeTourns = (tournDocs || []).filter(
+        t => t && !t.isDeleted && !t.deleted && t.isActivated !== false
+      );
+      const activeCats = (catDocs || []).filter(
+        c => c && !c.isDeleted && !c.deleted && c.isActivated !== false
+      );
+
+      const deletedIds = new Set();
+      (tournDocs || []).forEach(t => {
+        if (t && (t.isDeleted === true || t.deleted === true || t.isActivated === false)) {
+          deletedIds.add(t.id);
+        }
+      });
+      (catDocs || []).forEach(c => {
+        if (c && (c.isDeleted === true || c.deleted === true || c.isActivated === false)) {
+          deletedIds.add(c.id);
+        }
+      });
+
+      const items = [];
+
+      // 1. Predefined Parent Groups:
+      // Show group card if at least one sub-edition is active in activeTourns
+      PREDEFINED_GROUPS.forEach(group => {
+        const hasActiveEdition = activeTourns.some(t => group.isEdition(t.id));
+        const catActive = activeCats.some(c => c.id === group.id && !c.isDeleted && !c.deleted);
+        if (hasActiveEdition || catActive) {
+          const catDoc = (catDocs || []).find(c => c && c.id === group.id && !c.isDeleted && !c.deleted);
+          items.push({
+            id: group.id,
+            name: catDoc?.name || catDoc?.label || group.name,
+            logo: getCleanLogoUrl(catDoc?.logo || group.logo),
+            description: catDoc?.description || group.description,
+            to: group.to,
+            badge: catDoc?.badge || group.badge
           });
         }
       });
 
-      // 2. Only if an entire category doc in tournaments was marked deleted (e.g. custom category)
-      tournDocs.forEach(doc => {
-        if (!doc) return;
-        if (doc.isDeleted === true || doc.deleted === true) {
-          // If a category doc itself was deleted
-          if (itemsMap.has(doc.id)) {
-            itemsMap.delete(doc.id);
-          }
-        } else if (doc.isCustom) {
-          itemsMap.set(doc.id, {
-            id: doc.id,
-            name: doc.name || doc.label,
-            logo: doc.logo || '/logos/bapllogo.jpg',
-            description: doc.description || '',
-            to: doc.to || `/tournaments/${doc.id}`,
-            badge: doc.badge || 'Tournament'
+      // 2. Predefined Standalones:
+      PREDEFINED_STANDALONES.forEach(standalone => {
+        const isTournActive = activeTourns.some(t => t.id === standalone.id);
+        const isCatActive = activeCats.some(c => c.id === standalone.id && !c.isDeleted && !c.deleted);
+        if (isTournActive || isCatActive) {
+          const doc = activeTourns.find(t => t.id === standalone.id) || activeCats.find(c => c.id === standalone.id);
+          items.push({
+            id: standalone.id,
+            name: doc?.name || doc?.label || standalone.name,
+            logo: getCleanLogoUrl(doc?.logo || standalone.logo),
+            description: doc?.description || standalone.description,
+            to: standalone.to,
+            badge: doc?.badge || standalone.badge
           });
         }
       });
 
-      setCategories(Array.from(itemsMap.values()));
+      // 3. Custom / Dynamic Tournaments:
+      const addedIds = new Set(items.map(m => m.id));
+      const isBelongingToPredefinedGroup = (id) => {
+        if (id === 'bapl' || id === 'baplxpress' || id === 'baplcorporate' || id === 'bapldads') return true;
+        return PREDEFINED_GROUPS.some(g => g.isEdition(id));
+      };
+      const isPredefinedStandalone = (id) => PREDEFINED_STANDALONES.some(s => s.id === id);
+
+      // Add custom tournaments from tournaments collection
+      activeTourns.forEach(t => {
+        if (!t || !t.id) return;
+        if (addedIds.has(t.id)) return;
+        if (isBelongingToPredefinedGroup(t.id)) return;
+        if (isPredefinedStandalone(t.id)) return;
+
+        addedIds.add(t.id);
+        items.push({
+          id: t.id,
+          name: t.name || t.label || t.customName || 'Tournament',
+          logo: getCleanLogoUrl(t.logo || '/logos/bapllogo.jpg'),
+          description: t.description || 'Premier cricket tournament organized by TRIVAB Sports.',
+          to: t.to || `/tournaments/${t.id}`,
+          badge: t.badge || 'Tournament'
+        });
+      });
+
+      // Also add any custom from catDocs
+      activeCats.forEach(c => {
+        if (!c || !c.id) return;
+        if (addedIds.has(c.id)) return;
+        if (isBelongingToPredefinedGroup(c.id)) return;
+        if (isPredefinedStandalone(c.id)) return;
+
+        addedIds.add(c.id);
+        items.push({
+          id: c.id,
+          name: c.name || c.label || 'Tournament',
+          logo: getCleanLogoUrl(c.logo || '/logos/bapllogo.jpg'),
+          description: c.description || 'Premier cricket tournament organized by TRIVAB Sports.',
+          to: c.to || `/tournaments/${c.id}`,
+          badge: c.badge || 'Tournament'
+        });
+      });
+
+      setCategories(items);
     };
 
     let unsubCat, unsubTourn;
     try {
       unsubCat = subscribeCollection('tournamentCategories', [], (docs) => {
         catDocs = docs || [];
+        hasReceivedCatSnapshot = true;
         processCategories();
       });
     } catch (e) {}
@@ -151,6 +250,7 @@ export default function TournamentList() {
     try {
       unsubTourn = subscribeCollection('tournaments', [orderBy('createdAt', 'desc')], (docs) => {
         tournDocs = docs || [];
+        hasReceivedTournSnapshot = true;
         // Filter out deleted and unactivated tournaments so their cards are completely removed
         const activeList = (docs || []).filter(
           t => t && !t.isDeleted && !t.deleted && t.isActivated !== false && t.name

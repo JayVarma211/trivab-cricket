@@ -16,11 +16,66 @@ import './Navbar.css';
 const DEFAULT_TOURNAMENTS_MENU = [
   { id: 'bapl', label: 'BAPL', to: '/tournaments/type/bapl', logo: '/logos/baplt20north.png' },
   { id: 'baplxpress', label: 'BAPL XPRESS', to: '/tournaments/type/baplxpress', logo: '/logos/baplxpresst20north.png' },
-  { id: 'baplcorporate', label: 'BAPL Corporate CUP', to: '/tournaments/type/baplcorporate', logo: '/logos/baplcorporate.png' },
-  { id: 'trivab-monsoon', label: 'Trivab Monsoon Championship', to: '/tournaments/trivab-monsoon', logo: '/logos/trivabmonsoon.jpg' },
-  { id: 'bapldads', label: 'BAPL 40+ DADS T20', to: '/tournaments/type/bapldads', logo: '/logos/bapldadst20.png' },
-  { id: 'baplkids', label: 'BAPL KIDS', to: '/tournaments/baplkids', logo: '/logos/bapllogo.jpg' }
+  { id: 'baplcorporate', label: 'BAPL Corporate CUP', to: '/tournaments/type/baplcorporate', logo: '/logos/baplcorporate.png' }
 ];
+
+const PREDEFINED_GROUPS = [
+  {
+    id: 'bapl',
+    label: 'BAPL',
+    to: '/tournaments/type/bapl',
+    logo: '/logos/baplt20north.png',
+    isEdition: (id) => id === 'bapl' || (id.startsWith('bapl-') && !id.startsWith('baplxpress') && !id.startsWith('baplcorporate') && !id.startsWith('bapldads') && !id.startsWith('custom-'))
+  },
+  {
+    id: 'baplxpress',
+    label: 'BAPL XPRESS',
+    to: '/tournaments/type/baplxpress',
+    logo: '/logos/baplxpresst20north.png',
+    isEdition: (id) => id === 'baplxpress' || (id.startsWith('baplxpress-') && !id.startsWith('custom-'))
+  },
+  {
+    id: 'baplcorporate',
+    label: 'BAPL Corporate CUP',
+    to: '/tournaments/type/baplcorporate',
+    logo: '/logos/baplcorporate.png',
+    isEdition: (id) => id === 'baplcorporate' || (id.startsWith('baplcorporate-') && !id.startsWith('custom-'))
+  },
+  {
+    id: 'bapldads',
+    label: 'BAPL 40+ DADS T20',
+    to: '/tournaments/type/bapldads',
+    logo: '/logos/bapldadst20.png',
+    isEdition: (id) => id === 'bapldads' || (id.startsWith('bapldads-') && !id.startsWith('custom-'))
+  }
+];
+
+const PREDEFINED_STANDALONES = [
+  {
+    id: 'trivab-monsoon',
+    label: 'Trivab Monsoon Championship',
+    to: '/tournaments/trivab-monsoon',
+    logo: '/logos/trivabmonsoon.jpg'
+  },
+  {
+    id: 'baplkids',
+    label: 'BAPL KIDS',
+    to: '/tournaments/baplkids',
+    logo: '/logos/bapllogo.jpg'
+  }
+];
+
+const getCleanLogoUrl = (url) => {
+  if (!url) return '';
+  const u = url.toLowerCase();
+  if (u.startsWith('/logos/') && (u.endsWith('.jpg') || u.endsWith('.jpeg'))) {
+    if (u.includes('trivabmonsoon') || u.includes('bapllogo') || u.includes('trivabsports')) {
+      return url;
+    }
+    return url.replace(/\.(jpg|jpeg)$/i, '.png');
+  }
+  return url;
+};
 
 const IndiaFlag = () => (
   <span style={{ display: 'inline-flex', alignItems: 'center', width: '18px', height: '12px', borderRadius: '2px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)', marginRight: '2px' }}>
@@ -97,59 +152,122 @@ export default function Navbar() {
   useEffect(() => {
     let catDocs = [];
     let tournDocs = [];
-
-    const defaultIds = new Set(DEFAULT_TOURNAMENTS_MENU.map(item => item.id));
+    let hasReceivedCatSnapshot = false;
+    let hasReceivedTournSnapshot = false;
 
     const processMenu = () => {
-      const itemsMap = new Map();
-      DEFAULT_TOURNAMENTS_MENU.forEach(item => itemsMap.set(item.id, item));
+      if (!hasReceivedCatSnapshot && !hasReceivedTournSnapshot) return;
 
-      // Only tournamentCategories docs control what appears in the nav.
-      // Raw tournament docs (sub-tournaments like "BAPL 3.0 - North Mumbai") are ignored here.
-      catDocs.forEach(doc => {
-        if (!doc) return;
-        if (doc.isDeleted === true || doc.deleted === true) {
-          // Remove from nav — even if it's a default item (admin explicitly deleted it)
-          itemsMap.delete(doc.id);
-        } else if (defaultIds.has(doc.id)) {
-          // Default item is still active — keep it (optionally update label/logo from Firestore)
-          const existing = itemsMap.get(doc.id);
-          if (existing) {
-            itemsMap.set(doc.id, {
-              ...existing,
-              label: doc.label || doc.name || existing.label,
-              logo: doc.logo || existing.logo
-            });
-          }
-        } else if (doc.isCustom === true) {
-          // Only add non-default items if they're explicitly a custom category
-          itemsMap.set(doc.id, {
-            id: doc.id,
-            label: doc.label || doc.name,
-            to: doc.to || `/tournaments/${doc.id}`,
-            logo: doc.logo || '/logos/bapllogo.jpg'
-          });
+      const activeTourns = (tournDocs || []).filter(
+        t => t && !t.isDeleted && !t.deleted && t.isActivated !== false
+      );
+      const activeCats = (catDocs || []).filter(
+        c => c && !c.isDeleted && !c.deleted && c.isActivated !== false
+      );
+
+      // Collect explicitly deleted IDs from both collections
+      const deletedIds = new Set();
+      (tournDocs || []).forEach(t => {
+        if (t && (t.isDeleted === true || t.deleted === true || t.isActivated === false)) {
+          deletedIds.add(t.id);
         }
-        // All other docs (sub-tournaments, etc.) are ignored from the nav
+      });
+      (catDocs || []).forEach(c => {
+        if (c && (c.isDeleted === true || c.deleted === true || c.isActivated === false)) {
+          deletedIds.add(c.id);
+        }
       });
 
-      setTournamentsMenu(Array.from(itemsMap.values()));
+      const menuItems = [];
+
+      // 1. Predefined Parent Groups:
+      // Show group if at least one sub-edition is active in activeTourns
+      PREDEFINED_GROUPS.forEach(group => {
+        const hasActiveEdition = activeTourns.some(t => group.isEdition(t.id));
+        const catActive = activeCats.some(c => c.id === group.id && !c.isDeleted && !c.deleted);
+        if (hasActiveEdition || catActive) {
+          const catDoc = (catDocs || []).find(c => c && c.id === group.id && !c.isDeleted && !c.deleted);
+          menuItems.push({
+            id: group.id,
+            label: catDoc?.label || catDoc?.name || group.label,
+            to: group.to,
+            logo: getCleanLogoUrl(catDoc?.logo || group.logo)
+          });
+        }
+      });
+
+      // 2. Predefined Standalones:
+      PREDEFINED_STANDALONES.forEach(standalone => {
+        const isTournActive = activeTourns.some(t => t.id === standalone.id);
+        const isCatActive = activeCats.some(c => c.id === standalone.id && !c.isDeleted && !c.deleted);
+        if (isTournActive || isCatActive) {
+          const doc = activeTourns.find(t => t.id === standalone.id) || activeCats.find(c => c.id === standalone.id);
+          menuItems.push({
+            id: standalone.id,
+            label: doc?.name || doc?.label || standalone.label,
+            to: standalone.to,
+            logo: getCleanLogoUrl(doc?.logo || standalone.logo)
+          });
+        }
+      });
+
+      // 3. Custom / Dynamic Tournaments:
+      const addedIds = new Set(menuItems.map(m => m.id));
+      const isBelongingToPredefinedGroup = (id) => {
+        if (id === 'bapl' || id === 'baplxpress' || id === 'baplcorporate' || id === 'bapldads') return true;
+        return PREDEFINED_GROUPS.some(g => g.isEdition(id));
+      };
+      const isPredefinedStandalone = (id) => PREDEFINED_STANDALONES.some(s => s.id === id);
+
+      // Add custom tournaments from tournaments collection
+      activeTourns.forEach(t => {
+        if (!t || !t.id) return;
+        if (addedIds.has(t.id)) return;
+        if (isBelongingToPredefinedGroup(t.id)) return;
+        if (isPredefinedStandalone(t.id)) return;
+
+        addedIds.add(t.id);
+        menuItems.push({
+          id: t.id,
+          label: t.name || t.label || t.customName || 'Tournament',
+          to: t.to || `/tournaments/${t.id}`,
+          logo: getCleanLogoUrl(t.logo || '/logos/bapllogo.jpg')
+        });
+      });
+
+      // Also add any custom from catDocs
+      activeCats.forEach(c => {
+        if (!c || !c.id) return;
+        if (addedIds.has(c.id)) return;
+        if (isBelongingToPredefinedGroup(c.id)) return;
+        if (isPredefinedStandalone(c.id)) return;
+
+        addedIds.add(c.id);
+        menuItems.push({
+          id: c.id,
+          label: c.label || c.name || 'Tournament',
+          to: c.to || `/tournaments/${c.id}`,
+          logo: getCleanLogoUrl(c.logo || '/logos/bapllogo.jpg')
+        });
+      });
+
+      setTournamentsMenu(menuItems);
     };
 
     let unsubCat, unsubTourn;
     try {
       unsubCat = subscribeCollection('tournamentCategories', [], (docs) => {
         catDocs = docs || [];
+        hasReceivedCatSnapshot = true;
         processMenu();
       });
     } catch (e) {}
 
-    // Still subscribe to tournaments for other potential uses,
-    // but don't include in nav processing
     try {
       unsubTourn = subscribeCollection('tournaments', [], (docs) => {
         tournDocs = docs || [];
-        // Do NOT call processMenu here — tournaments don't drive the nav
+        hasReceivedTournSnapshot = true;
+        processMenu();
       });
     } catch (e) {}
 
@@ -305,7 +423,7 @@ export default function Navbar() {
                     className="tournaments-nav-item"
                     onClick={() => setTournamentsDropOpen(false)}
                   >
-                    <img src={item.logo} className={`nav-menu-logo ${getLogoClass(item.logo)}`} alt={item.label} />
+                    <img src={getCleanLogoUrl(item.logo)} className={`nav-menu-logo ${getLogoClass(item.logo)}`} alt={item.label} />
                     <span>{item.label}</span>
                   </Link>
                 ))}
@@ -478,7 +596,7 @@ export default function Navbar() {
                       style={{ padding: '8px 12px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}
                       onClick={() => setMenuOpen(false)}
                     >
-                      <img src={item.logo} className={getLogoClass(item.logo)} style={{ width: '22px', height: '22px', objectFit: 'contain' }} alt={item.label} />
+                      <img src={getCleanLogoUrl(item.logo)} className={getLogoClass(item.logo)} style={{ width: '22px', height: '22px', objectFit: 'contain' }} alt={item.label} />
                       <span>{item.label}</span>
                     </Link>
                   ))}

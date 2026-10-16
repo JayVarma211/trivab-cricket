@@ -75,7 +75,7 @@ export default function AdminTournaments() {
     try {
       const dbTourn = tournaments.find(t => t.id === pred.id);
       if (dbTourn) {
-        await updateDocument('tournaments', pred.id, { isActivated: true, joinEnabled: false });
+        await updateDocument('tournaments', pred.id, { isActivated: true, joinEnabled: false, isDeleted: false, deleted: false });
       } else {
         const tournamentData = {
           name: pred.name,
@@ -88,10 +88,15 @@ export default function AdminTournaments() {
           runnerUp: 'TBD',
           isActivated: true,
           joinEnabled: false,
+          isDeleted: false,
+          deleted: false,
           createdAt: new Date().toISOString()
         };
         await setDocument('tournaments', pred.id, tournamentData);
       }
+      try {
+        await updateDocument('tournamentCategories', pred.id, { isActivated: true, isDeleted: false, deleted: false });
+      } catch (e) {}
       fetchData();
       alert(`Tournament "${pred.name}" activated successfully!`);
     } catch (err) {
@@ -445,6 +450,8 @@ export default function AdminTournaments() {
       await setDocument('tournaments', targetId, {
         ...tournamentData,
         isActivated: true,
+        isDeleted: false,
+        deleted: false,
         joinEnabled: editingId
           ? tournaments.find(t => t.id === targetId)?.joinEnabled === true
           : false
@@ -459,8 +466,11 @@ export default function AdminTournaments() {
           logo: tournamentData.logo,
           description: tournamentData.description,
           to: `/tournaments/${targetId}`,
-          badge: 'Tournament',
+          badge: isCustom ? 'Tournament' : 'Edition',
           isDeleted: false,
+          deleted: false,
+          isActivated: true,
+          isCustom: isCustom,
           updatedAt: new Date().toISOString()
         });
       } catch (catErr) {
