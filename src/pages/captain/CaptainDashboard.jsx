@@ -8,6 +8,32 @@ import uploadImageToCloudinary from '../../services/cloudinary';
 import { safeFormatDate, safeFormatDateTime, safeParseDate } from '../../utils/dateFormatter';
 import './Captain.css';
 
+const parseMatchDate = (dateStr) => {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+  const trimmed = dateStr.trim();
+  if (!trimmed || trimmed.toUpperCase() === 'TBD') return null;
+  const d = new Date(trimmed.includes('T') ? trimmed : `${trimmed}T00:00:00`);
+  return isNaN(d.getTime()) ? null : d;
+};
+
+const getSortTimestamp = (item) => {
+  const d = parseMatchDate(item.date);
+  if (!d) return 9999999999999; // Place TBD matches at the end of scheduled matches
+  let timeOffset = 0;
+  if (item.time && typeof item.time === 'string') {
+    const match = item.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+    if (match) {
+      let h = parseInt(match[1], 10);
+      const m = parseInt(match[2], 10);
+      const ampm = match[3] ? match[3].toUpperCase() : '';
+      if (ampm === 'PM' && h < 12) h += 12;
+      if (ampm === 'AM' && h === 12) h = 0;
+      timeOffset = (h * 60 + m) * 60 * 1000;
+    }
+  }
+  return d.getTime() + timeOffset;
+};
+
 export default function CaptainDashboard() {
   const { user } = useAuth();
   const [captain, setCaptain] = useState(null);
@@ -162,7 +188,11 @@ export default function CaptainDashboard() {
             });
 
             const combined = Array.from(map.values());
-            combined.sort((a, b) => new Date(a.date || '2099-01-01') - new Date(b.date || '2099-01-01'));
+            combined.sort((a, b) => {
+              const diff = getSortTimestamp(a) - getSortTimestamp(b);
+              if (diff !== 0) return diff;
+              return (a.id || '').localeCompare(b.id || '');
+            });
 
             // Filter for captain's team
             const currentTeamName = selectedTeam?.teamName || '';
@@ -466,15 +496,10 @@ export default function CaptainDashboard() {
   const uniqueScheduleTournaments = Array.from(tournamentOptionsMap.entries()).map(([id, name]) => ({ id, name }));
 
   const filteredScheduleItems = schedules.filter((sch) => {
-    let matchTourn = true;
-    if (selectedTournamentFilter !== 'All') {
-      matchTourn = sch.tournamentId === selectedTournamentFilter || sch.tournamentName === selectedTournamentFilter;
-    }
-    let matchStatus = true;
     if (scheduleStatusFilter !== 'All') {
-      matchStatus = sch.status === scheduleStatusFilter;
+      return sch.status === scheduleStatusFilter;
     }
-    return matchTourn && matchStatus;
+    return true;
   });
   const visibleScheduleItems = showAllSchedules ? filteredScheduleItems : filteredScheduleItems.slice(0, 3);
 
@@ -546,31 +571,13 @@ export default function CaptainDashboard() {
         {/* ── LEFT MAIN COLUMN ── */}
         <div className="captain-main-col">
 
-          {/* Captain Schedule & Matches (with Tournament Filter & Switcher) */}
+          {/* Captain Schedule & Matches */}
           <div className="card animate-fade-in" style={{ borderLeft: '4px solid #3B82F6' }}>
             <div className="flex justify-between items-center mb-md flex-wrap gap-sm">
               <h3 className="text-md font-bold flex items-center gap-xs" style={{ color: 'var(--text-primary)', margin: 0 }}>
                 <CalendarClock size={20} style={{ color: '#3B82F6' }} />
                 <span>Captain Schedule &amp; Matches</span>
               </h3>
-
-              {/* Tournament Filter & Switcher Dropdown */}
-              <div className="flex items-center gap-xs flex-wrap">
-                <span className="text-xs text-muted font-semi flex items-center gap-xxs">
-                  <Filter size={13} className="text-gold" /> Tournament:
-                </span>
-                <select
-                  className="form-select"
-                  value={selectedTournamentFilter}
-                  onChange={(e) => setSelectedTournamentFilter(e.target.value)}
-                  style={{ padding: '4px 12px', fontSize: '0.8rem', width: 'auto', borderRadius: '8px', border: '1px solid var(--border-card)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
-                >
-                  <option value="All">All Tournaments</option>
-                  {uniqueScheduleTournaments.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
-              </div>
             </div>
 
             {/* Status Filter Tabs */}
@@ -600,7 +607,7 @@ export default function CaptainDashboard() {
             {filteredScheduleItems.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 'var(--space-2xl)', color: 'var(--text-muted)' }}>
                 <CalendarClock size={36} style={{ opacity: 0.3, marginBottom: '10px' }} />
-                <p style={{ margin: 0, fontSize: '0.9rem' }}>No matches or schedules found for the selected tournament filter.</p>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>No matches or schedules found.</p>
               </div>
             ) : (
               <div className="captain-schedule-scroll-list">
@@ -623,6 +630,7 @@ export default function CaptainDashboard() {
                   const teamBName = teamNames[1] || 'Team B';
                   const teamALogo = allTeams.find(t => t.teamName?.toLowerCase() === teamAName.toLowerCase())?.logoURL;
                   const teamBLogo = allTeams.find(t => t.teamName?.toLowerCase() === teamBName.toLowerCase())?.logoURL;
+                  const dateObj = parseMatchDate(sch.date);
 
                   return (
                     <div
@@ -631,11 +639,22 @@ export default function CaptainDashboard() {
                       style={{ '--captain-card-accent': typeColor }}
                     >
                       <div className="captain-dashboard-match-date">
-                        <span className="captain-dashboard-match-weekday">{sch.date ? new Date(sch.date + 'T00:00:00').toLocaleString('en-IN', { weekday: 'short' }).toUpperCase() : ''}</span>
-                        <span className="captain-dashboard-match-day">{sch.date ? new Date(sch.date + 'T00:00:00').getDate() : '--'}</span>
-                        <span className="captain-dashboard-match-month">{sch.date ? new Date(sch.date + 'T00:00:00').toLocaleString('en-IN', { month: 'short' }).toUpperCase() : ''}</span>
-                        <span className="captain-dashboard-match-divider" />
-                        <span className="captain-dashboard-match-year">{sch.date ? new Date(sch.date + 'T00:00:00').getFullYear() : ''}</span>
+                        {dateObj ? (
+                          <>
+                            <span className="captain-dashboard-match-weekday">{dateObj.toLocaleString('en-IN', { weekday: 'short' }).toUpperCase()}</span>
+                            <span className="captain-dashboard-match-day">{dateObj.getDate()}</span>
+                            <span className="captain-dashboard-match-month">{dateObj.toLocaleString('en-IN', { month: 'short' }).toUpperCase()}</span>
+                            <span className="captain-dashboard-match-divider" />
+                            <span className="captain-dashboard-match-year">{dateObj.getFullYear()}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="captain-dashboard-match-weekday">DATE</span>
+                            <span className="captain-dashboard-match-day" style={{ fontSize: '1.9rem', fontWeight: 800 }}>TBD</span>
+                            <span className="captain-dashboard-match-divider" />
+                            <span className="captain-dashboard-match-year">TBD</span>
+                          </>
+                        )}
                       </div>
                       <div className="captain-dashboard-match-content">
                         <div className="captain-dashboard-match-top-row">
