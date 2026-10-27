@@ -1499,7 +1499,7 @@ export default function AdminPlayers() {
                         {/* Header */}
                         <div className="id-card-header">
                           <div className="id-card-logo">
-                            <img src="/logos/trivabsports.jpg" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
+                            <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
                           </div>
                           <div className="id-card-badge">VERIFIED PASS</div>
                         </div>
@@ -1766,7 +1766,7 @@ export default function AdminPlayers() {
                         {/* Header */}
                         <div className="id-card-header">
                           <div className="id-card-logo">
-                            <img src="/logos/trivabsports.jpg" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
+                            <img src="/logos/trivabsports.webp" className="id-card-brand-logo" alt="TRIVAB SPORTS" />
                           </div>
                           <div className="id-card-badge">VERIFIED PASS</div>
                         </div>
