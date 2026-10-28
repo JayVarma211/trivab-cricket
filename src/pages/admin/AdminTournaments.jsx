@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { checkMatchDateConflict } from '../../utils/matchConflict';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, setDocument, deleteDocument, where, addDocument, updateDocument } from '../../firebase/firestore';
@@ -317,6 +318,16 @@ export default function AdminTournaments() {
     }
   };
 
+  const matchDateConflictWarning = useMemo(() => {
+    return checkMatchDateConflict({
+      targetDate: matchFormData.date,
+      teamA: matchFormData.teamA,
+      teamB: matchFormData.teamB,
+      existingMatches: matches,
+      excludeMatchId: null
+    });
+  }, [matchFormData.date, matchFormData.teamA, matchFormData.teamB, matches]);
+
   const handleMatchSubmit = async (e) => {
     e.preventDefault();
     if (!matchFormData.teamA || !matchFormData.teamB) {
@@ -327,6 +338,20 @@ export default function AdminTournaments() {
       alert('Team A and Team B cannot be the same');
       return;
     }
+
+    const conflictError = checkMatchDateConflict({
+      targetDate: matchFormData.date,
+      teamA: matchFormData.teamA,
+      teamB: matchFormData.teamB,
+      existingMatches: matches,
+      excludeMatchId: null
+    });
+
+    if (conflictError) {
+      alert(conflictError);
+      return;
+    }
+
     try {
       const matchData = {
         ...matchFormData,
@@ -340,7 +365,10 @@ export default function AdminTournaments() {
         teamBScore: '',
         result: ''
       };
-      await addDocument('matches', matchData);
+      const docRef = await addDocument('matches', matchData);
+      try {
+        await setDocument('schedules', docRef.id, { id: docRef.id, ...matchData });
+      } catch (sErr) {}
       const matchesData = await getCollection('matches', []);
       setMatches(matchesData || []);
       setShowMatchForm(false);
@@ -1334,6 +1362,25 @@ export default function AdminTournaments() {
                           </select>
                         </div>
                       </div>
+
+                      {matchDateConflictWarning && (
+                        <div style={{
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          border: '1px solid rgba(239, 68, 68, 0.4)',
+                          color: '#f87171',
+                          padding: '8px 10px',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          marginTop: '6px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <AlertCircle size={14} style={{ flexShrink: 0 }} />
+                          <span>{matchDateConflictWarning}</span>
+                        </div>
+                      )}
 
                       <button type="submit" className="btn btn-gold btn-sm w-full" style={{ padding: '6px', fontSize: '0.8rem', height: 'auto', marginTop: '4px' }}>
                         Save Match Fixture

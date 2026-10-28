@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { checkMatchDateConflict } from '../../utils/matchConflict';
 import { useNavigate } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import { useAuth } from '../../context/AuthContext';
@@ -210,12 +211,23 @@ export default function AdminMatches() {
 
   const fetchData = async () => {
     try {
-      const matchesData = await getCollection('matches', []);
-      const teamsData = await getCollection('teams', []);
-      const tournamentsData = await getCollection('tournaments', []);
+      const [matchesData, schedulesData, teamsData, tournamentsData] = await Promise.all([
+        getCollection('matches', []).catch(() => []),
+        getCollection('schedules', []).catch(() => []),
+        getCollection('teams', []).catch(() => []),
+        getCollection('tournaments', []).catch(() => [])
+      ]);
+
+      const map = new Map();
+      [...(matchesData || []), ...(schedulesData || [])].forEach((item) => {
+        if (!item.id) return;
+        map.set(item.id, { ...map.get(item.id), ...item });
+      });
+
+      const combinedMatches = Array.from(map.values());
       
       // Sort matches by date asc, placing TBD at the end
-      matchesData.sort((a, b) => {
+      combinedMatches.sort((a, b) => {
         const parseTime = (d) => {
           if (!d || String(d).trim().toUpperCase() === 'TBD') return Infinity;
           const t = new Date(d).getTime();
@@ -224,8 +236,8 @@ export default function AdminMatches() {
         return parseTime(a.date) - parseTime(b.date);
       });
 
-      setMatches(matchesData);
-      setTeams(teamsData);
+      setMatches(combinedMatches);
+      setTeams(teamsData || []);
       setTournaments(tournamentsData || []);
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -260,6 +272,21 @@ export default function AdminMatches() {
     }
   };
 
+  const dateConflictWarning = useMemo(() => {
+    if (editingId) return null;
+    const teamAObj = teams.find(t => t.teamName === formData.teamA);
+    const teamBObj = teams.find(t => t.teamName === formData.teamB);
+    return checkMatchDateConflict({
+      targetDate: formData.date,
+      teamA: formData.teamA,
+      teamB: formData.teamB,
+      teamAId: teamAObj?.id,
+      teamBId: teamBObj?.id,
+      existingMatches: matches,
+      excludeMatchId: editingId
+    });
+  }, [formData.date, formData.teamA, formData.teamB, teams, matches, editingId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -270,10 +297,28 @@ export default function AdminMatches() {
       return;
     }
 
+    // Check for date conflict on NEW match scheduling only (never blocks old matches)
+    if (!editingId) {
+    const teamAObj = teams.find(t => t.teamName === formData.teamA);
+    const teamBObj = teams.find(t => t.teamName === formData.teamB);
+
+    const conflictError = checkMatchDateConflict({
+      targetDate: formData.date,
+      teamA: formData.teamA,
+      teamB: formData.teamB,
+      teamAId: teamAObj?.id,
+      teamBId: teamBObj?.id,
+      existingMatches: matches,
+      excludeMatchId: editingId
+    });
+
+    if (conflictError) {
+      setError(conflictError);
+      return;
+    }
+    }
+
     try {
-      // Find team IDs
-      const teamAObj = teams.find(t => t.teamName === formData.teamA);
-      const teamBObj = teams.find(t => t.teamName === formData.teamB);
 
       const targetAudience = (formData.teamA && formData.teamB)
         ? `${formData.teamA} vs ${formData.teamB}`
@@ -1003,6 +1048,24 @@ export default function AdminMatches() {
                   )}
                 </div>
               </div>
+
+              {dateConflictWarning && (
+                <div style={{
+                  background: 'rgba(239, 68, 68, 0.12)',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  color: '#f87171',
+                  padding: '10px 14px',
+                  borderRadius: '6px',
+                  fontSize: '0.84rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <AlertCircle size={18} style={{ flexShrink: 0 }} />
+                  <span>{dateConflictWarning}</span>
+                </div>
+              )}
 
               {/* Venue & Format */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
