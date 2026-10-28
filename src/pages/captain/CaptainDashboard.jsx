@@ -197,9 +197,15 @@ export default function CaptainDashboard() {
             // Filter for captain's team
             const currentTeamName = selectedTeam?.teamName || '';
             const currentTeamId = selectedTeam?.id || '';
+            const currentTournamentId = selectedTeam?.tournamentId || '';
 
             const filteredSchedules = combined.filter((s) => {
               if (!currentTeamName) return true;
+
+              // Must belong to the captain's tournament (if both sides have a tournamentId)
+              const matchTournId = s.tournamentId || '';
+              if (matchTournId && currentTournamentId && matchTournId !== currentTournamentId) return false;
+
               const target = (s.targetTeamName || '').toLowerCase();
               if (!target || target === 'all teams' || target.includes('all teams') || target === 'general / all') return true;
               const isTeamA = (s.teamA || '').toLowerCase() === currentTeamName.toLowerCase();

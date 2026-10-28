@@ -106,9 +106,17 @@ export default function CaptainSchedule() {
   const teamNames = captainTeams.map(t => t.teamName).filter(Boolean);
   const teamIds = captainTeams.map(t => t.id).filter(Boolean);
 
+  const captainTournamentIds = captainTeams.map(t => t.tournamentId).filter(Boolean);
+
   const isRelevantToCaptain = (s) => {
     // If captain has no team assigned yet, show public entries
     if (teamNames.length === 0) return true;
+
+    // Must belong to one of the captain's tournaments
+    const matchTournId = s.tournamentId || '';
+    if (matchTournId && captainTournamentIds.length > 0 && !captainTournamentIds.includes(matchTournId)) {
+      return false;
+    }
 
     // Check if entry is targeted to All Teams or general
     const target = (s.targetTeamName || '').toLowerCase();
