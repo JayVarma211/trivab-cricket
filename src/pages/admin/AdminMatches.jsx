@@ -297,25 +297,26 @@ export default function AdminMatches() {
       return;
     }
 
-    // Check for date conflict on NEW match scheduling only (never blocks old matches)
-    if (!editingId) {
+    // Find team IDs
     const teamAObj = teams.find(t => t.teamName === formData.teamA);
     const teamBObj = teams.find(t => t.teamName === formData.teamB);
 
-    const conflictError = checkMatchDateConflict({
-      targetDate: formData.date,
-      teamA: formData.teamA,
-      teamB: formData.teamB,
-      teamAId: teamAObj?.id,
-      teamBId: teamBObj?.id,
-      existingMatches: matches,
-      excludeMatchId: editingId
-    });
+    // Check for date conflict on NEW match scheduling only (never blocks old matches)
+    if (!editingId) {
+      const conflictError = checkMatchDateConflict({
+        targetDate: formData.date,
+        teamA: formData.teamA,
+        teamB: formData.teamB,
+        teamAId: teamAObj?.id,
+        teamBId: teamBObj?.id,
+        existingMatches: matches,
+        excludeMatchId: null
+      });
 
-    if (conflictError) {
-      setError(conflictError);
-      return;
-    }
+      if (conflictError) {
+        setError(conflictError);
+        return;
+      }
     }
 
     try {
