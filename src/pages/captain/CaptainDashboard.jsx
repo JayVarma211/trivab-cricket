@@ -168,7 +168,19 @@ export default function CaptainDashboard() {
           try {
             const newsData = await getCollection('news_events');
             const sortedNews = (newsData || []).sort((a, b) => new Date(b.date || '2000-01-01') - new Date(a.date || '2000-01-01'));
-            setAnnouncements(sortedNews.slice(0, 8));
+
+            const captainTournIds = [
+              selectedTeam?.tournamentId,
+              ...(captainTeams || []).map(t => t.tournamentId)
+            ].filter(Boolean);
+
+            const relevantNotices = sortedNews.filter(n => {
+              const tId = n.tournamentId;
+              if (!tId || tId === 'all' || tId === 'All' || tId === 'General') return true;
+              return captainTournIds.includes(tId);
+            });
+
+            setAnnouncements(relevantNotices.slice(0, 8));
           } catch (announceErr) {
             console.warn("Failed to fetch announcements:", announceErr);
             setAnnouncements([]);
@@ -1118,10 +1130,15 @@ export default function CaptainDashboard() {
                       </div>
                     )}
                     <div className="announcement-details">
-                      <div className="announcement-meta">
+                      <div className="announcement-meta" style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                         <span className="badge badge-gold" style={{ fontSize: '0.6rem', padding: '1px 6px' }}>
                           {ann.tag || 'NOTICE'}
                         </span>
+                        {ann.tournamentName && ann.tournamentId !== 'all' && (
+                          <span className="badge badge-blue" style={{ fontSize: '0.58rem', padding: '1px 5px' }}>
+                            {ann.tournamentName}
+                          </span>
+                        )}
                         <span style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
                           {safeFormatDate(ann.date)}
                         </span>

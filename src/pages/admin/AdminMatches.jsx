@@ -533,14 +533,18 @@ export default function AdminMatches() {
     doc.setTextColor(234, 179, 8); // #eab308
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text('TRIVAB CRICKET CLUB - MATCHES & SCHEDULE REPORT', margin, 12);
+    doc.text('TRIVAB SPORTS AND EVENTS - MATCHES & SCHEDULE REPORT', margin, 12);
 
     // Filter Info Subtitle
     doc.setTextColor(226, 232, 240);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
 
-    let filterSummary = `Export Date: ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    const now = new Date();
+    const exportDateStr = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    const exportTimeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    let filterSummary = `Export Date: ${exportDateStr} | Time: ${exportTimeStr}`;
     filterSummary += ` | Total Matches: ${filteredMatches.length}`;
     if (searchTerm) filterSummary += ` | Search: "${searchTerm}"`;
     if (statusFilter !== 'All') filterSummary += ` | Status: ${statusFilter}`;
@@ -673,7 +677,7 @@ export default function AdminMatches() {
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
       doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 22, pageHeight - 8);
-      doc.text('Trivab Cricket Management System', margin, pageHeight - 8);
+      doc.text('TRIVAB SPORTS AND EVENTS - Tournament Management', margin, pageHeight - 8);
     }
 
     doc.save(`Trivab_Matches_Schedule_${new Date().toISOString().slice(0, 10)}.pdf`);

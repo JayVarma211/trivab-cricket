@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getCollection, addDocument, setDocument, deleteDocument } from '../../firebase/firestore';
-import { Plus, Edit2, Trash2, X, CheckCircle2, AlertCircle, Newspaper, Calendar, Tag, Upload } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, CheckCircle2, AlertCircle, Newspaper, Calendar, Tag, Upload, Trophy } from 'lucide-react';
 import uploadImageToCloudinary from '../../services/cloudinary';
 import './Admin.css';
 
@@ -13,10 +13,12 @@ export default function AdminNews() {
   const { role } = useAuth();
 
   const [articles, setArticles] = useState([]);
+  const [tournaments, setTournaments] = useState([]);
+  const [tournamentFilter, setTournamentFilter] = useState('All');
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ title: '', content: '', date: '', tag: 'Announcement', imageURL: '' });
+  const [formData, setFormData] = useState({ title: '', content: '', date: '', tag: 'Announcement', tournamentId: 'all', tournamentName: 'All Tournaments', imageURL: '' });
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -27,9 +29,13 @@ export default function AdminNews() {
 
   const fetchArticles = async () => {
     try {
-      const data = await getCollection('news_events');
-      const sorted = (data || []).sort((a, b) => new Date(b.date) - new Date(a.date));
+      const [newsData, tournData] = await Promise.all([
+        getCollection('news_events'),
+        getCollection('tournaments').catch(() => [])
+      ]);
+      const sorted = (newsData || []).sort((a, b) => new Date(b.date) - new Date(a.date));
       setArticles(sorted);
+      setTournaments(tournData || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -41,14 +47,14 @@ export default function AdminNews() {
 
   const openAddForm = () => {
     setEditingId(null);
-    setFormData({ title: '', content: '', date: new Date().toISOString().split('T')[0], tag: 'Announcement', imageURL: '' });
+    setFormData({ title: '', content: '', date: new Date().toISOString().split('T')[0], tag: 'Announcement', tournamentId: 'all', tournamentName: 'All Tournaments', imageURL: '' });
     setShowForm(true);
     setMessage({ type: '', text: '' });
   };
 
   const openEditForm = (article) => {
     setEditingId(article.id);
-    setFormData({ title: article.title || '', content: article.content || '', date: article.date || '', tag: article.tag || 'Announcement', imageURL: article.imageURL || '' });
+    setFormData({ title: article.title || '', content: article.content || '', date: article.date || '', tag: article.tag || 'Announcement', tournamentId: article.tournamentId || 'all', tournamentName: article.tournamentName || 'All Tournaments', imageURL: article.imageURL || '' });
     setShowForm(true);
     setMessage({ type: '', text: '' });
   };
@@ -58,7 +64,17 @@ export default function AdminNews() {
     setSaving(true);
     setMessage({ type: '', text: '' });
     try {
-      const payload = { ...formData, updatedAt: new Date().toISOString() };
+      const selectedTourn = tournaments.find(t => t.id === formData.tournamentId);
+      const tournName = (formData.tournamentId === 'all' || !formData.tournamentId)
+        ? 'All Tournaments'
+        : (selectedTourn?.name || formData.tournamentName || 'Tournament');
+
+      const payload = {
+        ...formData,
+        tournamentId: formData.tournamentId || 'all',
+        tournamentName: tournName,
+        updatedAt: new Date().toISOString()
+      };
       if (editingId) {
         await setDocument('news_events', editingId, payload);
         setMessage({ type: 'success', text: 'Article updated successfully!' });
@@ -188,6 +204,40 @@ export default function AdminNews() {
                 </div>
               </div>
 
+              {/* Target Tournament Selection */}
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Trophy size={14} style={{ color: 'var(--gold)' }} />
+                  <span>SELECT TOURNAMENT *</span>
+                  <span style={{ fontSize: '0.74rem', color: 'var(--admin-muted)', fontWeight: 400 }}>(Target Audience)</span>
+                </label>
+                <select
+                  className="form-select"
+                  value={formData.tournamentId || 'all'}
+                  onChange={e => {
+                    const tId = e.target.value;
+                    const tObj = tournaments.find(t => t.id === tId);
+                    setFormData(p => ({
+                      ...p,
+                      tournamentId: tId,
+                      tournamentName: tId === 'all' ? 'All Tournaments' : (tObj?.name || 'Tournament')
+                    }));
+                  }}
+                >
+                  <option value="all">🌐 All Tournaments (General / Everyone)</option>
+                  {tournaments.map(t => (
+                    <option key={t.id} value={t.id}>
+                      🏆 {t.name}
+                    </option>
+                  ))}
+                </select>
+                <span style={{ fontSize: '0.74rem', color: 'var(--admin-muted)', marginTop: '4px', display: 'block' }}>
+                  {(!formData.tournamentId || formData.tournamentId === 'all')
+                    ? 'Visible to all captains, players, and general website visitors.'
+                    : `Published specifically for members of ${formData.tournamentName || 'this tournament'}.`}
+                </span>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Content *</label>
                 <textarea
@@ -246,7 +296,23 @@ export default function AdminNews() {
 
       {/* Articles List */}
       <div className="admin-section">
-        <h3 className="section-title">Published Articles ({articles.length})</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: 'var(--space-md)' }}>
+          <h3 className="section-title" style={{ margin: 0 }}>Published Articles ({articles.length})</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <label style={{ fontSize: '0.8rem', color: 'var(--admin-muted)' }}>Filter Tournament:</label>
+            <select
+              className="form-select"
+              value={tournamentFilter}
+              onChange={e => setTournamentFilter(e.target.value)}
+              style={{ width: 'auto', padding: '4px 12px', fontSize: '0.8rem', height: '34px' }}
+            >
+              <option value="All">All Tournaments</option>
+              {tournaments.map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: 'var(--space-4xl)', color: 'var(--admin-muted)' }}>
@@ -265,12 +331,15 @@ export default function AdminNews() {
                 <tr>
                   <th>Title</th>
                   <th>Category</th>
+                  <th>Target Tournament</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {articles.map(article => (
+                {articles
+                  .filter(article => tournamentFilter === 'All' || article.tournamentId === tournamentFilter || (!article.tournamentId && tournamentFilter === 'all'))
+                  .map(article => (
                   <tr key={article.id}>
                     <td>
                       <div>
@@ -283,6 +352,15 @@ export default function AdminNews() {
                     <td>
                       <span className="badge badge-gold" style={{ fontSize: '0.75rem' }}>
                         <Tag size={10} style={{ marginRight: '4px' }} />{article.tag || 'General'}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={article.tournamentId && article.tournamentId !== 'all' ? 'badge badge-blue' : 'badge badge-outline'}
+                        style={{ fontSize: '0.74rem', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                      >
+                        <Trophy size={11} />
+                        {article.tournamentName || (article.tournamentId && article.tournamentId !== 'all' ? article.tournamentId : 'All Tournaments')}
                       </span>
                     </td>
                     <td style={{ whiteSpace: 'nowrap' }}>

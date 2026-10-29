@@ -518,6 +518,7 @@ ul, ol {
 .badge-green   { background: rgba(16,185,129,0.15); color: var(--accent-green); border: 1px solid rgba(16,185,129,0.3); }
 .badge-red     { background: rgba(239,68,68,0.15); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.3); }
 .badge-orange  { background: rgba(245,158,11,0.15); color: var(--accent-orange); border: 1px solid rgba(245,158,11,0.3); }
+.badge-outline { background: rgba(255,255,255,0.06); color: var(--text-secondary); border: 1px solid var(--border-color, rgba(255,255,255,0.15)); }
 
 /* ============================================================
    10. SECTION HEADERS
