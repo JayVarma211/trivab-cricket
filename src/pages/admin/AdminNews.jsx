@@ -35,7 +35,11 @@ export default function AdminNews() {
       ]);
       const sorted = (newsData || []).sort((a, b) => new Date(b.date) - new Date(a.date));
       setArticles(sorted);
-      setTournaments(tournData || []);
+      const validTourns = (tournData || [])
+        .filter(t => t && !t.isDeleted && !t.deleted && t.isActivated !== false && (t.name || t.title)?.trim())
+        .filter((t, idx, arr) => arr.findIndex(x => (x.name || x.title || '').trim().toLowerCase() === (t.name || t.title || '').trim().toLowerCase()) === idx)
+        .sort((a, b) => (a.name || a.title || '').localeCompare(b.name || b.title || ''));
+      setTournaments(validTourns);
     } catch (err) {
       console.error(err);
     } finally {
@@ -224,10 +228,10 @@ export default function AdminNews() {
                     }));
                   }}
                 >
-                  <option value="all">🌐 All Tournaments (General / Everyone)</option>
+                  <option value="all">All Tournaments (General / Everyone)</option>
                   {tournaments.map(t => (
                     <option key={t.id} value={t.id}>
-                      🏆 {t.name}
+                      {t.name || t.title}
                     </option>
                   ))}
                 </select>
@@ -308,7 +312,7 @@ export default function AdminNews() {
             >
               <option value="All">All Tournaments</option>
               {tournaments.map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
+                <option key={t.id} value={t.id}>{t.name || t.title}</option>
               ))}
             </select>
           </div>

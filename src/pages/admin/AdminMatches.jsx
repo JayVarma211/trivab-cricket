@@ -238,7 +238,11 @@ export default function AdminMatches() {
 
       setMatches(combinedMatches);
       setTeams(teamsData || []);
-      setTournaments(tournamentsData || []);
+      const validTourns = (tournamentsData || [])
+        .filter(t => t && !t.isDeleted && !t.deleted && t.isActivated !== false && (t.name || t.title)?.trim())
+        .filter((t, idx, arr) => arr.findIndex(x => (x.name || x.title || '').trim().toLowerCase() === (t.name || t.title || '').trim().toLowerCase()) === idx)
+        .sort((a, b) => (a.name || a.title || '').localeCompare(b.name || b.title || ''));
+      setTournaments(validTourns);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load matches data');
@@ -951,8 +955,8 @@ export default function AdminMatches() {
                 <label className="form-label">TOURNAMENT</label>
                 <select className="form-select" name="tournamentId" value={formData.tournamentId} onChange={handleInputChange}>
                   <option value="">-- General / All Tournaments --</option>
-                  {tournaments.filter(t => !t.isDeleted && !t.deleted && t.isActivated !== false).map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
+                  {tournaments.map(t => (
+                    <option key={t.id} value={t.id}>{t.name || t.title}</option>
                   ))}
                 </select>
               </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Newspaper, Calendar, Tag, ArrowRight, Search, Sparkles, Share2, X, Trophy } from 'lucide-react';
+import { Newspaper, Calendar, Tag, ArrowRight, Search, Sparkles, Share2, X } from 'lucide-react';
 import { getCollection } from '../firebase/firestore';
 import { motion } from 'framer-motion';
 import SEO from '../components/common/SEO';
@@ -19,8 +19,6 @@ export default function NewsEvents() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedTag, setSelectedTag] = useState('All');
-  const [tournaments, setTournaments] = useState([]);
-  const [selectedTournament, setSelectedTournament] = useState('All');
   const [selectedArticleModal, setSelectedArticleModal] = useState(null);
 
   const SAMPLE_NEWS = [
@@ -53,17 +51,13 @@ export default function NewsEvents() {
   useEffect(() => {
     const fetchNews = async () => {
       try {
-        const [newsData, tournData] = await Promise.all([
-          getCollection('news_events'),
-          getCollection('tournaments').catch(() => [])
-        ]);
-        if (newsData && newsData.length > 0) {
-          const sorted = newsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        const data = await getCollection('news_events');
+        if (data && data.length > 0) {
+          const sorted = data.sort((a, b) => new Date(b.date) - new Date(a.date));
           setArticles(sorted);
         } else {
           setArticles(SAMPLE_NEWS);
         }
-        setTournaments(tournData || []);
       } catch {
         setArticles(SAMPLE_NEWS);
       } finally {
@@ -94,10 +88,7 @@ export default function NewsEvents() {
   const filtered = articles.filter(a => {
     const matchSearch = !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.content?.toLowerCase().includes(search.toLowerCase());
     const matchTag = selectedTag === 'All' || a.tag === selectedTag;
-    const matchTourn = selectedTournament === 'All' ||
-      (a.tournamentId && a.tournamentId === selectedTournament) ||
-      (!a.tournamentId && selectedTournament === 'all');
-    return matchSearch && matchTag && matchTourn;
+    return matchSearch && matchTag;
   });
 
   const newsSchema = {
@@ -194,32 +185,6 @@ export default function NewsEvents() {
             />
           </div>
 
-          {/* Tournament Filter */}
-          {tournaments.length > 0 && (
-            <select
-              className="form-select"
-              value={selectedTournament}
-              onChange={e => setSelectedTournament(e.target.value)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: 'var(--radius-full)',
-                border: `1px solid ${selectedTournament !== 'All' ? 'var(--gold)' : 'var(--border-card)'}`,
-                background: selectedTournament !== 'All' ? 'rgba(212,175,55,0.12)' : 'var(--bg-card)',
-                color: selectedTournament !== 'All' ? 'var(--gold)' : 'var(--text-secondary)',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                width: 'auto',
-                minWidth: '180px'
-              }}
-            >
-              <option value="All">All Tournaments</option>
-              {tournaments.map(t => (
-                <option key={t.id} value={t.id}>🏆 {t.name}</option>
-              ))}
-            </select>
-          )}
-
           {/* Tag Filters */}
           <div style={{ display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
             {allTags.map(tag => (
@@ -299,42 +264,24 @@ export default function NewsEvents() {
 
                 {/* Meta */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    {article.tag && (
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        padding: '3px 10px',
-                        borderRadius: 'var(--radius-full)',
-                        background: 'rgba(212,175,55,0.12)',
-                        color: 'var(--gold)',
-                        fontSize: '0.7rem',
-                        fontWeight: 700,
-                        letterSpacing: '0.06em',
-                        textTransform: 'uppercase',
-                        border: '1px solid rgba(212,175,55,0.25)',
-                      }}>
-                        <Tag size={10} /> {article.tag}
-                      </span>
-                    )}
-                    {article.tournamentName && article.tournamentId !== 'all' && (
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        padding: '3px 8px',
-                        borderRadius: 'var(--radius-full)',
-                        background: 'rgba(59, 130, 246, 0.12)',
-                        color: '#60a5fa',
-                        fontSize: '0.68rem',
-                        fontWeight: 600,
-                        border: '1px solid rgba(59, 130, 246, 0.25)',
-                      }}>
-                        <Trophy size={10} /> {article.tournamentName}
-                      </span>
-                    )}
-                  </div>
+                  {article.tag && (
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '3px 10px',
+                      borderRadius: 'var(--radius-full)',
+                      background: 'rgba(212,175,55,0.12)',
+                      color: 'var(--gold)',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
+                      border: '1px solid rgba(212,175,55,0.25)',
+                    }}>
+                      <Tag size={10} /> {article.tag}
+                    </span>
+                  )}
                   {article.date && (
                     <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                       <Calendar size={12} />

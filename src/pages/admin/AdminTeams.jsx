@@ -236,7 +236,11 @@ export default function AdminTeams() {
         getCollection('users', []),
       ]);
       setTeams(teamsData || []);
-      setTournaments(tournamentsData || []);
+      const validTournaments = (tournamentsData || [])
+        .filter(t => t && !t.isDeleted && !t.deleted && t.isActivated !== false && (t.name || t.title)?.trim())
+        .filter((t, idx, arr) => arr.findIndex(x => (x.name || x.title || '').trim().toLowerCase() === (t.name || t.title || '').trim().toLowerCase()) === idx)
+        .sort((a, b) => (a.name || a.title || '').localeCompare(b.name || b.title || ''));
+      setTournaments(validTournaments);
       setPlayers(playersData || []);
       setCaptains(captainsData || []);
       setRegistrations(registrationsData || []);
@@ -583,7 +587,7 @@ export default function AdminTeams() {
   const filteredTeams = teams.filter(t => {
     const matchesSearch = t.teamName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          t.city?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTournament = selectedTournamentFilter === 'All' || t.tournamentId === selectedTournamentFilter;
+    const matchesTournament = selectedTournamentFilter === 'All' || t.tournamentId === selectedTournamentFilter || t.tournamentName === selectedTournamentFilter;
     return matchesSearch && matchesTournament;
   });
 
@@ -720,7 +724,7 @@ export default function AdminTeams() {
               >
                 <option value="">Select Tournament (Optional)</option>
                 {tournaments.map(t => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
+                  <option key={t.id} value={t.id}>{t.name || t.title}</option>
                 ))}
               </select>
             </div>
@@ -874,7 +878,7 @@ export default function AdminTeams() {
         >
           <option value="All">All Tournaments</option>
           {tournaments.map(t => (
-            <option key={t.id} value={t.id}>{t.name}</option>
+            <option key={t.id} value={t.id}>{t.name || t.title}</option>
           ))}
         </select>
       </div>

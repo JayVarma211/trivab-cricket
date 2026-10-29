@@ -35,7 +35,11 @@ export default function MatchSchedule() {
         ]);
         setMatches(list);
         setTeams(teamsList || []);
-        setTournaments(tournamentsList || []);
+        const validTourns = (tournamentsList || [])
+          .filter(t => t && !t.isDeleted && !t.deleted && t.isActivated !== false && (t.name || t.title)?.trim())
+          .filter((t, idx, arr) => arr.findIndex(x => (x.name || x.title || '').trim().toLowerCase() === (t.name || t.title || '').trim().toLowerCase()) === idx)
+          .sort((a, b) => (a.name || a.title || '').localeCompare(b.name || b.title || ''));
+        setTournaments(validTourns);
       } catch (err) {
         console.error('Error fetching matches:', err);
         setMatches([]);
@@ -100,7 +104,7 @@ export default function MatchSchedule() {
         >
           <option value="All">All Tournaments</option>
           {tournaments.map(t => (
-            <option key={t.id} value={t.id}>{t.name}</option>
+            <option key={t.id} value={t.id}>{t.name || t.title}</option>
           ))}
         </select>
       </div>
