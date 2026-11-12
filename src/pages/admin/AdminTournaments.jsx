@@ -68,7 +68,14 @@ export default function AdminTournaments() {
     winner: 'TBD',
     runnerUp: 'TBD',
     customName: '',
-    customLogo: ''
+    customLogo: '',
+    // New fields
+    ballType: 'Tennis',
+    matchFormat: 'T20',
+    oversPerMatch: 20,
+    allowRepeatedOpponents: false,
+    maxMatchesPerTeam: 0,
+    venue: ''
   });
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const handleActivate = async (pred) => {
@@ -389,10 +396,14 @@ export default function AdminTournaments() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'teamCount' ? parseInt(value) : value
+      [name]: type === 'checkbox'
+        ? checked
+        : (name === 'teamCount' || name === 'oversPerMatch' || name === 'maxMatchesPerTeam')
+          ? parseInt(value) || 0
+          : value
     }));
   };
 
@@ -457,7 +468,13 @@ export default function AdminTournaments() {
           winner: formData.winner || 'TBD',
           runnerUp: formData.runnerUp || 'TBD',
           createdAt: new Date().toISOString(),
-          isCustom: true
+          isCustom: true,
+          ballType: formData.ballType || 'Tennis',
+          matchFormat: formData.matchFormat || 'T20',
+          oversPerMatch: formData.oversPerMatch || 20,
+          allowRepeatedOpponents: !!formData.allowRepeatedOpponents,
+          maxMatchesPerTeam: formData.maxMatchesPerTeam || 0,
+          venue: formData.venue || ''
         };
       } else {
         const selectedType = PREDEFINED_TOURNAMENTS.find(t => t.id === formData.typeId);
@@ -471,7 +488,13 @@ export default function AdminTournaments() {
           description: formData.description || selectedType.description,
           winner: formData.winner || 'TBD',
           runnerUp: formData.runnerUp || 'TBD',
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          ballType: formData.ballType || 'Tennis',
+          matchFormat: formData.matchFormat || 'T20',
+          oversPerMatch: formData.oversPerMatch || 20,
+          allowRepeatedOpponents: !!formData.allowRepeatedOpponents,
+          maxMatchesPerTeam: formData.maxMatchesPerTeam || 0,
+          venue: formData.venue || ''
         };
       }
 
@@ -568,7 +591,13 @@ export default function AdminTournaments() {
       winner: tourn.winner || 'TBD',
       runnerUp: tourn.runnerUp || 'TBD',
       customName: isPredefined ? '' : (tourn.name || ''),
-      customLogo: isPredefined ? '' : (tourn.logo || '')
+      customLogo: isPredefined ? '' : (tourn.logo || ''),
+      ballType: tourn.ballType || 'Tennis',
+      matchFormat: tourn.matchFormat || 'T20',
+      oversPerMatch: tourn.oversPerMatch || 20,
+      allowRepeatedOpponents: tourn.allowRepeatedOpponents || false,
+      maxMatchesPerTeam: tourn.maxMatchesPerTeam || 0,
+      venue: tourn.venue || ''
     });
     setEditingId(tourn.id);
     setShowForm(true);
@@ -584,7 +613,13 @@ export default function AdminTournaments() {
       winner: 'TBD',
       runnerUp: 'TBD',
       customName: '',
-      customLogo: ''
+      customLogo: '',
+      ballType: 'Tennis',
+      matchFormat: 'T20',
+      oversPerMatch: 20,
+      allowRepeatedOpponents: false,
+      maxMatchesPerTeam: 0,
+      venue: ''
     });
   };
 
@@ -813,6 +848,80 @@ export default function AdminTournaments() {
                 </div>
               </>
             )}
+
+            {/* ---- New Tournament Settings ---- */}
+            <div className="form-group">
+              <label className="form-label">Ball Type</label>
+              <select name="ballType" className="form-select" value={formData.ballType} onChange={handleInputChange}>
+                <option value="Tennis">Tennis Ball</option>
+                <option value="Leather">Leather Ball</option>
+                <option value="Cork">Cork Ball</option>
+                <option value="Rubber">Rubber Ball</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Match Format</label>
+              <select name="matchFormat" className="form-select" value={formData.matchFormat} onChange={handleInputChange}>
+                <option value="T10">T10</option>
+                <option value="T20">T20</option>
+                <option value="ODI">ODI (50 Overs)</option>
+                <option value="Custom">Custom Overs</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Overs Per Match</label>
+              <input
+                type="number"
+                name="oversPerMatch"
+                className="form-input"
+                min="1"
+                max="50"
+                value={formData.oversPerMatch}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Max Matches Per Team <span style={{fontSize:'0.75rem',color:'var(--text-muted)'}}>( 0 = Unlimited )</span></label>
+              <input
+                type="number"
+                name="maxMatchesPerTeam"
+                className="form-input"
+                min="0"
+                value={formData.maxMatchesPerTeam}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group col-2">
+              <label className="form-label">Venue / Ground Name</label>
+              <input
+                type="text"
+                name="venue"
+                className="form-input"
+                placeholder="e.g. Wankhede Stadium, Mumbai"
+                value={formData.venue}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            <div className="form-group col-2">
+              <label className="form-label" style={{display:'flex',alignItems:'center',gap:'12px',cursor:'pointer'}}>
+                <input
+                  type="checkbox"
+                  name="allowRepeatedOpponents"
+                  checked={!!formData.allowRepeatedOpponents}
+                  onChange={handleInputChange}
+                  style={{width:'18px',height:'18px',accentColor:'var(--gold)',cursor:'pointer'}}
+                />
+                <span>
+                  Allow Repeated Opponents
+                  <span style={{display:'block',fontSize:'0.75rem',color:'var(--text-muted)',fontWeight:400}}>Same two teams can be scheduled to play each other more than once</span>
+                </span>
+              </label>
+            </div>
 
             <div className="form-group col-2">
               <label className="form-label">Description</label>

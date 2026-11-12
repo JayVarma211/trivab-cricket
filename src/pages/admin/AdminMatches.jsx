@@ -321,6 +321,56 @@ export default function AdminMatches() {
         setError(conflictError);
         return;
       }
+
+      // ---- Tournament rule enforcement ----
+      if (formData.tournamentId && formData.type === 'Match' && formData.teamA && formData.teamB) {
+        const tourn = tournaments.find(function(t) { return t.id === formData.tournamentId; });
+        if (tourn) {
+          const tournMatches = matches.filter(function(m) {
+            return m.tournamentId === formData.tournamentId && m.type === 'Match' && m.teamA && m.teamB;
+          });
+
+          // 1) Repeated opponents check
+          if (!tourn.allowRepeatedOpponents) {
+            const alreadyPlayed = tournMatches.some(function(m) {
+              return (m.teamA === formData.teamA && m.teamB === formData.teamB) ||
+                     (m.teamA === formData.teamB && m.teamB === formData.teamA);
+            });
+            if (alreadyPlayed) {
+              setError(
+                'Repeated opponents are NOT allowed in "' + tourn.name + '". ' +
+                formData.teamA + ' vs ' + formData.teamB + ' has already been scheduled.'
+              );
+              return;
+            }
+          }
+
+          // 2) Max matches per team check
+          if (tourn.maxMatchesPerTeam && tourn.maxMatchesPerTeam > 0) {
+            var countA = tournMatches.filter(function(m) {
+              return m.teamA === formData.teamA || m.teamB === formData.teamA;
+            }).length;
+            var countB = tournMatches.filter(function(m) {
+              return m.teamA === formData.teamB || m.teamB === formData.teamB;
+            }).length;
+            if (countA >= tourn.maxMatchesPerTeam) {
+              setError(
+                '"' + formData.teamA + '" has already reached the max of ' +
+                tourn.maxMatchesPerTeam + ' match(es) in "' + tourn.name + '".'
+              );
+              return;
+            }
+            if (countB >= tourn.maxMatchesPerTeam) {
+              setError(
+                '"' + formData.teamB + '" has already reached the max of ' +
+                tourn.maxMatchesPerTeam + ' match(es) in "' + tourn.name + '".'
+              );
+              return;
+            }
+          }
+        }
+      }
+      // ---- End tournament rule enforcement ----
     }
 
     try {
