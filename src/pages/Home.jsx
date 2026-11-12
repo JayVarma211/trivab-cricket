@@ -11,6 +11,8 @@ const HERO_SLIDES = [
   { src: '/images/background2.jpg', alt: 'TRIVAB Sports live cricket action' },
   { src: '/images/background3.jpg', alt: 'TRIVAB Sports professional match day' },
   { src: '/images/background4.jpg', alt: 'TRIVAB Sports event atmosphere' },
+  { src: '/images/background5.jpeg', alt: 'TRIVAB Sports match day moments' },
+  { src: '/images/background6.jpeg', alt: 'TRIVAB Sports tournament highlights' },
 ];
 
 const TICKER_LOGOS = [
