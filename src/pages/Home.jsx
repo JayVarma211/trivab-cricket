@@ -7,10 +7,10 @@ import SEO from '../components/common/SEO';
 import './Home.css';
 
 const HERO_SLIDES = [
-  { src: '/images/background1.png', alt: 'TRIVAB Sports cricket tournament' },
-  { src: '/images/background2.png', alt: 'TRIVAB Sports live cricket action' },
-  { src: '/images/background3.png', alt: 'TRIVAB Sports professional match day' },
-  { src: '/images/background4.png', alt: 'TRIVAB Sports event atmosphere' },
+  { src: '/images/background1.jpg', alt: 'TRIVAB Sports cricket tournament' },
+  { src: '/images/background2.jpg', alt: 'TRIVAB Sports live cricket action' },
+  { src: '/images/background3.jpg', alt: 'TRIVAB Sports professional match day' },
+  { src: '/images/background4.jpg', alt: 'TRIVAB Sports event atmosphere' },
 ];
 
 const TICKER_LOGOS = [
